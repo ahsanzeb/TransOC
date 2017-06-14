@@ -10,10 +10,10 @@
 NotebookFileLineBreakTest
 NotebookFileLineBreakTest
 NotebookDataPosition[       158,          7]
-NotebookDataLength[    133832,       3307]
-NotebookOptionsPosition[    133086,       3281]
-NotebookOutlinePosition[    133497,       3299]
-CellTagsIndexPosition[    133454,       3296]
+NotebookDataLength[    135979,       3327]
+NotebookOptionsPosition[    135232,       3301]
+NotebookOutlinePosition[    135644,       3319]
+CellTagsIndexPosition[    135601,       3316]
 WindowFrame->Normal*)
 
 (* Beginning of Notebook Content *)
@@ -346,6 +346,16 @@ Cell[BoxData[
    FontSize->18], 
   StyleBox["\[IndentingNewLine]",
    FontSize->18], 
+  StyleBox["\[IndentingNewLine]",
+   FontSize->18], 
+  RowBox[{"(*", " ", 
+   RowBox[{
+    RowBox[{"D", "&"}], "Phi", " ", "sites", " ", "turning", " ", "to", " ", 
+    "active", " ", "go", " ", "to", " ", "the", " ", "end", " ", "of", " ", 
+    "active", " ", 
+    RowBox[{"list", "."}]}], "*)"}], 
+  StyleBox["\[IndentingNewLine]",
+   FontSize->18], 
   RowBox[{
    RowBox[{
     RowBox[{
@@ -592,7 +602,8 @@ Cell[BoxData[
     ";"}], "\[IndentingNewLine]"}]}]], "Input",
  CellChangeTimes->{{3.704714608463573*^9, 3.70471460949757*^9}, {
   3.70471481279556*^9, 3.704714971927765*^9}, {3.704715004388317*^9, 
-  3.704715105774981*^9}, {3.7047151717045116`*^9, 3.7047151728539743`*^9}}],
+  3.704715105774981*^9}, {3.7047151717045116`*^9, 3.7047151728539743`*^9}, {
+  3.7064384100016823`*^9, 3.706438425112146*^9}}],
 
 Cell[BoxData[
  RowBox[{"\[IndentingNewLine]", 
@@ -606,14 +617,27 @@ Cell[BoxData[
       RowBox[{
        RowBox[{"Phi", "'"}], " ", "+", 
        RowBox[{"A", "'"}]}]}]}], " ", "*)"}],
-   FontSize->36], "\[IndentingNewLine]", 
+   FontSize->36], 
   StyleBox["\[IndentingNewLine]",
    FontSize->36], 
+  StyleBox[
+   RowBox[{
+    StyleBox[
+     RowBox[{"(", "*"}]], " ", 
+    RowBox[{
+    "active", " ", "site", " ", "number", " ", "n", " ", "interacting", " ", 
+     "with", " ", 
+     RowBox[{"D", "/", "Phi"}]}], " ", 
+    StyleBox[
+     RowBox[{"*", ")"}]]}],
+   FontSize->36], 
+  StyleBox["\[IndentingNewLine]",
+   FontSize->36], "\[IndentingNewLine]", 
   RowBox[{
    RowBox[{
     RowBox[{
      RowBox[{"DiagHt4DA", "[", 
-      RowBox[{"N_", ",", "k_", ",", "th_", ",", "tl_"}], "]"}], ":=", 
+      RowBox[{"N_", ",", "k_", ",", "n_", ",", "th_", ",", "tl_"}], "]"}], ":=", 
      RowBox[{"Module", "[", 
       RowBox[{
        RowBox[{"{", 
@@ -632,7 +656,7 @@ Cell[BoxData[
              RowBox[{
               RowBox[{"listi", "[", 
                RowBox[{"[", 
-                RowBox[{"i", ",", "1"}], "]"}], "]"}], "\[Equal]", "1"}], ",", 
+                RowBox[{"i", ",", "n"}], "]"}], "]"}], "\[Equal]", "1"}], ",", 
              RowBox[{"AppendTo", "[", 
               RowBox[{"tab", ",", "th"}], "]"}], ",", 
              RowBox[{"AppendTo", "[", 
@@ -646,7 +670,7 @@ Cell[BoxData[
    RowBox[{
     RowBox[{
      RowBox[{"mkHtDA", "[", 
-      RowBox[{"n_", ",", "m_", ",", "th_", ",", "tl_"}], "]"}], ":=", 
+      RowBox[{"N_", ",", "m_", ",", "n_", ",", "th_", ",", "tl_"}], "]"}], ":=", 
      RowBox[{"Module", "[", 
       RowBox[{
        RowBox[{"{", "HtdiagDA", "}"}], ",", "\[IndentingNewLine]", 
@@ -665,8 +689,8 @@ Cell[BoxData[
            RowBox[{"AppendTo", "[", 
             RowBox[{"HtdiagDA", ",", 
              RowBox[{"DiagHt4DA", "[", 
-              RowBox[{"n", ",", "k", ",", "th", ",", "tl"}], "]"}]}], "]"}], 
-           ";"}], "\[IndentingNewLine]", ",", 
+              RowBox[{"N", ",", "k", ",", "n", ",", "th", ",", "tl"}], 
+              "]"}]}], "]"}], ";"}], "\[IndentingNewLine]", ",", 
           RowBox[{"{", 
            RowBox[{"k", ",", "0", ",", "m"}], "}"}]}], "]"}], ";", 
         "\[IndentingNewLine]", 
@@ -678,7 +702,7 @@ Cell[BoxData[
    RowBox[{
     RowBox[{
      RowBox[{"mkHtPhiA", "[", 
-      RowBox[{"n_", ",", "m_", ",", "th_", ",", "tl_"}], "]"}], ":=", 
+      RowBox[{"N_", ",", "m_", ",", "n_", ",", "th_", ",", "tl_"}], "]"}], ":=", 
      RowBox[{"Module", "[", 
       RowBox[{
        RowBox[{"{", "HtdiagPhiA", "}"}], ",", "\[IndentingNewLine]", 
@@ -697,8 +721,8 @@ Cell[BoxData[
            RowBox[{"AppendTo", "[", 
             RowBox[{"HtdiagPhiA", ",", 
              RowBox[{"DiagHt4DA", "[", 
-              RowBox[{"n", ",", "k", ",", "tl", ",", "th"}], "]"}]}], "]"}], 
-           ";"}], " ", "\[IndentingNewLine]", ",", 
+              RowBox[{"N", ",", "k", ",", "n", ",", "tl", ",", "th"}], 
+              "]"}]}], "]"}], ";"}], " ", "\[IndentingNewLine]", ",", 
           RowBox[{"{", 
            RowBox[{"k", ",", "0", ",", "m"}], "}"}]}], "]"}], ";", 
         "\[IndentingNewLine]", 
@@ -710,7 +734,9 @@ Cell[BoxData[
  CellChangeTimes->{{3.704714605692195*^9, 3.704714606511086*^9}, 
    3.704715189590897*^9, {3.704715266480604*^9, 3.70471530918913*^9}, {
    3.704715378077791*^9, 3.7047155241027718`*^9}, {3.7047155592067633`*^9, 
-   3.704715585667077*^9}, {3.7047156328381023`*^9, 3.704715634971611*^9}}],
+   3.704715585667077*^9}, {3.7047156328381023`*^9, 3.704715634971611*^9}, {
+   3.706437809745233*^9, 3.706437810043591*^9}, {3.706437966350472*^9, 
+   3.706437982855814*^9}, {3.7064380413821917`*^9, 3.706438148162887*^9}}],
 
 Cell[BoxData[
  RowBox[{
@@ -728,9 +754,7 @@ Cell[BoxData[
   StyleBox["\[IndentingNewLine]",
    FontSize->18], 
   StyleBox[
-   RowBox[{
-    StyleBox[
-     RowBox[{"(", "*"}]], " ", 
+   RowBox[{"(*", " ", 
     RowBox[{"Jh", ",", " ", 
      RowBox[{
       RowBox[{
@@ -742,8 +766,7 @@ Cell[BoxData[
        "&"}], " ", "Jh", "\[IndentingNewLine]", "So"}], ",", " ", 
      RowBox[{
      "just", " ", "deal", " ", "with", " ", "them", " ", "seperately"}]}], 
-    StyleBox[
-     RowBox[{"*", ")"}]]}],
+    "*)"}],
    FontSize->18], 
   StyleBox["\[IndentingNewLine]",
    FontSize->18], 
@@ -751,14 +774,8 @@ Cell[BoxData[
    FontSize->24], 
   StyleBox["\[IndentingNewLine]",
    FontSize->14], 
-  RowBox[{
-   StyleBox[
-    StyleBox[
-     RowBox[{"(", "*"}]],
-    FontSize->14], 
-   StyleBox["\[IndentingNewLine]",
-    FontSize->14], 
-   StyleBox[
+  StyleBox[
+   RowBox[{"(*", "\[IndentingNewLine]", 
     RowBox[{
      RowBox[{
       RowBox[{"Jl", ":", " ", 
@@ -779,18 +796,18 @@ Cell[BoxData[
        RowBox[{"A", "[", 
         RowBox[{
          RowBox[{"N", "+", "1"}], ",", 
-         RowBox[{"m", "+", "1"}]}], "]"}]}]}], ";"}],
-    FontSize->14], 
-   StyleBox["\[IndentingNewLine]",
-    FontSize->14], 
-   StyleBox[
-    RowBox[{
-     StyleBox["*",
-      FontSize->14], 
-     StyleBox[")",
-      FontSize->14]}]]}], 
+         RowBox[{"m", "+", "1"}]}], "]"}]}]}], ";"}], "\[IndentingNewLine]", 
+    StyleBox[
+     RowBox[{"*", ")"}]]}],
+   FontSize->14], 
   StyleBox["\[IndentingNewLine]",
    FontSize->14], 
+  RowBox[{"(*", " ", 
+   RowBox[{
+    RowBox[{"D", "/", "Phi"}], " ", "site", " ", "turning", " ", "to", " ", 
+    "active", " ", "goes", " ", "to", " ", "the", " ", "end", " ", "of", " ", 
+    "active", " ", 
+    RowBox[{"list", "."}]}], "*)"}], "\[IndentingNewLine]", 
   StyleBox["\[IndentingNewLine]",
    FontSize->14], 
   RowBox[{
@@ -907,63 +924,18 @@ Cell[BoxData[
    StyleBox["\[IndentingNewLine]",
     FontSize->24], 
    StyleBox["\[IndentingNewLine]",
-    FontSize->24], 
-   RowBox[{
-    StyleBox[
-     StyleBox[
-      RowBox[{"(", "*"}]],
-     FontSize->14], 
-    StyleBox[" ",
-     FontSize->14], 
-    RowBox[{
-     RowBox[{"mapCA", ":", 
-      StyleBox[" ",
-       FontSize->14], 
-      StyleBox[
-       RowBox[{
-       "instead", " ", "of", " ", "remove", " ", "a", " ", "site", " ", 
-        "from", " ", 
-        RowBox[{"(", 
-         RowBox[{"N", ",", "k"}], ")"}]}],
-       FontSize->14]}], 
-     StyleBox[",",
-      FontSize->14], 
-     StyleBox[" ",
-      FontSize->14], 
-     StyleBox[
-      RowBox[{
-       RowBox[{"add", " ", "a", " ", "site", " ", "in", " ", 
-        RowBox[{"(", 
-         RowBox[{
-          RowBox[{"N", "-", "1"}], ",", 
-          RowBox[{"k", "|", 
-           RowBox[{"k", "-", "1"}]}]}], ")"}]}], ";", "\[IndentingNewLine]", 
-       RowBox[{
-       "Output", " ", "lists", " ", "correspond", " ", "to", " ", "initial", 
-        " ", "state", " ", "indeces", " ", "for", " ", "final", " ", 
-        "states"}]}],
-      FontSize->14]}], 
-    StyleBox[" ",
-     FontSize->14], 
-    StyleBox[
-     RowBox[{
-      StyleBox["*",
-       FontSize->14], 
-      StyleBox[")",
-       FontSize->14]}]]}], 
-   StyleBox["\[IndentingNewLine]",
-    FontSize->24], 
+    FontSize->24], "\[IndentingNewLine]", 
    RowBox[{
     RowBox[{
      RowBox[{"mapCA", "[", 
-      RowBox[{"N_", ",", "k_"}], "]"}], ":=", 
+      RowBox[{"N_", ",", "k_", ",", "n_"}], "]"}], ":=", 
      RowBox[{"Module", "[", 
       RowBox[{
        RowBox[{"{", 
         RowBox[{
         "x1", ",", "x2", ",", "listi1", ",", "listi2", ",", "tab1", ",", 
-         "tab2", ",", "set1", ",", "set2", ",", "listf"}], "}"}], ",", 
-       "\[IndentingNewLine]", 
+         "tab2", ",", "set1", ",", "set2", ",", "listf", ",", "set11"}], 
+        "}"}], ",", "\[IndentingNewLine]", 
        RowBox[{
         RowBox[{"tab1", "=", 
          RowBox[{"{", "}"}]}], ";", 
@@ -999,15 +971,39 @@ Cell[BoxData[
                RowBox[{"listi1", "[", 
                 RowBox[{"[", "i", "]"}], "]"}]}], ";", "\[IndentingNewLine]", 
               
+              RowBox[{"(*", " ", 
+               RowBox[{
+                RowBox[{
+                "add", " ", "an", " ", "up", " ", "site", " ", "at", " ", 
+                 "nth", " ", "position"}], ";", " ", 
+                RowBox[{
+                 RowBox[{"shift", " ", "n"}], "+", " ", 
+                 RowBox[{
+                 "labels", " ", "by", " ", "1", " ", "as", " ", "they", " ", 
+                  "should", " ", "be"}]}]}], " ", "*)"}], 
+              "\[IndentingNewLine]", 
+              RowBox[{"set11", "=", 
+               RowBox[{"set1", "/.", 
+                RowBox[{"{", 
+                 RowBox[{
+                  RowBox[{"q_Integer", "/;", 
+                   RowBox[{"q", "\[GreaterEqual]", " ", "n"}]}], "\[Rule]", 
+                  RowBox[{"q", "+", "1"}]}], "}"}]}]}], ";", 
+              RowBox[{"(*", " ", 
+               RowBox[{
+                RowBox[{
+                 RowBox[{"shift", " ", "by"}], " ", "+", 
+                 RowBox[{"1", " ", "all", " ", "labels"}]}], " ", 
+                "\[GreaterEqual]", " ", 
+                RowBox[{
+                "n", " ", "to", " ", "make", " ", "room", " ", "for", " ", 
+                 "n"}]}], "*)"}], "\[IndentingNewLine]", 
               RowBox[{"listf", "=", 
                RowBox[{"Sort", "[", 
                 RowBox[{"Join", "[", 
-                 RowBox[{"set1", ",", 
-                  RowBox[{"{", "N", "}"}]}], "]"}], "]"}]}], ";", 
-              RowBox[{"(*", " ", 
-               RowBox[{
-               "add", " ", "an", " ", "up", " ", "site", " ", "at", " ", 
-                "last", " ", "position"}], " ", "*)"}], "\[IndentingNewLine]", 
+                 RowBox[{"set11", ",", 
+                  RowBox[{"{", "n", "}"}]}], "]"}], "]"}]}], ";", 
+              "\[IndentingNewLine]", 
               RowBox[{"x1", "=", 
                RowBox[{
                 RowBox[{"c", "[", 
@@ -1035,7 +1031,7 @@ Cell[BoxData[
               RowBox[{"i", ",", "1", ",", 
                RowBox[{"Length", "[", "listi1", "]"}]}], "}"}]}], "]"}], 
            ";"}]}], "\[IndentingNewLine]", "]"}], ";", "\[IndentingNewLine]", 
-        "\[IndentingNewLine]", 
+        
         RowBox[{"(*", " ", 
          RowBox[{
           RowBox[{"add", " ", "a", " ", "down", " ", 
@@ -1053,6 +1049,22 @@ Cell[BoxData[
            RowBox[{"set2", "=", 
             RowBox[{"listi2", "[", 
              RowBox[{"[", "i", "]"}], "]"}]}], ";", "\[IndentingNewLine]", 
+           RowBox[{"set11", "=", 
+            RowBox[{"set2", "/.", 
+             RowBox[{"{", 
+              RowBox[{
+               RowBox[{"q_Integer", "/;", 
+                RowBox[{"q", "\[GreaterEqual]", " ", "n"}]}], "\[Rule]", 
+               RowBox[{"q", "+", "1"}]}], "}"}]}]}], ";", 
+           RowBox[{"(*", " ", 
+            RowBox[{
+             RowBox[{
+              RowBox[{"shift", " ", "by"}], " ", "+", 
+              RowBox[{"1", " ", "all", " ", "labels"}]}], " ", 
+             "\[GreaterEqual]", " ", 
+             RowBox[{
+             "n", " ", "to", " ", "make", " ", "room", " ", "for", " ", 
+              "n"}]}], "*)"}], "\[IndentingNewLine]", 
            RowBox[{"x2", "=", 
             RowBox[{
              RowBox[{"c", "[", 
@@ -1082,9 +1094,7 @@ Cell[BoxData[
         "\[IndentingNewLine]", 
         RowBox[{"{", 
          RowBox[{"tab1", ",", "tab2"}], "}"}]}]}], "]"}]}], ";"}], 
-   StyleBox["\[IndentingNewLine]",
-    FontSize->24], "\[IndentingNewLine]", "\[IndentingNewLine]", 
-   "\[IndentingNewLine]", 
+   "\[IndentingNewLine]", "\[IndentingNewLine]", "\[IndentingNewLine]", 
    RowBox[{"(*", " ", 
     RowBox[{
      RowBox[{"Seperate", " ", "blocks", " ", "of", " ", "Jh"}], ",", 
@@ -1275,9 +1285,9 @@ Cell[BoxData[
         RowBox[{"(*", " ", "Jl", " ", "*)"}], "\[IndentingNewLine]", 
         RowBox[{"{", 
          RowBox[{"Htsph", ",", "Htspl"}], "}"}]}]}], "\[IndentingNewLine]", 
-      "]"}]}], ";"}], "\[IndentingNewLine]", 
+      "]"}]}], ";"}], "\[IndentingNewLine]", "\[IndentingNewLine]", 
    StyleBox["\[IndentingNewLine]",
-    FontSize->24], "\[IndentingNewLine]", 
+    FontSize->24], 
    RowBox[{"(*", " ", "\[IndentingNewLine]", 
     RowBox[{
      RowBox[{
@@ -1337,7 +1347,7 @@ Cell[BoxData[
    RowBox[{
     RowBox[{
      RowBox[{"makeHtCA", "[", 
-      RowBox[{"N_", ",", "m_", ",", "Jh_", ",", "Jl_"}], "]"}], ":=", 
+      RowBox[{"N_", ",", "m_", ",", "n_", ",", "Jh_", ",", "Jl_"}], "]"}], ":=", 
      RowBox[{"Module", "[", "\[IndentingNewLine]", 
       RowBox[{
        RowBox[{"{", 
@@ -1423,7 +1433,8 @@ Cell[BoxData[
             RowBox[{"{", 
              RowBox[{"tab1", ",", "tab2"}], "}"}], "=", 
             RowBox[{"mapCA", "[", 
-             RowBox[{"N", ",", "k"}], "]"}]}], ";", "\[IndentingNewLine]", 
+             RowBox[{"N", ",", "k", ",", "n"}], "]"}]}], ";", 
+           "\[IndentingNewLine]", 
            RowBox[{"ind01", "=", 
             RowBox[{
              RowBox[{"{", 
@@ -1569,7 +1580,16 @@ Cell[BoxData[
    3.704734398846651*^9}, {3.7047344321760273`*^9, 3.704734440787003*^9}, {
    3.704734522332786*^9, 3.704734529040741*^9}, 3.7047345637679567`*^9, {
    3.704734825475895*^9, 3.704734865649213*^9}, {3.704734957066861*^9, 
-   3.704734974305592*^9}}],
+   3.704734974305592*^9}, {3.706438210546567*^9, 3.70643821123533*^9}, {
+   3.706438274597365*^9, 3.706438274971569*^9}, {3.7064383336786222`*^9, 
+   3.706438385459832*^9}, {3.706438441165269*^9, 3.7064384523734694`*^9}, {
+   3.7064385405640917`*^9, 3.706438541378409*^9}, {3.706439278209345*^9, 
+   3.706439388369965*^9}, {3.7064395376036243`*^9, 3.706439682416197*^9}, {
+   3.7064410229414*^9, 3.706441029828095*^9}, {3.706441365098935*^9, 
+   3.706441393002801*^9}, {3.706441490904954*^9, 3.706441623310816*^9}, {
+   3.7064416568777857`*^9, 3.706441681874051*^9}, {3.706441745378821*^9, 
+   3.706441753343813*^9}, {3.706442000271967*^9, 3.706442021422934*^9}, {
+   3.706442090656695*^9, 3.7064421053753*^9}}],
 
 Cell[BoxData[{
  RowBox[{
@@ -3280,7 +3300,7 @@ Cell[BoxData[""], "Input",
   3.706007283482814*^9}}]
 },
 WindowSize->{1091, 803},
-WindowMargins->{{Automatic, 0}, {Automatic, 0}},
+WindowMargins->{{Automatic, 52}, {Automatic, 0}},
 PrintingCopies->1,
 PrintingPageRange->{1, Automatic},
 FrontEndVersion->"10.4 for Mac OS X x86 (32-bit, 64-bit Kernel) (February 25, \
@@ -3300,15 +3320,15 @@ CellTagsIndex->{}
 Notebook[{
 Cell[558, 20, 340, 9, 126, "Input"],
 Cell[901, 31, 10760, 269, 879, "Input"],
-Cell[11664, 302, 11323, 292, 833, "Input"],
-Cell[22990, 596, 4647, 116, 516, "Input"],
-Cell[27640, 714, 33977, 857, 2019, "Input"],
-Cell[61620, 1573, 8882, 224, 828, "Input"],
-Cell[70505, 1799, 3458, 112, 302, "Input"],
-Cell[73966, 1913, 10924, 255, 743, "Input"],
-Cell[84893, 2170, 39510, 869, 2962, "Input"],
-Cell[124406, 3041, 7901, 225, 661, "Input"],
-Cell[132310, 3268, 772, 11, 28, "Input"]
+Cell[11664, 302, 11727, 303, 867, "Input"],
+Cell[23394, 607, 5188, 131, 597, "Input"],
+Cell[28585, 740, 35178, 851, 2035, "Input"],
+Cell[63766, 1593, 8882, 224, 828, "Input"],
+Cell[72651, 1819, 3458, 112, 302, "Input"],
+Cell[76112, 1933, 10924, 255, 743, "Input"],
+Cell[87039, 2190, 39510, 869, 2962, "Input"],
+Cell[126552, 3061, 7901, 225, 661, "Input"],
+Cell[134456, 3288, 772, 11, 28, "Input"]
 }
 ]
 *)
