@@ -10,10 +10,10 @@
 NotebookFileLineBreakTest
 NotebookFileLineBreakTest
 NotebookDataPosition[       158,          7]
-NotebookDataLength[    145969,       3527]
-NotebookOptionsPosition[    145182,       3500]
-NotebookOutlinePosition[    145592,       3518]
-CellTagsIndexPosition[    145549,       3515]
+NotebookDataLength[    147902,       3576]
+NotebookOptionsPosition[    147113,       3549]
+NotebookOutlinePosition[    147523,       3567]
+CellTagsIndexPosition[    147480,       3564]
 WindowFrame->Normal*)
 
 (* Beginning of Notebook Content *)
@@ -2178,12 +2178,58 @@ Cell[BoxData[
    3.706464598777768*^9, 3.706464728511417*^9}],
 
 Cell[BoxData[
- RowBox[{"\[IndentingNewLine]", "\[IndentingNewLine]", "\[IndentingNewLine]", 
-  "\[IndentingNewLine]", "\[IndentingNewLine]", "\[IndentingNewLine]", 
-  "\[IndentingNewLine]", "\[IndentingNewLine]", "\[IndentingNewLine]", 
-  "\[IndentingNewLine]", "\[IndentingNewLine]", 
-  "\[IndentingNewLine]"}]], "Input",
- CellChangeTimes->{{3.706442387793564*^9, 3.706442389499921*^9}}],
+ RowBox[{"\[IndentingNewLine]", "\[IndentingNewLine]", 
+  RowBox[{
+   RowBox[{
+    RowBox[{"SecRates", "[", 
+     RowBox[{"Elevels_", ",", "rate_"}], "]"}], ":=", 
+    RowBox[{"Module", "[", 
+     RowBox[{
+      RowBox[{"{", 
+       RowBox[{
+       "i1", ",", "i2", ",", "Rlist", ",", "x", ",", "deg", ",", "nlevels", 
+        ",", "r"}], "}"}], ",", "\[IndentingNewLine]", 
+      RowBox[{
+       RowBox[{"i1", "=", "0"}], ";", 
+       RowBox[{"i2", "=", "0"}], ";", 
+       RowBox[{"x", "=", "0"}], ";", 
+       RowBox[{"Rlist", "=", 
+        RowBox[{"{", "0", "}"}]}], ";", 
+       RowBox[{"deg", "=", 
+        RowBox[{"{", "}"}]}], ";", "\[IndentingNewLine]", 
+       RowBox[{"nlevels", "=", 
+        RowBox[{"Length", "[", "Elevels", "]"}]}], ";", "\[IndentingNewLine]", 
+       RowBox[{"Do", "[", "\[IndentingNewLine]", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"i2", "+=", 
+           RowBox[{"Elevels", "[", 
+            RowBox[{"[", "i", "]"}], "]"}]}], ";", "\[IndentingNewLine]", 
+          RowBox[{"AppendTo", "[", 
+           RowBox[{"deg", ",", 
+            RowBox[{"{", 
+             RowBox[{"i1", ",", "i2"}], "}"}]}], "]"}], ";", 
+          "\[IndentingNewLine]", 
+          RowBox[{"r", "=", 
+           RowBox[{"rate", "[", 
+            RowBox[{"[", 
+             RowBox[{
+              RowBox[{"i1", "+", "1"}], ";;", "i2"}], "]"}], "]"}]}], ";", 
+          "\[IndentingNewLine]", 
+          RowBox[{"x", "+=", 
+           RowBox[{
+            RowBox[{"Norm", "[", "r", "]"}], "^", "2"}]}], ";", 
+          RowBox[{"AppendTo", "[", 
+           RowBox[{"Rlist", ",", "x"}], "]"}], ";", "\[IndentingNewLine]", 
+          RowBox[{"i1", "=", "i2"}], ";"}], "\[IndentingNewLine]", ",", 
+         RowBox[{"{", 
+          RowBox[{"i", ",", "1", ",", "nlevels"}], "}"}]}], "]"}], ";", 
+       "\[IndentingNewLine]", 
+       RowBox[{"{", 
+        RowBox[{"Rlist", ",", "deg"}], "}"}]}]}], "]"}]}], 
+   "\[IndentingNewLine]"}]}]], "Input",
+ CellChangeTimes->{{3.706442387793564*^9, 3.706442389499921*^9}, {
+  3.706597405116604*^9, 3.706597407575985*^9}}],
 
 Cell[BoxData[
  RowBox[{
@@ -2792,7 +2838,8 @@ Cell[BoxData[
                 RowBox[{"Nstates", "[", 
                  RowBox[{"[", "10", "]"}], "]"}]}], ";"}]}], 
              "\[IndentingNewLine]", "]"}], ";", "\[IndentingNewLine]", 
-            "\[IndentingNewLine]", 
+            "\[IndentingNewLine]", "\[IndentingNewLine]", 
+            "\[IndentingNewLine]", "\[IndentingNewLine]", 
             RowBox[{
              RowBox[{"Nstates", "[", 
               RowBox[{"[", "13", "]"}], "]"}], "=", " ", 
@@ -3256,7 +3303,9 @@ Cell[BoxData[
    3.706534235938246*^9}, {3.706536583984984*^9, 3.7065366821358423`*^9}, {
    3.706537365015826*^9, 3.706537452204118*^9}, {3.7065383010170593`*^9, 
    3.706538379002997*^9}, {3.706545865648337*^9, 3.7065458725733232`*^9}, {
-   3.706545910914023*^9, 3.706546019468893*^9}}],
+   3.706545910914023*^9, 3.706546019468893*^9}, {3.706595810812895*^9, 
+   3.706595817435524*^9}, {3.706595865963649*^9, 3.706595878611367*^9}, {
+   3.706595923932712*^9, 3.7065959681151447`*^9}}],
 
 Cell[BoxData[
  RowBox[{
@@ -3525,10 +3574,10 @@ Cell[28585, 740, 35180, 852, 2154, "Input"],
 Cell[63768, 1594, 8882, 224, 828, "Input"],
 Cell[72653, 1820, 3458, 112, 302, "Input"],
 Cell[76114, 1934, 10717, 243, 726, "Input"],
-Cell[86834, 2179, 388, 6, 233, "Input"],
-Cell[87225, 2187, 49274, 1071, 4264, "Input"],
-Cell[136502, 3260, 7901, 225, 695, "Input"],
-Cell[144406, 3487, 772, 11, 28, "Input"]
+Cell[86834, 2179, 2089, 52, 250, "Input"],
+Cell[88926, 2233, 49504, 1074, 4315, "Input"],
+Cell[138433, 3309, 7901, 225, 695, "Input"],
+Cell[146337, 3536, 772, 11, 28, "Input"]
 }
 ]
 *)
