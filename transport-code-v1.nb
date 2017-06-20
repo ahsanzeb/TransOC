@@ -10,10 +10,10 @@
 NotebookFileLineBreakTest
 NotebookFileLineBreakTest
 NotebookDataPosition[       158,          7]
-NotebookDataLength[    289860,       6671]
-NotebookOptionsPosition[    288960,       6640]
-NotebookOutlinePosition[    289401,       6659]
-CellTagsIndexPosition[    289358,       6656]
+NotebookDataLength[    290032,       6674]
+NotebookOptionsPosition[    289132,       6643]
+NotebookOutlinePosition[    289573,       6662]
+CellTagsIndexPosition[    289530,       6659]
 WindowFrame->Normal*)
 
 (* Beginning of Notebook Content *)
@@ -63,7 +63,7 @@ Cell[BoxData[
    3.706951445418252*^9, 3.7069527057842627`*^9, 3.706953756557053*^9, 
    3.706953788628191*^9, 3.70695461893264*^9, 3.7069547519708233`*^9, 
    3.706954911259359*^9, 3.70695501135666*^9, 3.706955118082733*^9, 
-   3.706955164662446*^9, 3.70695531376714*^9}]
+   3.706955164662446*^9, 3.70695531376714*^9, 3.7069554035965652`*^9}]
 }, Open  ]],
 
 Cell[BoxData[{
@@ -3910,7 +3910,12 @@ Cell[BoxData[
          "\[IndentingNewLine]", 
          RowBox[{"If", "[", 
           RowBox[{
-           RowBox[{"m", ">", "0"}], ",", "\[IndentingNewLine]", 
+           RowBox[{
+            RowBox[{"(", 
+             RowBox[{
+              RowBox[{"kappa", ">", "0"}], "||", 
+              RowBox[{"gamma", ">", "0"}]}], ")"}], "&&", 
+            RowBox[{"m", ">", "0"}]}], ",", "\[IndentingNewLine]", 
            RowBox[{
             RowBox[{
              RowBox[{"{", 
@@ -3920,15 +3925,12 @@ Cell[BoxData[
                RowBox[{"m", "-", "1"}], ",", "gg"}], "]"}]}], ";", 
             "\[IndentingNewLine]", 
             RowBox[{"(*", " ", "kappa", " ", "*)"}], "\[IndentingNewLine]", 
-            RowBox[{"RkappaM", " ", "=", " ", 
+            RowBox[{"Rkappa", "=", 
              RowBox[{"kappa", "*", 
-              RowBox[{
+              RowBox[{"psi", ".", 
                RowBox[{"HtKappa", "[", 
                 RowBox[{"NN", ",", "m"}], "]"}], ".", 
                RowBox[{"Transpose", "[", "UNmm1", "]"}]}]}]}], ";", 
-            "\[IndentingNewLine]", 
-            RowBox[{"Rkappa", "=", 
-             RowBox[{"psi", ".", "RkappaM"}]}], " ", ";", 
             "\[IndentingNewLine]", 
             RowBox[{"r13", "=", 
              RowBox[{
@@ -6595,7 +6597,8 @@ Cell[BoxData[
    3.70695487074964*^9, 3.706954907754259*^9}, {3.706954999742259*^9, 
    3.706955003652726*^9}, {3.706955101416648*^9, 3.706955110957039*^9}, {
    3.706955153223144*^9, 3.706955159648882*^9}, {3.7069552238255453`*^9, 
-   3.706955399112224*^9}}],
+   3.706955399112224*^9}, {3.706965156466342*^9, 3.7069651941369057`*^9}, {
+   3.706965278203692*^9, 3.706965313836733*^9}}],
 
 Cell[BoxData[{
  RowBox[{
@@ -6660,19 +6663,19 @@ CellTagsIndex->{}
 Notebook[{
 Cell[CellGroupData[{
 Cell[580, 22, 340, 9, 298, "Input"],
-Cell[923, 33, 1967, 32, 36, "Output"]
+Cell[923, 33, 1991, 32, 36, "Output"]
 }, Open  ]],
-Cell[2905, 68, 12680, 310, 1275, "Input"],
-Cell[15588, 380, 28388, 696, 2537, "Input"],
-Cell[43979, 1078, 7252, 166, 970, "Input"],
-Cell[51234, 1246, 37692, 902, 2869, "Input"],
-Cell[88929, 2150, 8969, 225, 1023, "Input"],
-Cell[97901, 2377, 3458, 112, 374, "Input"],
-Cell[101362, 2491, 10717, 243, 897, "Input"],
-Cell[112082, 2736, 2089, 52, 309, "Input"],
-Cell[114174, 2790, 173292, 3807, 18116, "Input"],
-Cell[287469, 6599, 1254, 31, 78, "Input"],
-Cell[288726, 6632, 230, 6, 36, "Input"]
+Cell[2929, 68, 12680, 310, 1275, "Input"],
+Cell[15612, 380, 28388, 696, 2537, "Input"],
+Cell[44003, 1078, 7252, 166, 970, "Input"],
+Cell[51258, 1246, 37692, 902, 2869, "Input"],
+Cell[88953, 2150, 8969, 225, 1023, "Input"],
+Cell[97925, 2377, 3458, 112, 374, "Input"],
+Cell[101386, 2491, 10717, 243, 897, "Input"],
+Cell[112106, 2736, 2089, 52, 309, "Input"],
+Cell[114198, 2790, 173440, 3810, 18095, "Input"],
+Cell[287641, 6602, 1254, 31, 78, "Input"],
+Cell[288898, 6635, 230, 6, 36, "Input"]
 }
 ]
 *)
