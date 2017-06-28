@@ -10,10 +10,10 @@
 NotebookFileLineBreakTest
 NotebookFileLineBreakTest
 NotebookDataPosition[       158,          7]
-NotebookDataLength[    295973,       6827]
-NotebookOptionsPosition[    295060,       6796]
-NotebookOutlinePosition[    295501,       6815]
-CellTagsIndexPosition[    295458,       6812]
+NotebookDataLength[    297102,       6857]
+NotebookOptionsPosition[    296185,       6826]
+NotebookOutlinePosition[    296629,       6845]
+CellTagsIndexPosition[    296586,       6842]
 WindowFrame->Normal*)
 
 (* Beginning of Notebook Content *)
@@ -3313,7 +3313,67 @@ Cell[BoxData[
            "\[IndentingNewLine]", " ", 
            RowBox[{"Abort", "[", "]"}], ";"}]}], "\[IndentingNewLine]", "]"}],
          ";", "\[IndentingNewLine]", "whichsec"}]}], "\[IndentingNewLine]", 
-      "]"}]}], ";"}], "\[IndentingNewLine]", 
+      "]"}]}], ";"}], "\[IndentingNewLine]", "\[IndentingNewLine]", 
+   "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{
+     RowBox[{"WhichSite", "[", "rlist_", "]"}], ":=", 
+     RowBox[{"Module", "[", 
+      RowBox[{
+       RowBox[{"{", 
+        RowBox[{"lrz", ",", "Rlist", ",", "eta", ",", "whichsite"}], "}"}], 
+       ",", "\[IndentingNewLine]", 
+       RowBox[{
+        RowBox[{"lrz", "=", 
+         RowBox[{"Length", "[", "rlist", "]"}]}], ";", "\[IndentingNewLine]", 
+        
+        RowBox[{"Rlist", "=", 
+         RowBox[{"Insert", "[", 
+          RowBox[{"rlist", ",", "0", ",", "1"}], "]"}]}], ";", 
+        "\[IndentingNewLine]", 
+        RowBox[{"eta", "=", 
+         RowBox[{"RandomReal", "[", 
+          RowBox[{"{", 
+           RowBox[{"0", ",", 
+            RowBox[{"Rlist", "[", 
+             RowBox[{"[", 
+              RowBox[{"-", "1"}], "]"}], "]"}]}], " ", "}"}], "]"}]}], ";", 
+        "\[IndentingNewLine]", 
+        RowBox[{"whichsite", "=", 
+         RowBox[{"-", "1"}]}], ";", "\[IndentingNewLine]", 
+        RowBox[{"Do", "[", 
+         RowBox[{
+          RowBox[{"If", "[", 
+           RowBox[{
+            RowBox[{
+             RowBox[{"eta", ">", 
+              RowBox[{"Rlist", "[", 
+               RowBox[{"[", "i", "]"}], "]"}]}], "&&", 
+             RowBox[{"eta", "\[LessEqual]", "  ", 
+              RowBox[{"Rlist", "[", 
+               RowBox[{"[", 
+                RowBox[{"i", "+", "1"}], "]"}], "]"}]}]}], ",", 
+            RowBox[{
+             RowBox[{"whichsite", "=", "i"}], ";", 
+             RowBox[{"Break", "[", "]"}]}]}], "]"}], ",", 
+          RowBox[{"{", 
+           RowBox[{"i", ",", "1", ",", "lrz"}], "}"}]}], "]"}], ";", 
+        "\[IndentingNewLine]", 
+        RowBox[{"If", "[", 
+         RowBox[{
+          RowBox[{"whichsite", "\[Equal]", 
+           RowBox[{"-", "1"}]}], ",", 
+          RowBox[{
+           RowBox[{
+            RowBox[{"{", "\"\<whichsite not found! Aborting... \>\"", "}"}], ">>>",
+             "file"}], ";", "\[IndentingNewLine]", 
+           RowBox[{
+            RowBox[{"{", 
+             RowBox[{"\"\<rlist: \>\"", ",", "rlist"}], "}"}], ">>>", 
+            "file"}], ";", "\[IndentingNewLine]", " ", 
+           RowBox[{"Abort", "[", "]"}], ";"}]}], "\[IndentingNewLine]", "]"}],
+         ";", "\[IndentingNewLine]", "whichsite"}]}], "\[IndentingNewLine]", 
+      "]"}]}], ";"}], "\[IndentingNewLine]", "\[IndentingNewLine]", 
    "\[IndentingNewLine]"}]}]], "Input",
  CellChangeTimes->{{3.706442387793564*^9, 3.706442389499921*^9}, {
    3.706597405116604*^9, 3.706597407575985*^9}, {3.707422416163041*^9, 
@@ -3324,7 +3384,8 @@ Cell[BoxData[
    3.707439004088991*^9}, 3.707474824797802*^9, {3.707476668189713*^9, 
    3.707476673744124*^9}, {3.707477144013877*^9, 3.707477147668951*^9}, {
    3.7074771836075983`*^9, 3.707477194646821*^9}, {3.707478184286105*^9, 
-   3.707478411989221*^9}, {3.707486238464444*^9, 3.707486350514532*^9}}],
+   3.707478411989221*^9}, {3.707486238464444*^9, 3.707486350514532*^9}, {
+   3.7074902466482887`*^9, 3.707490247088776*^9}}],
 
 Cell[BoxData[
  RowBox[{
@@ -5177,40 +5238,9 @@ Cell[BoxData[
                "26"}], "}"}], ",", "whichjump"}], "]"}], ",", 
            "\[IndentingNewLine]", 
            RowBox[{
-            RowBox[{"process", "=", 
-             RowBox[{"rlist", "[", "whichjump", "]"}]}], ";", 
-            "\[IndentingNewLine]", 
-            RowBox[{"lp", "=", 
-             RowBox[{"Length", "[", "process", "]"}]}], ";", 
-            "\[IndentingNewLine]", 
-            RowBox[{"slist", "=", 
-             RowBox[{"Insert", "[", 
-              RowBox[{
-               RowBox[{"Accumulate", "[", "process", "]"}], ",", "0", ",", 
-               "1"}], "]"}]}], ";", "\[IndentingNewLine]", 
-            RowBox[{"eta", "=", 
-             RowBox[{"RandomReal", "[", 
-              RowBox[{"{", 
-               RowBox[{"0", ",", 
-                RowBox[{"Total", "[", "process", "]"}]}], " ", "}"}], "]"}]}],
-             ";", "\[IndentingNewLine]", 
-            RowBox[{"Do", "[", 
-             RowBox[{
-              RowBox[{"If", "[", 
-               RowBox[{
-                RowBox[{
-                 RowBox[{"eta", ">", 
-                  RowBox[{"slist", "[", 
-                   RowBox[{"[", "i", "]"}], "]"}]}], "&&", 
-                 RowBox[{"eta", "\[LessEqual]", "  ", 
-                  RowBox[{"slist", "[", 
-                   RowBox[{"[", 
-                    RowBox[{"i", "+", "1"}], "]"}], "]"}]}]}], ",", 
-                RowBox[{
-                 RowBox[{"whichsites", "=", "i"}], ";", 
-                 RowBox[{"Break", "[", "]"}]}]}], "]"}], ",", 
-              RowBox[{"{", 
-               RowBox[{"i", ",", "1", ",", "lp"}], "}"}]}], "]"}], ";"}]}], 
+            RowBox[{"whichsites", "=", 
+             RowBox[{"WhichSite", "[", 
+              RowBox[{"rlist", "[", "whichjump", "]"}], "]"}]}], ";"}]}], 
           "\[IndentingNewLine]", "]"}], ";", "\[IndentingNewLine]", 
          "\[IndentingNewLine]", 
          RowBox[{"(*", " ", 
@@ -6765,7 +6795,7 @@ Cell[BoxData[
    3.70747639643893*^9}, {3.707476602096303*^9, 3.707476651823597*^9}, {
    3.707476682783341*^9, 3.707476757665762*^9}, {3.707478420073018*^9, 
    3.707478463645144*^9}, {3.707486539022417*^9, 3.70748661429123*^9}, 
-   3.707486775941036*^9}],
+   3.707486775941036*^9, 3.707490219753704*^9}],
 
 Cell[BoxData[
  RowBox[{"(*", 
@@ -6795,7 +6825,7 @@ Cell[BoxData[
   3.707468059134137*^9}}]
 },
 WindowSize->{841, 748},
-WindowMargins->{{-1, Automatic}, {Automatic, 0}},
+WindowMargins->{{Automatic, 243}, {-60, Automatic}},
 PrintingCopies->1,
 PrintingPageRange->{1, Automatic},
 Magnification:>1.5 Inherited,
@@ -6816,7 +6846,7 @@ CellTagsIndex->{}
 Notebook[{
 Cell[CellGroupData[{
 Cell[580, 22, 340, 9, 528, "Input"],
-Cell[923, 33, 3805, 58, 86, "Output"]
+Cell[923, 33, 3805, 58, 69, "Output"]
 }, Open  ]],
 Cell[4743, 94, 14439, 357, 1794, "Input"],
 Cell[19185, 453, 32536, 786, 4355, "Input"],
@@ -6825,10 +6855,10 @@ Cell[59182, 1414, 44691, 1057, 4771, "Input"],
 Cell[103876, 2473, 10624, 266, 1469, "Input"],
 Cell[114503, 2741, 3458, 112, 470, "Input"],
 Cell[117964, 2855, 10717, 243, 1319, "Input"],
-Cell[128684, 3100, 9063, 226, 1444, "Input"],
-Cell[137750, 3328, 7551, 222, 1489, "Input"],
-Cell[145304, 3552, 148803, 3215, 18906, "Input"],
-Cell[294110, 6769, 946, 25, 169, "Input"]
+Cell[128684, 3100, 11489, 287, 1894, "Input"],
+Cell[140176, 3389, 7551, 222, 1489, "Input"],
+Cell[147730, 3613, 147502, 3184, 18756, "Input"],
+Cell[295235, 6799, 946, 25, 169, "Input"]
 }
 ]
 *)
