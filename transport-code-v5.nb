@@ -10,10 +10,10 @@
 NotebookFileLineBreakTest
 NotebookFileLineBreakTest
 NotebookDataPosition[       158,          7]
-NotebookDataLength[    338976,       7826]
-NotebookOptionsPosition[    338060,       7795]
-NotebookOutlinePosition[    338501,       7814]
-CellTagsIndexPosition[    338458,       7811]
+NotebookDataLength[    343739,       7931]
+NotebookOptionsPosition[    342823,       7900]
+NotebookOutlinePosition[    343264,       7919]
+CellTagsIndexPosition[    343221,       7916]
 WindowFrame->Normal*)
 
 (* Beginning of Notebook Content *)
@@ -834,7 +834,7 @@ Cell[BoxData[
    RowBox[{
     RowBox[{
      RowBox[{"makeHtDPhiAc", "[", 
-      RowBox[{"N_", ",", "m_", ",", "thh_", ",", "tll_"}], "]"}], ":=", 
+      RowBox[{"N_", ",", "m_"}], "]"}], ":=", 
      RowBox[{"Module", "[", "\[IndentingNewLine]", 
       RowBox[{
        RowBox[{"{", 
@@ -1529,7 +1529,8 @@ Cell[BoxData[
    3.707684335468093*^9, 3.707684875315362*^9}, {3.707684911011653*^9, 
    3.707684961648576*^9}, {3.70768505026888*^9, 3.7076850652133512`*^9}, {
    3.707685209995406*^9, 3.707685504428685*^9}, 3.707685683934684*^9, {
-   3.7076857144072847`*^9, 3.707685734450735*^9}}],
+   3.7076857144072847`*^9, 3.707685734450735*^9}, {3.707687609639246*^9, 
+   3.707687609805345*^9}}],
 
 Cell[BoxData[
  RowBox[{"\[IndentingNewLine]", 
@@ -4250,8 +4251,10 @@ Cell[BoxData[
        "\[IndentingNewLine]", "ldpa", ",", "NN", ",", "p1", ",", "p2", ",", 
        "ITER", ",", "m1", ",", "Einit", ",", "HtApaira", ",", "HtApairb", ",",
         "out2", ",", "Evst", ",", "tlh", ",", "thl", ",", "th", ",", "tl", 
-       ",", "tpard", ",", "tparp"}], "}"}], ",", "\[IndentingNewLine]", 
-     "\[IndentingNewLine]", 
+       ",", "tpard", ",", "tparp", ",", "Htsph", ",", "Htspl", ",", "Htsplh", 
+       ",", "Htsphl", ",", "RDPhiAh", ",", "RDPhiAl", ",", "RDPhiAhl", ",", 
+       "RDPhiAlh", ",", "ENp2m", ",", "UNp2m", ",", "ENp2mp2", ",", "UNp2mp2",
+        ",", "rr"}], "}"}], ",", "\[IndentingNewLine]", "\[IndentingNewLine]", 
      RowBox[{"(*", " ", 
       RowBox[{"beta", ",", " ", 
        RowBox[{"Erbeta", ":", " ", 
@@ -4615,10 +4618,9 @@ Cell[BoxData[
                     ";"}], "*)"}], "\[IndentingNewLine]", 
                   RowBox[{
                    RowBox[{"r", "[", "j", "]"}], "+=", 
-                   RowBox[{"Total", "[", 
-                    RowBox[{
+                   RowBox[{
                     RowBox[{"rz", "[", "j", "]"}], "[", 
-                    RowBox[{"i", ",", "ii"}], "]"}], "]"}]}], ";"}], 
+                    RowBox[{"i", ",", "ii"}], "]"}]}], ";"}], 
                  "\[IndentingNewLine]", ",", "\[IndentingNewLine]", 
                  RowBox[{
                   RowBox[{
@@ -4724,10 +4726,9 @@ Cell[BoxData[
                     ";"}], "*)"}], "\[IndentingNewLine]", 
                   RowBox[{
                    RowBox[{"r", "[", "j", "]"}], "+=", 
-                   RowBox[{"Total", "[", 
-                    RowBox[{
+                   RowBox[{
                     RowBox[{"rz", "[", "j", "]"}], "[", 
-                    RowBox[{"i", ",", "ii"}], "]"}], "]"}]}], ";"}], 
+                    RowBox[{"i", ",", "ii"}], "]"}]}], ";"}], 
                  "\[IndentingNewLine]", ",", "\[IndentingNewLine]", 
                  RowBox[{
                   RowBox[{
@@ -4860,10 +4861,9 @@ Cell[BoxData[
                     ";"}], "*)"}], "\[IndentingNewLine]", 
                   RowBox[{
                    RowBox[{"r", "[", "j", "]"}], "+=", 
-                   RowBox[{"Total", "[", 
-                    RowBox[{
+                   RowBox[{
                     RowBox[{"rz", "[", "j", "]"}], "[", 
-                    RowBox[{"i", ",", "ii"}], "]"}], "]"}]}], ";"}], 
+                    RowBox[{"i", ",", "ii"}], "]"}]}], ";"}], 
                  "\[IndentingNewLine]", ",", "\[IndentingNewLine]", 
                  RowBox[{
                   RowBox[{
@@ -4973,10 +4973,9 @@ Cell[BoxData[
                     ";"}], "*)"}], "\[IndentingNewLine]", 
                   RowBox[{
                    RowBox[{"r", "[", "j", "]"}], "+=", 
-                   RowBox[{"Total", "[", 
-                    RowBox[{
+                   RowBox[{
                     RowBox[{"rz", "[", "j", "]"}], "[", 
-                    RowBox[{"i", ",", "ii"}], "]"}], "]"}]}], ";"}], 
+                    RowBox[{"i", ",", "ii"}], "]"}]}], ";"}], 
                  "\[IndentingNewLine]", ",", "\[IndentingNewLine]", 
                  RowBox[{
                   RowBox[{
@@ -5006,8 +5005,7 @@ Cell[BoxData[
            "\[IndentingNewLine]", ",", 
            RowBox[{"{", 
             RowBox[{"i", ",", "1", ",", "lpl"}], "}"}]}], "]"}], ";", 
-         "\[IndentingNewLine]", "\[IndentingNewLine]", "\[IndentingNewLine]", 
-         "\[IndentingNewLine]", 
+         "\[IndentingNewLine]", "\[IndentingNewLine]", 
          RowBox[{"(*", " ", 
           RowBox[{
            RowBox[{
@@ -5015,6 +5013,10 @@ Cell[BoxData[
              RowBox[{"D", ",", "Phi"}], ")"}], " ", "+", " ", "A"}], " ", 
            "\[Rule]", " ", 
            RowBox[{"A", "'"}]}], " ", "*)"}], "\[IndentingNewLine]", 
+         RowBox[{"(*", 
+          RowBox[{"{", 
+           RowBox[{"Htsph", ",", "Htspl", ",", "Htsplh", ",", "Htsphl"}], 
+           "}"}], "*)"}], "\[IndentingNewLine]", 
          RowBox[{"ldpr", "=", 
           RowBox[{"Length", "[", "DPhiR", "]"}]}], ";", "\[IndentingNewLine]", 
          RowBox[{"ldpl", "=", 
@@ -5024,29 +5026,106 @@ Cell[BoxData[
          RowBox[{"If", "[", 
           RowBox[{
            RowBox[{"ldpa", ">", "0"}], ",", "\[IndentingNewLine]", 
-           RowBox[{"(*", 
-            RowBox[{
-             RowBox[{
-             "Print", "[", "\"\<calc rate for D,Phi annihilation\>\"", "]"}], 
-             ";"}], "*)"}], "\[IndentingNewLine]", 
            RowBox[{
             RowBox[{
              RowBox[{"{", 
-              RowBox[{"ENp2mp1", ",", "UNp2mp1"}], "}"}], "=", 
-             RowBox[{"DiagH", "[", 
+              RowBox[{"Htsph", ",", "Htspl", ",", "Htsplh", ",", "Htsphl"}], 
+              "}"}], "=", 
+             RowBox[{"makeHtDPhiAc", "[", 
+              RowBox[{"NN", ",", "m"}], "]"}]}], ";", "\[IndentingNewLine]", 
+            RowBox[{"If", "[", 
+             RowBox[{
               RowBox[{
-               RowBox[{"NN", "+", "2"}], ",", 
-               RowBox[{"m", "+", "1"}], ",", "gg"}], "]"}]}], ";", 
+               RowBox[{"Total", "[", 
+                RowBox[{"tpard", "[", 
+                 RowBox[{"[", 
+                  RowBox[{"1", ";;", "2"}], "]"}], "]"}], "]"}], 
+               "\[NotEqual]", " ", "0"}], ",", "\[IndentingNewLine]", 
+              RowBox[{
+               RowBox[{
+                RowBox[{"{", 
+                 RowBox[{"ENp2mp1", ",", "UNp2mp1"}], "}"}], "=", 
+                RowBox[{"DiagH", "[", 
+                 RowBox[{
+                  RowBox[{"NN", "+", "2"}], ",", 
+                  RowBox[{"m", "+", "1"}], ",", "gg"}], "]"}]}], ";", 
+               "\[IndentingNewLine]", 
+               RowBox[{"RDPhiAh", "=", 
+                RowBox[{
+                 RowBox[{"tpard", "[", 
+                  RowBox[{"[", "1", "]"}], "]"}], "*", 
+                 RowBox[{"psi", ".", "Htsph", ".", "UNp2mp1"}]}]}], ";", 
+               "\[IndentingNewLine]", 
+               RowBox[{"RDPhiAl", "=", 
+                RowBox[{
+                 RowBox[{"tpard", "[", 
+                  RowBox[{"[", "2", "]"}], "]"}], "*", 
+                 RowBox[{"psi", ".", "Htspl", ".", "UNp2mp1"}]}]}], ";"}], 
+              "\[IndentingNewLine]", ",", "\[IndentingNewLine]", 
+              RowBox[{
+               RowBox[{"RDPhiAh", "=", 
+                RowBox[{"Table", "[", 
+                 RowBox[{"0", ",", 
+                  RowBox[{"Length", "[", "UNp2mp1", "]"}]}], "]"}]}], ";", 
+               StyleBox[
+                RowBox[{"(*", " ", 
+                 RowBox[{"is", " ", "this", " ", "needed", 
+                  RowBox[{"??", "??"}]}], " ", "*)"}],
+                FontSize->16], "\[IndentingNewLine]", 
+               RowBox[{"RDPhiAl", "=", "RDPhiAh"}], ";"}]}], "]"}], ";", 
             "\[IndentingNewLine]", 
-            RowBox[{"secNp2mp1", "=", 
-             RowBox[{"sectors", "[", "ENp2mp1", "]"}]}], ";", 
+            RowBox[{"If", "[", 
+             RowBox[{
+              RowBox[{
+               RowBox[{"tpard", "[", 
+                RowBox[{"[", "3", "]"}], "]"}], "\[NotEqual]", " ", "0"}], 
+              ",", "\[IndentingNewLine]", " ", 
+              RowBox[{
+               RowBox[{
+                RowBox[{"{", 
+                 RowBox[{"ENp2m", ",", "UNp2m"}], "}"}], "=", 
+                RowBox[{"DiagH", "[", 
+                 RowBox[{
+                  RowBox[{"NN", "+", "2"}], ",", "m", ",", "gg"}], "]"}]}], 
+               ";", "\[IndentingNewLine]", 
+               RowBox[{"RDPhiAlh", "=", 
+                RowBox[{
+                 RowBox[{"tpard", "[", 
+                  RowBox[{"[", "3", "]"}], "]"}], "*", 
+                 RowBox[{"psi", ".", "Htsplh", ".", "UNp2m"}]}]}], ";"}]}], 
+             "]"}], ";", "\[IndentingNewLine]", 
+            RowBox[{"If", "[", 
+             RowBox[{
+              RowBox[{
+               RowBox[{"tpard", "[", 
+                RowBox[{"[", "4", "]"}], "]"}], "\[NotEqual]", " ", "0"}], 
+              ",", "\[IndentingNewLine]", " ", 
+              RowBox[{
+               RowBox[{"{", 
+                RowBox[{"ENp2mp2", ",", "UNp2mp2"}], "}"}], "=", 
+               RowBox[{"DiagH", "[", 
+                RowBox[{
+                 RowBox[{"NN", "+", "2"}], ",", 
+                 RowBox[{"m", "+", "2"}], ",", "gg"}], "]"}]}]}], "]"}], ";", 
             "\[IndentingNewLine]", 
-            RowBox[{"RDPhiA", "=", 
-             RowBox[{"psi", ".", 
-              RowBox[{"makeHtDPhiA", "[", 
-               RowBox[{"NN", ",", "m", ",", "th", ",", "tl"}], "]"}], ".", 
-              "UNp2mp1"}]}], ";"}]}], "\[IndentingNewLine]", "]"}], ";", 
-         "\[IndentingNewLine]", 
+            RowBox[{"RDPhiAhl", "=", 
+             RowBox[{
+              RowBox[{"tpard", "[", 
+               RowBox[{"[", "4", "]"}], "]"}], "*", 
+              RowBox[{"psi", ".", "Htsphl", ".", "UNp2mp2"}]}]}], ";"}]}], 
+          "]"}], ";", "\[IndentingNewLine]", "\[IndentingNewLine]", 
+         RowBox[{"rr", "=", 
+          RowBox[{"{", 
+           RowBox[{
+            RowBox[{
+             RowBox[{"Norm", "[", "RDPhiAh", "]"}], "^", "2"}], ",", 
+            RowBox[{
+             RowBox[{"Norm", "[", "RDPhiAl", "]"}], "^", "2"}], ",", 
+            RowBox[{
+             RowBox[{"Norm", "[", "RDPhiAlh", "]"}], "^", "2"}], ",", 
+            RowBox[{
+             RowBox[{"Norm", "[", "RDPhiAhl", "]"}], "^", "2"}]}], "}"}]}], 
+         ";", "\[IndentingNewLine]", 
          RowBox[{"(*", 
           RowBox[{
            RowBox[{"break", " ", "into", " ", "D"}], ",", 
@@ -5063,17 +5142,27 @@ Cell[BoxData[
           RowBox[{
            RowBox[{"ldpr", ">", "0"}], ",", "\[IndentingNewLine]", 
            RowBox[{
-            RowBox[{
-             RowBox[{"rz", "[", "j", "]"}], "=", 
-             RowBox[{"Rates", "[", 
-              RowBox[{"RDPhiA", ",", 
-               RowBox[{"+", "1"}], ",", "secNp2mp1", ",", "Einit"}], "]"}]}], 
-            ";", "\[IndentingNewLine]", 
-            RowBox[{
-             RowBox[{"r", "[", "j", "]"}], "+=", 
-             RowBox[{"Total", "[", 
+            RowBox[{"Do", "[", 
+             RowBox[{
               RowBox[{
-               RowBox[{"rz", "[", "j", "]"}], "*", "ldpr"}], "]"}]}], ";", 
+               RowBox[{
+                RowBox[{
+                 RowBox[{"rz", "[", "j", "]"}], "[", "jj", "]"}], "=", 
+                RowBox[{
+                 RowBox[{"pf", "[", 
+                  RowBox[{"[", 
+                   RowBox[{"j", ",", "jj"}], "]"}], "]"}], "*", 
+                 RowBox[{"rr", "[", 
+                  RowBox[{"[", "jj", "]"}], "]"}]}]}], ";", 
+               "\[IndentingNewLine]", 
+               RowBox[{
+                RowBox[{"r", "[", "j", "]"}], "+=", 
+                RowBox[{
+                 RowBox[{
+                  RowBox[{"rz", "[", "j", "]"}], "[", "jj", "]"}], "*", 
+                 "ldpr"}]}], ";"}], "\[IndentingNewLine]", ",", 
+              RowBox[{"{", 
+               RowBox[{"jj", ",", "1", ",", "4"}], "}"}]}], "]"}], ";", 
             "\[IndentingNewLine]", 
             RowBox[{"AppendTo", "[", 
              RowBox[{
@@ -5085,24 +5174,34 @@ Cell[BoxData[
           RowBox[{
            RowBox[{"ldpl", ">", "0"}], ",", "\[IndentingNewLine]", 
            RowBox[{
-            RowBox[{
-             RowBox[{"rz", "[", "j", "]"}], "=", 
-             RowBox[{"Rates", "[", 
-              RowBox[{"RDPhiA", ",", 
-               RowBox[{"-", "1"}], ",", "secNp2mp1", ",", "Einit"}], "]"}]}], 
-            ";", "\[IndentingNewLine]", 
-            RowBox[{
-             RowBox[{"r", "[", "j", "]"}], "+=", 
-             RowBox[{"Total", "[", 
+            RowBox[{"Do", "[", 
+             RowBox[{
               RowBox[{
-               RowBox[{"rz", "[", "j", "]"}], "*", "ldpl"}], "]"}]}], ";", 
+               RowBox[{
+                RowBox[{
+                 RowBox[{"rz", "[", "j", "]"}], "[", "jj", "]"}], "=", 
+                RowBox[{
+                 RowBox[{"pf", "[", 
+                  RowBox[{"[", 
+                   RowBox[{"j", ",", "jj"}], "]"}], "]"}], "*", 
+                 RowBox[{"rr", "[", 
+                  RowBox[{"[", "jj", "]"}], "]"}]}]}], ";", 
+               "\[IndentingNewLine]", 
+               RowBox[{
+                RowBox[{"r", "[", "j", "]"}], "+=", 
+                RowBox[{
+                 RowBox[{
+                  RowBox[{"rz", "[", "j", "]"}], "[", "jj", "]"}], "*", 
+                 "ldpl"}]}], ";"}], "\[IndentingNewLine]", ",", 
+              RowBox[{"{", 
+               RowBox[{"jj", ",", "1", ",", "4"}], "}"}]}], "]"}], ";", 
             "\[IndentingNewLine]", 
             RowBox[{"AppendTo", "[", 
              RowBox[{
               RowBox[{"rlist", "[", "j", "]"}], ",", 
               RowBox[{"r", "[", "j", "]"}]}], "]"}], ";"}]}], 
           "\[IndentingNewLine]", "]"}], ";", "\[IndentingNewLine]", 
-         "\[IndentingNewLine]", 
+         "\[IndentingNewLine]", "\[IndentingNewLine]", 
          RowBox[{"(*", " ", 
           RowBox[{
            RowBox[{"inv", " ", 
@@ -7764,7 +7863,13 @@ Cell[BoxData[
    3.7076439747699842`*^9, 3.707644130245578*^9}, {3.707645833693185*^9, 
    3.707645868622047*^9}, {3.707645950098467*^9, 3.70764598212761*^9}, {
    3.707646017567643*^9, 3.7076461306290607`*^9}, {3.707646351068678*^9, 
-   3.707646374687195*^9}}],
+   3.707646374687195*^9}, {3.707685900653378*^9, 3.7076859214101877`*^9}, {
+   3.7076859614023647`*^9, 3.707686422047024*^9}, {3.707686478648559*^9, 
+   3.7076864942930107`*^9}, {3.707686565045053*^9, 3.707686784192108*^9}, {
+   3.707686821406353*^9, 3.707686938504908*^9}, {3.7076869818265467`*^9, 
+   3.707687086583536*^9}, {3.7076872172637253`*^9, 3.707687409127881*^9}, {
+   3.707687442770355*^9, 3.707687492028213*^9}, {3.7076875675929413`*^9, 
+   3.707687592716001*^9}}],
 
 Cell[BoxData[
  RowBox[{"(*", 
@@ -7793,7 +7898,7 @@ Cell[BoxData[
   3.707467828089313*^9, 3.70746788441724*^9}, {3.707467932167493*^9, 
   3.707468059134137*^9}}]
 },
-WindowSize->{1214, 748},
+WindowSize->{1394, 748},
 WindowMargins->{{3, Automatic}, {Automatic, 4}},
 PrintingCopies->1,
 PrintingPageRange->{1, Automatic},
@@ -7817,17 +7922,17 @@ Cell[CellGroupData[{
 Cell[580, 22, 340, 9, 358, "Input"],
 Cell[923, 33, 4038, 61, 43, "Output"]
 }, Open  ]],
-Cell[4976, 97, 14439, 357, 1594, "Input"],
-Cell[19418, 456, 44621, 1075, 4056, "Input"],
-Cell[64042, 1533, 16999, 397, 2230, "Input"],
-Cell[81044, 1932, 44691, 1057, 3842, "Input"],
-Cell[125738, 2991, 10624, 266, 1244, "Input"],
-Cell[136365, 3259, 3458, 112, 445, "Input"],
-Cell[139826, 3373, 10717, 243, 1069, "Input"],
-Cell[150546, 3618, 14276, 356, 2069, "Input"],
-Cell[164825, 3976, 7551, 222, 1464, "Input"],
-Cell[172379, 4200, 164728, 3566, 18594, "Input"],
-Cell[337110, 7768, 946, 25, 169, "Input"]
+Cell[4976, 97, 14439, 357, 1544, "Input"],
+Cell[19418, 456, 44645, 1076, 3981, "Input"],
+Cell[64066, 1534, 16999, 397, 2205, "Input"],
+Cell[81068, 1933, 44691, 1057, 3767, "Input"],
+Cell[125762, 2992, 10624, 266, 1244, "Input"],
+Cell[136389, 3260, 3458, 112, 445, "Input"],
+Cell[139850, 3374, 10717, 243, 1069, "Input"],
+Cell[150570, 3619, 14276, 356, 2019, "Input"],
+Cell[164849, 3977, 7551, 222, 1464, "Input"],
+Cell[172403, 4201, 169467, 3670, 18698, "Input"],
+Cell[341873, 7873, 946, 25, 169, "Input"]
 }
 ]
 *)
