@@ -1,0 +1,203 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Mathematica 10.4' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       158,          7]
+NotebookDataLength[      5353,        195]
+NotebookOptionsPosition[      4085,        149]
+NotebookOutlinePosition[      4473,        166]
+CellTagsIndexPosition[      4430,        163]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+Cell[BoxData[
+ RowBox[{
+  RowBox[{
+   RowBox[{"zz", "[", "a_", "]"}], ":=", 
+   RowBox[{"Module", "[", 
+    RowBox[{
+     RowBox[{"{", "}"}], ",", 
+     RowBox[{"a", "^", "v"}]}], "]"}]}], ";"}]], "Input",
+ CellChangeTimes->{{3.707436614319171*^9, 3.707436739293284*^9}}],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"Do", "[", "\[IndentingNewLine]", 
+  RowBox[{
+   RowBox[{
+    RowBox[{"v", "=", "i"}], ";", "\[IndentingNewLine]", 
+    RowBox[{
+     RowBox[{"zz", "[", "2", "]"}], "//", "Print"}], ";"}], 
+   "\[IndentingNewLine]", ",", 
+   RowBox[{"{", 
+    RowBox[{"i", ",", "1", ",", "10"}], "}"}]}], "]"}]], "Input"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData["2"], "Print",
+ CellChangeTimes->{3.707436744371313*^9}],
+
+Cell[BoxData["4"], "Print",
+ CellChangeTimes->{3.70743674437402*^9}],
+
+Cell[BoxData["8"], "Print",
+ CellChangeTimes->{3.707436744379237*^9}],
+
+Cell[BoxData["16"], "Print",
+ CellChangeTimes->{3.707436744381978*^9}],
+
+Cell[BoxData["32"], "Print",
+ CellChangeTimes->{3.7074367443847513`*^9}],
+
+Cell[BoxData["64"], "Print",
+ CellChangeTimes->{3.707436744387456*^9}],
+
+Cell[BoxData["128"], "Print",
+ CellChangeTimes->{3.707436744390162*^9}],
+
+Cell[BoxData["256"], "Print",
+ CellChangeTimes->{3.7074367443928633`*^9}],
+
+Cell[BoxData["512"], "Print",
+ CellChangeTimes->{3.707436744395561*^9}],
+
+Cell[BoxData["1024"], "Print",
+ CellChangeTimes->{3.707436744398786*^9}]
+}, Open  ]]
+}, Open  ]],
+
+Cell[BoxData[
+ RowBox[{"Clear", "[", "v", "]"}]], "Input",
+ CellChangeTimes->{{3.707436942204356*^9, 3.707436945057445*^9}}],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{
+   RowBox[{
+    RowBox[{"dd", "[", "a_", "]"}], ":=", 
+    RowBox[{"Module", "[", 
+     RowBox[{
+      RowBox[{"{", "v", "}"}], ",", "\[IndentingNewLine]", 
+      RowBox[{"Do", "[", "\[IndentingNewLine]", 
+       RowBox[{
+        RowBox[{
+         RowBox[{"v", "=", "i"}], ";", "\[IndentingNewLine]", 
+         RowBox[{
+          RowBox[{"zz", "[", "2", "]"}], "//", "Print"}], ";"}], 
+        "\[IndentingNewLine]", ",", 
+        RowBox[{"{", 
+         RowBox[{"i", ",", "1", ",", "10"}], "}"}]}], "]"}]}], 
+     "\[IndentingNewLine]", "]"}]}], ";"}], 
+  "\[IndentingNewLine]"}], "\[IndentingNewLine]", 
+ RowBox[{"dd", "[", "0", "]"}]}], "Input",
+ CellChangeTimes->{{3.707436845164467*^9, 3.707436923601965*^9}}],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ SuperscriptBox["2", "v"]], "Print",
+ CellChangeTimes->{{3.7074369279831*^9, 3.707436947586458*^9}}],
+
+Cell[BoxData[
+ SuperscriptBox["2", "v"]], "Print",
+ CellChangeTimes->{{3.7074369279831*^9, 3.707436947594316*^9}}],
+
+Cell[BoxData[
+ SuperscriptBox["2", "v"]], "Print",
+ CellChangeTimes->{{3.7074369279831*^9, 3.707436947602786*^9}}],
+
+Cell[BoxData[
+ SuperscriptBox["2", "v"]], "Print",
+ CellChangeTimes->{{3.7074369279831*^9, 3.707436947605487*^9}}],
+
+Cell[BoxData[
+ SuperscriptBox["2", "v"]], "Print",
+ CellChangeTimes->{{3.7074369279831*^9, 3.707436947608182*^9}}],
+
+Cell[BoxData[
+ SuperscriptBox["2", "v"]], "Print",
+ CellChangeTimes->{{3.7074369279831*^9, 3.7074369476147137`*^9}}],
+
+Cell[BoxData[
+ SuperscriptBox["2", "v"]], "Print",
+ CellChangeTimes->{{3.7074369279831*^9, 3.707436947622699*^9}}],
+
+Cell[BoxData[
+ SuperscriptBox["2", "v"]], "Print",
+ CellChangeTimes->{{3.7074369279831*^9, 3.707436947629116*^9}}],
+
+Cell[BoxData[
+ SuperscriptBox["2", "v"]], "Print",
+ CellChangeTimes->{{3.7074369279831*^9, 3.707436947634379*^9}}],
+
+Cell[BoxData[
+ SuperscriptBox["2", "v"]], "Print",
+ CellChangeTimes->{{3.7074369279831*^9, 3.707436947639448*^9}}]
+}, Open  ]]
+}, Open  ]]
+},
+WindowSize->{808, 695},
+WindowMargins->{{260, Automatic}, {Automatic, 44}},
+Magnification:>2. Inherited,
+FrontEndVersion->"10.4 for Mac OS X x86 (32-bit, 64-bit Kernel) (February 25, \
+2016)",
+StyleDefinitions->"Default.nb"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[558, 20, 271, 8, 56, "Input"],
+Cell[CellGroupData[{
+Cell[854, 32, 327, 9, 156, "Input"],
+Cell[CellGroupData[{
+Cell[1206, 45, 69, 1, 41, "Print"],
+Cell[1278, 48, 68, 1, 41, "Print"],
+Cell[1349, 51, 69, 1, 41, "Print"],
+Cell[1421, 54, 70, 1, 41, "Print"],
+Cell[1494, 57, 72, 1, 41, "Print"],
+Cell[1569, 60, 70, 1, 41, "Print"],
+Cell[1642, 63, 71, 1, 41, "Print"],
+Cell[1716, 66, 73, 1, 41, "Print"],
+Cell[1792, 69, 71, 1, 41, "Print"],
+Cell[1866, 72, 72, 1, 41, "Print"]
+}, Open  ]]
+}, Open  ]],
+Cell[1965, 77, 124, 2, 56, "Input"],
+Cell[CellGroupData[{
+Cell[2114, 83, 749, 20, 288, "Input"],
+Cell[CellGroupData[{
+Cell[2888, 107, 114, 2, 41, "Print"],
+Cell[3005, 111, 114, 2, 41, "Print"],
+Cell[3122, 115, 114, 2, 41, "Print"],
+Cell[3239, 119, 114, 2, 41, "Print"],
+Cell[3356, 123, 114, 2, 41, "Print"],
+Cell[3473, 127, 116, 2, 41, "Print"],
+Cell[3592, 131, 114, 2, 41, "Print"],
+Cell[3709, 135, 114, 2, 41, "Print"],
+Cell[3826, 139, 114, 2, 41, "Print"],
+Cell[3943, 143, 114, 2, 41, "Print"]
+}, Open  ]]
+}, Open  ]]
+}
+]
+*)
+

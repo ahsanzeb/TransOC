@@ -1,0 +1,132 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Mathematica 10.4' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       158,          7]
+NotebookDataLength[      3387,        124]
+NotebookOptionsPosition[      3130,        110]
+NotebookOutlinePosition[      3489,        126]
+CellTagsIndexPosition[      3446,        123]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+Cell[BoxData[GridBox[{
+   {"jump", "process", 
+    RowBox[{"current", " ", "L", " ", "to", " ", "R"}]},
+   {"9", 
+    RowBox[{
+     RowBox[{"RC", ":", 
+      RowBox[{"D", " ", "annihilated"}]}], ",", " ", "m"}], "1"},
+   {"10", 
+    RowBox[{
+     RowBox[{"RC", ":", 
+      RowBox[{"D", " ", "annihilated"}]}], ",", " ", 
+     RowBox[{"m", "+", "1"}]}], "1"},
+   {"11", 
+    RowBox[{
+     RowBox[{"LC", ":", 
+      RowBox[{"D", " ", "annihilated"}]}], ",", " ", "m"}], 
+    RowBox[{"-", "1"}]},
+   {"12", 
+    RowBox[{
+     RowBox[{"LC", ":", 
+      RowBox[{"D", " ", "annihilated"}]}], ",", " ", 
+     RowBox[{"m", "+", "1"}]}], 
+    RowBox[{"-", "1"}]},
+   {"13", 
+    RowBox[{
+     RowBox[{"RC", ":", 
+      RowBox[{"\[Phi]", " ", "annihilated"}]}], ",", " ", "m"}], 
+    RowBox[{"-", "1"}]},
+   {"14", 
+    RowBox[{
+     RowBox[{"RC", ":", 
+      RowBox[{"\[Phi]", " ", "annihilated"}]}], ",", " ", 
+     RowBox[{"m", "+", "1"}]}], 
+    RowBox[{"-", "1"}]},
+   {"15", 
+    RowBox[{
+     RowBox[{"LC", ":", 
+      RowBox[{"\[Phi]", " ", "annihilated"}]}], ",", " ", "m"}], "1"},
+   {"16", 
+    RowBox[{
+     RowBox[{"LC", ":", 
+      RowBox[{"\[Phi]", " ", "annihilated"}]}], ",", " ", 
+     RowBox[{"m", "+", "1"}]}], "1"},
+   {"17", 
+    RowBox[{
+     RowBox[{"RC", ":", 
+      RowBox[{"D", " ", "created"}]}], ",", " ", "m"}], 
+    RowBox[{"-", "1"}]},
+   {"18", 
+    RowBox[{
+     RowBox[{"RC", ":", 
+      RowBox[{"\[Phi]", " ", "created"}]}], ",", " ", "m"}], "1"},
+   {"19", 
+    RowBox[{
+     RowBox[{"RC", ":", 
+      RowBox[{"D", " ", "created"}]}], ",", " ", 
+     RowBox[{"m", "-", "1"}]}], 
+    RowBox[{"-", "1"}]},
+   {"20", 
+    RowBox[{
+     RowBox[{"RC", ":", 
+      RowBox[{"\[Phi]", " ", "created"}]}], ",", " ", 
+     RowBox[{"m", "-", "1"}]}], "1"},
+   {"21", 
+    RowBox[{
+     RowBox[{"LC", ":", 
+      RowBox[{"D", " ", "created"}]}], ",", " ", "m"}], "1"},
+   {"22", 
+    RowBox[{
+     RowBox[{"LC", ":", 
+      RowBox[{"\[Phi]", " ", "created"}]}], ",", " ", "m"}], 
+    RowBox[{"-", "1"}]},
+   {"23", 
+    RowBox[{
+     RowBox[{"LC", ":", 
+      RowBox[{"D", " ", "created"}]}], ",", " ", 
+     RowBox[{"m", "-", "1"}]}], "1"},
+   {"24", 
+    RowBox[{
+     RowBox[{"LC", ":", 
+      RowBox[{"\[Phi]", " ", "created"}]}], ",", " ", 
+     RowBox[{"m", "-", "1"}]}], 
+    RowBox[{"-", "1"}]}
+  },
+  GridBoxDividers->{
+   "Columns" -> {{True}}, "ColumnsIndexed" -> {}, "Rows" -> {{True}}, 
+    "RowsIndexed" -> {}}]], "Input",
+ CellChangeTimes->{{3.707477826442196*^9, 3.707477909828333*^9}, {
+  3.7074779565897827`*^9, 3.707478072339038*^9}}]
+},
+WindowSize->{808, 699},
+WindowMargins->{{Automatic, -73}, {Automatic, 14}},
+FrontEndVersion->"10.4 for Mac OS X x86 (32-bit, 64-bit Kernel) (February 25, \
+2016)",
+StyleDefinitions->"Default.nb"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[558, 20, 2568, 88, 327, "Input"]
+}
+]
+*)
+

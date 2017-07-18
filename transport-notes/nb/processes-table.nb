@@ -1,0 +1,262 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Mathematica 10.4' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       158,          7]
+NotebookDataLength[      7700,        254]
+NotebookOptionsPosition[      7402,        239]
+NotebookOutlinePosition[      7760,        255]
+CellTagsIndexPosition[      7717,        252]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+Cell[BoxData[
+ RowBox[{"(*", GridBox[{
+    {"jump", 
+     RowBox[{"description", "               "}], 
+     RowBox[{"   ", "IEig"}], "IHt", 
+     RowBox[{"sites", "?", "\[IndentingNewLine]", 
+      RowBox[{"yes", ":", " ", 
+       RowBox[{"calc", " ", "Ht", " ", "again"}]}]}]},
+    {"1", 
+     RowBox[{"D", " ", "hops", " ", "Right"}], "1", "1", "yes"},
+    {"2", 
+     RowBox[{"D", " ", "hops", " ", "Left"}], "1", "1", "yes"},
+    {"3", 
+     RowBox[{"\[Phi]", " ", "hops", " ", "Right"}], "1", "2", "yes"},
+    {"4", 
+     RowBox[{"\[Phi]", " ", "hops", " ", "Left"}], "1", "2", "yes"},
+    {"5", 
+     RowBox[{"D", ",", 
+      RowBox[{"\[Phi]", " ", "annihilated"}]}], "2", "3", "no"},
+    {"6", 
+     RowBox[{"\[Phi]", ",", 
+      RowBox[{"D", " ", "annihilated"}]}], "2", "3", 
+     RowBox[{"no", ";", " ", "penalty"}]},
+    {"7", 
+     RowBox[{"D", ",", 
+      RowBox[{"\[Phi]", " ", "created"}]}], "3", "4", "yes"},
+    {"8", 
+     RowBox[{"\[Phi]", ",", 
+      RowBox[{"D", " ", "created"}]}], "3", "4", 
+     RowBox[{"yes", ";", 
+      RowBox[{"jump", "=", "6"}]}]},
+    {"9", 
+     RowBox[{
+      RowBox[{"RC", ":", 
+       RowBox[{"D", " ", "annihilated"}]}], ",", " ", "m"}], "4", "5", "no"},
+    {"10", 
+     RowBox[{
+      RowBox[{"RC", ":", 
+       RowBox[{"D", " ", "annihilated"}]}], ",", " ", 
+      RowBox[{"m", "+", "1"}]}], "5", "5", "no"},
+    {"11", 
+     RowBox[{
+      RowBox[{"LC", ":", 
+       RowBox[{"D", " ", "annihilated"}]}], ",", " ", "m"}], "4", "5", "no"},
+    {"12", 
+     RowBox[{
+      RowBox[{"LC", ":", 
+       RowBox[{"D", " ", "annihilated"}]}], ",", " ", 
+      RowBox[{"m", "+", "1"}]}], "5", "5", "no"},
+    {"13", 
+     RowBox[{
+      RowBox[{"RC", ":", 
+       RowBox[{"\[Phi]", " ", "annihilated"}]}], ",", " ", "m"}], "4", "5", 
+     "no"},
+    {"14", 
+     RowBox[{
+      RowBox[{"RC", ":", 
+       RowBox[{"\[Phi]", " ", "annihilated"}]}], ",", " ", 
+      RowBox[{"m", "+", "1"}]}], "5", "5", "no"},
+    {"15", 
+     RowBox[{
+      RowBox[{"LC", ":", 
+       RowBox[{"\[Phi]", " ", "annihilated"}]}], ",", " ", "m"}], "4", "5", 
+     "no"},
+    {"16", 
+     RowBox[{
+      RowBox[{"LC", ":", 
+       RowBox[{"\[Phi]", " ", "annihilated"}]}], ",", " ", 
+      RowBox[{"m", "+", "1"}]}], "5", "5", "no"},
+    {"17", 
+     RowBox[{
+      RowBox[{"RC", ":", 
+       RowBox[{"D", " ", "created"}]}], ",", " ", "m"}], "6", "6", 
+     RowBox[{"-", "no"}]},
+    {"18", 
+     RowBox[{
+      RowBox[{"RC", ":", 
+       RowBox[{"\[Phi]", " ", "created"}]}], ",", " ", "m"}], "6", "6", 
+     RowBox[{"-", "no"}]},
+    {"19", 
+     RowBox[{
+      RowBox[{"RC", ":", 
+       RowBox[{"D", " ", "created"}]}], ",", " ", 
+      RowBox[{"m", "-", "1"}]}], "7", "6", 
+     RowBox[{"-", "no"}]},
+    {"20", 
+     RowBox[{
+      RowBox[{"RC", ":", 
+       RowBox[{"\[Phi]", " ", "created"}]}], ",", " ", 
+      RowBox[{"m", "-", "1"}]}], "7", "6", 
+     RowBox[{"-", "np"}]},
+    {"21", 
+     RowBox[{
+      RowBox[{"LC", ":", 
+       RowBox[{"D", " ", "created"}]}], ",", " ", "m"}], "6", "7", 
+     RowBox[{"-", "no"}]},
+    {"22", 
+     RowBox[{
+      RowBox[{"LC", ":", 
+       RowBox[{"\[Phi]", " ", "created"}]}], ",", " ", "m"}], "6", "7", 
+     RowBox[{"-", "no"}]},
+    {"23", 
+     RowBox[{
+      RowBox[{"LC", ":", 
+       RowBox[{"D", " ", "created"}]}], ",", " ", 
+      RowBox[{"m", "-", "1"}]}], "7", "7", 
+     RowBox[{"-", "no"}]},
+    {"24", 
+     RowBox[{
+      RowBox[{"RC", ":", 
+       RowBox[{"\[Phi]", " ", "created"}]}], ",", " ", 
+      RowBox[{"m", "-", "1"}]}], "7", "6", 
+     RowBox[{"-", "no"}]},
+    {"25", 
+     RowBox[{"\[Kappa]", ":", " ", 
+      RowBox[{"cavity", " ", "leackage"}]}], "8", "8", 
+     RowBox[{"-", "no"}]},
+    {"26", 
+     RowBox[{"\[Gamma]", ":", " ", 
+      RowBox[{"exciton", " ", "decay"}]}], "8", "9", "yes"}
+   },
+   GridBoxDividers->{
+    "Columns" -> {{True}}, "ColumnsIndexed" -> {}, "Rows" -> {{True}}, 
+     "RowsIndexed" -> {}}], "*)"}]], "Input",
+ CellChangeTimes->{
+  3.70901291791829*^9, {3.709012955329011*^9, 3.7090130091752567`*^9}}],
+
+Cell[BoxData[
+ RowBox[{"\[IndentingNewLine]", 
+  RowBox[{"(*", GridBox[{
+     {"jump", "process", 
+      RowBox[{"current", " ", "L", " ", "to", " ", "R"}]},
+     {"9", 
+      RowBox[{
+       RowBox[{"RC", ":", 
+        RowBox[{"D", " ", "annihilated"}]}], ",", " ", "m"}], "1"},
+     {"10", 
+      RowBox[{
+       RowBox[{"RC", ":", 
+        RowBox[{"D", " ", "annihilated"}]}], ",", " ", 
+       RowBox[{"m", "+", "1"}]}], "1"},
+     {"11", 
+      RowBox[{
+       RowBox[{"LC", ":", 
+        RowBox[{"D", " ", "annihilated"}]}], ",", " ", "m"}], 
+      RowBox[{"-", "1"}]},
+     {"12", 
+      RowBox[{
+       RowBox[{"LC", ":", 
+        RowBox[{"D", " ", "annihilated"}]}], ",", " ", 
+       RowBox[{"m", "+", "1"}]}], 
+      RowBox[{"-", "1"}]},
+     {"13", 
+      RowBox[{
+       RowBox[{"RC", ":", 
+        RowBox[{"\[Phi]", " ", "annihilated"}]}], ",", " ", "m"}], 
+      RowBox[{"-", "1"}]},
+     {"14", 
+      RowBox[{
+       RowBox[{"RC", ":", 
+        RowBox[{"\[Phi]", " ", "annihilated"}]}], ",", " ", 
+       RowBox[{"m", "+", "1"}]}], 
+      RowBox[{"-", "1"}]},
+     {"15", 
+      RowBox[{
+       RowBox[{"LC", ":", 
+        RowBox[{"\[Phi]", " ", "annihilated"}]}], ",", " ", "m"}], "1"},
+     {"16", 
+      RowBox[{
+       RowBox[{"LC", ":", 
+        RowBox[{"\[Phi]", " ", "annihilated"}]}], ",", " ", 
+       RowBox[{"m", "+", "1"}]}], "1"},
+     {"17", 
+      RowBox[{
+       RowBox[{"RC", ":", 
+        RowBox[{"D", " ", "created"}]}], ",", " ", "m"}], 
+      RowBox[{"-", "1"}]},
+     {"18", 
+      RowBox[{
+       RowBox[{"RC", ":", 
+        RowBox[{"\[Phi]", " ", "created"}]}], ",", " ", "m"}], "1"},
+     {"19", 
+      RowBox[{
+       RowBox[{"RC", ":", 
+        RowBox[{"D", " ", "created"}]}], ",", " ", 
+       RowBox[{"m", "-", "1"}]}], 
+      RowBox[{"-", "1"}]},
+     {"20", 
+      RowBox[{
+       RowBox[{"RC", ":", 
+        RowBox[{"\[Phi]", " ", "created"}]}], ",", " ", 
+       RowBox[{"m", "-", "1"}]}], "1"},
+     {"21", 
+      RowBox[{
+       RowBox[{"LC", ":", 
+        RowBox[{"D", " ", "created"}]}], ",", " ", "m"}], "1"},
+     {"22", 
+      RowBox[{
+       RowBox[{"LC", ":", 
+        RowBox[{"\[Phi]", " ", "created"}]}], ",", " ", "m"}], 
+      RowBox[{"-", "1"}]},
+     {"23", 
+      RowBox[{
+       RowBox[{"LC", ":", 
+        RowBox[{"D", " ", "created"}]}], ",", " ", 
+       RowBox[{"m", "-", "1"}]}], "1"},
+     {"24", 
+      RowBox[{
+       RowBox[{"LC", ":", 
+        RowBox[{"\[Phi]", " ", "created"}]}], ",", " ", 
+       RowBox[{"m", "-", "1"}]}], 
+      RowBox[{"-", "1"}]}
+    },
+    GridBoxDividers->{
+     "Columns" -> {{True}}, "ColumnsIndexed" -> {}, "Rows" -> {{True}}, 
+      "RowsIndexed" -> {}}], "*)"}], "\[IndentingNewLine]"}]], "Input",
+ CellChangeTimes->{{3.709012913503049*^9, 3.709012914543985*^9}, 
+   3.7090130135732613`*^9}]
+},
+WindowSize->{808, 702},
+WindowMargins->{{Automatic, 292}, {Automatic, 4}},
+FrontEndVersion->"10.4 for Mac OS X x86 (32-bit, 64-bit Kernel) (February 25, \
+2016)",
+StyleDefinitions->"Default.nb"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[558, 20, 4037, 125, 529, "Input"],
+Cell[4598, 147, 2800, 90, 382, "Input"]
+}
+]
+*)
+
