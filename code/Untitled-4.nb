@@ -1,0 +1,508 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Mathematica 10.4' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       158,          7]
+NotebookDataLength[     22493,        498]
+NotebookOptionsPosition[     21353,        456]
+NotebookOutlinePosition[     21712,        472]
+CellTagsIndexPosition[     21669,        469]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+
+Cell[CellGroupData[{
+Cell[BoxData[
+ RowBox[{
+  RowBox[{
+   RowBox[{"MemoryInUse", "[", "]"}], "/", 
+   RowBox[{"10", "^", "6"}]}], "//", "IntegerPart"}]], "Input"],
+
+Cell[BoxData["27"], "Output",
+ CellChangeTimes->{{3.709980045260908*^9, 3.709980056918914*^9}, 
+   3.709989967886815*^9, 3.7099900699959087`*^9}]
+}, Open  ]],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"memory", "=", 
+   RowBox[{"{", "}"}]}], ";"}]], "Input"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"Do", "[", "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{
+     RowBox[{"mem", "=", 
+      RowBox[{
+       RowBox[{
+        RowBox[{"MemoryInUse", "[", "]"}], "/", 
+        RowBox[{"10", "^", "6"}]}], "//", "IntegerPart"}]}], ";", 
+     "\[IndentingNewLine]", 
+     RowBox[{"AppendTo", "[", 
+      RowBox[{"memory", ",", "mem"}], "]"}], ";", "\[IndentingNewLine]", 
+     RowBox[{"ClearSystemCache", "[", "]"}], ";", "\[IndentingNewLine]", 
+     RowBox[{"Print", "[", 
+      RowBox[{"\"\<Before: MemoryInUse (MB)\>\"", ",", "mem"}], "]"}], ";", 
+     "\[IndentingNewLine]", 
+     RowBox[{
+      RowBox[{
+       RowBox[{"Timing", "[", 
+        RowBox[{
+         RowBox[{"{", 
+          RowBox[{
+           RowBox[{"EE", "[", "i", "]"}], ",", 
+           RowBox[{"U", "[", "i", "]"}]}], "}"}], "=", 
+         RowBox[{"DiagH", "[", 
+          RowBox[{"20", ",", "3", ",", "1"}], "]"}]}], "]"}], "[", 
+       RowBox[{"[", "1", "]"}], "]"}], "//", "Print"}], ";"}], 
+    "\[IndentingNewLine]", ",", 
+    RowBox[{"{", 
+     RowBox[{"i", ",", "1", ",", "5"}], "}"}]}], "]"}], 
+  ";"}], "\[IndentingNewLine]", "memory"}], "Input",
+ CellChangeTimes->{{3.709979552387583*^9, 3.709979560299065*^9}, 
+   3.7099795978263397`*^9, {3.7099796803362017`*^9, 3.709979739239479*^9}, {
+   3.709979796038129*^9, 3.709979868978808*^9}, {3.709979914315117*^9, 
+   3.7099799156809483`*^9}, {3.709979970931884*^9, 3.7099800059776783`*^9}, 
+   3.7099800802047787`*^9, {3.7099801243531237`*^9, 3.709980133302314*^9}, {
+   3.709980224817485*^9, 3.709980228084017*^9}, {3.709981093905171*^9, 
+   3.709981094671339*^9}, 3.709990085807146*^9}],
+
+Cell[BoxData[
+ InterpretationBox[
+  RowBox[{"\<\"Before: MemoryInUse (MB)\"\>", "\[InvisibleSpace]", "318"}],
+  SequenceForm["Before: MemoryInUse (MB)", 318],
+  Editable->False]], "Print",
+ CellChangeTimes->{
+  3.70997977050356*^9, 3.70997987130657*^9, {3.7099799347679043`*^9, 
+   3.709979952630042*^9}, 3.7099800114032097`*^9, {3.7099800654815683`*^9, 
+   3.7099801349560413`*^9}, 3.7099801906591263`*^9, {3.70998024109191*^9, 
+   3.7099802653796253`*^9}, 3.70998109651262*^9}],
+
+Cell[BoxData[
+ RowBox[{
+  StyleBox[
+   RowBox[{"Eigensystem", "::", "arh"}], "MessageName"], 
+  RowBox[{
+  ":", " "}], "\<\"Because finding \
+\[NoBreak]\\!\\(\\*RowBox[{\\\"1351\\\"}]\\)\[NoBreak] out of the \
+\[NoBreak]\\!\\(\\*RowBox[{\\\"1351\\\"}]\\)\[NoBreak] eigenvalues and/or \
+eigenvectors is likely to be faster with dense matrix methods, the sparse \
+input matrix will be converted. If fewer eigenvalues and/or eigenvectors \
+would be sufficient, consider restricting this number using the second \
+argument to \[NoBreak]\\!\\(\\*RowBox[{\\\"Eigensystem\\\"}]\\)\[NoBreak]. \
+\\!\\(\\*ButtonBox[\\\"\[RightSkeleton]\\\", ButtonStyle->\\\"Link\\\", \
+ButtonFrame->None, ButtonData:>\\\"paclet:ref/Eigensystem\\\", ButtonNote -> \
+\\\"Eigensystem::arh\\\"]\\)\"\>"}]], "Message", "MSG",
+ CellChangeTimes->{{3.709979583607071*^9, 3.7099795991640673`*^9}, 
+   3.7099796846471767`*^9, 3.7099797707305813`*^9, 3.709979871480901*^9, {
+   3.709979934952194*^9, 3.709979952797126*^9}, 3.709980011593399*^9, {
+   3.709980065713131*^9, 3.709980135125236*^9}, 3.709980190816495*^9, {
+   3.7099802412683163`*^9, 3.7099802655511723`*^9}, 3.709981096722164*^9}],
+
+Cell[CellGroupData[{
+
+Cell[BoxData["1.436601`"], "Print",
+ CellChangeTimes->{
+  3.70997977050356*^9, 3.70997987130657*^9, {3.7099799347679043`*^9, 
+   3.709979952630042*^9}, 3.7099800114032097`*^9, {3.7099800654815683`*^9, 
+   3.7099801349560413`*^9}, 3.7099801906591263`*^9, {3.70998024109191*^9, 
+   3.7099802653796253`*^9}, 3.7099810970420713`*^9}],
+
+Cell[BoxData[
+ InterpretationBox[
+  RowBox[{"\<\"Before: MemoryInUse (MB)\"\>", "\[InvisibleSpace]", "317"}],
+  SequenceForm["Before: MemoryInUse (MB)", 317],
+  Editable->False]], "Print",
+ CellChangeTimes->{
+  3.70997977050356*^9, 3.70997987130657*^9, {3.7099799347679043`*^9, 
+   3.709979952630042*^9}, 3.7099800114032097`*^9, {3.7099800654815683`*^9, 
+   3.7099801349560413`*^9}, 3.7099801906591263`*^9, {3.70998024109191*^9, 
+   3.7099802653796253`*^9}, 3.7099810970501328`*^9}]
+}, Open  ]],
+
+Cell[BoxData[
+ RowBox[{
+  StyleBox[
+   RowBox[{"Eigensystem", "::", "arh"}], "MessageName"], 
+  RowBox[{
+  ":", " "}], "\<\"Because finding \
+\[NoBreak]\\!\\(\\*RowBox[{\\\"1351\\\"}]\\)\[NoBreak] out of the \
+\[NoBreak]\\!\\(\\*RowBox[{\\\"1351\\\"}]\\)\[NoBreak] eigenvalues and/or \
+eigenvectors is likely to be faster with dense matrix methods, the sparse \
+input matrix will be converted. If fewer eigenvalues and/or eigenvectors \
+would be sufficient, consider restricting this number using the second \
+argument to \[NoBreak]\\!\\(\\*RowBox[{\\\"Eigensystem\\\"}]\\)\[NoBreak]. \
+\\!\\(\\*ButtonBox[\\\"\[RightSkeleton]\\\", ButtonStyle->\\\"Link\\\", \
+ButtonFrame->None, ButtonData:>\\\"paclet:ref/Eigensystem\\\", ButtonNote -> \
+\\\"Eigensystem::arh\\\"]\\)\"\>"}]], "Message", "MSG",
+ CellChangeTimes->{{3.709979583607071*^9, 3.7099795991640673`*^9}, 
+   3.7099796846471767`*^9, 3.7099797707305813`*^9, 3.709979871480901*^9, {
+   3.709979934952194*^9, 3.709979952797126*^9}, 3.709980011593399*^9, {
+   3.709980065713131*^9, 3.709980135125236*^9}, 3.709980190816495*^9, {
+   3.7099802412683163`*^9, 3.7099802655511723`*^9}, 3.709981097234342*^9}],
+
+Cell[BoxData["1.981297`"], "Print",
+ CellChangeTimes->{
+  3.70997977050356*^9, 3.70997987130657*^9, {3.7099799347679043`*^9, 
+   3.709979952630042*^9}, 3.7099800114032097`*^9, {3.7099800654815683`*^9, 
+   3.7099801349560413`*^9}, 3.7099801906591263`*^9, {3.70998024109191*^9, 
+   3.7099802653796253`*^9}, 3.709981097546247*^9}],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+  "40", ",", "56", ",", "70", ",", "85", ",", "99", ",", "114", ",", "129", 
+   ",", "143", ",", "158", ",", "173", ",", "187", ",", "187", ",", "187", 
+   ",", "187", ",", "187", ",", "187", ",", "187", ",", "187", ",", "187", 
+   ",", "187", ",", "202", ",", "202", ",", "202", ",", "202", ",", "202", 
+   ",", "202", ",", "202", ",", "202", ",", "202", ",", "202", ",", "217", 
+   ",", "217", ",", "217", ",", "217", ",", "217", ",", "217", ",", "217", 
+   ",", "217", ",", "217", ",", "217", ",", "231", ",", "231", ",", "231", 
+   ",", "231", ",", "231", ",", "231", ",", "231", ",", "231", ",", "231", 
+   ",", "231", ",", "246", ",", "246", ",", "246", ",", "246", ",", "246", 
+   ",", "246", ",", "246", ",", "246", ",", "246", ",", "246", ",", "246", 
+   ",", "246", ",", "246", ",", "246", ",", "246", ",", "246", ",", "246", 
+   ",", "246", ",", "246", ",", "246", ",", "246", ",", "246", ",", "246", 
+   ",", "246", ",", "246", ",", "246", ",", "246", ",", "246", ",", "246", 
+   ",", "246", ",", "246", ",", "246", ",", "246", ",", "246", ",", "246", 
+   ",", "246", ",", "246", ",", "246", ",", "246", ",", "246", ",", "246", 
+   ",", "246", ",", "246", ",", "246", ",", "246", ",", "246", ",", "246", 
+   ",", "246", ",", "246", ",", "246", ",", "246", ",", "246", ",", "246", 
+   ",", "246", ",", "246", ",", "246", ",", "246", ",", "246", ",", "246", 
+   ",", "246", ",", "246", ",", "246", ",", "246", ",", "246", ",", "246", 
+   ",", "246", ",", "246", ",", "246", ",", "246", ",", "246", ",", "246", 
+   ",", "246", ",", "246", ",", "246", ",", "246", ",", "246", ",", "246", 
+   ",", "246", ",", "246", ",", "246", ",", "246", ",", "246", ",", "246", 
+   ",", "246", ",", "246", ",", "246", ",", "246", ",", "246", ",", "246", 
+   ",", "246", ",", "246", ",", "246", ",", "246", ",", "246", ",", "246", 
+   ",", "246", ",", "246", ",", "246", ",", "246", ",", "246", ",", "260", 
+   ",", "260", ",", "260", ",", "260", ",", "260", ",", "260", ",", "260", 
+   ",", "260", ",", "260", ",", "260", ",", "260", ",", "260", ",", "260", 
+   ",", "260", ",", "260", ",", "260", ",", "260", ",", "260", ",", "260", 
+   ",", "260", ",", "260", ",", "260", ",", "260", ",", "260", ",", "260", 
+   ",", "260", ",", "260", ",", "260", ",", "260", ",", "260", ",", "260", 
+   ",", "260", ",", "260", ",", "260", ",", "260", ",", "260", ",", "260", 
+   ",", "260", ",", "260", ",", "260", ",", "260", ",", "260", ",", "260", 
+   ",", "260", ",", "260", ",", "260", ",", "260", ",", "260", ",", "260", 
+   ",", "260", ",", "260", ",", "260", ",", "260", ",", "260", ",", "260", 
+   ",", "260", ",", "260", ",", "260", ",", "260", ",", "260", ",", "260", 
+   ",", "260", ",", "260", ",", "260", ",", "260", ",", "260", ",", "260", 
+   ",", "260", ",", "260", ",", "260", ",", "260", ",", "260", ",", "260", 
+   ",", "260", ",", "260", ",", "260", ",", "260", ",", "260", ",", "260", 
+   ",", "260", ",", "260", ",", "260", ",", "260", ",", "260", ",", "260", 
+   ",", "260", ",", "260", ",", "260", ",", "260", ",", "260", ",", "260", 
+   ",", "260", ",", "260", ",", "260", ",", "260", ",", "260", ",", "260", 
+   ",", "260", ",", "260", ",", "260", ",", "275", ",", "275", ",", "275", 
+   ",", "275", ",", "275", ",", "275", ",", "275", ",", "275", ",", "275", 
+   ",", "275", ",", "292", ",", "292", ",", "292", ",", "292", ",", "292", 
+   ",", "292", ",", "292", ",", "292", ",", "292", ",", "292", ",", "318", 
+   ",", "317"}], "}"}]], "Output",
+ CellChangeTimes->{
+  3.7099798758156223`*^9, {3.7099799391842623`*^9, 3.709979957069519*^9}, 
+   3.709980015825596*^9, {3.709980070026229*^9, 3.709980111428563*^9}, 
+   3.709980179259819*^9, {3.7099802349793053`*^9, 3.709980269768861*^9}, 
+   3.709981097555249*^9}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"x", "=", 
+  RowBox[{"Table", "[", 
+   RowBox[{
+    RowBox[{"Table", "[", 
+     RowBox[{
+      RowBox[{
+       RowBox[{"Timing", "[", 
+        RowBox[{"DiagH", "[", 
+         RowBox[{"10", ",", "m", ",", "1"}], "]"}], "]"}], "[", 
+       RowBox[{"[", "1", "]"}], "]"}], ",", 
+      RowBox[{"{", 
+       RowBox[{"i", ",", "1", ",", "20"}], "}"}]}], "]"}], ",", 
+    RowBox[{"{", 
+     RowBox[{"m", ",", "0", ",", "5"}], "}"}]}], "]"}]}]], "Input",
+ CellChangeTimes->{{3.709978955325144*^9, 3.7099791094589853`*^9}, {
+   3.709979148412177*^9, 3.709979179605402*^9}, 3.709979248837564*^9, 
+   3.709979293960197*^9, {3.7099793306741467`*^9, 3.709979336632143*^9}, {
+   3.709979506966403*^9, 3.709979547381073*^9}}],
+
+Cell[BoxData[
+ RowBox[{
+  StyleBox[
+   RowBox[{"Eigensystem", "::", "arh"}], "MessageName"], 
+  RowBox[{
+  ":", " "}], "\<\"Because finding \
+\[NoBreak]\\!\\(\\*RowBox[{\\\"176\\\"}]\\)\[NoBreak] out of the \
+\[NoBreak]\\!\\(\\*RowBox[{\\\"176\\\"}]\\)\[NoBreak] eigenvalues and/or \
+eigenvectors is likely to be faster with dense matrix methods, the sparse \
+input matrix will be converted. If fewer eigenvalues and/or eigenvectors \
+would be sufficient, consider restricting this number using the second \
+argument to \[NoBreak]\\!\\(\\*RowBox[{\\\"Eigensystem\\\"}]\\)\[NoBreak]. \
+\\!\\(\\*ButtonBox[\\\"\[RightSkeleton]\\\", ButtonStyle->\\\"Link\\\", \
+ButtonFrame->None, ButtonData:>\\\"paclet:ref/Eigensystem\\\", ButtonNote -> \
+\\\"Eigensystem::arh\\\"]\\)\"\>"}]], "Message", "MSG",
+ CellChangeTimes->{3.709979205192885*^9, 3.7099792496478243`*^9, 
+  3.709979296609728*^9, 3.7099793374218817`*^9}],
+
+Cell[BoxData[
+ RowBox[{
+  StyleBox[
+   RowBox[{"Eigensystem", "::", "arh"}], "MessageName"], 
+  RowBox[{
+  ":", " "}], "\<\"Because finding \
+\[NoBreak]\\!\\(\\*RowBox[{\\\"176\\\"}]\\)\[NoBreak] out of the \
+\[NoBreak]\\!\\(\\*RowBox[{\\\"176\\\"}]\\)\[NoBreak] eigenvalues and/or \
+eigenvectors is likely to be faster with dense matrix methods, the sparse \
+input matrix will be converted. If fewer eigenvalues and/or eigenvectors \
+would be sufficient, consider restricting this number using the second \
+argument to \[NoBreak]\\!\\(\\*RowBox[{\\\"Eigensystem\\\"}]\\)\[NoBreak]. \
+\\!\\(\\*ButtonBox[\\\"\[RightSkeleton]\\\", ButtonStyle->\\\"Link\\\", \
+ButtonFrame->None, ButtonData:>\\\"paclet:ref/Eigensystem\\\", ButtonNote -> \
+\\\"Eigensystem::arh\\\"]\\)\"\>"}]], "Message", "MSG",
+ CellChangeTimes->{3.709979205192885*^9, 3.7099792496478243`*^9, 
+  3.709979296609728*^9, 3.70997933751653*^9}],
+
+Cell[BoxData[
+ RowBox[{
+  StyleBox[
+   RowBox[{"Eigensystem", "::", "arh"}], "MessageName"], 
+  RowBox[{
+  ":", " "}], "\<\"Because finding \
+\[NoBreak]\\!\\(\\*RowBox[{\\\"176\\\"}]\\)\[NoBreak] out of the \
+\[NoBreak]\\!\\(\\*RowBox[{\\\"176\\\"}]\\)\[NoBreak] eigenvalues and/or \
+eigenvectors is likely to be faster with dense matrix methods, the sparse \
+input matrix will be converted. If fewer eigenvalues and/or eigenvectors \
+would be sufficient, consider restricting this number using the second \
+argument to \[NoBreak]\\!\\(\\*RowBox[{\\\"Eigensystem\\\"}]\\)\[NoBreak]. \
+\\!\\(\\*ButtonBox[\\\"\[RightSkeleton]\\\", ButtonStyle->\\\"Link\\\", \
+ButtonFrame->None, ButtonData:>\\\"paclet:ref/Eigensystem\\\", ButtonNote -> \
+\\\"Eigensystem::arh\\\"]\\)\"\>"}]], "Message", "MSG",
+ CellChangeTimes->{3.709979205192885*^9, 3.7099792496478243`*^9, 
+  3.709979296609728*^9, 3.70997933761027*^9}],
+
+Cell[BoxData[
+ RowBox[{
+  StyleBox[
+   RowBox[{"General", "::", "stop"}], "MessageName"], 
+  RowBox[{
+  ":", " "}], "\<\"Further output of \
+\[NoBreak]\\!\\(\\*StyleBox[RowBox[{\\\"Eigensystem\\\", \\\"::\\\", \
+\\\"arh\\\"}], \\\"MessageName\\\"]\\)\[NoBreak] will be suppressed during \
+this calculation. \\!\\(\\*ButtonBox[\\\"\[RightSkeleton]\\\", \
+ButtonStyle->\\\"Link\\\", ButtonFrame->None, \
+ButtonData:>\\\"paclet:ref/message/General/stop\\\", ButtonNote -> \
+\\\"General::stop\\\"]\\)\"\>"}]], "Message", "MSG",
+ CellChangeTimes->{3.709979205192885*^9, 3.7099792496478243`*^9, 
+  3.709979296609728*^9, 3.7099793376426687`*^9}],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+   RowBox[{"{", 
+    RowBox[{
+    "0.000049`", ",", "0.00002`", ",", "0.000018`", ",", "0.000018`", ",", 
+     "0.000018`", ",", "0.000018`", ",", "0.000017`", ",", "0.000018`", ",", 
+     "0.000017`", ",", "0.000017`", ",", "0.000015`", ",", "0.000017`", ",", 
+     "0.000016`", ",", "0.000017`", ",", "0.000017`", ",", "0.000017`", ",", 
+     "0.000017`", ",", "0.000018`", ",", "0.000016`", ",", "0.000016`"}], 
+    "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+    "0.000556`", ",", "0.000426`", ",", "0.000383`", ",", "0.00038`", ",", 
+     "0.000385`", ",", "0.000381`", ",", "0.000375`", ",", "0.000374`", ",", 
+     "0.000373`", ",", "0.00037`", ",", "0.000372`", ",", "0.000372`", ",", 
+     "0.000404`", ",", "0.00037`", ",", "0.00037`", ",", "0.00036`", ",", 
+     "0.00036`", ",", "0.00036`", ",", "0.000359`", ",", "0.000358`"}], "}"}],
+    ",", 
+   RowBox[{"{", 
+    RowBox[{
+    "0.003065`", ",", "0.009881`", ",", "0.00992`", ",", "0.009882`", ",", 
+     "0.00945`", ",", "0.009929`", ",", "0.009935`", ",", "0.009894`", ",", 
+     "0.009894`", ",", "0.009901`", ",", "0.009921`", ",", "0.009897`", ",", 
+     "0.009978`", ",", "0.009923`", ",", "0.009916`", ",", "0.009886`", ",", 
+     "0.009875`", ",", "0.009897`", ",", "0.009878`", ",", "0.009893`"}], 
+    "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+    "0.362905`", ",", "0.36551`", ",", "0.478512`", ",", "0.081061`", ",", 
+     "0.07647`", ",", "0.076077`", ",", "0.075675`", ",", "0.090699`", ",", 
+     "0.076248`", ",", "0.076267`", ",", "0.075657`", ",", "0.076166`", ",", 
+     "0.075763`", ",", "0.076726`", ",", "0.075872`", ",", "0.07625`", ",", 
+     "0.075772`", ",", "0.076179`", ",", "0.075652`", ",", "0.07614`"}], 
+    "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+    "0.274588`", ",", "0.270136`", ",", "0.269566`", ",", "0.270946`", ",", 
+     "0.273792`", ",", "0.271131`", ",", "0.271382`", ",", "0.273326`", ",", 
+     "0.272336`", ",", "0.273509`", ",", "0.272505`", ",", "0.270399`", ",", 
+     "0.271411`", ",", "0.272112`", ",", "0.271403`", ",", "0.269004`", ",", 
+     "0.271405`", ",", "0.270484`", ",", "0.288836`", ",", "0.282022`"}], 
+    "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+    "1.079691`", ",", "1.068877`", ",", "1.066909`", ",", "1.069107`", ",", 
+     "1.069287`", ",", "1.06869`", ",", "1.076529`", ",", "1.076697`", ",", 
+     "1.073149`", ",", "1.067338`", ",", "1.068854`", ",", "1.069746`", ",", 
+     "1.069515`", ",", "1.075827`", ",", "1.073777`", ",", "1.074638`", ",", 
+     "1.078337`", ",", "1.071649`", ",", "1.07453`", ",", "1.073994`"}], 
+    "}"}]}], "}"}]], "Output",
+ CellChangeTimes->{
+  3.7099791575671883`*^9, {3.709979244344598*^9, 3.709979254028665*^9}, 
+   3.7099793010490847`*^9, 3.7099793447524567`*^9}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"ListPlot", "[", "x", "]"}]], "Input",
+ CellChangeTimes->{{3.709979268133608*^9, 3.7099792744065247`*^9}}],
+
+Cell[BoxData[
+ GraphicsBox[{{}, {{}, 
+    {RGBColor[0.368417, 0.506779, 0.709798], PointSize[0.009166666666666668], 
+     AbsoluteThickness[1.6], PointBox[CompressedData["
+1:eJxTTMoPSmViYGAQAWIQDQEf7A9MFtNbvYHTHirg8DHjccfWH1/sIFwOB/vV
+Z6Zcu/8JyhdA44ug8SXQ+DIOaT4HpdIvf4TyFdDkldDkVdD4ag6ZsqG+AqXv
+oXwNNHkth963Wxd8P/YBytdBk9dD4xug8Q3R+EZo7jNGM98EzgcAdzBl8g==
+
+      "]]}, 
+    {RGBColor[0.880722, 0.611041, 0.142051], PointSize[0.009166666666666668], 
+     AbsoluteThickness[1.6], PointBox[CompressedData["
+1:eJxTTMoPSmViYGAQAWIQDQEf7L/3t74QsHCyhwo4+O7NE5R4bQ3lczik6RVU
+rpG0hPIFHObx9E0Kf24B5Ys4OM7amGFlDZOXcOg+pNcl9wMmL+Pwqy5rT8lk
+GF/BgefkySNrm2B8JQd5Yc2zzwphfBWHsI9uzybaw/hqDoaxHVflE2F8DTS+
+lsNjqfkn/1VaQfk6aPr10PgGDvzX/luemW4O5Rui8Y3Q+MYOigrxTqztML6J
+g3HWPi+7MnN7ALw2Tqc=
+      "]]}, 
+    {RGBColor[0.560181, 0.691569, 0.194885], PointSize[0.009166666666666668], 
+     AbsoluteThickness[1.6], PointBox[CompressedData["
+1:eJxTTMoPSmViYGAQAWIQDQEf7FVcUyKOSmfaQwUc3udfiKu1aYHyORxW+s65
+8z4AxhdwmF/aO43ZFsYXcZhxd3J7a1QzlC/hcKXB8dLyUJi8jMOHResVzkbA
++AoON3ZmGvs5w/hKaHwVhyUPp+z86QbjqzlEBEeKlAXC+BoOz04tuPXABcbX
+csiYnl8bkQ/j6zhsj7vc3BQE4+s5vDZb8feaH4xv4BDb01gqYw/jGzpc9k0S
+iLCE8Y3QzDd2eBg3c/srKxjfxEFzy5rfx51a7AHA41io
+      "]]}, 
+    {RGBColor[0.922526, 0.385626, 0.209179], PointSize[0.009166666666666668], 
+     AbsoluteThickness[1.6], PointBox[CompressedData["
+1:eJxTTMoPSmViYGAQAWIQDQEf7NWbFz+5anndHirg8ENSnK8lBcbncIietv70
+h/n3oHwBhxq1388zD2yB8kUc7rIrbO2cvBnKl3CYEvDL6UQljC/j8PST/KX8
+eBhfweHU8uPbeCy2Q/lKDpKrkrT+tsDkVRxmTT/8zroNxldzkFq27YpjHIyv
+4XBZXzB/bj2Mr+WQZ2hvbpIK4+s4nN57YE3AEhhfz+HJvHXvInJgfAOH1teB
+O+RaYXxDhyvXP5uehus3chCIXNJZ3gDjGzv0ND34+DYWxjdxiLz7yvJl7WZ7
+AM8TXqs=
+      "]]}, 
+    {RGBColor[0.528488, 0.470624, 0.701351], PointSize[0.009166666666666668], 
+     AbsoluteThickness[1.6], PointBox[CompressedData["
+1:eJxTTMoPSmViYGAQAWIQDQEf7NM/fO++OemiPVTAodAyrvGFJ4zP4aDj0n5g
+ogOML+AQddPuiW44jC/i8Jup6uG5VhhfwsFiUfU10ygYX8bhgtu62UFxML6C
+g2HCyVCdOhhfycGvIfHn51wYX8VhS0TXE+1GGF/NIeTY/vM7CmB8DQftA+Wz
+zf1gfC2H75MN7c7AzddxaIowK/bIgvH1HLqDnDasgssbOIRMmN8bYw7jGzo8
+U9onvBkub+Tger1Vfo4/jG/scEi46q9nzSUo38RBQ3MDwzKeS/YAKi1Z3A==
+
+      "]]}, 
+    {RGBColor[0.772079, 0.431554, 0.102387], PointSize[0.009166666666666668], 
+     AbsoluteThickness[1.6], PointBox[CompressedData["
+1:eJxTTMoPSmViYGAQAWIQDQEf7PsmvhHMcvtoDxVwsFN9fkROCsbncLj69o02
+vxCML+BQeprvI780jC/iUDK7YP0ZOF/C4f2/ivVRkjC+jIOsInNlmSWMr+Aw
+2UJ7kZoVjK/k8OeQtuc8bRhfxeFR0R6mi8IwvpqDhd7jZWxw92g4XM8N+L1W
+FsbXcpjiu/PQbhkYX8fhfWlQ/DQzGF/P4aHa4lMGejC+gYP8/AlztxvC+IYO
+2YKBPvccYHwjh9gVf7IrVWF8Y4dgpc44N7h6E4eWWYqhIvof7QEFAlZy
+      "]]}, {}}, {}},
+  
+  AspectRatio->NCache[GoldenRatio^(-1), 0.6180339887498948],
+  Axes->{True, True},
+  AxesLabel->{None, None},
+  AxesOrigin->{0., 0},
+  DisplayFunction->Identity,
+  Frame->{{False, False}, {False, False}},
+  FrameLabel->{{None, None}, {None, None}},
+  FrameTicks->{{Automatic, Automatic}, {Automatic, Automatic}},
+  GridLines->{None, None},
+  GridLinesStyle->Directive[
+    GrayLevel[0.5, 0.4]],
+  ImagePadding->All,
+  ImageSize->{643.80859375, Automatic},
+  Method->{"CoordinatesToolOptions" -> {"DisplayFunction" -> ({
+        (Part[{{Identity, Identity}, {Identity, Identity}}, 1, 2][#]& )[
+         Part[#, 1]], 
+        (Part[{{Identity, Identity}, {Identity, Identity}}, 2, 2][#]& )[
+         Part[#, 2]]}& ), "CopiedValueFunction" -> ({
+        (Part[{{Identity, Identity}, {Identity, Identity}}, 1, 2][#]& )[
+         Part[#, 1]], 
+        (Part[{{Identity, Identity}, {Identity, Identity}}, 2, 2][#]& )[
+         Part[#, 2]]}& )}},
+  PlotRange->{{0., 20.}, {0, 1.079691}},
+  PlotRangeClipping->True,
+  PlotRangePadding->{{
+     Scaled[0.02], 
+     Scaled[0.02]}, {
+     Scaled[0.02], 
+     Scaled[0.05]}},
+  Ticks->{Automatic, Automatic}]], "Output",
+ CellChangeTimes->{3.709979275087467*^9, 3.709979305548235*^9, 
+  3.7099793448202963`*^9}]
+}, Open  ]]
+},
+WindowSize->{808, 702},
+WindowMargins->{{Automatic, 29}, {-85, Automatic}},
+FrontEndVersion->"10.4 for Mac OS X x86 (32-bit, 64-bit Kernel) (February 25, \
+2016)",
+StyleDefinitions->"Default.nb"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[CellGroupData[{
+Cell[580, 22, 142, 4, 28, "Input"],
+Cell[725, 28, 145, 2, 28, "Output"]
+}, Open  ]],
+Cell[885, 33, 91, 3, 28, "Input"],
+Cell[CellGroupData[{
+Cell[1001, 40, 1647, 38, 148, "Input"],
+Cell[2651, 80, 479, 9, 22, "Print"],
+Cell[3133, 91, 1157, 19, 78, "Message"],
+Cell[CellGroupData[{
+Cell[4315, 114, 329, 5, 21, "Print"],
+Cell[4647, 121, 482, 9, 22, "Print"]
+}, Open  ]],
+Cell[5144, 133, 1157, 19, 78, "Message"],
+Cell[6304, 154, 327, 5, 21, "Print"],
+Cell[6634, 161, 3762, 53, 284, "Output"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[10433, 219, 733, 18, 28, "Input"],
+Cell[11169, 239, 908, 16, 78, "Message"],
+Cell[12080, 257, 905, 16, 78, "Message"],
+Cell[12988, 275, 905, 16, 78, "Message"],
+Cell[13896, 293, 638, 13, 24, "Message"],
+Cell[14537, 308, 2779, 53, 318, "Output"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[17353, 366, 129, 2, 28, "Input"],
+Cell[17485, 370, 3852, 83, 419, "Output"]
+}, Open  ]]
+}
+]
+*)
+
+(* End of internal cache information *)
+

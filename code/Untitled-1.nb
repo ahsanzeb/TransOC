@@ -1,0 +1,68 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Mathematica 10.4' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       158,          7]
+NotebookDataLength[      1588,         58]
+NotebookOptionsPosition[      1265,         41]
+NotebookOutlinePosition[      1623,         57]
+CellTagsIndexPosition[      1580,         54]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+
+Cell[CellGroupData[{
+Cell[BoxData[
+ RowBox[{"out", "=", 
+  RowBox[{"trajectory", "[", 
+   RowBox[{
+   "5", ",", "vars", ",", "1", ",", "tpar", ",", "kappa", ",", "gamma", ",", 
+    "Er", ",", "w0", ",", "beta", ",", "10", ",", "True", ",", 
+    "BlockInjection", ",", "M", ",", "wv", ",", "lam", ",", "False"}], 
+   "]"}]}]], "Input",
+ CellChangeTimes->{{3.709637692224965*^9, 3.709637695359619*^9}, {
+  3.7096379625467663`*^9, 3.709637963241087*^9}}],
+
+Cell[BoxData[
+ InterpretationBox[
+  RowBox[{"\<\"*************** ITERATION # \"\>", "\[InvisibleSpace]", "0"}],
+  SequenceForm["*************** ITERATION # ", 0],
+  Editable->False]], "Print",
+ CellChangeTimes->{3.7096380716208677`*^9}]
+}, Open  ]]
+},
+WindowSize->{808, 705},
+WindowMargins->{{Automatic, 44}, {Automatic, 35}},
+FrontEndVersion->"10.4 for Mac OS X x86 (32-bit, 64-bit Kernel) (February 25, \
+2016)",
+StyleDefinitions->"Default.nb"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[CellGroupData[{
+Cell[580, 22, 430, 9, 46, "Input"],
+Cell[1013, 33, 236, 5, 21, "Print"]
+}, Open  ]]
+}
+]
+*)
+
+(* End of internal cache information *)
+

@@ -1,0 +1,658 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Mathematica 10.4' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       158,          7]
+NotebookDataLength[     24590,        650]
+NotebookOptionsPosition[     22754,        587]
+NotebookOutlinePosition[     23110,        603]
+CellTagsIndexPosition[     23067,        600]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+
+Cell[CellGroupData[{
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{
+   RowBox[{"vars", "=", 
+    RowBox[{"{", 
+     RowBox[{
+      RowBox[{"{", "1", "}"}], ",", 
+      RowBox[{"{", 
+       RowBox[{"2", ",", "4"}], "}"}], ",", "5", ",", "100"}], "}"}]}], ";", 
+   RowBox[{"(*", 
+    RowBox[{"{", 
+     RowBox[{"Ds", ",", "Phis", ",", "m", ",", "tmax"}], "}"}], "*)"}], 
+   "\[IndentingNewLine]", 
+   RowBox[{"tpar", "=", 
+    RowBox[{"{", 
+     RowBox[{
+     "0.1", ",", "0.001", ",", "0.001", ",", "0.1", ",", "0.1", ",", "0.1", 
+      ",", "0.1", ",", "0.1"}], "}"}]}], ";"}], 
+  RowBox[{"(*", " ", 
+   RowBox[{"JhR", ",", 
+    RowBox[{"JlL", "\[Rule]", 
+     RowBox[{
+     "0", " ", "for", " ", "hole", " ", "and", " ", "electron", " ", 
+      "blocking", " ", "at", " ", "anode", " ", "and", " ", "cathode"}]}]}], 
+   " ", "*)"}]}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"{", 
+    RowBox[{"kappa", ",", "gamma"}], "}"}], "=", 
+   RowBox[{"{", 
+    RowBox[{"0.0005", ",", "0.0005"}], "}"}]}], ";"}], "\[IndentingNewLine]", 
+
+ RowBox[{
+  RowBox[{
+   RowBox[{"BlockInjection", "=", 
+    RowBox[{"{", 
+     RowBox[{"False", ",", "True"}], "}"}]}], ";", 
+   RowBox[{"(*", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"True", ",", "True"}], "}"}], ";"}], "*)"}], 
+   "\[IndentingNewLine]", 
+   RowBox[{"Er", "=", "0.8"}], ";", 
+   RowBox[{"(*", 
+    RowBox[{
+     RowBox[{"10", "^", "6"}], "*", 
+     RowBox[{"ev", "/", "cm"}], " ", "*", " ", "5", "nm"}], "*)"}], 
+   "\[IndentingNewLine]", 
+   RowBox[{"w0", "=", "1"}], ";", 
+   RowBox[{"beta", "=", "40"}], ";", 
+   RowBox[{"(*", 
+    RowBox[{
+     RowBox[{"beta", "=", 
+      RowBox[{
+       RowBox[{"40", " ", "for", " ", "Temp"}], "=", "0.025"}]}], ";", " ", 
+     RowBox[{"for", " ", "300", "K"}]}], "*)"}], "\[IndentingNewLine]", 
+   RowBox[{"M", "=", "3"}], ";", 
+   RowBox[{"wv", "=", "0.2"}], ";", 
+   RowBox[{"lam", "=", "1"}], ";", " ", 
+   RowBox[{"(*", " ", 
+    RowBox[{
+     RowBox[{"vibrational", " ", "assistance", " ", "for", " ", "HOMO"}], "-", 
+     RowBox[{"LUMO", " ", "hops"}]}], "*)"}], "\[IndentingNewLine]", 
+   "\[IndentingNewLine]", 
+   RowBox[{"AlwaysLP", "=", "True"}], ";"}], 
+  "\[IndentingNewLine]"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"gg", "=", "1"}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"maxiter", "=", "50"}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"NN", "=", "8"}], "\[IndentingNewLine]"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{
+    RowBox[{"MemoryInUse", "[", "]"}], "/", 
+    RowBox[{"10", "^", "6"}]}], "//", "IntegerPart"}], "\[IndentingNewLine]", 
+  "\[IndentingNewLine]"}], "\[IndentingNewLine]"}], "Input",
+ CellChangeTimes->{{3.710149754699054*^9, 3.710149778514183*^9}, {
+   3.7101499014710283`*^9, 3.710149918837906*^9}, 3.710149984504662*^9, {
+   3.710150039758727*^9, 3.710150041701105*^9}, {3.71015007173391*^9, 
+   3.710150099133312*^9}, {3.71015105656597*^9, 3.710151072171459*^9}, {
+   3.71015110684338*^9, 3.7101511074191628`*^9}, 3.710151498244958*^9, 
+   3.710151594577816*^9, {3.710151715310658*^9, 3.7101517462504*^9}, {
+   3.710151787774523*^9, 3.7101517878862247`*^9}, 3.710151884169763*^9, {
+   3.710155053295285*^9, 3.710155059572748*^9}, 3.7101550898519506`*^9}],
+
+Cell[BoxData["8"], "Output",
+ CellChangeTimes->{
+  3.710150100127075*^9, {3.7101510598814573`*^9, 3.7101510734700003`*^9}, 
+   3.7101511083677*^9, {3.710151479410906*^9, 3.710151500249134*^9}, 
+   3.710151596660256*^9, {3.710151692232519*^9, 3.710151747122053*^9}, 
+   3.710151788788651*^9, 3.7101518863399677`*^9, {3.710155085668376*^9, 
+   3.710155090715568*^9}}],
+
+Cell[BoxData["41"], "Output",
+ CellChangeTimes->{
+  3.710150100127075*^9, {3.7101510598814573`*^9, 3.7101510734700003`*^9}, 
+   3.7101511083677*^9, {3.710151479410906*^9, 3.710151500249134*^9}, 
+   3.710151596660256*^9, {3.710151692232519*^9, 3.710151747122053*^9}, 
+   3.710151788788651*^9, 3.7101518863399677`*^9, {3.710155085668376*^9, 
+   3.710155090727728*^9}}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[""], "Input",
+ CellChangeTimes->{{3.710149860192799*^9, 3.710149876070942*^9}, 
+   3.710150090014269*^9}],
+
+Cell[BoxData["561"], "Output",
+ CellChangeTimes->{{3.7101498786923733`*^9, 3.710149921402275*^9}, 
+   3.7101499797098846`*^9, {3.710150016035309*^9, 3.710150045364087*^9}, 
+   3.710150086512352*^9}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"out2", "=", 
+   RowBox[{"trajectory", "[", 
+    RowBox[{
+    "NN", ",", "vars", ",", "gg", ",", "tpar", ",", "kappa", ",", "gamma", 
+     ",", "Er", ",", "w0", ",", "beta", ",", "maxiter", ",", "False", ",", 
+     "BlockInjection", ",", "M", ",", "wv", ",", "lam", ",", "AlwaysLP"}], 
+    "]"}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"MemoryInUse", "[", "]"}], "/", 
+   RowBox[{"10", "^", "6"}]}], "//", 
+  "IntegerPart"}], "\[IndentingNewLine]"}], "Input",
+ CellChangeTimes->{{3.710149740397183*^9, 3.710149774713675*^9}, {
+  3.710149870936276*^9, 3.710149874536359*^9}, {3.710155266854836*^9, 
+  3.710155277716982*^9}}],
+
+Cell[BoxData[
+ RowBox[{
+  StyleBox[
+   RowBox[{"Eigensystem", "::", "arh"}], "MessageName"], 
+  RowBox[{
+  ":", " "}], "\<\"Because finding \[NoBreak]\\!\\(\\*RowBox[{\\\"50\\\"}]\\)\
+\[NoBreak] out of the \[NoBreak]\\!\\(\\*RowBox[{\\\"127\\\"}]\\)\[NoBreak] \
+eigenvalues and/or eigenvectors is likely to be faster with dense matrix \
+methods, the sparse input matrix will be converted. If fewer eigenvalues \
+and/or eigenvectors would be sufficient, consider restricting this number \
+using the second argument to \[NoBreak]\\!\\(\\*RowBox[{\\\"Eigensystem\\\"}]\
+\\)\[NoBreak]. \\!\\(\\*ButtonBox[\\\"\[RightSkeleton]\\\", \
+ButtonStyle->\\\"Link\\\", ButtonFrame->None, \
+ButtonData:>\\\"paclet:ref/Eigensystem\\\", ButtonNote -> \
+\\\"Eigensystem::arh\\\"]\\)\"\>"}]], "Message", "MSG",
+ CellChangeTimes->{3.7101552824831247`*^9}],
+
+Cell[BoxData[
+ RowBox[{
+  StyleBox[
+   RowBox[{"Eigensystem", "::", "arh"}], "MessageName"], 
+  RowBox[{
+  ":", " "}], "\<\"Because finding \[NoBreak]\\!\\(\\*RowBox[{\\\"50\\\"}]\\)\
+\[NoBreak] out of the \[NoBreak]\\!\\(\\*RowBox[{\\\"127\\\"}]\\)\[NoBreak] \
+eigenvalues and/or eigenvectors is likely to be faster with dense matrix \
+methods, the sparse input matrix will be converted. If fewer eigenvalues \
+and/or eigenvectors would be sufficient, consider restricting this number \
+using the second argument to \[NoBreak]\\!\\(\\*RowBox[{\\\"Eigensystem\\\"}]\
+\\)\[NoBreak]. \\!\\(\\*ButtonBox[\\\"\[RightSkeleton]\\\", \
+ButtonStyle->\\\"Link\\\", ButtonFrame->None, \
+ButtonData:>\\\"paclet:ref/Eigensystem\\\", ButtonNote -> \
+\\\"Eigensystem::arh\\\"]\\)\"\>"}]], "Message", "MSG",
+ CellChangeTimes->{3.710155282946652*^9}],
+
+Cell[BoxData[
+ InterpretationBox[
+  RowBox[{"\<\"pf for ZT: \"\>", "\[InvisibleSpace]", 
+   RowBox[{"{", 
+    RowBox[{"0.000033546262790251244`", ",", "5.3801861600211384`*^-33"}], 
+    "}"}], "\[InvisibleSpace]", 
+   RowBox[{"{", 
+    RowBox[{"3.9037171762771665`*^-27", ",", "0.044525053800599235`"}], 
+    "}"}]}],
+  SequenceForm[
+  "pf for ZT: ", {0.000033546262790251244`, 5.3801861600211384`*^-33}, {
+   3.9037171762771665`*^-27, 0.044525053800599235`}],
+  Editable->False]], "Print",
+ CellChangeTimes->{3.710155290875679*^9}],
+
+Cell[BoxData[
+ RowBox[{
+  StyleBox[
+   RowBox[{"Eigensystem", "::", "arh"}], "MessageName"], 
+  RowBox[{
+  ":", " "}], "\<\"Because finding \[NoBreak]\\!\\(\\*RowBox[{\\\"50\\\"}]\\)\
+\[NoBreak] out of the \[NoBreak]\\!\\(\\*RowBox[{\\\"120\\\"}]\\)\[NoBreak] \
+eigenvalues and/or eigenvectors is likely to be faster with dense matrix \
+methods, the sparse input matrix will be converted. If fewer eigenvalues \
+and/or eigenvectors would be sufficient, consider restricting this number \
+using the second argument to \[NoBreak]\\!\\(\\*RowBox[{\\\"Eigensystem\\\"}]\
+\\)\[NoBreak]. \\!\\(\\*ButtonBox[\\\"\[RightSkeleton]\\\", \
+ButtonStyle->\\\"Link\\\", ButtonFrame->None, \
+ButtonData:>\\\"paclet:ref/Eigensystem\\\", ButtonNote -> \
+\\\"Eigensystem::arh\\\"]\\)\"\>"}]], "Message", "MSG",
+ CellChangeTimes->{3.710155294879498*^9}],
+
+Cell[BoxData[
+ RowBox[{
+  StyleBox[
+   RowBox[{"General", "::", "stop"}], "MessageName"], 
+  RowBox[{
+  ":", " "}], "\<\"Further output of \
+\[NoBreak]\\!\\(\\*StyleBox[RowBox[{\\\"Eigensystem\\\", \\\"::\\\", \
+\\\"arh\\\"}], \\\"MessageName\\\"]\\)\[NoBreak] will be suppressed during \
+this calculation. \\!\\(\\*ButtonBox[\\\"\[RightSkeleton]\\\", \
+ButtonStyle->\\\"Link\\\", ButtonFrame->None, \
+ButtonData:>\\\"paclet:ref/message/General/stop\\\", ButtonNote -> \
+\\\"General::stop\\\"]\\)\"\>"}]], "Message", "MSG",
+ CellChangeTimes->{3.7101552949298162`*^9}],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ InterpretationBox[
+  RowBox[{"\<\"After: MemoryInUse (MB)\"\>", "\[InvisibleSpace]", "1915"}],
+  SequenceForm["After: MemoryInUse (MB)", 1915],
+  Editable->False]], "Print",
+ CellChangeTimes->{3.710155295244493*^9}],
+
+Cell[BoxData[
+ InterpretationBox[
+  RowBox[{"\<\"Dimensions of Es and U:\"\>", "\[InvisibleSpace]", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", "3", "}"}], ",", 
+     RowBox[{"{", "1", "}"}], ",", 
+     RowBox[{"{", "1", "}"}], ",", 
+     RowBox[{"{", "11", "}"}], ",", 
+     RowBox[{"{", "1", "}"}], ",", 
+     RowBox[{"{", "1", "}"}], ",", 
+     RowBox[{"{", "2", "}"}], ",", 
+     RowBox[{"{", "1", "}"}], ",", 
+     RowBox[{"{", "1", "}"}], ",", 
+     RowBox[{"{", "7", "}"}], ",", 
+     RowBox[{"{", "4", "}"}], ",", 
+     RowBox[{"{", "3", "}"}], ",", 
+     RowBox[{"{", "4", "}"}]}], "}"}]}],
+  SequenceForm[
+  "Dimensions of Es and U:", {{3}, {1}, {1}, {11}, {1}, {1}, {2}, {1}, {1}, {
+   7}, {4}, {3}, {4}}],
+  Editable->False]], "Print",
+ CellChangeTimes->{3.710155295252522*^9}],
+
+Cell[BoxData[
+ InterpretationBox[
+  RowBox[{"\<\"N = \"\>", "\[InvisibleSpace]", 
+   RowBox[{"{", 
+    RowBox[{
+    "3", ",", "5", ",", "6", ",", "5", ",", "3", ",", "5", ",", "3", ",", "4",
+      ",", "4", ",", "4", ",", "6", ",", "5", ",", "5", ",", "4", ",", "4", 
+     ",", "4", ",", "3", ",", "3", ",", "2", ",", "4", ",", "2", ",", "2", 
+     ",", "2", ",", "2", ",", "4", ",", "3", ",", "5", ",", "3", ",", "3", 
+     ",", "3", ",", "5", ",", "3", ",", "2", ",", "4", ",", "3", ",", "3", 
+     ",", "3", ",", "3", ",", "5", ",", "3", ",", "3", ",", "2", ",", "4", 
+     ",", "6", ",", "5", ",", "3", ",", "3", ",", "3", ",", "2", ",", "4"}], 
+    "}"}]}],
+  SequenceForm[
+  "N = ", {3, 5, 6, 5, 3, 5, 3, 4, 4, 4, 6, 5, 5, 4, 4, 4, 3, 3, 2, 4, 2, 2, 
+   2, 2, 4, 3, 5, 3, 3, 3, 5, 3, 2, 4, 3, 3, 3, 3, 5, 3, 3, 2, 4, 6, 5, 3, 3, 
+   3, 2, 4}],
+  Editable->False]], "Print",
+ CellChangeTimes->{3.710155295265432*^9}],
+
+Cell[BoxData[
+ InterpretationBox[
+  RowBox[{"\<\"m = \"\>", "\[InvisibleSpace]", 
+   RowBox[{"{", 
+    RowBox[{
+    "4", ",", "5", ",", "5", ",", "5", ",", "4", ",", "5", ",", "4", ",", "4",
+      ",", "4", ",", "4", ",", "5", ",", "5", ",", "5", ",", "5", ",", "5", 
+     ",", "5", ",", "4", ",", "4", ",", "3", ",", "4", ",", "3", ",", "3", 
+     ",", "3", ",", "3", ",", "4", ",", "4", ",", "5", ",", "4", ",", "4", 
+     ",", "4", ",", "5", ",", "4", ",", "3", ",", "4", ",", "3", ",", "3", 
+     ",", "3", ",", "3", ",", "4", ",", "3", ",", "3", ",", "2", ",", "3", 
+     ",", "4", ",", "3", ",", "2", ",", "2", ",", "2", ",", "1", ",", "2"}], 
+    "}"}]}],
+  SequenceForm[
+  "m = ", {4, 5, 5, 5, 4, 5, 4, 4, 4, 4, 5, 5, 5, 5, 5, 5, 4, 4, 3, 4, 3, 3, 
+   3, 3, 4, 4, 5, 4, 4, 4, 5, 4, 3, 4, 3, 3, 3, 3, 4, 3, 3, 2, 3, 4, 3, 2, 2, 
+   2, 1, 2}],
+  Editable->False]], "Print",
+ CellChangeTimes->{3.710155295278173*^9}],
+
+Cell[BoxData[
+ InterpretationBox[
+  RowBox[{"\<\"j = \"\>", "\[InvisibleSpace]", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"5", ",", "12"}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"1", ",", "9"}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"8", ",", "8"}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"4", ",", "8"}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"21", ",", "4"}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"20", ",", "4"}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"23", ",", "3"}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"9", ",", "2"}], "}"}]}], "}"}]}],
+  SequenceForm[
+  "j = ", {{5, 12}, {1, 9}, {8, 8}, {4, 8}, {21, 4}, {20, 4}, {23, 3}, {9, 
+   2}}],
+  Editable->False]], "Print",
+ CellChangeTimes->{3.710155295290753*^9}]
+}, Open  ]],
+
+Cell[BoxData["1915"], "Output",
+ CellChangeTimes->{3.710155295303355*^9}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"out", "[", 
+   RowBox[{"[", 
+    RowBox[{"1", ",", "All", ",", "3"}], "]"}], "]"}], "//", 
+  "Total"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"out2", "[", 
+   RowBox[{"[", 
+    RowBox[{"1", ",", "All", ",", "3"}], "]"}], "]"}], "//", 
+  "Total"}]}], "Input",
+ CellChangeTimes->{{3.7101553190216713`*^9, 3.710155343460485*^9}}],
+
+Cell[BoxData["13"], "Output",
+ CellChangeTimes->{{3.710155314921567*^9, 3.7101553442535763`*^9}}],
+
+Cell[BoxData["13"], "Output",
+ CellChangeTimes->{{3.710155314921567*^9, 3.710155344261725*^9}}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData["\[IndentingNewLine]"], "Input",
+ CellChangeTimes->{3.7101552642425127`*^9}],
+
+Cell[BoxData[
+ RowBox[{
+  StyleBox[
+   RowBox[{"Eigensystem", "::", "arh"}], "MessageName"], 
+  RowBox[{
+  ":", " "}], "\<\"Because finding \[NoBreak]\\!\\(\\*RowBox[{\\\"50\\\"}]\\)\
+\[NoBreak] out of the \[NoBreak]\\!\\(\\*RowBox[{\\\"127\\\"}]\\)\[NoBreak] \
+eigenvalues and/or eigenvectors is likely to be faster with dense matrix \
+methods, the sparse input matrix will be converted. If fewer eigenvalues \
+and/or eigenvectors would be sufficient, consider restricting this number \
+using the second argument to \[NoBreak]\\!\\(\\*RowBox[{\\\"Eigensystem\\\"}]\
+\\)\[NoBreak]. \\!\\(\\*ButtonBox[\\\"\[RightSkeleton]\\\", \
+ButtonStyle->\\\"Link\\\", ButtonFrame->None, \
+ButtonData:>\\\"paclet:ref/Eigensystem\\\", ButtonNote -> \
+\\\"Eigensystem::arh\\\"]\\)\"\>"}]], "Message", "MSG",
+ CellChangeTimes->{3.710155093332822*^9}],
+
+Cell[BoxData[
+ RowBox[{
+  StyleBox[
+   RowBox[{"Eigensystem", "::", "arh"}], "MessageName"], 
+  RowBox[{
+  ":", " "}], "\<\"Because finding \[NoBreak]\\!\\(\\*RowBox[{\\\"50\\\"}]\\)\
+\[NoBreak] out of the \[NoBreak]\\!\\(\\*RowBox[{\\\"120\\\"}]\\)\[NoBreak] \
+eigenvalues and/or eigenvectors is likely to be faster with dense matrix \
+methods, the sparse input matrix will be converted. If fewer eigenvalues \
+and/or eigenvectors would be sufficient, consider restricting this number \
+using the second argument to \[NoBreak]\\!\\(\\*RowBox[{\\\"Eigensystem\\\"}]\
+\\)\[NoBreak]. \\!\\(\\*ButtonBox[\\\"\[RightSkeleton]\\\", \
+ButtonStyle->\\\"Link\\\", ButtonFrame->None, \
+ButtonData:>\\\"paclet:ref/Eigensystem\\\", ButtonNote -> \
+\\\"Eigensystem::arh\\\"]\\)\"\>"}]], "Message", "MSG",
+ CellChangeTimes->{3.710155093432885*^9}],
+
+Cell[BoxData[
+ RowBox[{
+  StyleBox[
+   RowBox[{"Eigensystem", "::", "arh"}], "MessageName"], 
+  RowBox[{
+  ":", " "}], "\<\"Because finding \[NoBreak]\\!\\(\\*RowBox[{\\\"50\\\"}]\\)\
+\[NoBreak] out of the \[NoBreak]\\!\\(\\*RowBox[{\\\"128\\\"}]\\)\[NoBreak] \
+eigenvalues and/or eigenvectors is likely to be faster with dense matrix \
+methods, the sparse input matrix will be converted. If fewer eigenvalues \
+and/or eigenvectors would be sufficient, consider restricting this number \
+using the second argument to \[NoBreak]\\!\\(\\*RowBox[{\\\"Eigensystem\\\"}]\
+\\)\[NoBreak]. \\!\\(\\*ButtonBox[\\\"\[RightSkeleton]\\\", \
+ButtonStyle->\\\"Link\\\", ButtonFrame->None, \
+ButtonData:>\\\"paclet:ref/Eigensystem\\\", ButtonNote -> \
+\\\"Eigensystem::arh\\\"]\\)\"\>"}]], "Message", "MSG",
+ CellChangeTimes->{3.710155093535733*^9}],
+
+Cell[BoxData[
+ RowBox[{
+  StyleBox[
+   RowBox[{"General", "::", "stop"}], "MessageName"], 
+  RowBox[{
+  ":", " "}], "\<\"Further output of \
+\[NoBreak]\\!\\(\\*StyleBox[RowBox[{\\\"Eigensystem\\\", \\\"::\\\", \
+\\\"arh\\\"}], \\\"MessageName\\\"]\\)\[NoBreak] will be suppressed during \
+this calculation. \\!\\(\\*ButtonBox[\\\"\[RightSkeleton]\\\", \
+ButtonStyle->\\\"Link\\\", ButtonFrame->None, \
+ButtonData:>\\\"paclet:ref/message/General/stop\\\", ButtonNote -> \
+\\\"General::stop\\\"]\\)\"\>"}]], "Message", "MSG",
+ CellChangeTimes->{3.710155093568619*^9}],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ InterpretationBox[
+  RowBox[{"\<\"pf for ZT: \"\>", "\[InvisibleSpace]", 
+   RowBox[{"{", 
+    RowBox[{"0.000033546262790251244`", ",", "5.3801861600211384`*^-33"}], 
+    "}"}], "\[InvisibleSpace]", 
+   RowBox[{"{", 
+    RowBox[{"3.442794314542657`*^-27", ",", "0.0416331060551875`"}], "}"}]}],
+  SequenceForm[
+  "pf for ZT: ", {0.000033546262790251244`, 5.3801861600211384`*^-33}, {
+   3.442794314542657*^-27, 0.0416331060551875}],
+  Editable->False]], "Print",
+ CellChangeTimes->{{3.710151709378418*^9, 3.71015174978745*^9}, 
+   3.710151791007991*^9, 3.710151889647665*^9, 3.710155119870934*^9}],
+
+Cell[BoxData[
+ InterpretationBox[
+  RowBox[{"\<\"After: MemoryInUse (MB)\"\>", "\[InvisibleSpace]", "1531"}],
+  SequenceForm["After: MemoryInUse (MB)", 1531],
+  Editable->False]], "Print",
+ CellChangeTimes->{{3.710151709378418*^9, 3.71015174978745*^9}, 
+   3.710151791007991*^9, 3.710151889647665*^9, 3.710155124598732*^9}],
+
+Cell[BoxData[
+ InterpretationBox[
+  RowBox[{"\<\"Dimensions of Es and U:\"\>", "\[InvisibleSpace]", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", "31", "}"}], ",", 
+     RowBox[{"{", "26", "}"}], ",", 
+     RowBox[{"{", "32", "}"}], ",", 
+     RowBox[{"{", "31", "}"}], ",", 
+     RowBox[{"{", "26", "}"}], ",", 
+     RowBox[{"{", "32", "}"}], ",", 
+     RowBox[{"{", "8", "}"}], ",", 
+     RowBox[{"{", "7", "}"}], ",", 
+     RowBox[{"{", "8", "}"}], ",", 
+     RowBox[{"{", "50", "}"}], ",", 
+     RowBox[{"{", "50", "}"}], ",", 
+     RowBox[{"{", "15", "}"}], ",", 
+     RowBox[{"{", "16", "}"}]}], "}"}]}],
+  SequenceForm[
+  "Dimensions of Es and U:", {{31}, {26}, {32}, {31}, {26}, {32}, {8}, {7}, {
+   8}, {50}, {50}, {15}, {16}}],
+  Editable->False]], "Print",
+ CellChangeTimes->{{3.710151709378418*^9, 3.71015174978745*^9}, 
+   3.710151791007991*^9, 3.710151889647665*^9, 3.710155124605318*^9}],
+
+Cell[BoxData[
+ InterpretationBox[
+  RowBox[{"\<\"N = \"\>", "\[InvisibleSpace]", 
+   RowBox[{"{", 
+    RowBox[{
+    "3", ",", "3", ",", "5", ",", "3", ",", "4", ",", "4", ",", "5", ",", "7",
+      ",", "5", ",", "5", ",", "3", ",", "4", ",", "5", ",", "4", ",", "3", 
+     ",", "3", ",", "3", ",", "3", ",", "3", ",", "3", ",", "3", ",", "5", 
+     ",", "5", ",", "4", ",", "3", ",", "1", ",", "1", ",", "1", ",", "0", 
+     ",", "2", ",", "2", ",", "4", ",", "2", ",", "2", ",", "2", ",", "4", 
+     ",", "4", ",", "4", ",", "6", ",", "5", ",", "4", ",", "4", ",", "4", 
+     ",", "2", ",", "4", ",", "4", ",", "4", ",", "3", ",", "5", ",", "4"}], 
+    "}"}]}],
+  SequenceForm[
+  "N = ", {3, 3, 5, 3, 4, 4, 5, 7, 5, 5, 3, 4, 5, 4, 3, 3, 3, 3, 3, 3, 3, 5, 
+   5, 4, 3, 1, 1, 1, 0, 2, 2, 4, 2, 2, 2, 4, 4, 4, 6, 5, 4, 4, 4, 2, 4, 4, 4, 
+   3, 5, 4}],
+  Editable->False]], "Print",
+ CellChangeTimes->{{3.710151709378418*^9, 3.71015174978745*^9}, 
+   3.710151791007991*^9, 3.710151889647665*^9, 3.710155124608595*^9}],
+
+Cell[BoxData[
+ InterpretationBox[
+  RowBox[{"\<\"m = \"\>", "\[InvisibleSpace]", 
+   RowBox[{"{", 
+    RowBox[{
+    "4", ",", "4", ",", "5", ",", "4", ",", "4", ",", "4", ",", "4", ",", "5",
+      ",", "5", ",", "6", ",", "5", ",", "5", ",", "5", ",", "4", ",", "3", 
+     ",", "3", ",", "3", ",", "3", ",", "4", ",", "3", ",", "4", ",", "5", 
+     ",", "4", ",", "4", ",", "3", ",", "2", ",", "2", ",", "2", ",", "1", 
+     ",", "2", ",", "2", ",", "3", ",", "2", ",", "2", ",", "2", ",", "3", 
+     ",", "3", ",", "3", ",", "4", ",", "3", ",", "3", ",", "3", ",", "3", 
+     ",", "2", ",", "3", ",", "3", ",", "3", ",", "3", ",", "4", ",", "3"}], 
+    "}"}]}],
+  SequenceForm[
+  "m = ", {4, 4, 5, 4, 4, 4, 4, 5, 5, 6, 5, 5, 5, 4, 3, 3, 3, 3, 4, 3, 4, 5, 
+   4, 4, 3, 2, 2, 2, 1, 2, 2, 3, 2, 2, 2, 3, 3, 3, 4, 3, 3, 3, 3, 2, 3, 3, 3, 
+   3, 4, 3}],
+  Editable->False]], "Print",
+ CellChangeTimes->{{3.710151709378418*^9, 3.71015174978745*^9}, 
+   3.710151791007991*^9, 3.710151889647665*^9, 3.710155124611836*^9}],
+
+Cell[BoxData[
+ InterpretationBox[
+  RowBox[{"\<\"j = \"\>", "\[InvisibleSpace]", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"4", ",", "16"}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"5", ",", "9"}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"8", ",", "7"}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"20", ",", "5"}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"1", ",", "4"}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"21", ",", "3"}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"15", ",", "2"}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"9", ",", "2"}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"26", ",", "1"}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"23", ",", "1"}], "}"}]}], "}"}]}],
+  SequenceForm[
+  "j = ", {{4, 16}, {5, 9}, {8, 7}, {20, 5}, {1, 4}, {21, 3}, {15, 2}, {9, 
+   2}, {26, 1}, {23, 1}}],
+  Editable->False]], "Print",
+ CellChangeTimes->{{3.710151709378418*^9, 3.71015174978745*^9}, 
+   3.710151791007991*^9, 3.710151889647665*^9, 3.710155124615032*^9}]
+}, Open  ]],
+
+Cell[BoxData["1531"], "Output",
+ CellChangeTimes->{3.710155124617931*^9}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"out", "[", 
+  RowBox[{"[", 
+   RowBox[{"1", ",", "All", ",", 
+    RowBox[{"-", "1"}]}], "]"}], "]"}]], "Input",
+ CellChangeTimes->{{3.71015519614361*^9, 3.710155228999078*^9}}],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+  "0", ",", "0", ",", "0", ",", "0", ",", "0", ",", "0", ",", "0", ",", "0", 
+   ",", "1", ",", "1", ",", "0", ",", "0", ",", "0", ",", "0", ",", "0", ",", 
+   "0", ",", "0", ",", "0", ",", "1", ",", "0", ",", "1", ",", "0", ",", 
+   RowBox[{"-", "1"}], ",", "0", ",", "0", ",", "0", ",", "0", ",", "0", ",", 
+   "0", ",", "0", ",", "0", ",", "0", ",", "0", ",", "0", ",", "0", ",", "0", 
+   ",", "0", ",", "0", ",", "0", ",", "0", ",", "0", ",", "0", ",", "0", ",", 
+   "0", ",", "0", ",", "0", ",", "0", ",", "0", ",", "0", ",", "0"}], 
+  "}"}]], "Output",
+ CellChangeTimes->{3.710155229989255*^9}]
+}, Open  ]]
+},
+WindowSize->{808, 702},
+WindowMargins->{{9, Automatic}, {Automatic, 0}},
+FrontEndVersion->"10.4 for Mac OS X x86 (32-bit, 64-bit Kernel) (February 25, \
+2016)",
+StyleDefinitions->"Default.nb"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[CellGroupData[{
+Cell[580, 22, 3218, 85, 335, "Input"],
+Cell[3801, 109, 365, 6, 28, "Output"],
+Cell[4169, 117, 366, 6, 28, "Output"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[4572, 128, 118, 2, 28, "Input"],
+Cell[4693, 132, 198, 3, 28, "Output"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[4928, 140, 684, 16, 80, "Input"],
+Cell[5615, 158, 836, 15, 78, "Message"],
+Cell[6454, 175, 834, 15, 78, "Message"],
+Cell[7291, 192, 532, 13, 26, "Print"],
+Cell[7826, 207, 834, 15, 78, "Message"],
+Cell[8663, 224, 567, 12, 24, "Message"],
+Cell[CellGroupData[{
+Cell[9255, 240, 230, 5, 22, "Print"],
+Cell[9488, 247, 794, 22, 21, "Print"],
+Cell[10285, 271, 921, 18, 37, "Print"],
+Cell[11209, 291, 921, 18, 37, "Print"],
+Cell[12133, 311, 797, 25, 22, "Print"]
+}, Open  ]],
+Cell[12945, 339, 73, 1, 28, "Output"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[13055, 345, 368, 11, 46, "Input"],
+Cell[13426, 358, 97, 1, 28, "Output"],
+Cell[13526, 361, 95, 1, 28, "Output"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[13658, 367, 89, 1, 46, "Input"],
+Cell[13750, 370, 834, 15, 78, "Message"],
+Cell[14587, 387, 834, 15, 78, "Message"],
+Cell[15424, 404, 834, 15, 78, "Message"],
+Cell[16261, 421, 565, 12, 24, "Message"],
+Cell[CellGroupData[{
+Cell[16851, 437, 612, 13, 26, "Print"],
+Cell[17466, 452, 323, 6, 22, "Print"],
+Cell[17792, 460, 905, 23, 21, "Print"],
+Cell[18700, 485, 1014, 19, 37, "Print"],
+Cell[19717, 506, 1014, 19, 37, "Print"],
+Cell[20734, 527, 1036, 30, 22, "Print"]
+}, Open  ]],
+Cell[21785, 560, 73, 1, 28, "Output"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[21895, 566, 200, 5, 28, "Input"],
+Cell[22098, 573, 640, 11, 46, "Output"]
+}, Open  ]]
+}
+]
+*)
+
