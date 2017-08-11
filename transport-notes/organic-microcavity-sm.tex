@@ -70,31 +70,73 @@
 \end{abstract}
 
 %\maketitle
-\section{Model}
+\section{Overview}
+
+\subsection{Nomenclature}
+\begin{itemize}
+\item D: doubly occupied site
+\item $\phi$: empty/unoccupied site
+\item Active: singly occupied site, $\da$ or $\ua$, that couples to the cavity.
+\item Channels: H-H, L-L, L-H, H-L channels for electron jumps.
+\item Bulk hopping parameters: $t_h$, $t_l$, $t_{lh}$, $t_{hl}$ for H-H, L-L, L-H, H-L channels.
+\item Contact hopping parameters: $J_{h,R}$, $J_{l,R}$, $J_{h,L}$, $J_{l,L}$ for RC-H, RC-L, LC-H, LC-L channels, where RC and LC stand for right and left contats.
+\item Sites: molecules
+\item classical hop: electron hop between molecules or contact and molecule, treated classically, i.e., no interference effects between different hops.
+\item quantum transition: transition between eigenstates of the quantum mechanically described system, i.e., active sites coupled to the cavity.
+\item Degenerate sectors: degenerate sectors in the energy eigenvalues of coupled light-matter system. 
+\item Transition matrix: transition matrix due to a classical hopping process 
+that gives the bare amplitudes for the quantum transitions for given initial and final states.
+\item Penalty function: a penalty function suppressing the transition rate by a Boltzmann factor if there is a positive energy cost for the transition. This is widely used in Monte Carlo simulations to allow, in a statistical way, the energy exchange between the system and the environment. 
+\end{itemize}
 
 
-\subsection{Overview}
+\subsection{Outline}
+
 At every iteration, steps:\\
 \begin{enumerate}
 \item 
-The set of allowed sites are calculated for all kind of processes.
+{\bf The sets of allowed sites for all kind of processes:}
+From the overall state of the system
+that gives
+the sets of D, $\phi$ and active sites, 
+the sets of sites or pairs of sites for various hopping processes
+is calculated. Electron hops to the right and left are treated separately.
+For example, suppose two neighbouring sites are found in D and $\phi$ sets
+with $\phi$ on the right of the D in the lattice, 
+then they are added to the list for (D,$\phi$) pair annihilation with electron hopping to the right.
+
+
 \item
-The transition matrices are calculated for all available sites and channels for allowed processes.
+{\bf The transition matrices are calculated for all available sites and channels for allowed processes.}
+For the quantum mechanically described active sites that are coupled to the cavity,
+their order in the basis set does not have to be the same as in the lattice (position space)
+and is taken into account when computing transition matrices for various processes.
+
 \item
- The transition amplitudes are computed that are used with corresponding energetic penalties 
-to find the transition rates.
-\item A transition is selected stochastically and the quantum state and the sets of D,$\phi$, and $\mathcal{A}$ is changed accordingly.
+{\bf  The transition amplitudes are computed that are used with corresponding energetic penalties 
+to find the transition rates.}
+The energetic penalties consider all relevant changes in the energy, possible contributions are:
+the difference between energies of initial and final quantum
+and classical states (D has an energy $\omega_0$),
+energetic barriers at the contacts, energy gain/lost due to the applied electric field,
+and finally the vibrational energy of an active site for hops from it if vibrational assistance is included.
+
+\item 
+{\bf  A transition is selected stochastically and the quantum state and the sets of D, $\phi$ and $\mathcal{A}$ is changed accordingly.}
+After the transition, it is assumed that the interaction with the environment, low energy vibrations,
+quickly relaxes the system to its lower polariton state.
+So the state is changed accordingly and the loop restarts again from point $1$ above.
+
 \end{enumerate}
 
-Electron hops to the right and left are treated separately.
 
 
 \section{Transition Matrices}
 %\subsection{Definitions}
 %$\mathcal{A}_{n}$ Index in the list of active sites.
 %$\mathcal{L}_{n}$ Index in the list of lattice sites.
-Spin sectors:\\
-For $N$ active sites ($\mathcal{A}$) and $m$ excitations,
+%Spin sectors:\\
+For $N$ active sites and $m$ excitations,
 the basis states are made of sets of basis with $k\in [0,min(m,N)]$ sites in $\ua$ state
 and indexed in lexicographic order.
 The transition matrix maps are calculated for each of such set and combined to make full matrix.
@@ -144,12 +186,20 @@ where $m^\prime=m,m,m-1,m-2$ for H-H, L-L, L-H, H-L channels,
 can be calculated by starting from the final basis states in $\mathcal{H}_{N-2,m^\prime}$ 
 and inserting the two active sites
 at their position in desired configuration ($(\ua,\da)$, etc.) to make the initial basis state.
-Let's call the combination of $\ua$ sites in the latter $set$ and its lexicographic index
- in this $m$-th spin sector $x$, then
-\begin{gather}
+Let's call the combination of $k$ ($k\in [0,min(m,N)]$) $\ua$ sites in the latter $set$ and its lexicographic index
+$x$ in this $k-\ua$-sector, then
+\begin{eqnarray*}
 x = c^N_ k - 
-   \sum_{p=0}^{k-1}c^{N - set(p)}_{ k - p}.
- \end{gather}  
+   \sum_{p=0}^{k-1}c^{N - set(p)}_{ k - p},
+   %   c^n_r &=& \frac{n!}{r!(n-r)!}.
+\end{eqnarray*}  
+ where, $c^n_r = {n!}/{r!(n-r)!}$.
+  This index is then shifted up by an amount 
+$\sum_{k^\prime=0}^{k-1} c^N_{k^\prime}$ to obtain the absolute index of the considered basis state.
+
+
+
+
 
 
 

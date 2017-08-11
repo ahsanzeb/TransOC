@@ -7,6 +7,8 @@
 \usepackage{soul,color}
 \usepackage{cleveref}
 %\usepackage{stfloats} % table on both columns
+\usepackage[toc,page]{appendix}
+
 
 \newcommand{\da}{\downarrow}
 \newcommand{\ua}{\uparrow}
@@ -381,6 +383,8 @@ the final state is
 Once we update the overall state, i.e., the set of $D$ and $\phi$, $(N,m)$ and the quantum state, the cycle starts again.
 %We calculate transition matrices for all such possible ways of all hops for all channels, then compute the probabilities of all possible quantum transitions and weigh them with a penalty function for the classical hops that depends on the energetic difference between the initial and final electron state, applied electric field and intermolecular distance, etc.
 
+The details of how the transition matrices are calculated and the Monte Carlo dynamics is performed
+is given in the appendix. 
 
 
 
@@ -486,11 +490,234 @@ Does not add excitations! Can't be the reason.
 
 
 
-%This is a huge computational task so limit the size of the system we can treat.
+
 
 
 
 \bibliography{organic}
+
+
+
+
+%This is a huge computational task so limit the size of the system we can treat.
+%\appendix
+\renewcommand{\theequation}{S\arabic{equation}}
+\setcounter{equation}{0}
+\renewcommand{\thefigure}{S\arabic{figure}}
+\setcounter{figure}{0}
+\setcounter{section}{0}
+
+\clearpage
+
+\onecolumngrid
+\begin{center}
+\textbf{\large Appendix: implementation details}
+
+\vspace{0.4cm}
+
+%{M.\ Ahsan Zeb, Peter G.\ Kirton and Jonathan Keeling} \\ \textit{SUPA, School of Physics and Astronomy, University of St Andrews, St Andrews, KY16 9SS, United Kingdom}\\ (Dated: \today)
+
+\end{center}
+\vspace{\columnsep}
+%\twocolumngrid
+
+
+%\title{Supplimentary Materials: Charge transport in organic microcavities: phonon-assisted zener tunnelling under strong light-matter coupling}
+
+%\maketitle
+\section{Overview}
+
+\subsection{Nomenclature}
+\begin{itemize}
+\item D: doubly occupied site
+\item $\phi$: empty/unoccupied site
+\item Active: singly occupied site, $\da$ or $\ua$, that couples to the cavity.
+\item Channels: H-H, L-L, L-H, H-L channels for electron jumps.
+\item Bulk hopping parameters: $t_h$, $t_l$, $t_{lh}$, $t_{hl}$ for H-H, L-L, L-H, H-L channels.
+\item Contact hopping parameters: $J_{h,R}$, $J_{l,R}$, $J_{h,L}$, $J_{l,L}$ for RC-H, RC-L, LC-H, LC-L channels, where RC and LC stand for right and left contats.
+\item Sites: molecules
+\item classical hop: electron hop between molecules or contact and molecule, treated classically, i.e., no interference effects between different hops.
+\item quantum transition: transition between eigenstates of the quantum mechanically described system, i.e., active sites coupled to the cavity.
+\item Degenerate sectors: degenerate sectors in the energy eigenvalues of coupled light-matter system. 
+\item Transition matrix: transition matrix due to a classical hopping process 
+that gives the bare amplitudes for the quantum transitions for given initial and final states.
+\item Penalty function: a penalty function suppressing the transition rate by a Boltzmann factor if there is a positive energy cost for the transition. This is widely used in Monte Carlo simulations to allow, in a statistical way, the energy exchange between the system and the environment. 
+\end{itemize}
+
+
+\subsection{Steps in a MC iteration}
+The Monte Carlo dynamics consist of iterations over the following steps.
+
+%At every iteration, steps:\\
+\begin{enumerate}
+\item 
+{\bf The sets of allowed sites for all kind of processes:}
+From the overall state of the system
+that gives
+the sets of D, $\phi$ and active sites, 
+the sets of sites or pairs of sites for various hopping processes
+is calculated. Electron hops to the right and left are treated separately.
+For example, suppose two neighbouring sites are found in D and $\phi$ sets
+with $\phi$ on the right of the D in the lattice, 
+then they are added to the list for (D,$\phi$) pair annihilation with electron hopping to the right.
+
+
+\item
+{\bf The transition matrices are calculated for all available sites and channels for allowed processes.}
+For the quantum mechanically described active sites that are coupled to the cavity,
+their order in the basis set does not have to be the same as in the lattice (position space)
+and is taken into account when computing transition matrices for various processes.
+
+\item
+{\bf  The transition amplitudes are computed that are used with corresponding energetic penalties 
+to find the transition rates.}
+The energetic penalties consider all relevant changes in the energy, possible contributions are:
+the difference between energies of initial and final quantum
+and classical states (D has an energy $\omega_0$),
+energetic barriers at the contacts, energy gain/lost due to the applied electric field,
+and finally the vibrational energy of an active site for hops from it if vibrational assistance is included.
+
+\item 
+{\bf  A transition is selected stochastically and the quantum state and the sets of D, $\phi$ and $\mathcal{A}$ is changed accordingly.}
+The time is advanced by a random selection of incremental time
+from the exponential distribution decaying with the combined rate of all processes. 
+After the transition, it is assumed that the interaction with the environment, low energy vibrations,
+quickly relaxes the system to its lower polariton state.
+So the state is changed accordingly and the loop restarts again from point $1$ above.
+
+\end{enumerate}
+
+
+
+\section{Transition Matrices}
+%\subsection{Definitions}
+%$\mathcal{A}_{n}$ Index in the list of active sites.
+%$\mathcal{L}_{n}$ Index in the list of lattice sites.
+%Spin sectors:\\
+For $N$ active sites and $m$ excitations,
+the basis states are made of sets of basis with $k\in [0,min(m,N)]$ sites in $\ua$ state
+and indexed in lexicographic order.
+The transition matrix maps are calculated for each of such set and combined to make full matrix.
+
+
+\subsection{D hops right/left}
+An electron hops from a D site to an active site.
+The active site becomes D and vice versa, the index of the initially active site is assigned to the new active site. 
+\\Transition matrix elements:\\
+The basis states that have final site $\ua$ would allow 
+an electron hopping to its HOMO level and create a D.
+This hop leaves the initially D site in $\ua$ (channel 1) or $\da$  (channel 3).
+Similarly,
+the basis states that have final site $\da$ would allow 
+an electron hopping to its LUMO level and create a D.
+This hop leaves the initially D site in $\da$ (channel 2) or $\ua$  (channel 4).
+
+
+
+\subsection{$\phi$ hops right/left}
+An electron hops from an active site to a $\phi$.
+The active site becomes $\phi$ and vice versa, the index of the initially active site is assigned to the new active site. 
+\\Transition matrix elements:\\
+The basis states that have the active site $\ua$ would allow 
+the electron hopping from it and change it to $\phi$.
+This hop makes the initially $\phi$ site in $\ua$ (channel 2) or $\da$  (channel 3).
+Similarly,
+The basis states that have the active site $\da$ would allow 
+the electron hopping from it and change it to $\phi$.
+This hop makes the initially $\phi$ site $\da$ (channel 1) or $\ua$  (channel 4).
+
+\subsection{(D,$\phi$) creation: }
+For two adjacent active sites,
+we can have four configurations:
+$(\ua,\da)$, $(\da,\ua)$,$(\ua,\ua)$,$(\da,\da)$ with left and right sites in (left,right) order.
+These will make (D,$\phi$) pair with D on the left 
+with the hopping of an electron from right to left 
+via H-H, L-L, L-H, and H-L channels.
+Similarly,
+a (D,$\phi$) pair with D on the right is created from these configurations
+with the hopping of an electron from left to right
+via L-L, H-H, L-H, and H-L channels, respectively.
+\\Transition matrix elements:\\
+The map between basis states of initial and final Hilbert spaces
+$\mathcal{H}_{N,m}$ and $\mathcal{H}_{N-2,m^\prime}$, 
+where $m^\prime=m,m,m-1,m-2$ for H-H, L-L, L-H, H-L channels,
+can be calculated by starting from the final basis states in $\mathcal{H}_{N-2,m^\prime}$ 
+and inserting the two active sites
+at their position in desired configuration ($(\ua,\da)$, etc.) to make the initial basis state.
+Let's call the combination of $k$ ($k\in [0,min(m,N)]$) $\ua$ sites in the latter $set$ and its lexicographic index
+$x$ in this $k-\ua$-sector, then
+\begin{eqnarray*}
+x = c^N_ k - 
+   \sum_{p=0}^{k-1}c^{N - set(p)}_{ k - p},
+   %   c^n_r &=& \frac{n!}{r!(n-r)!}.
+\end{eqnarray*}  
+ where, $c^n_r = {n!}/{r!(n-r)!}$.
+  This index is then shifted up by an amount 
+$\sum_{k^\prime=0}^{k-1} c^N_{k^\prime}$ to obtain the absolute index of the considered basis state.
+
+
+
+
+
+
+
+
+
+\subsection{(D,$\phi$) annihilation: }
+This is just the reverse of (D,$\phi$) creation described above where two active sites are created
+from a pair of D and $\phi$. The freshly added active sites are given the indices $N+1,N+2$
+and the map for the transition matrix is computed just like (D,$\phi$) creation case.
+Since the electron hopping does not occur on active sites in this case,
+a single (D,$\phi$) pair can be used to calculate the transition matrix and amplitudes.
+
+
+\subsection{ D/$\phi$ creation at contacts: }
+If the site adjacent to a contact is active, 
+it can gain or loose an electron via hopping from/to the contact to become a D or $\phi$.
+The basis states with this site $\da$ 
+can get an electron from the contact (hopping parameter $J_{l,R/L}$; $R and L$ for right and left contacts)
+and become D or it can loose the electron to the contact (hopping parameter $J_{h,R/L}$)
+and become $\phi$
+resulting in one less active site $N\rightarrow N-1$ and $m$ unchanged.
+That is, the final state is in $\mathcal{H}_{N-1,m}$. 
+The transition matrix map is obtained simply by starting with the basis in $\mathcal{H}_{N-1,m}$,
+inserting an $\da$ in correct position to make the state in $\mathcal{H}_{N,m}$,
+and calculating its lexicographic index.
+Similarly, the basis states with this active site $\ua$ 
+are linked via $J_{h,R/L}$ and $J_{l,R/L}$ to 
+the basis in $\mathcal{H}_{N-1,m}$
+for creation of D and $\phi$ respectively.
+The transition matrix map is calculated the same way.
+
+
+\subsection{ D/$\phi$ annihilation at contacts: }
+These are just the reverse of D/$\phi$ creation at the contacts.
+A D or $\phi$ site adjacent to a contact becomes active on loosing or gaining an electron to/from it.
+Starting with D, 
+the basis states in $\mathcal{H}_{N,m}$
+are linked via $J_{l,R/L}$ ($J_{h,R/L}$) to 
+the basis in $\mathcal{H}_{N+1,m^\prime}$ with $m^\prime=m\,(m+1)$
+with this site being $\da$ ($\ua$).
+For a $\phi$, 
+the same transition map results with $J_{l,R/L} \leftrightarrow J_{h,R/L} $.
+
+\subsection{cavity losses, $\kappa$}
+A photon leaking out of the cavity reduces the number of excitations $m \rightarrow m-1$.
+If $m-1 \geq N$, the transition matrix equals identity with the new basis with one less photon but the same combinations of $\da,\ua$ sites.
+Otherwise, sectors with $m$ $\ua$ sites is no longer available, but
+the rest of the basis with up to $m-1$ $\ua$ 
+have a one-to-one map with the final basis that now have one less photon.
+
+\subsection{exciton losses, $\gamma$}
+An excited molecule decaying non-radiatively also means $m \rightarrow m-1$.
+But, now the map from initial basis to the final depends on which molecule decays.
+Suppose, $n$-th molecule decays, then we start with the final basis for 
+$\mathcal{H}_{N-1,m-1}$,
+insert a $\da$ at the $n$-th position and compute 
+the lexicographic index of the starting basis for this process.
+
+
+
 
 \end{document}
 
