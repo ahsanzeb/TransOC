@@ -353,10 +353,28 @@ of $H_{N_{\alpha},m_{\alpha}}$, then
 the probability that we jump to sector $\beta$
 is
 \begin{gather}
-P_\beta = f_{\alpha}(\Delta E)*\sum_{i\in\beta} |C_{\alpha,i}|^2,
+P_\beta = f(\Delta E_{\alpha,\beta}) \times \sum_{i\in\beta} |C_{\alpha,i}|^2,
 \end{gather}
-where $f_{\alpha}(\Delta E)$ is a penalty function related to the hop $\alpha$.
-The final state is
+where 
+$\Delta E_{\alpha,\beta}$ the net change in energy
+for the quantum transition to degenerate sector $\beta$ with classical hop $\alpha$
+ including the change due to the applied electric field,
+ and 
+ $f(\Delta E_{\alpha,\beta})$ is a penalty function given by,
+\begin{equation}
+\nonumber
+  f(x)=\begin{cases}
+    1, & \text{if $x<0$}.\\
+    e^{-x/{T}}, & \text{otherwise}.
+  \end{cases}
+\end{equation}
+Here, the environment is assumed to be in thermal equilibrium at
+a temperature $T$.
+
+Suppose, we stochastically select 
+classical hop $\alpha$ with quantum transition to degenerate sector $\beta$,
+ then
+the final state is
 \begin{gather}
 \ket{\psi_{N_{\alpha},m_{\alpha}}}= \sum_{i\in\beta} C_{\alpha,i} \ket{\phi_{N_{\alpha},m_{\alpha}}^i}.
 \end{gather}
