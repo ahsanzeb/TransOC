@@ -587,17 +587,49 @@ So the state is changed accordingly and the loop restarts again from point $1$ a
 \end{enumerate}
 
 
+\section{Basis states}
+For $N$ active sites and $m$ excitations,
+the basis states for the subsystem of active sites coupled to the cavity
+are ordered with increasing number $N_{\ua}\in [0,min(m,N)]$ of excited sites,
+and using lexicographic order for a given $N_{\ua}$. This is illustrated in table~\ref{tab:basis}
+for $N=4$ and $m=2$.
+
+%For example, for $N=4$ and $m=2$, we have $(N_{Photon};spin combination)= (2;\da\da\da\da), (1,\ua\da\da\da),(1;\da\ua\da\da),(1;\da\da\ua\da),(1;\da\da\da\ua),(0,\ua\ua\da\da),(0,\ua\da\ua\da),(0,\ua\da\da\ua),(0,\da,\ua\ua\da),(0,\da,\ua\da\ua),(0,\da,\da\ua\ua),$
+
+\begin{table}[h]
+\begin{center}
+\begin{tabular}{ |c|c|c| } 
+ \hline
+ $(N_{\ua},N_{Photon})$ & index of $\ua$ sites & index of basis state \\  \hline
+$(0,2)$ &---& $1$ \\  \hline
+$(1,1)$ &${\ket{1}, \ket{2}, \ket{3}, \ket{4}}$ & $2$ --- $5$ ($1+1$ --- $1+c^4_1$)\\  \hline
+$(2,0)$ &${\ket{1, 2}, \ket{1, 3}, \ket{1, 4}, \ket{2, 3}, \ket{2, 4}, \ket{3, 4}}$&  $6$ --- $11$ ($1+c^4_1+1$ --- $1+c^4_1+c^4_2$)\\
+  \hline
+\end{tabular}
+\end{center}
+\caption{ The basis states and their order for $N=4$ and $m=2$. 
+The number of $\ua$ sites $N_{\ua}$ is in ascending order with 
+lexicographic indexing for different combinations.
+\label{tab:basis}}
+\end{table}
+
+
+
+
+
+
+
+
 
 \section{Transition Matrices}
-%\subsection{Definitions}
-%$\mathcal{A}_{n}$ Index in the list of active sites.
-%$\mathcal{L}_{n}$ Index in the list of lattice sites.
-%Spin sectors:\\
-For $N$ active sites and $m$ excitations,
-the basis states are made of sets of basis with $k\in [0,min(m,N)]$ sites in $\ua$ state
-and indexed in lexicographic order.
-The transition matrix maps are calculated for each of such set and combined to make full matrix.
-
+%For $N$ active sites and $m$ excitations, the basis states are made of sets of basis with $k\in [0,min(m,N)]$ sites in $\ua$ state and indexed in lexicographic order. The transition matrix maps are calculated for each of such set and combined to make full matrix.
+%The transition matrix maps are calculated for each allowed set of combinations of $k$ sites in $\ua$ state and combined to make full matrix.
+The transition matrix maps are calculated for subsets of basis states
+for $N_{\ua}\in [0,min(m,N)]$
+and combined to make full matrix.
+The maps are calculated with the best possible way but they still use brute-force and 
+do not employ any intelligent pattern generation schemes. 
+In the following the key points of map calculation for various hopping processes are summarised.
 
 \subsection{D hops right/left}
 An electron hops from a D site to an active site.

@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015) (preloaded format=pdflatex 2016.3.7)  11 AUG 2017 21:40
+This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015) (preloaded format=pdflatex 2016.3.7)  12 AUG 2017 14:36
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -455,7 +455,7 @@ Class revtex4-1 Info: Taking \maketitle back from hyperref on input line 54.
 
 Excluding 'comment' comment. [1{/usr/local/texlive/2015/texmf-var/fonts/map/pdf
 tex/updmap/pdftex.map}]
-<./figs/plot-n5.pdf, id=140, 929.73055pt x 481.35945pt>
+<./figs/plot-n5.pdf, id=144, 929.73055pt x 481.35945pt>
 File: ./figs/plot-n5.pdf Graphic file (type pdf)
 
 <use ./figs/plot-n5.pdf>
@@ -494,168 +494,180 @@ l.323
                                                   \fi \fi 
 l.434 
       ] (./organic-microcavity.bbl) [4] [5]
-<./figs/DhopsR.pdf, id=283, 386.44376pt x 320.19624pt>
+<./figs/DhopsR.pdf, id=288, 386.44376pt x 320.19624pt>
 File: ./figs/DhopsR.pdf Graphic file (type pdf)
  <use ./figs/DhopsR.pdf>
-Package pdftex.def Info: ./figs/DhopsR.pdf used on input line 616.
+Package pdftex.def Info: ./figs/DhopsR.pdf used on input line 648.
 (pdftex.def)             Requested size: 203.99689pt x 169.02406pt.
 pdfTeX warning (ext4): destination with the same identifier (name{figure.1}) ha
 s been already used, duplicate ignored
 <to be read again> 
                    \relax 
-l.618   \caption
+l.650   \caption
                 {A D hopping to the right via various channels.pdfTeX warning (
 ext4): destination with the same identifier (name{figure.1}) has been already u
 sed, duplicate ignored
 <to be read again> 
                    \relax 
-l.619  \label{fig:dhops}}
+l.651  \label{fig:dhops}}
                          
 
 Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
-(hyperref)                removing `math shift' on input line 625.
+(hyperref)                removing `math shift' on input line 657.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
-(hyperref)                removing `\phi' on input line 625.
+(hyperref)                removing `\phi' on input line 657.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
-(hyperref)                removing `math shift' on input line 625.
+(hyperref)                removing `math shift' on input line 657.
 
-<./figs/PhihopsR.pdf, id=284, 386.44376pt x 308.15125pt>
+<./figs/PhihopsR.pdf, id=289, 386.44376pt x 308.15125pt>
 File: ./figs/PhihopsR.pdf Graphic file (type pdf)
 
 <use ./figs/PhihopsR.pdf>
-Package pdftex.def Info: ./figs/PhihopsR.pdf used on input line 639.
+Package pdftex.def Info: ./figs/PhihopsR.pdf used on input line 671.
 (pdftex.def)             Requested size: 203.99689pt x 162.66579pt.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
-(hyperref)                removing `math shift' on input line 647.
+(hyperref)                removing `math shift' on input line 679.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
-(hyperref)                removing `\phi' on input line 647.
+(hyperref)                removing `\phi' on input line 679.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
-(hyperref)                removing `math shift' on input line 647.
+(hyperref)                removing `math shift' on input line 679.
 
-[6 <./figs/DhopsR.pdf>]
-<./figs/DPhiCreation.pdf, id=318, 386.44376pt x 320.19624pt>
+[6pdfTeX warning (ext4): destination with the same identifier (name{table.3}) h
+as been already used, duplicate ignored
+
+\AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
+                                                  \fi \fi 
+l.699 \begin{eqnarray*}
+                       ]
+<./figs/DPhiCreation.pdf, id=301, 386.44376pt x 320.19624pt>
 File: ./figs/DPhiCreation.pdf Graphic file (type pdf)
 
 <use ./figs/DPhiCreation.pdf>
-Package pdftex.def Info: ./figs/DPhiCreation.pdf used on input line 678.
+Package pdftex.def Info: ./figs/DPhiCreation.pdf used on input line 710.
 (pdftex.def)             Requested size: 203.99689pt x 169.02406pt.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
-(hyperref)                removing `math shift' on input line 692.
+(hyperref)                removing `math shift' on input line 724.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
-(hyperref)                removing `\phi' on input line 692.
+(hyperref)                removing `\phi' on input line 724.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
-(hyperref)                removing `math shift' on input line 692.
+(hyperref)                removing `math shift' on input line 724.
 
-<./figs/PhiDAnnihilation.pdf, id=319, 386.44376pt x 320.19624pt>
+<./figs/PhiDAnnihilation.pdf, id=302, 386.44376pt x 320.19624pt>
 File: ./figs/PhiDAnnihilation.pdf Graphic file (type pdf)
 
 <use ./figs/PhiDAnnihilation.pdf>
-Package pdftex.def Info: ./figs/PhiDAnnihilation.pdf used on input line 700.
+Package pdftex.def Info: ./figs/PhiDAnnihilation.pdf used on input line 732.
 (pdftex.def)             Requested size: 203.99689pt x 169.02406pt.
- [7pdfTeX warning (ext4): destination with the same identifier (name{figure.2})
- has been already used, duplicate ignored
-
-\AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
-                                                  \fi \fi 
-l.704 
-      pdfTeX warning (ext4): destination with the same identifier (name{figure.
-3}) has been already used, duplicate ignored
-
-\AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
-                                                  \fi \fi 
-l.704 
-       <./figs/PhihopsR.pdf> <./figs/DPhiCreation.pdf
-
-pdfTeX warning: /Library/TeX/texbin/pdflatex (file ./figs/DPhiCreation.pdf): PD
-F inclusion: multiple pdfs with page group included in a single page
->]
-
-Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
-(hyperref)                removing `math shift' on input line 707.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
-(hyperref)                removing `\phi' on input line 707.
+(hyperref)                removing `math shift' on input line 739.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
-(hyperref)                removing `math shift' on input line 707.
+(hyperref)                removing `\phi' on input line 739.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
-(hyperref)                removing `math shift' on input line 726.
+(hyperref)                removing `math shift' on input line 739.
 
-
-Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
-(hyperref)                removing `\phi' on input line 726.
-
-
-Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
-(hyperref)                removing `math shift' on input line 726.
-
-
-Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
-(hyperref)                removing `math shift' on input line 737.
-
-
-Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
-(hyperref)                removing `\kappa' on input line 737.
-
-
-Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
-(hyperref)                removing `math shift' on input line 737.
-
-
-Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
-(hyperref)                removing `math shift' on input line 744.
-
-
-Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
-(hyperref)                removing `\gamma' on input line 744.
-
-
-Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
-(hyperref)                removing `math shift' on input line 744.
-
-[8pdfTeX warning (ext4): destination with the same identifier (name{figure.4}) 
+[7pdfTeX warning (ext4): destination with the same identifier (name{figure.2}) 
 has been already used, duplicate ignored
 
 \AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
                                                   \fi \fi 
-l.751 
-       <./figs/PhiDAnnihilation.pdf>] [9]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 755.
+l.756 
+       <./figs/DhopsR.pdf> <./figs/PhihopsR.pdf
+
+pdfTeX warning: /Library/TeX/texbin/pdflatex (file ./figs/PhihopsR.pdf): PDF in
+clusion: multiple pdfs with page group included in a single page
+>]
+
+Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
+(hyperref)                removing `math shift' on input line 758.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
+(hyperref)                removing `\phi' on input line 758.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
+(hyperref)                removing `math shift' on input line 758.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
+(hyperref)                removing `math shift' on input line 769.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
+(hyperref)                removing `\kappa' on input line 769.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
+(hyperref)                removing `math shift' on input line 769.
+
+[8pdfTeX warning (ext4): destination with the same identifier (name{figure.3}) 
+has been already used, duplicate ignored
+
+\AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
+                                                  \fi \fi 
+l.775 
+      pdfTeX warning (ext4): destination with the same identifier (name{figure.
+4}) has been already used, duplicate ignored
+
+\AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
+                                                  \fi \fi 
+l.775 
+       <./figs/DPhiCreation.pdf> <./figs/PhiDAnnihilation.pdf
+
+pdfTeX warning: /Library/TeX/texbin/pdflatex (file ./figs/PhiDAnnihilation.pdf)
+: PDF inclusion: multiple pdfs with page group included in a single page
+>]
+
+Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
+(hyperref)                removing `math shift' on input line 776.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
+(hyperref)                removing `\gamma' on input line 776.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
+(hyperref)                removing `math shift' on input line 776.
+
+[9]
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 787.
  (./organic-microcavity.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 755.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 755.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 787.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 787.
 Package rerunfilecheck Info: File `organic-microcavity.out' has not changed.
-(rerunfilecheck)             Checksum: 67D1906E21130AF23272B6101F776ABB;2146.
+(rerunfilecheck)             Checksum: F3048641BAAEBD46220EB3D4DE4EF55C;2206.
 
 
 LaTeX Warning: There were multiply-defined labels.
 
  ) 
 Here is how much of TeX's memory you used:
- 9541 strings out of 493089
- 146997 string characters out of 6134843
+ 9546 strings out of 493089
+ 147055 string characters out of 6134843
  278449 words of memory out of 5000000
- 12881 multiletter control sequences out of 15000+600000
+ 12884 multiletter control sequences out of 15000+600000
  8594 words of font info for 31 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  29i,12n,31p,412b,422s stack positions out of 5000i,500n,10000p,200000b,80000s
@@ -665,20 +677,24 @@ Here is how much of TeX's memory you used:
 usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></u
 sr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></us
 r/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi5.pfb></usr/
-local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></usr/lo
-cal/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi9.pfb></usr/loca
-l/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/local/
-texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/local/tex
-live/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmr9.pfb></usr/local/texliv
-e/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive
-/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy5.pfb></usr/local/texlive/2
-015/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/local/texlive/201
-5/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb></usr/local/texlive/2015
-/texmf-dist/fonts/type1/public/amsfonts/cm/cmti9.pfb>
-Output written on organic-microcavity.pdf (9 pages, 403073 bytes).
+local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb></usr/lo
+cal/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></usr/loca
+l/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi9.pfb></usr/local/
+texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/local/te
+xlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb></usr/local/texli
+ve/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/local/texlive/
+2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmr9.pfb></usr/local/texlive/201
+5/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/2015
+/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy5.pfb></usr/local/texlive/2015/t
+exmf-dist/fonts/type1/public/amsfonts/cm/cmsy6.pfb></usr/local/texlive/2015/tex
+mf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/local/texlive/2015/texmf
+-dist/fonts/type1/public/amsfonts/cm/cmsy9.pfb></usr/local/texlive/2015/texmf-d
+ist/fonts/type1/public/amsfonts/cm/cmti10.pfb></usr/local/texlive/2015/texmf-di
+st/fonts/type1/public/amsfonts/cm/cmti9.pfb>
+Output written on organic-microcavity.pdf (9 pages, 435155 bytes).
 PDF statistics:
- 483 PDF objects out of 1000 (max. 8388607)
- 385 compressed objects within 4 object streams
- 54 named destinations out of 1000 (max. 500000)
- 266 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 506 PDF objects out of 1000 (max. 8388607)
+ 403 compressed objects within 5 object streams
+ 56 named destinations out of 1000 (max. 500000)
+ 274 words of extra memory for PDF output out of 10000 (max. 10000000)
 
