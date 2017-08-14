@@ -77,9 +77,7 @@ $TransOCVersion=1.;
 debug:=TrueQ[$TransOCDebugQ];
 
 
-(*get code from all files in the PackageFiles directory (separate files are used to make it easier to find stuff);
-they all inherit the context Crystallica`Private`, so that all files together form the actual package;
-messages and option defaults can be found in the file of their respective parent function*)
+(* get all .m files from PackageFiles directory *)
 Get/@FileNames["*.m",FileNameJoin[{DirectoryName[$InputFileName],"PackageFiles"}]];
 
 
