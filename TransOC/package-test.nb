@@ -1,0 +1,134 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Mathematica 10.4' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       158,          7]
+NotebookDataLength[      4944,        126]
+NotebookOptionsPosition[      4279,         97]
+NotebookOutlinePosition[      4791,        119]
+CellTagsIndexPosition[      4706,        114]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+
+Cell[CellGroupData[{
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"AppendTo", "[", 
+   RowBox[{"$Path", ",", " ", 
+    RowBox[{"NotebookDirectory", "[", "]"}]}], "]"}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{"Needs", "[", "\"\<TransOC`\>\"", 
+  "]"}], "\[IndentingNewLine]", "$Packages"}], "Input",
+ CellChangeTimes->{
+  3.711622059867447*^9, 3.711622105104047*^9, 3.7116222142878532`*^9, {
+   3.711622259400817*^9, 3.711622259920308*^9}, {3.711661045935655*^9, 
+   3.7116610537510033`*^9}}],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{"\<\"TransOC`\"\>", ",", "\<\"GetFEKernelInit`\"\>", 
+   ",", "\<\"StreamingLoader`\"\>", ",", "\<\"IconizeLoader`\"\>", 
+   ",", "\<\"CloudObjectLoader`\"\>", ",", "\<\"ResourceLocator`\"\>", 
+   ",", "\<\"PacletManager`\"\>", ",", "\<\"System`\"\>", 
+   ",", "\<\"Global`\"\>"}], "}"}]], "Output",
+ CellChangeTimes->{3.711622261891157*^9, 3.7116260284885073`*^9, 
+  3.7116262495889807`*^9, 3.7116263998537207`*^9, 3.711628745677616*^9, 
+  3.7116289256566763`*^9, 3.711629042459681*^9, 3.7116291035206842`*^9, 
+  3.711629146105219*^9, 3.711630842121537*^9, 3.711631487884708*^9, 
+  3.7116510796030607`*^9, 3.711651201189649*^9, 3.7116593945541687`*^9, 
+  3.7116599273683357`*^9, 3.7116610661524982`*^9}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"?", "Trajectory"}]], "Input",
+ CellChangeTimes->{
+  3.7116217283888817`*^9, {3.711626033858374*^9, 3.711626034648574*^9}}],
+
+Cell[BoxData[
+ StyleBox["\<\"Trajectory runs a Montr Carlo \
+trajectory.\\n\\n\!\(\*\\nStyleBox[\\\"Optional\\\",\\nFontSize->14]\)\!\(\*\\\
+nStyleBox[\\\" \
+\\\",\\nFontSize->14]\)\!\(\*\\nStyleBox[\\\"Arguments\\\",\\nFontSize->14]\)\
+\!\(\*\\nStyleBox[\\\":\\\",\\nFontSize->14]\)\\nNtot: 5; Number of molecules \
+in the system.;\\nm0: 1; number of excitations in the coupled light-matter \
+sub-system;\\nDs0: {}; List of sites that are D;\\nPhis0: {};List of sites \
+that are \[Phi]s;\t\t\t\t\t\\ng: 1.0; strenght of light-matter coupling for a \
+single molecule: (\!\(\*SubscriptBox[\(\[Omega]\), \(R\)]\) = g \
+\!\(\*SqrtBox[SubscriptBox[\(N\), \(Active\)]]\));\\ndw: 0.0; Detuning, \
+\!\(\*SubscriptBox[\(\[Omega]\), \(0\)]\)-\!\(\*SubscriptBox[\(\[Omega]\), \
+\(c\)]\);\\ntpar: {0.1,0.001,0.001,0.1,0.1,0.1,0.1,0.1}; \\n\t\tHopping \
+parameters, {th,tl,tlh,thl,JhR,JlR,JhL,JlL};\\nEb: {0.0,0.0}; Barriers at the \
+left and right ontacts: Eb={Ebl,Ebr};\\nkappa: 0.005; Cavity losses \[Kappa];\
+\\ngamma: 0.005; Exciton non-radiative decay rate \[Gamma];\\nEr: 0.5; Energy \
+E.r due to the applied electric field.\\nw0: 2.0; Exciton bare energy \
+\!\(\*SubscriptBox[\(\[Omega]\), \(0\)]\).\\nbeta: 40.0; \[Beta] = \
+1/\!\(\*SubscriptBox[\(k\), \(b\)]\)T;\\nmaxiter: 20; Max number of \
+iterations/time steps in the dynamics.\\nincludecross: True; Include cross \
+hops, L-H and H-L?\\nBlockInjection: {False,False}; Block injection of charge \
+carriers? {BlockLeft,BlockRight}. \\n\t\t\t\tLeft contact is cathode, right \
+contact is anode. Block electron from left and holes from \
+right.\\nM,wv,lambda: 3,0.2,1.0; Vibrational levels, energy, coupling to \
+electronic states.\\nAlwaysLP: True; Quickly relax the quantum system to its \
+lowest eigenstate before an other hop can take place?\\nVibAssis: False; \
+Include vibrational assistance for the Zener tunneling, H-L transitions from \
+active sites H levels?\"\>", "MSG"]], "Print", "PrintUsage",
+ CellChangeTimes->{3.7116610689095507`*^9},
+ CellTags->"Info43711664668-2204119"]
+}, Open  ]],
+
+Cell[BoxData[
+ RowBox[{"Trajectory", "[", 
+  RowBox[{
+   RowBox[{"g", "\[Rule]", " ", "2"}], ",", 
+   RowBox[{"Ntot", "\[Rule]", " ", "5"}], ",", 
+   RowBox[{"m0", "\[Rule]", " ", "2"}]}], "]"}]], "Input",
+ CellChangeTimes->{3.711631540976214*^9}]
+},
+WindowSize->{808, 705},
+WindowMargins->{{9, Automatic}, {Automatic, 0}},
+FrontEndVersion->"10.4 for Mac OS X x86 (32-bit, 64-bit Kernel) (February 25, \
+2016)",
+StyleDefinitions->"Default.nb"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{
+ "Info43711664668-2204119"->{
+  Cell[1976, 57, 2037, 29, 454, "Print",
+   CellTags->"Info43711664668-2204119"]}
+ }
+*)
+(*CellTagsIndex
+CellTagsIndex->{
+ {"Info43711664668-2204119", 4600, 108}
+ }
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[CellGroupData[{
+Cell[580, 22, 464, 11, 63, "Input"],
+Cell[1047, 35, 743, 12, 46, "Output"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[1827, 52, 146, 3, 28, "Input"],
+Cell[1976, 57, 2037, 29, 454, "Print",
+ CellTags->"Info43711664668-2204119"]
+}, Open  ]],
+Cell[4028, 89, 247, 6, 28, "Input"]
+}
+]
+*)
+
