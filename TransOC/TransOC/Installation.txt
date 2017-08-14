@@ -1,0 +1,6 @@
+How to install TransOC:
+
+1. Open the installation directory by running the following in Mathematica:
+   SystemOpen[FileNameJoin[{$UserBaseDirectory, "Applications"}]]
+2. Place "TransOC" folder into the installation directory just opened.
+3. Restart Mathematica Kernel.

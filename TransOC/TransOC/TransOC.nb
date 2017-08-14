@@ -1,0 +1,218 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Mathematica 10.4' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       158,          7]
+NotebookDataLength[      7700,        210]
+NotebookOptionsPosition[      7115,        187]
+NotebookOutlinePosition[      7506,        204]
+CellTagsIndexPosition[      7463,        201]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"(*", " ", 
+   RowBox[{":", "Context", ":", " ", "TransOC`"}], " ", "*)"}], "\n", 
+  RowBox[{"(*", " ", 
+   RowBox[{
+    RowBox[{":", "Author", ":", " ", 
+     RowBox[{"Ahsan", " ", "Zeb"}]}], ",", " ", 
+    RowBox[{
+    "School", " ", "of", " ", "Physics", " ", "and", " ", "Astronomy"}], ",", 
+    " ", 
+    RowBox[{"St", " ", "Andrews"}], ",", " ", "UK"}], "*)"}], "\n", 
+  RowBox[{"(*", " ", 
+   RowBox[{":", "Summary", ":", " ", 
+    RowBox[{
+     RowBox[{
+     "The", " ", "TransOC", " ", "package", " ", "calculates", " ", "the", 
+      " ", "incoherent", " ", "charge", " ", "transport", " ", "through", 
+      "\n", "\t\t\t ", "an", " ", "organic", " ", "micorcavity", " ", "in", 
+      " ", "the", " ", "strong", " ", "light"}], "-", 
+     RowBox[{"matter", " ", "coupling", " ", "regime"}]}]}], " ", "*)"}], 
+  "\n", 
+  RowBox[{"(*", " ", 
+   RowBox[{
+    RowBox[{":", "Copyright", ":", " ", 
+     RowBox[{"Copyright", " ", 
+      RowBox[{"(", "c", ")"}], " ", "2017", " ", "Ahsan", " ", "Zeb"}]}], ",",
+     " ", 
+    RowBox[{
+    "distributed", " ", "under", " ", "the", " ", "XXXX", " ", "license"}]}], 
+   " ", "*)"}], "\n", 
+  RowBox[{"(*", " ", 
+   RowBox[{":", 
+    RowBox[{"Package", " ", "Version"}], ":", " ", "1.0"}], " ", "*)"}], "\n", 
+  RowBox[{"(*", " ", 
+   RowBox[{":", 
+    RowBox[{"Mathematica", " ", "Version"}], ":", " ", 
+    RowBox[{"10.4", ".0", ".0"}]}], " ", "*)"}]}]], "Code",
+ CellChangeTimes->{{3.711630806946252*^9, 3.711630807279427*^9}}],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"If", "[", 
+   RowBox[{
+    RowBox[{"TrueQ", "[", 
+     RowBox[{"$VersionNumber", "<", "10"}], "]"}], ",", 
+    RowBox[{
+     RowBox[{
+     "Print", "[", 
+      "\"\<Sorry, TransOC only works with version 10+ of the Wolfram \
+Language.\>\"", "]"}], ";", 
+     RowBox[{"Abort", "[", "]"}]}]}], "]"}], ";"}]], "Code"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"BeginPackage", "[", "\"\<TransOC`\>\"", "]"}], ";"}]], "Code"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"(*", 
+   RowBox[{"auxiliary", ":"}], " ", "*)"}], "\n", 
+  RowBox[{
+   RowBox[{
+    RowBox[{
+     RowBox[{"$TransOCVersion", "::", "usage"}], "=", 
+     "\"\<$TransOCVersion gives the version number of the TransOC \
+package.\>\""}], ";"}], "\n", 
+   RowBox[{
+    RowBox[{
+     RowBox[{"$TransOCDebugQ", "::", "usage"}], "=", 
+     "\"\<Setting $TransOCDebugQ=True results in debugging messages being \
+printed during evaluations.\>\""}], ";"}]}]}]], "Code"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"(*", " ", 
+   RowBox[{"function", ":"}], " ", "*)"}], "\n", 
+  RowBox[{
+   RowBox[{"Trajectory", "::", "usage"}], "=", 
+   "\"\<Trajectory runs a Montr Carlo trajectory.\n\n\!\(\*
+StyleBox[\"Optional\",
+FontSize->14]\)\!\(\*
+StyleBox[\" \",
+FontSize->14]\)\!\(\*
+StyleBox[\"Arguments\",
+FontSize->14]\)\!\(\*
+StyleBox[\":\",
+FontSize->14]\)\nNtot: 5; Number of molecules in the system.;\nm0: 1; number \
+of excitations in the coupled light-matter sub-system;\nDs0: {}; List of \
+sites that are D;\nPhis0: {};List of sites that are \[Phi]s;\t\t\t\t\t\ng: \
+1.0; strenght of light-matter coupling for a single molecule: \
+(\!\(\*SubscriptBox[\(\[Omega]\), \(R\)]\) = g \!\(\*SqrtBox[SubscriptBox[\(N\
+\), \(Active\)]]\));\ndw: 0.0; Detuning, \!\(\*SubscriptBox[\(\[Omega]\), \(0\
+\)]\)-\!\(\*SubscriptBox[\(\[Omega]\), \(c\)]\);\ntpar: \
+{0.1,0.001,0.001,0.1,0.1,0.1,0.1,0.1}; \n\t\tHopping parameters, \
+{th,tl,tlh,thl,JhR,JlR,JhL,JlL};\nEb: {0.0,0.0}; Barriers at the left and \
+right ontacts: Eb={Ebl,Ebr};\nkappa: 0.005; Cavity losses \[Kappa];\ngamma: \
+0.005; Exciton non-radiative decay rate \[Gamma];\nEr: 0.5; Energy E.r due to \
+the applied electric field.\nw0: 2.0; Exciton bare energy \!\(\*SubscriptBox[\
+\(\[Omega]\), \(0\)]\).\nbeta: 40.0; \[Beta] = 1/\!\(\*SubscriptBox[\(k\), \
+\(b\)]\)T;\nmaxiter: 20; Max number of iterations/time steps in the dynamics.\
+\nincludecross: True; Include cross hops, L-H and H-L?\nBlockInjection: \
+{False,False}; Block injection of charge carriers? {BlockLeft,BlockRight}. \n\
+\t\t\t\tLeft contact is cathode, right contact is anode. Block electron from \
+left and holes from right.\nM,wv,lambda: 3,0.2,1.0; Vibrational levels, \
+energy, coupling to electronic states.\nAlwaysLP: True; Quickly relax the \
+quantum system to its lowest eigenstate before an other hop can take place?\n\
+VibAssis: False; Include vibrational assistance for the Zener tunneling, H-L \
+transitions from active sites H levels?\>\""}]}]], "Code",
+ CellChangeTimes->{{3.711622725164941*^9, 3.711622799216568*^9}, {
+   3.711625994772591*^9, 3.7116260133934717`*^9}, 3.711630786830312*^9, {
+   3.711631338276513*^9, 3.71163146328096*^9}, {3.711632786476039*^9, 
+   3.711633121883718*^9}, {3.711633162106471*^9, 3.711633227071251*^9}, {
+   3.71165113677603*^9, 3.711651185888319*^9}}],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"Begin", "[", "\"\<`Private`\>\"", "]"}], ";"}]], "Code"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"$TransOCVersion", "=", "1."}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{"debug", ":=", 
+   RowBox[{"TrueQ", "[", "$TransOCDebugQ", "]"}]}], ";"}]}], "Code"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"(*", 
+   RowBox[{
+    RowBox[{
+     RowBox[{
+     "get", " ", "code", " ", "from", " ", "all", " ", "files", " ", "in", 
+      " ", "the", " ", "PackageFiles", " ", "directory", " ", 
+      RowBox[{"(", 
+       RowBox[{
+       "separate", " ", "files", " ", "are", " ", "used", " ", "to", " ", 
+        "make", " ", "it", " ", "easier", " ", "to", " ", "find", " ", 
+        "stuff"}], ")"}]}], ";", "\n", 
+     RowBox[{
+     "they", " ", "all", " ", "inherit", " ", "the", " ", "context", " ", 
+      "Crystallica`Private`"}]}], ",", " ", 
+    RowBox[{
+     RowBox[{
+     "so", " ", "that", " ", "all", " ", "files", " ", "together", " ", 
+      "form", " ", "the", " ", "actual", " ", "package"}], ";", "\n", 
+     RowBox[{
+     "messages", " ", "and", " ", "option", " ", "defaults", " ", "can", " ", 
+      "be", " ", "found", " ", "in", " ", "the", " ", "file", " ", "of", " ", 
+      "their", " ", "respective", " ", "parent", " ", "function"}]}]}], 
+   "*)"}], "\n", 
+  RowBox[{
+   RowBox[{"Get", "/@", 
+    RowBox[{"FileNames", "[", 
+     RowBox[{"\"\<*.m\>\"", ",", 
+      RowBox[{"FileNameJoin", "[", 
+       RowBox[{"{", 
+        RowBox[{
+         RowBox[{"DirectoryName", "[", "$InputFileName", "]"}], ",", 
+         "\"\<PackageFiles\>\""}], "}"}], "]"}]}], "]"}]}], ";"}]}]], "Code"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"End", "[", "]"}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{"EndPackage", "[", "]"}], ";"}]}], "Code"]
+},
+AutoGeneratedPackage->Automatic,
+WindowSize->{808, 707},
+WindowMargins->{{Automatic, 196}, {Automatic, 0}},
+FrontEndVersion->"10.4 for Mac OS X x86 (32-bit, 64-bit Kernel) (February 25, \
+2016)",
+StyleDefinitions->"Default.nb"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[558, 20, 1514, 38, 146, "Code"],
+Cell[2075, 60, 349, 11, 50, "Code"],
+Cell[2427, 73, 97, 2, 50, "Code"],
+Cell[2527, 77, 492, 14, 82, "Code"],
+Cell[3022, 93, 2339, 40, 445, "Code"],
+Cell[5364, 135, 91, 2, 50, "Code"],
+Cell[5458, 139, 185, 5, 66, "Code"],
+Cell[5646, 146, 1332, 33, 98, "Code"],
+Cell[6981, 181, 130, 4, 66, "Code"]
+}
+]
+*)
+

@@ -1,0 +1,566 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Mathematica 10.4' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       158,          7]
+NotebookDataLength[     15684,        558]
+NotebookOptionsPosition[     15425,        544]
+NotebookOutlinePosition[     15784,        560]
+CellTagsIndexPosition[     15741,        557]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"(*", 
+   RowBox[{GridBox[{
+      {
+       StyleBox["jump",
+        FontWeight->"Plain"], 
+       StyleBox[
+        RowBox[{"description", "               "}],
+        FontWeight->"Plain"], 
+       StyleBox[
+        RowBox[{"   ", "IEig"}],
+        FontWeight->"Plain"], 
+       StyleBox["IHt",
+        FontWeight->"Plain"], 
+       StyleBox[
+        RowBox[{"sites", "?", " ", "\[IndentingNewLine]", 
+         RowBox[{"yes", ":", " ", 
+          RowBox[{"calc", " ", "Ht", " ", "again"}]}]}],
+        FontWeight->"Plain"]},
+      {
+       StyleBox["1",
+        FontWeight->"Plain"], 
+       StyleBox[
+        RowBox[{"D", " ", "hops", " ", "Right"}],
+        FontWeight->"Plain"], 
+       StyleBox["1",
+        FontWeight->"Plain"], 
+       StyleBox["1",
+        FontWeight->"Plain"], 
+       StyleBox["yes",
+        FontWeight->"Plain"]},
+      {
+       StyleBox["2",
+        FontWeight->"Plain"], 
+       StyleBox[
+        RowBox[{"D", " ", "hops", " ", "Left"}],
+        FontWeight->"Plain"], 
+       StyleBox["1",
+        FontWeight->"Plain"], 
+       StyleBox["1",
+        FontWeight->"Plain"], 
+       StyleBox["yes",
+        FontWeight->"Plain"]},
+      {
+       StyleBox["3",
+        FontWeight->"Plain"], 
+       StyleBox[
+        RowBox[{"\[Phi]", " ", "hops", " ", "Right"}],
+        FontWeight->"Plain"], 
+       StyleBox["1",
+        FontWeight->"Plain"], 
+       StyleBox["2",
+        FontWeight->"Plain"], 
+       StyleBox["yes",
+        FontWeight->"Plain"]},
+      {
+       StyleBox["4",
+        FontWeight->"Plain"], 
+       StyleBox[
+        RowBox[{"\[Phi]", " ", "hops", " ", "Left"}],
+        FontWeight->"Plain"], 
+       StyleBox["1",
+        FontWeight->"Plain"], 
+       StyleBox["2",
+        FontWeight->"Plain"], 
+       StyleBox["yes",
+        FontWeight->"Plain"]},
+      {
+       StyleBox["5",
+        FontWeight->"Plain"], 
+       StyleBox[
+        RowBox[{"D", ",", 
+         RowBox[{"\[Phi]", " ", "annihilated"}]}],
+        FontWeight->"Plain"], 
+       StyleBox["2",
+        FontWeight->"Plain"], 
+       StyleBox["3",
+        FontWeight->"Plain"], 
+       StyleBox["no",
+        FontWeight->"Plain"]},
+      {
+       StyleBox["6",
+        FontWeight->"Plain"], 
+       StyleBox[
+        RowBox[{"\[Phi]", ",", 
+         RowBox[{"D", " ", "annihilated"}]}],
+        FontWeight->"Plain"], 
+       StyleBox["2",
+        FontWeight->"Plain"], 
+       StyleBox["3",
+        FontWeight->"Plain"], 
+       StyleBox[
+        StyleBox[
+         StyleBox[
+          StyleBox[
+           RowBox[{"no", ";", " ", "penalty"}],
+           FontWeight->"Plain"],
+          FontWeight->"Plain"],
+         FontWeight->"Plain"],
+        FontWeight->"Plain"]},
+      {
+       StyleBox["7",
+        FontWeight->"Plain"], 
+       StyleBox[
+        RowBox[{"D", ",", 
+         RowBox[{"\[Phi]", " ", "created"}]}],
+        FontWeight->"Plain"], 
+       StyleBox["3",
+        FontWeight->"Plain"], 
+       StyleBox["4",
+        FontWeight->"Plain"], 
+       StyleBox["yes",
+        FontWeight->"Plain"]},
+      {
+       StyleBox["8",
+        FontWeight->"Plain"], 
+       StyleBox[
+        RowBox[{"\[Phi]", ",", 
+         RowBox[{"D", " ", "created"}]}],
+        FontWeight->"Plain"], 
+       StyleBox["3",
+        FontWeight->"Plain"], 
+       StyleBox["4",
+        FontWeight->"Plain"], 
+       StyleBox[
+        StyleBox[
+         StyleBox[
+          StyleBox[
+           RowBox[{"yes", ";", 
+            RowBox[{"jump", "=", "6"}]}],
+           FontWeight->"Plain"],
+          FontWeight->"Plain"],
+         FontWeight->"Plain"],
+        FontWeight->"Plain"]},
+      {
+       StyleBox["9",
+        FontWeight->"Plain"], 
+       StyleBox[
+        RowBox[{
+         RowBox[{"RC", ":", 
+          RowBox[{"D", " ", "annihilated"}]}], ",", " ", "m"}],
+        FontWeight->"Plain"], 
+       StyleBox["4",
+        FontWeight->"Plain"], 
+       StyleBox["5",
+        FontWeight->"Plain"], 
+       StyleBox["no",
+        FontWeight->"Plain"]},
+      {
+       StyleBox["10",
+        FontWeight->"Plain"], 
+       StyleBox[
+        RowBox[{
+         RowBox[{"RC", ":", 
+          RowBox[{"D", " ", "annihilated"}]}], ",", " ", 
+         RowBox[{"m", "+", "1"}]}],
+        FontWeight->"Plain"], 
+       StyleBox["5",
+        FontWeight->"Plain"], 
+       StyleBox["5",
+        FontWeight->"Plain"], 
+       StyleBox[
+        RowBox[{"no", " "}],
+        FontWeight->"Plain"]},
+      {
+       StyleBox["11",
+        FontWeight->"Plain"], 
+       StyleBox[
+        RowBox[{
+         RowBox[{"LC", ":", 
+          RowBox[{"D", " ", "annihilated"}]}], ",", " ", "m"}],
+        FontWeight->"Plain"], 
+       StyleBox["4",
+        FontWeight->"Plain"], 
+       StyleBox["5",
+        FontWeight->"Plain"], 
+       StyleBox["no",
+        FontWeight->"Plain"]},
+      {
+       StyleBox["12",
+        FontWeight->"Plain"], 
+       StyleBox[
+        RowBox[{
+         RowBox[{"LC", ":", 
+          RowBox[{"D", " ", "annihilated"}]}], ",", " ", 
+         RowBox[{"m", "+", "1"}]}],
+        FontWeight->"Plain"], 
+       StyleBox["5",
+        FontWeight->"Plain"], 
+       StyleBox["5",
+        FontWeight->"Plain"], 
+       StyleBox["no",
+        FontWeight->"Plain"]},
+      {
+       StyleBox["13",
+        FontWeight->"Plain"], 
+       StyleBox[
+        RowBox[{
+         RowBox[{"RC", ":", 
+          RowBox[{"\[Phi]", " ", "annihilated"}]}], ",", " ", "m"}],
+        FontWeight->"Plain"], 
+       StyleBox["4",
+        FontWeight->"Plain"], 
+       StyleBox["5",
+        FontWeight->"Plain"], 
+       StyleBox["no",
+        FontWeight->"Plain"]},
+      {
+       StyleBox["14",
+        FontWeight->"Plain"], 
+       StyleBox[
+        RowBox[{
+         RowBox[{"RC", ":", 
+          RowBox[{"\[Phi]", " ", "annihilated"}]}], ",", " ", 
+         RowBox[{"m", "+", "1"}]}],
+        FontWeight->"Plain"], 
+       StyleBox["5",
+        FontWeight->"Plain"], 
+       StyleBox["5",
+        FontWeight->"Plain"], 
+       StyleBox["no",
+        FontWeight->"Plain"]},
+      {
+       StyleBox["15",
+        FontWeight->"Plain"], 
+       StyleBox[
+        RowBox[{
+         RowBox[{"LC", ":", 
+          RowBox[{"\[Phi]", " ", "annihilated"}]}], ",", " ", "m"}],
+        FontWeight->"Plain"], 
+       StyleBox["4",
+        FontWeight->"Plain"], 
+       StyleBox["5",
+        FontWeight->"Plain"], 
+       StyleBox["no",
+        FontWeight->"Plain"]},
+      {
+       StyleBox["16",
+        FontWeight->"Plain"], 
+       StyleBox[
+        RowBox[{
+         RowBox[{"LC", ":", 
+          RowBox[{"\[Phi]", " ", "annihilated"}]}], ",", " ", 
+         RowBox[{"m", "+", "1"}]}],
+        FontWeight->"Plain"], 
+       StyleBox["5",
+        FontWeight->"Plain"], 
+       StyleBox["5",
+        FontWeight->"Plain"], 
+       StyleBox["no",
+        FontWeight->"Plain"]},
+      {
+       StyleBox["17",
+        FontWeight->"Plain"], 
+       StyleBox[
+        RowBox[{
+         RowBox[{"RC", ":", 
+          RowBox[{"D", " ", "created"}]}], ",", " ", "m"}],
+        FontWeight->"Plain"], 
+       StyleBox["6",
+        FontWeight->"Plain"], 
+       StyleBox["6",
+        FontWeight->"Plain"], 
+       StyleBox[
+        RowBox[{"-", "no"}],
+        FontWeight->"Plain"]},
+      {
+       StyleBox["18",
+        FontWeight->"Plain"], 
+       StyleBox[
+        RowBox[{
+         RowBox[{"RC", ":", 
+          RowBox[{"\[Phi]", " ", "created"}]}], ",", " ", "m"}],
+        FontWeight->"Plain"], 
+       StyleBox["6",
+        FontWeight->"Plain"], 
+       StyleBox["6",
+        FontWeight->"Plain"], 
+       StyleBox[
+        RowBox[{"-", "no"}],
+        FontWeight->"Plain"]},
+      {
+       StyleBox["19",
+        FontWeight->"Plain"], 
+       StyleBox[
+        RowBox[{
+         RowBox[{"RC", ":", 
+          RowBox[{"D", " ", "created"}]}], ",", " ", 
+         RowBox[{"m", "-", "1"}]}],
+        FontWeight->"Plain"], 
+       StyleBox["7",
+        FontWeight->"Plain"], 
+       StyleBox["6",
+        FontWeight->"Plain"], 
+       StyleBox[
+        RowBox[{"-", "no"}],
+        FontWeight->"Plain"]},
+      {
+       StyleBox["20",
+        FontWeight->"Plain"], 
+       StyleBox[
+        RowBox[{
+         RowBox[{"RC", ":", 
+          RowBox[{"\[Phi]", " ", "created"}]}], ",", " ", 
+         RowBox[{"m", "-", "1"}]}],
+        FontWeight->"Plain"], 
+       StyleBox["7",
+        FontWeight->"Plain"], 
+       StyleBox["6",
+        FontWeight->"Plain"], 
+       StyleBox[
+        RowBox[{"-", "np"}],
+        FontWeight->"Plain"]},
+      {
+       StyleBox["21",
+        FontWeight->"Plain"], 
+       StyleBox[
+        RowBox[{
+         RowBox[{"LC", ":", 
+          RowBox[{"D", " ", "created"}]}], ",", " ", "m"}],
+        FontWeight->"Plain"], 
+       StyleBox["6",
+        FontWeight->"Plain"], 
+       StyleBox["7",
+        FontWeight->"Plain"], 
+       StyleBox[
+        RowBox[{"-", "no"}],
+        FontWeight->"Plain"]},
+      {
+       StyleBox["22",
+        FontWeight->"Plain"], 
+       StyleBox[
+        RowBox[{
+         RowBox[{"LC", ":", 
+          RowBox[{"\[Phi]", " ", "created"}]}], ",", " ", "m"}],
+        FontWeight->"Plain"], 
+       StyleBox["6",
+        FontWeight->"Plain"], 
+       StyleBox["7",
+        FontWeight->"Plain"], 
+       StyleBox[
+        RowBox[{"-", "no"}],
+        FontWeight->"Plain"]},
+      {
+       StyleBox["23",
+        FontWeight->"Plain"], 
+       StyleBox[
+        RowBox[{
+         RowBox[{"LC", ":", 
+          RowBox[{"D", " ", "created"}]}], ",", " ", 
+         RowBox[{"m", "-", "1"}]}],
+        FontWeight->"Plain"], 
+       StyleBox["7",
+        FontWeight->"Plain"], 
+       StyleBox["7",
+        FontWeight->"Plain"], 
+       StyleBox[
+        RowBox[{"-", "no"}],
+        FontWeight->"Plain"]},
+      {
+       StyleBox["24",
+        FontWeight->"Plain"], 
+       StyleBox[
+        RowBox[{
+         RowBox[{"LC", ":", 
+          RowBox[{"\[Phi]", " ", "created"}]}], ",", " ", 
+         RowBox[{"m", "-", "1"}]}],
+        FontWeight->"Plain"], 
+       StyleBox["7",
+        FontWeight->"Plain"], 
+       StyleBox["6",
+        FontWeight->"Plain"], 
+       StyleBox[
+        RowBox[{"-", "no"}],
+        FontWeight->"Plain"]},
+      {
+       StyleBox["25",
+        FontWeight->"Plain"], 
+       StyleBox[
+        RowBox[{"\[Kappa]", ":", " ", 
+         RowBox[{"cavity", " ", "leackage"}]}],
+        FontWeight->"Plain"], 
+       StyleBox["8",
+        FontWeight->"Plain"], 
+       StyleBox["8",
+        FontWeight->"Plain"], 
+       StyleBox[
+        RowBox[{"-", "no"}],
+        FontWeight->"Plain"]},
+      {
+       StyleBox["26",
+        FontWeight->"Plain"], 
+       StyleBox[
+        RowBox[{"\[Gamma]", ":", " ", 
+         RowBox[{"exciton", " ", "decay"}]}],
+        FontWeight->"Plain"], 
+       StyleBox["8",
+        FontWeight->"Plain"], 
+       StyleBox["9",
+        FontWeight->"Plain"], 
+       StyleBox["yes",
+        FontWeight->"Plain"]},
+      {
+       StyleBox["\[Placeholder]",
+        FontWeight->"Plain"], 
+       StyleBox["\[Placeholder]",
+        FontWeight->"Plain"], 
+       StyleBox["\[Placeholder]",
+        FontWeight->"Plain"], 
+       StyleBox["\[Placeholder]",
+        FontWeight->"Plain"], 
+       StyleBox["\[Placeholder]",
+        FontWeight->"Plain"]},
+      {
+       StyleBox["\[Placeholder]",
+        FontWeight->"Plain"], 
+       StyleBox["\[Placeholder]",
+        FontWeight->"Plain"], 
+       StyleBox["\[Placeholder]",
+        FontWeight->"Plain"], 
+       StyleBox["\[Placeholder]",
+        FontWeight->"Plain"], 
+       StyleBox["\[Placeholder]",
+        FontWeight->"Plain"]}
+     },
+     GridBoxDividers->{
+      "Columns" -> {{True}}, "ColumnsIndexed" -> {}, "Rows" -> {{True}}, 
+       "RowsIndexed" -> {}}], "\[IndentingNewLine]", GridBox[{
+      {"jump", "process", 
+       RowBox[{"current", " ", "L", " ", "to", " ", "R"}]},
+      {"9", 
+       RowBox[{
+        RowBox[{"RC", ":", 
+         RowBox[{"D", " ", "annihilated"}]}], ",", " ", "m"}], "1"},
+      {"10", 
+       RowBox[{
+        RowBox[{"RC", ":", 
+         RowBox[{"D", " ", "annihilated"}]}], ",", " ", 
+        RowBox[{"m", "+", "1"}]}], "1"},
+      {"11", 
+       RowBox[{
+        RowBox[{"LC", ":", 
+         RowBox[{"D", " ", "annihilated"}]}], ",", " ", "m"}], 
+       RowBox[{"-", "1"}]},
+      {"12", 
+       RowBox[{
+        RowBox[{"LC", ":", 
+         RowBox[{"D", " ", "annihilated"}]}], ",", " ", 
+        RowBox[{"m", "+", "1"}]}], 
+       RowBox[{"-", "1"}]},
+      {"13", 
+       RowBox[{
+        RowBox[{"RC", ":", 
+         RowBox[{"\[Phi]", " ", "annihilated"}]}], ",", " ", "m"}], 
+       RowBox[{"-", "1"}]},
+      {"14", 
+       RowBox[{
+        RowBox[{"RC", ":", 
+         RowBox[{"\[Phi]", " ", "annihilated"}]}], ",", " ", 
+        RowBox[{"m", "+", "1"}]}], 
+       RowBox[{"-", "1"}]},
+      {"15", 
+       RowBox[{
+        RowBox[{"LC", ":", 
+         RowBox[{"\[Phi]", " ", "annihilated"}]}], ",", " ", "m"}], "1"},
+      {"16", 
+       RowBox[{
+        RowBox[{"LC", ":", 
+         RowBox[{"\[Phi]", " ", "annihilated"}]}], ",", " ", 
+        RowBox[{"m", "+", "1"}]}], "1"},
+      {"17", 
+       RowBox[{
+        RowBox[{"RC", ":", 
+         RowBox[{"D", " ", "created"}]}], ",", " ", "m"}], 
+       RowBox[{"-", "1"}]},
+      {"18", 
+       RowBox[{
+        RowBox[{"RC", ":", 
+         RowBox[{"\[Phi]", " ", "created"}]}], ",", " ", "m"}], "1"},
+      {"19", 
+       RowBox[{
+        RowBox[{"RC", ":", 
+         RowBox[{"D", " ", "created"}]}], ",", " ", 
+        RowBox[{"m", "-", "1"}]}], 
+       RowBox[{"-", "1"}]},
+      {"20", 
+       RowBox[{
+        RowBox[{"RC", ":", 
+         RowBox[{"\[Phi]", " ", "created"}]}], ",", " ", 
+        RowBox[{"m", "-", "1"}]}], "1"},
+      {"21", 
+       RowBox[{
+        RowBox[{"LC", ":", 
+         RowBox[{"D", " ", "created"}]}], ",", " ", "m"}], "1"},
+      {"22", 
+       RowBox[{
+        RowBox[{"LC", ":", 
+         RowBox[{"\[Phi]", " ", "created"}]}], ",", " ", "m"}], 
+       RowBox[{"-", "1"}]},
+      {"23", 
+       RowBox[{
+        RowBox[{"LC", ":", 
+         RowBox[{"D", " ", "created"}]}], ",", " ", 
+        RowBox[{"m", "-", "1"}]}], "1"},
+      {"24", 
+       RowBox[{
+        RowBox[{"LC", ":", 
+         RowBox[{"\[Phi]", " ", "created"}]}], ",", " ", 
+        RowBox[{"m", "-", "1"}]}], 
+       RowBox[{"-", "1"}]}
+     },
+     GridBoxDividers->{
+      "Columns" -> {{True}}, "ColumnsIndexed" -> {}, "Rows" -> {{True}}, 
+       "RowsIndexed" -> {}}]}], "\[IndentingNewLine]", "*)"}], 
+  "\[IndentingNewLine]", "\[IndentingNewLine]", 
+  "\[IndentingNewLine]"}]], "Input",
+ CellChangeTimes->{{3.707430571969721*^9, 3.707430578815934*^9}, {
+  3.707475075456484*^9, 3.707475085014579*^9}, {3.707477279241929*^9, 
+  3.70747729268852*^9}, {3.70747737179049*^9, 3.707477529519137*^9}, {
+  3.7074775787890387`*^9, 3.707477639226885*^9}, {3.707478114739078*^9, 
+  3.7074781155974903`*^9}, {3.7093971122472467`*^9, 3.7093971128439627`*^9}, {
+  3.7116317474073067`*^9, 3.711631761473136*^9}}]
+},
+WindowSize->{808, 706},
+WindowMargins->{{116, Automatic}, {Automatic, 44}},
+FrontEndVersion->"10.4 for Mac OS X x86 (32-bit, 64-bit Kernel) (February 25, \
+2016)",
+StyleDefinitions->"Default.nb"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[558, 20, 14863, 522, 979, "Input"]
+}
+]
+*)
+
