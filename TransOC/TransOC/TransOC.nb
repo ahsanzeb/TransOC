@@ -10,10 +10,10 @@
 NotebookFileLineBreakTest
 NotebookFileLineBreakTest
 NotebookDataPosition[       158,          7]
-NotebookDataLength[      6954,        192]
-NotebookOptionsPosition[      6370,        169]
-NotebookOutlinePosition[      6761,        186]
-CellTagsIndexPosition[      6718,        183]
+NotebookDataLength[     10610,        300]
+NotebookOptionsPosition[     10025,        277]
+NotebookOutlinePosition[     10416,        294]
+CellTagsIndexPosition[     10373,        291]
 WindowFrame->Normal*)
 
 (* Beginning of Notebook Content *)
@@ -96,42 +96,149 @@ Cell[BoxData[
   RowBox[{"(*", " ", 
    RowBox[{"function", ":"}], " ", "*)"}], "\n", 
   RowBox[{
-   RowBox[{"Trajectory", "::", "usage"}], "=", 
-   "\"\<Trajectory runs a Montr Carlo trajectory.\n\n\!\(\*
-StyleBox[\"Optional\",
-FontSize->14]\)\!\(\*
+   RowBox[{
+    RowBox[{"Trajectory", "::", "usage"}], "=", "\n", "\n", 
+    "\"\<Trajectory runs a Montr Carlo trajectory.\n\n{\!\(\*
+StyleBox[\"{\",
+FontSize->18]\)\!\(\*
+StyleBox[\"Name\",
+FontSize->18]\)\!\(\*
+StyleBox[\",\",
+FontSize->18]\)\!\(\*
+StyleBox[\"Default\",
+FontSize->18]\)\!\(\*
 StyleBox[\" \",
-FontSize->14]\)\!\(\*
-StyleBox[\"Arguments\",
-FontSize->14]\)\!\(\*
+FontSize->18]\)\!\(\*
+StyleBox[\"value\",
+FontSize->18]\)\!\(\*
+StyleBox[\" \",
+FontSize->18]\)\!\(\*
+StyleBox[\"(\",
+FontSize->18]\)\!\(\*
+StyleBox[\"data\",
+FontSize->18]\)\!\(\*
+StyleBox[\" \",
+FontSize->18]\)\!\(\*
+StyleBox[\"type\",
+FontSize->18]\)\!\(\*
+StyleBox[\")\",
+FontSize->18]\)\!\(\*
+StyleBox[\",\",
+FontSize->18]\)\!\(\*
+StyleBox[\"Description\",
+FontSize->18]\)\!\(\*
+StyleBox[\"}\",
+FontSize->18]\),\[IndentingNewLine]{Ntot,5,Number of molecules in the \
+system},\[IndentingNewLine]{m0,1,number of excitations in the coupled \
+light-matter sub-system},\[IndentingNewLine]{Ds0,{},List of sites that are D \
+at start},\[IndentingNewLine]{Phis0,{},List of sites that are \[Phi]s at \
+start},\n{g,1.0,strenght of light-matter coupling for a single \
+molecule,(wR=g.Sqrt[N])},\[IndentingNewLine]{dw,00,Detuning,w0-wc},\n\
+{tpar,{0.1,0.001,0.001,0.05,0.1,0.1,0.1,0.1},Hopping \
+parameters,{th,tl,tlh,thl,JhR,JlR,JhL,JlL}},\n{Eb,{0.0,0.0},Barriers at the \
+left and right ontacts,Eb={Ebl,Ebr}},\[IndentingNewLine]{kappa,0.005,Cavity \
+losses \[Kappa]},\[IndentingNewLine]{gamma,0.005,Exciton non-radiative decay \
+rate \[Gamma]},\[IndentingNewLine]{Er,0.5,Energy Er due to the applied \
+electric field},\[IndentingNewLine]{w0,2.0,Exciton bare energy Subscript[\
+\[Omega],0]},\[IndentingNewLine]{beta,40.0,\[Beta]=1/Subscript[k,b] T},\
+\[IndentingNewLine]{maxiter,20,Max number of iterations/time steps in the \
+dynamics},\[IndentingNewLine]{includecross,True,Include cross hops,L-H and \
+H-L?},\n{BlockInjection,{False,False},Block injection of charge \
+carriers?{BlockLeft,BlockRight}Left contact is cathode,right contact is \
+anodeBlock electron from left and holes from right},\n\
+{M,wv,lambda,3,0.2,1.0,Vibrational levels,energy,coupling to electronic \
+statesUsed when VibAssis=True},\n{AlwaysLP,True,Quickly relax the quantum \
+system to its lowest eigenstate before an other hop can take place?},\n\
+{VibAssis,False,Include vibrational assistance for the Zener tunneling,H-L \
+transitions from active sites H levels?},\n{printmem, False, Print memory and \
+some other information},\n{fullout, False, full or short output},\n\
+{staylow,True, stay in the lowest 2-3 Wr levels, issues when dw =! 0 due to \
+unknown number of states in deg dectors but energetic penalty removes them \
+for 2nd level onwards anyway}\[IndentingNewLine]}\n\n\!\(\*
+StyleBox[\"The\",
+FontSize->16]\)\!\(\*
+StyleBox[\" \",
+FontSize->16]\)\!\(\*
+StyleBox[\"input\",
+FontSize->16]\)\!\(\*
+StyleBox[\" \",
+FontSize->16]\)\!\(\*
+StyleBox[\"argument\",
+FontSize->16]\)\!\(\*
+StyleBox[\" \",
+FontSize->16]\)\!\(\*
+StyleBox[\"should\",
+FontSize->16]\)\!\(\*
+StyleBox[\" \",
+FontSize->16]\)\!\(\*
+StyleBox[\"be\",
+FontSize->16]\)\!\(\*
+StyleBox[\" \",
+FontSize->16]\)\!\(\*
+StyleBox[\"given\",
+FontSize->16]\)\!\(\*
+StyleBox[\" \",
+FontSize->16]\)\!\(\*
+StyleBox[\"as\",
+FontSize->16]\)\!\(\*
+StyleBox[\" \",
+FontSize->16]\)\!\(\*
+StyleBox[\"Mathematica\",
+FontSize->16]\)\!\(\*
+StyleBox[\" \",
+FontSize->16]\)\!\(\*
+StyleBox[\"rules\",
+FontSize->16]\)\!\(\*
+StyleBox[\" \",
+FontSize->16]\)\!\(\*
+StyleBox[\"to\",
+FontSize->16]\)\!\(\*
+StyleBox[\" \",
+FontSize->16]\)\!\(\*
+StyleBox[\"override\",
+FontSize->16]\)\!\(\*
+StyleBox[\" \",
+FontSize->16]\)\!\(\*
+StyleBox[\"the\",
+FontSize->16]\)\!\(\*
+StyleBox[\" \",
+FontSize->16]\)\!\(\*
+StyleBox[\"default\",
+FontSize->16]\)\!\(\*
+StyleBox[\" \",
+FontSize->16]\)\!\(\*
+StyleBox[\"values\",
+FontSize->16]\)\!\(\*
 StyleBox[\":\",
-FontSize->14]\)\nNtot: 5; Number of molecules in the system.;\nm0: 1; number \
-of excitations in the coupled light-matter sub-system;\nDs0: {}; List of \
-sites that are D;\nPhis0: {};List of sites that are \[Phi]s;\t\t\t\t\t\ng: \
-1.0; strenght of light-matter coupling for a single molecule: \
-(\!\(\*SubscriptBox[\(\[Omega]\), \(R\)]\) = g \!\(\*SqrtBox[SubscriptBox[\(N\
-\), \(Active\)]]\));\ndw: 0.0; Detuning, \!\(\*SubscriptBox[\(\[Omega]\), \(0\
-\)]\)-\!\(\*SubscriptBox[\(\[Omega]\), \(c\)]\);\ntpar: \
-{0.1,0.001,0.001,0.1,0.1,0.1,0.1,0.1}; \n\t\tHopping parameters, \
-{th,tl,tlh,thl,JhR,JlR,JhL,JlL};\nEb: {0.0,0.0}; Barriers at the left and \
-right ontacts: Eb={Ebl,Ebr};\nkappa: 0.005; Cavity losses \[Kappa];\ngamma: \
-0.005; Exciton non-radiative decay rate \[Gamma];\nEr: 0.5; Energy E.r due to \
-the applied electric field.\nw0: 2.0; Exciton bare energy \!\(\*SubscriptBox[\
-\(\[Omega]\), \(0\)]\).\nbeta: 40.0; \[Beta] = 1/\!\(\*SubscriptBox[\(k\), \
-\(b\)]\)T;\nmaxiter: 20; Max number of iterations/time steps in the dynamics.\
-\nincludecross: True; Include cross hops, L-H and H-L?\nBlockInjection: \
-{False,False}; Block injection of charge carriers? {BlockLeft,BlockRight}. \n\
-\t\t\t\tLeft contact is cathode, right contact is anode. Block electron from \
-left and holes from right.\nM,wv,lambda: 3,0.2,1.0; Vibrational levels, \
-energy, coupling to electronic states.\nAlwaysLP: True; Quickly relax the \
-quantum system to its lowest eigenstate before an other hop can take place?\n\
-VibAssis: False; Include vibrational assistance for the Zener tunneling, H-L \
-transitions from active sites H levels?\>\""}]}]], "Code",
+FontSize->16]\)\nFor example,\nout = Trajectory[maxiter -> 100, Ntot \[Rule]  \
+7, m0 -> 5, g \[Rule] 1.5, includecross\[Rule]False];\n\>\""}], 
+   ";"}]}]], "Code",
  CellChangeTimes->{{3.711622725164941*^9, 3.711622799216568*^9}, {
    3.711625994772591*^9, 3.7116260133934717`*^9}, 3.711630786830312*^9, {
    3.711631338276513*^9, 3.71163146328096*^9}, {3.711632786476039*^9, 
    3.711633121883718*^9}, {3.711633162106471*^9, 3.711633227071251*^9}, {
-   3.71165113677603*^9, 3.711651185888319*^9}}],
+   3.71165113677603*^9, 3.711651185888319*^9}, 3.71169032788619*^9, {
+   3.71169038694284*^9, 3.711690765524735*^9}, {3.7116908583394623`*^9, 
+   3.7116910330964537`*^9}, 3.711691078058187*^9, {3.711691138495349*^9, 
+   3.711691170011792*^9}, {3.7116912009333467`*^9, 3.711691269441463*^9}, {
+   3.711691340278881*^9, 3.711691662494329*^9}, 3.7116917081658287`*^9, {
+   3.711691749628067*^9, 3.711691789623354*^9}, {3.711692058035531*^9, 
+   3.711692068040399*^9}, {3.711692104615733*^9, 3.7116921064764557`*^9}, {
+   3.71169219901119*^9, 3.7116922302501173`*^9}, {3.711693892132461*^9, 
+   3.71169394887432*^9}, {3.711693992884709*^9, 3.711693998049271*^9}, {
+   3.711694095663227*^9, 3.711694102748043*^9}, {3.711694153439559*^9, 
+   3.7116942310605783`*^9}, {3.7116942633732023`*^9, 3.711694264355959*^9}, {
+   3.711694311532247*^9, 3.711694311819544*^9}, {3.711694344356789*^9, 
+   3.711694358337819*^9}, {3.711694390608624*^9, 3.7116944010045853`*^9}, {
+   3.711694435436043*^9, 3.711694464383436*^9}, {3.711694520001669*^9, 
+   3.7116945210730543`*^9}, 3.711694584351775*^9, {3.711694723309461*^9, 
+   3.7116947791051083`*^9}, {3.711694863093635*^9, 3.711694910514159*^9}, {
+   3.7116951388234053`*^9, 3.711695176102174*^9}, {3.711695305859222*^9, 
+   3.711695329168787*^9}, 3.711695574505213*^9, {3.711695803749279*^9, 
+   3.71169589584196*^9}, {3.71179401789294*^9, 3.7117940532623653`*^9}, {
+   3.7118721502418528`*^9, 3.711872213309946*^9}, {3.711952145611236*^9, 
+   3.711952205975099*^9}, {3.711952246776416*^9, 3.711952247894924*^9}, {
+   3.712028840159626*^9, 3.7120290361291103`*^9}}],
 
 Cell[BoxData[
  RowBox[{
@@ -142,7 +249,8 @@ Cell[BoxData[{
   RowBox[{"$TransOCVersion", "=", "1."}], ";"}], "\n", 
  RowBox[{
   RowBox[{"debug", ":=", 
-   RowBox[{"TrueQ", "[", "$TransOCDebugQ", "]"}]}], ";"}]}], "Code"],
+   RowBox[{"TrueQ", "[", "$TransOCDebugQ", "]"}]}], ";"}]}], "Code",
+ CellChangeTimes->{{3.71179298492097*^9, 3.711792990646398*^9}}],
 
 Cell[BoxData[
  RowBox[{
@@ -168,8 +276,8 @@ Cell[BoxData[{
   RowBox[{"EndPackage", "[", "]"}], ";"}]}], "Code"]
 },
 AutoGeneratedPackage->Automatic,
-WindowSize->{808, 707},
-WindowMargins->{{Automatic, 196}, {Automatic, 0}},
+WindowSize->{1190, 739},
+WindowMargins->{{82, Automatic}, {Automatic, 0}},
 FrontEndVersion->"10.4 for Mac OS X x86 (32-bit, 64-bit Kernel) (February 25, \
 2016)",
 StyleDefinitions->"Default.nb"
@@ -189,11 +297,11 @@ Cell[558, 20, 1514, 38, 146, "Code"],
 Cell[2075, 60, 349, 11, 50, "Code"],
 Cell[2427, 73, 97, 2, 50, "Code"],
 Cell[2527, 77, 492, 14, 82, "Code"],
-Cell[3022, 93, 2339, 40, 445, "Code"],
-Cell[5364, 135, 91, 2, 50, "Code"],
-Cell[5458, 139, 185, 5, 66, "Code"],
-Cell[5646, 146, 587, 15, 66, "Code"],
-Cell[6236, 163, 130, 4, 66, "Code"]
+Cell[3022, 93, 5929, 147, 582, "Code"],
+Cell[8954, 242, 91, 2, 50, "Code"],
+Cell[9048, 246, 250, 6, 66, "Code"],
+Cell[9301, 254, 587, 15, 66, "Code"],
+Cell[9891, 271, 130, 4, 66, "Code"]
 }
 ]
 *)

@@ -88,27 +88,28 @@ dEcont={
 Ebr-w0,Ebr,Ebl-w0,Ebl,
 Ebr,-Ebr+w0,Ebr-w0,-Ebr,
 Ebl,-Ebl+w0,Ebl-w0,-Ebl,
-0,0};
+-w0,-w0};
 signEr={
 1,-1,-1,1,1,-1,-1,1,
 1,1,-1,-1,-1,-1,1,1,
 -1,1,-1,1,1,-1,1,-1,
 0,0};
 dqc=Table[Table[
-If[wj<= 8,dEbulk[[wc]],dEcont[[wj-8]]]-signEr[[wj]]*Er,
+If[wj<= 8,dEbulk[[wc]],dEcont[[wj-8]]]
+-signEr[[wj]]*Er,
 {wc,1,4}],{wj,1,26}];
+Print["dqc = ",dqc];
 dqc
 ];
 
-sectors[Eigs_]:=Module[{deg,nlevels,X,Es,Elevels},
-X=Tally[Eigs];
-Es=X[[All,1]];Elevels=X[[All,2]];nlevels=Length[Elevels];
-deg=Insert[Accumulate[Elevels],0,1];
+sectors[Eigs_]:=Module[{deg,nlevels,X,Es,NElevels},
+X=Tally[SetAccuracy[Eigs,8]];
+Es=X[[All,1]];NElevels=X[[All,2]];nlevels=Length[NElevels];
+deg=Insert[Accumulate[NElevels],0,1];
 {nlevels,Es,deg}];
 
-
-SelectFinalState[Ef_,Uf_,coeff_]:=Module[
-{X,psiff,deg,r,whichsec,Elevels,nlevels,i1,i2,Rlist,x,eta},
+(*SelectFinalState[Ef_,Uf_,coeff_,wrates_]:=Module[
+{X,psiff,deg,r,whichsec,Elevels,nlevels,i1,i2,Rlist,x,eta,Eff},
 X=Tally[Ef];
 Elevels=X[[All,2]];nlevels=Length[Elevels];
 i1=0;i2=0;x=0;Rlist={0};deg={};
@@ -121,22 +122,49 @@ i1=i2;
 ,{i,1,nlevels}];
 eta=RandomReal[{0,Rlist[[-1]] }];
 whichsec=-1;
-Do[If[eta>Rlist[[i]]&&eta<=  Rlist[[i+1]],whichsec=i;Break[]],{i,1,nlevels}];
+Do[If[eta>Rlist[[i]]&&eta\[LessEqual]  Rlist[[i+1]],whichsec=i;Break[]],{i,1,nlevels}];
 
-If[whichsec==-1,
+If[whichsec\[Equal]-1,
 Print["WhichSiteChannel: not found! Aborting... "];
 Print["Rlist: ",Rlist];
 ];
 
-If[whichsec==-1,
+If[whichsec\[Equal]-1,
 {"whichsec not found! Aborting... Rlist: ",Rlist," & eta:" , eta}>>>file;
 Abort[];];
 {i1,i2}=deg[[whichsec]];
 psiff=Sum[coeff[[i]]*Uf[[All,i]],{i,i1+1,i2}];
 psiff/Norm[psiff];
-psiff
+Eff=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX;
+{Eff,psiff}
+];*)
+
+SelectFinalState[Ef_,Uf_,coeff_,wrates_]:=Module[
+{X,psiff,deg,r,whichsec,Elevels,nlevels,i1,i2,eta,Rlist,Eff},
+
+{nlevels,Eff,deg}=sectors[Ef];
+Rlist=Insert[Accumulate[wrates],0,1];
+
+If[Im[Rlist[[-1]]]!=0,Print["SelectFinalState: Im[Rlist[[-1]]]\[NotEqual]0, some issue.... Should I Chop?"],
+Abort[];
 ];
 
+eta=RandomReal[{0,Rlist[[-1]] }];
+whichsec=-1;
+Do[If[eta>Rlist[[i]]&&eta<=  Rlist[[i+1]],whichsec=i;Break[]],{i,1,nlevels}];
+
+If[whichsec==-1,
+Print["WhichSiteChannel: not found! Aborting... "];
+Print["Rlist: ",Rlist];
+Abort[];
+];
+
+i1=deg[[whichsec]];i2=deg[[whichsec+1]];
+psiff=Sum[coeff[[i]]*Uf[[All,i]],{i,i1+1,i2}];
+psiff/Norm[psiff];
+
+{Eff[[whichsec]],psiff}
+];
 
 
 

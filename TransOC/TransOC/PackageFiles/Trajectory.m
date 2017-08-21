@@ -27,7 +27,7 @@ Ds0_,Phis0_,
 tpar_,kappa_,gamma_,
 dw_,Eb_,Er_,w0_,beta_,
 includecross_,BlockInjection_,AlwaysLP_,
-VibAssis_,M_,wv_,lambda_]:=Module[{UNm,UNp1mp1,UNm1mm1,UNp1m,UNm1m,HtDA,RDA,HtPhiA,RPhiA,HtDPhiA,UNp2mp1,RDPhiA,HtDPhiAinv,UNm2mm1,RDPhiAinv,HtCDAh,HtCDAl,RCDAh,RCDAl,HtCAh,HtCAl,RCAh,RCAl,Es,
+VibAssis_,M_,wv_,lambda_,printmem_,fullout_,staylow_]:=Module[{UNm,UNp1mp1,UNm1mm1,UNp1m,UNm1m,HtDA,RDA,HtPhiA,RPhiA,HtDPhiA,UNp2mp1,RDPhiA,HtDPhiAinv,UNm2mm1,RDPhiAinv,HtCDAh,HtCDAl,RCDAh,RCDAl,HtCAh,HtCAl,RCAh,RCAl,Es,
 DhopsR,DhopsL,PhihopsR,PhihopsL,DPhiR,DPhiL,
 CDhopsR,CDhopsL,CPhihopsR,CPhihopsL,Apairs,CAR,CAL,Cproc,CDAproc,
 RDAM,RPhiAM,RDPhiAM,RDPhiAinvM,RCDAhM,RCDAlM,RCAhM,RCAlM,n,Ds,Phis,m,ASites,
@@ -40,7 +40,7 @@ HtDAR,HtDAL,RDAR,RDAL,HtPhiAR,RPhiAR,HtPhiAL,RPhiAL,
 HtApairs,ENmm1,UNmm1,RkappaM ,Rkappa,Rgamma,rates,totrates,
 ltotr,slist,u,eta,wj,process,lp,whichstates,pos,apos,rate,
 ldpr,ldpl,nlevels,Rlist,degen,whichsec,psif,i1,i2,xtot,Dsvst,Phisvst,mvst,Neig,istate,psi,
-ldpa,NN,p1,p2,ITER,m1,Einit,HtApaira,HtApairb,out2,Evst,tlh,thl,th,tl,tpard,tparp,Htsph,Htspl,Htsplh,Htsphl,RDPhiAh,RDPhiAl,RDPhiAhl,RDPhiAlh,ENp2m,UNp2m,ENp2mp2,UNp2mp2,rr,ENmp1,UNmp1,logkg,logNmm1,ws,wc,U,ratef,dN,dm,RCAlR,RCAlL,RCAhR,RCAhL,r,rz,HtDAc,HtDAclh,HtDAchl,rlist,ii,saposOrder,t1,t2,ts78,rrAinv,HtApairlh,HtApairhl,rrcdal,rrcdah,rrcalr,rrcahr,rrcall,rrcahl,j,HtCAhL,HtCAlL,JhR,JlR,JhL,JlL,fr1,fr2,fr3,fr4,fl1,fl2,fl3,fl4,pf,HtCAhR,HtCAlR,ZQ,EBL,HBL,fl4v,fr4v,thops,Ebr,Ebl},
+ldpa,NN,p1,p2,ITER,m1,Einit,HtApaira,HtApairb,out2,tlh,thl,th,tl,tpard,tparp,Htsph,Htspl,Htsplh,Htsphl,RDPhiAh,RDPhiAl,RDPhiAhl,RDPhiAlh,ENp2m,UNp2m,ENp2mp2,UNp2mp2,rr,ENmp1,UNmp1,logkg,logNmm1,ws,wc,U,ratef,dN,dm,RCAlR,RCAlL,RCAhR,RCAhL,r,rz,HtDAc,HtDAclh,HtDAchl,rlist,ii,saposOrder,t1,t2,ts78,rrAinv,HtApairlh,HtApairhl,rrcdal,rrcdah,rrcalr,rrcahr,rrcall,rrcahl,j,HtCAhL,HtCAlL,JhR,JlR,JhL,JlL,fr1,fr2,fr3,fr4,fl1,fl2,fl3,fl4,pf,HtCAhR,HtCAlR,EBL,HBL,fl4v,fr4v,thops,Ebr,Ebl,charge9to24,dCharge},
 
 
 Amplitudes[wj_,ws_,wc_]:=Which[
@@ -59,6 +59,13 @@ MemberQ[{21,22},wj],RCAlL,
 MemberQ[{23,24},wj],RCAhL,
 wj==25,Rkappa,
 wj==26,Rgamma[ws]
+];
+
+RatesWjWcWs[wj_,ws_,wc_]:=Which[
+MemberQ[{1,2,3,4,7,8},wj],rz[wj][ws,wc],
+MemberQ[{5,6},wj],rz[wj][wc],
+wj==26,rz[wj][ws],
+MemberQ[{9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25},wj],rz[wj]
 ];
 
 {th,tl,tlh,thl,JhR,JlR,JhL,JlL}=tpar;
@@ -105,7 +112,10 @@ If[Length[pr]>0,
 prob=Sum[pr[[nv+1]]*If[dE-nv*wv<0,1,Exp[-(dE-nv*wv)*beta]]   ,{nv,0,M-1}];
 ,prob=If[dE<0,1,Exp[-dE*beta]]
 ];
-prob
+(*Chop[prob,10^-30]*)
+(* to avoid getting complex number when prob is too small ~ 10^-100s 
+Chop is more accureate choice but it can kill all the rates and create a trap! *)
+Re[prob]
 ];
 
 {Ebl,Ebr}=Eb;(* Right and left contact energy barriers*)
@@ -142,46 +152,65 @@ AppendTo[res,Q];
 res
 ];
 
+(* choose final state and sets Einit*)
 ChooseFinalState[wj_,ws_,wc_]:=Module[
-{ind,Ef,Uf,coeff},
+{ind,Ef,Uf,coeff,Einit0,psif0},
 ind=EUinds[[wj,wc]];
 Ef=Es[ind];Uf=U[ind];
+Einit=Ef[[1]]; (* set Einit for next iteration *)
+If[AlwaysLP,
+Einit0=Ef[[1]];
+psif0=Uf[[All,1]],
 coeff=Amplitudes[wj,ws,wc];
-If[AlwaysLP,Uf[[All,1]],SelectFinalState[Ef,Uf,coeff]]
+{Einit0,psif0}=SelectFinalState[Ef,Uf,coeff,RatesWjWcWs[wj,ws,wc]]
+];
+{Einit0,psif0}
 ];
 
 (* beta, Erbeta: global variable to avaoid in arg of Rates *)
 
 {Ds,Phis,m}={Ds0,Phis0,m0};(*initstate;*)
 
+(* \[CapitalDelta]Q *)
+charge9to24={1,1,-1,-1,-1,-1,1,1,-1,1,-1,1,1,-1,1,-1};
+dCharge=Join[Table[0,{i,1,8}],charge9to24,{0,0}];
 
-currents9to24={1,1,-1,-1,-1,-1,1,1,-1,1,-1,1,1,-1,1,-1};
-Current=Join[Table[0,{i,1,8}],currents9to24,{0,0}];
+(* Excitations added or lost due to Homo-Lumo or Lumo-Homo hops? *)
+Zener[wj_,wc_]:=Module[{zq},
+zq=0;
+If[wj<=8,
+If[wc==3,zq=-1];
+If[wc==4,zq=1]
+];
+zq
+];
 
-file=NotebookDirectory[]<>"INFO.txt";
+(*in this order, EhopsR,EhopsL,EinjR,EinjL,EextR,EextL,HinjR,HinjL,HextR,HextL*)
+RateTypeInds={{1,4,5,8},{2,3,6,7},{14,17},{16,21},{9,20},{11,24},{10,18},{12,22},{13,19},{15,23}};
 
-(*{pfeR,pfeL}=penaltyfunction[Erbeta,omega0];*)
 
-
-(* Define m1=Min[m,N], and use this m1 in various functions that have k=0/1 to m. *)
-
+NmaxEig=-1;
 t=0;times={0};out2={};
 Dsvst={Ds};Phisvst={Phis};mvst={m};
 ITER=0;
 While[ITER<maxiter(*t<tmax*),
+If[debug,
 Print["*************** ITERATION # ",ITER];
 Print["N = "<>ToString[NN]<>", m= "<>ToString[m],"; last wj,wc=",{wj,wc}];
-
-{"*************** ITERATION # ",ITER}>>>file;
+];
 (* starting list of active sites *)
 ASites=Complement[Table[i,{i,1,Ntot}],Ds,Phis];
 If[ITER==0,
 NN=Length[ASites];
-"Initial variables: ">>file;
-{"N,m: ",{NN,m}}>>>file;
-{"Ds: ",Ds}>>>file;
-{"\[Phi]s: ",Phis}>>>file;
+If[debug,
+Print["Initial variables: "];
+Print["N,m: ",{NN,m}];
+Print["Ds: ",Ds];
+Print["\[Phi]s: ",Phis];
 ];
+];
+
+If[staylow,NmaxEig=Sum[c[NN,mm],{mm,0,Min[4,Min[m,NN]]}]];
 
 (* m,NN state *)
 (*{ENm,UNm}=DiagH[NN,m,gg];*)
@@ -193,7 +222,7 @@ NN=Length[ASites];
 If[ITER==0,
 psi=U[1][[All,1]];
 (*psi=SelectFinalState[Es[1],U[1],Table[RandomReal[{0,1}],{i,1,Length[Es[1]]}]];
-*)Einit=Es[1][[1]];Evst={Einit};
+*)Einit=Es[1][[1]];
 ];
 
 (*Print["ASites: ",ASites," NN: ",NN];*)
@@ -216,8 +245,8 @@ CDhopsR,CDhopsL,CPhihopsR,CPhihopsL,Apairs,CAR,CAL}=OneDLatticeWays[Ntot,Ds,Phis
 
 (*Print["ways: ",{DhopsR,DhopsL,PhihopsR,PhihopsL,DPhiR,DPhiL,
 CDhopsR,CDhopsL,CPhihopsR,CPhihopsL,Apairs,CAR,CAL}];*)
-{"ways: ",{DhopsR,DhopsL,PhihopsR,PhihopsL,DPhiR,DPhiL,
-CDhopsR,CDhopsL,CPhihopsR,CPhihopsL,Apairs,CAR,CAL}}>>>file;
+If[debug,Print["ways: ",{DhopsR,DhopsL,PhihopsR,PhihopsL,DPhiR,DPhiL,
+CDhopsR,CDhopsL,CPhihopsR,CPhihopsL,Apairs,CAR,CAL}]];
 
 (*Bulk Processes*)
 (*D+A\[Rule] D+A*)
@@ -226,7 +255,7 @@ RDAM=mkHtDA[NN,m,th,tl].Transpose[UNm];
 Nstates[[1]]= Dimensions[RDAM][[2]];
 ];*)
 
-(*Print["----------- rates starting-------------"];*)
+If[debug,Print["----------- rates starting-------------"];];
 
 (* get rates for current state psi *)
 (*Do[r[j]=0;rlist[j]={},{j,1,26}];*)
@@ -262,7 +291,7 @@ If[logNmm1,
 Instead of applying this condition on calculation of U and Ht,
 the dimensions of corresponding empty Ht are set to make it compatible for dot product with U *)
 
-(*Print["------j=1"];*)
+If[debug,Print["------j=1"];];
 (*D+A\[Rule] D+A*)
 j=1;
 Do[
@@ -292,7 +321,7 @@ Do[AppendTo[rlist[j],Total[rz[j][i,ii]]],{ii,1,4}];
 ,{i,1,ldr}];
 
 (*Print["------j=2"];*)
-(*Print["----------- rates 2-------------"];*)
+If[debug,Print["----------- rates 2-------------"];];
 j=2;
 Do[
 n=Position[ASites,DhopsL[[i]] -1] [[1,1]]; (* active site on right of D *)
@@ -316,7 +345,7 @@ r[j]+=Total[rz[j][i,ii]];
 Do[AppendTo[rlist[j],Total[rz[j][i,ii]]],{ii,1,4}];
 ,{i,1,ldl}];
 
-(*Print["----------- rates 3 right -------------"];*)
+If[debug,Print["----------- rates 3 right -------------"];];
 (*Phi+A\[Rule] Phi+A*)
 (*If[Length[PhihopsR]>0||Length[PhihopsL]>0,
 RPhiAM=mkHtPhiA[NN,m,th,tl].Transpose[UNm];
@@ -351,7 +380,7 @@ Do[AppendTo[rlist[j],Total[rz[j][i,ii]]],{ii,1,4}];
 ,{i,1,lpr}];
 
 (*Print["------j=4"];*)
-(*Print["----------- rates 3 left-------------"];*)
+If[debug,Print["----------- rates 3 left-------------"];];
 
 (*lpl=Length[PhihopsL];*)
 (*Print["PhihopsR: ",PhihopsR];*)
@@ -393,7 +422,7 @@ ldpr=Length[DPhiR];
 ldpl=Length[DPhiL];
 ldpa=ldpr+ldpl;
 
-(*Print["------j=5"];*)
+If[debug,Print["------j=5"];];
 
 If[ldpa>0,
 (*{ENp2mp1,UNp2mp1}*){Es[4],U[4]}=DiagH[NN+2,m+1,gg,dw];
@@ -415,23 +444,24 @@ RDPhiA[4]=psi.Htsphl.U[6];
 j=5;
 If[ldpr>0,
 Do[
-rz[j][jj]=Rates[j,0,ii];
+rz[j][jj]=Rates[j,0,jj];
 r[j]+=Total[rz[j][jj]]*ldpr;
 ,{jj,1,4}];
+
 Do[AppendTo[rlist[j],Total[rz[j][ii]]],{ii,1,4}]
 (*Does not matter if dont multiply ldpl with Total[rz[j][ii]]] for rlist[j] here as it will not change relative prob of the channels if this j is already selected on basis of r[j]*)
 ];
 j=6;
 If[ldpl>0,
 Do[
-rz[j][jj]=Rates[j,0,ii];
+rz[j][jj]=Rates[j,0,jj];
 r[j]+=Total[rz[j][jj]]*ldpl;
 ,{jj,1,4}];
 Do[AppendTo[rlist[j],Total[rz[j][ii]]],{ii,1,4}];
 ];
 ];
 
-(*Print["------j=6"];*)
+If[debug,Print["------j=6"];];
 
 (*Print["----------- rates 4-------------"];*)
 (* inv processes: A\[Rule](D,Phi)+A *)
@@ -481,7 +511,7 @@ RDPhiAinv[i,1]=psi.HtApaira[i].U[7];
 RDPhiAinv[i,2]=psi.HtApairb[i].U[7];
 ];
 
-(*Print[ " ----j=7,8"];*)
+If[debug,Print[ " ----j=7,8"];];
 
 If[includecross,
 If[m>=2, 
@@ -533,7 +563,7 @@ If[lcdr>0,
 Do[
 rz[j]=Rates[j,0,1];
 r[j]+=Total[rz[j]];
-,{j,9,10}]
+,{j,9,10}];
 ];
 If[lcdl>0,
 Do[
@@ -647,9 +677,9 @@ dt = (1/R )*Log[1/u]; (* or just average value= 1/R ? dev \[Sigma]=1/R *)
 t += dt;
 AppendTo[times,t];
 
-(*Print["----------- rates done -------------"];*)
+If[debug,Print["----------- rates done -------------"];];
 
-(*Print["rlist: ",Table[rlist[j],{j,1,26}]//Chop];*)
+If[debug,Print["rlist: ",Table[rlist[j],{j,1,26}]//Chop];];
 
 wc=1;
 If[wj<= 8,(*Print["wj = ",wj," rlist[wj]: ",rlist[wj]];*){ws,wc}=WhichSiteChannel[rlist[wj]],
@@ -660,34 +690,17 @@ If[Not[includecross]&&wc>2,Print[" Someting wrong... includecross=False, still w
 ];
 
 
-
-
-
-
-{"totrates: ",totrates}>>>file;
-{"wj: ",wj}>>>file;
-
-(*Print["CAproc: 1 or Ntot? : ",CAproc];*)
-(*Print["N,m: ",{NN,m}];
-Print["Ds: ",Ds];
-Print["\[Phi]s: ",Phis];
-*)(*Print["Apairs: ",Apairs];*)
-(*Print["ws in relevant list (not actual site label): ",ws];*)
-
+If[debug,
+Print["totrates: ",totrates];
+Print["wj: ",wj];];
 
 
 (* change state *)
-psi=ChooseFinalState[wj,ws,wc];
+{Einit,psi}=ChooseFinalState[wj,ws,wc];
 (* change N and m*)
 {dN,dm}=ListdNm[[EUinds[[wj,wc]]]];
 NN += dN; m +=dm;
 
-(* Excitations added or lost due to Homo-Lumo or Lumo-Homo hops? *)
-ZQ=0;
-If[wj<=8,
-If[wc==3,ZQ=-1];
-If[wc==4,ZQ=1]
-];
 
 (*Print["----------- psi updated -----------"];*)
 
@@ -805,49 +818,34 @@ If[wj==23,AppendTo[Ds,1],AppendTo[Phis,1]];
 ASites=Dropp[ASites,1];
 ];
 
-(*Print["----------- all done -------------"];*)
-(*Print["Elevels: ",Elevels];*)
-(*AppendTo[Dsvst,Ds];
-AppendTo[Phisvst,Phis];
-AppendTo[mvst,m];*)
-(*Print["t = ",t];*)
+If[fullout,
+(*AppendTo[out2,{ITER,Einit,t,dCharge[[wj]],dt,Ds,Phis,NN,m,Length[Ds]+m,totrates,wj,wc,Zener[wj,wc]}];*)
+AppendTo[out2,{NN,m,wj,wc,dCharge[[wj]],Zener[wj,wc],Ds,Phis,totrates}];
+,
+Ess=sectors[Es[1]][[2]];
+Ess=Ess-Ess[[1]];
+AppendTo[out2,{NN,m,dCharge[[wj]],Zener[wj,wc],Table[Sum[totrates[[x]],{x,X}],{X,RateTypeInds}],totrates[[25;;26]],wj,wc,Ess}];
+];
 
-(*Print["Iteration # ",ITER];*)
 
-AppendTo[Evst,Einit];
-
-AppendTo[out2,{ITER,t,Current[[wj]],dt,Ds,Phis,NN,m,Length[Ds]+m,totrates,wj,wc,ZQ}];
-(*Print["psi: ",psi];
-*)
-(*psi=psif/Norm[psif];
-*)(*If[Length[psi]\[Equal]1,Print["psif: ",psi]];*)
-
-(*Print["N,m: ",{NN,m}];
+If[debug,
+Print["t = ",t];
+Print["N,m: ",{NN,m}];
 Print["Ds: ",Ds];
 Print["\[Phi]s: ",Phis];
-Print["Einit: ",Einit];*)
-{"t = ",t}>>>file;
-{"N,m: ",{NN,m}}>>>file;
-{"Ds: ",Ds}>>>file;
-{"\[Phi]s: ",Phis}>>>file;
-{"Einit: ",Einit}>>>file;
+Print["Einit: ",Einit];
 ];
-
+];
+If[printmem,
 Print["After: MemoryInUse (MB)",MemoryInUse[]/10^6//IntegerPart];
-Print["Dimensions of Es and U:",Table[Dimensions[Es[p]],{p,1,13}]
+Print["Dimensions of eigensystems:",Table[Dimensions[Es[p]],{p,1,13}]
+];
 ];
 
-(*FilePrint[file];*)
-
-(* output ???*)
-Evst=Insert[Differences[Evst],0,1];(* get dE *)
-Print["N = ",out2[[All,7]]];
-Print["m = ",out2[[All,8]]];
-Print["j = ",SortBy[Tally[out2[[All,-3]]],Last]//Reverse];
-(*out2=Join[out2//Transpose,Evst//Transpose,2];*)
-{out2,Evst}(*{times,Dsvst,Phisvst,mvst}*)
+out2
 ];
 
+Complement
 (*X={Ntot,gg,maxiter,
 initstate,
 tpar,kappa,gamma,
@@ -856,8 +854,8 @@ includecross,BlockInjection,AlwaysLP,
 VibAssis,M,wv,lambda};
 Table[x\[Rule] OptionValue[x],{x,X}]*)
 
-Options[Trajectory]={Ntot-> 5,m0-> 1,Ds0-> {},Phis0-> {},g-> 1,dw-> 0,tpar-> {0.1,0.001,0.001,0.1,0.1,0.1,0.1,0.1},Eb-> {0,0},kappa-> 0.005,gamma-> 0.005,Er-> 0.5,w0->2,beta-> 40,maxiter-> 20,includecross-> True,BlockInjection->{ False,False},M-> 3,wv->0.2 ,lambda-> 1,AlwaysLP-> True,VibAssis-> False};
+Options[Trajectory]={Ntot-> 5,m0-> 1,Ds0-> {},Phis0-> {},g-> 1,dw-> 0,tpar-> {0.1,0.001,0.001,0.05,0.01,0.01,0.01,0.01},Eb-> {0,0},kappa-> 0.005,gamma-> 0.005,Er-> 0.5,w0->2,beta-> 40,maxiter-> 20,includecross-> True,BlockInjection->{ False,False},M-> 3,wv->0.2 ,lambda-> 1,AlwaysLP-> True,VibAssis-> False,printmem-> False,fullout-> False,staylow-> True};
 
 Trajectory[OptionsPattern[]]:=
-CalcTrajectory[OptionValue[Ntot],OptionValue[m0],OptionValue[g],OptionValue[maxiter],OptionValue[Ds0],OptionValue[Phis0],OptionValue[tpar],OptionValue[kappa],OptionValue[gamma],OptionValue[dw],OptionValue[Eb],OptionValue[Er],OptionValue[w0],OptionValue[beta],OptionValue[includecross],OptionValue[BlockInjection],OptionValue[AlwaysLP],OptionValue[VibAssis],OptionValue[M],OptionValue[wv],OptionValue[lambda]];
+CalcTrajectory[OptionValue[Ntot],OptionValue[m0],OptionValue[g],OptionValue[maxiter],OptionValue[Ds0],OptionValue[Phis0],OptionValue[tpar],OptionValue[kappa],OptionValue[gamma],OptionValue[dw],OptionValue[Eb],OptionValue[Er],OptionValue[w0],OptionValue[beta],OptionValue[includecross],OptionValue[BlockInjection],OptionValue[AlwaysLP],OptionValue[VibAssis],OptionValue[M],OptionValue[wv],OptionValue[lambda],OptionValue[printmem],OptionValue[fullout],OptionValue[staylow]];
 

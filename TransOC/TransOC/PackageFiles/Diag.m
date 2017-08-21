@@ -64,7 +64,7 @@ If[kdw!= 0,Hg+=SparseArray[Table[{i,i}-> kdw,{i,pntr[[k+1]]+1,pntr[[k+2]]}],{nto
 Hg//Num
 ];
 
-DiagH[N_,m_,gg_,dw_]:=Module[{Hg,eval,U,Uct,NmaxEig,dims,nn},
+(*DiagH[N_,m_,gg_,dw_]:=Module[{Hg,eval,U,Uct,NmaxEig,dims,nn},
 If[m>0,
 Hg=makeHg[N,m,gg,dw];Hg+=Transpose[Hg];
 (* Sort, ascending order:
@@ -79,7 +79,37 @@ NmaxEig=Min[NmaxEig,dims[[1]]];
 nn=Norm[Flatten[Hg]];
 {eval,U}=Eigensystem[Hg-nn*SparseArray[{Band[{1,1}]\[Rule]1},dims],NmaxEig];
 eval=eval+nn;*)
+(*{eval,U}=Transpose@SortBy[Transpose[ {eval,U}],First];*)
+,
+(* make E&U by hand *)
+eval={0.0};U={{1.0}};
+];
+{eval,U//Transpose}
+];
+*)
+
+
+DiagH[N_,m_,gg_,dw_]:=Module[{Hg,eval,U,Uct,dims,nn,NmaxEigl},
+If[m>0,
+Hg=makeHg[N,m,gg,dw];Hg+=Transpose[Hg];
+(* Sort, ascending order:
+ref: https://stackoverflow.com/questions/6589005/sort-eigenvalue-matrix-with-eigenvector-matrix *)
+If[NmaxEig==-1,
+(*All eigenstates*)
+{eval,U}=Transpose@SortBy[Transpose[Eigensystem[Hg]],First];
+,
+(*First NmaxEig eigs...;*)
+(*NmaxEig ~ 1+C^N_m for up to the first excited degen sector *)
+dims=Dimensions[Hg];
+NmaxEigl=Min[NmaxEig,dims[[1]]];
+(*If[NmaxEig\[Equal]50,Print["N,m=",N," ",m,"  NmaxEig === 50"]];*)
+(*https://mathematica.stackexchange.com/questions/44151/find-the-eigenvector-associated-with-the-smallest-eigenvalue-not-smallest-in-ma*)
+nn=Norm[Flatten[Hg]];
+{eval,U}=Eigensystem[Hg-nn*SparseArray[{Band[{1,1}]->1},dims],NmaxEigl];
+eval=eval+nn;
+(* is this needed??? already ordered?*)
 {eval,U}=Transpose@SortBy[Transpose[ {eval,U}],First];
+];
 ,
 (* make E&U by hand *)
 eval={0.0};U={{1.0}};

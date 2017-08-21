@@ -40,34 +40,69 @@ $TransOCDebugQ::usage="Setting $TransOCDebugQ=True results in debugging messages
 
 
 (* function: *)
-Trajectory::usage="Trajectory runs a Montr Carlo trajectory.
+Trajectory::usage=
+
+"Trajectory runs a Montr Carlo trajectory.
+
+{\!\(\*
+StyleBox[\"{\",\nFontSize->18]\)\!\(\*
+StyleBox[\"Name\",\nFontSize->18]\)\!\(\*
+StyleBox[\",\",\nFontSize->18]\)\!\(\*
+StyleBox[\"Default\",\nFontSize->18]\)\!\(\*
+StyleBox[\" \",\nFontSize->18]\)\!\(\*
+StyleBox[\"value\",\nFontSize->18]\)\!\(\*
+StyleBox[\" \",\nFontSize->18]\)\!\(\*
+StyleBox[\"(\",\nFontSize->18]\)\!\(\*
+StyleBox[\"data\",\nFontSize->18]\)\!\(\*
+StyleBox[\" \",\nFontSize->18]\)\!\(\*
+StyleBox[\"type\",\nFontSize->18]\)\!\(\*
+StyleBox[\")\",\nFontSize->18]\)\!\(\*
+StyleBox[\",\",\nFontSize->18]\)\!\(\*
+StyleBox[\"Description\",\nFontSize->18]\)\!\(\*
+StyleBox[\"}\",\nFontSize->18]\),\[IndentingNewLine]{Ntot,5,Number of molecules in the system},\[IndentingNewLine]{m0,1,number of excitations in the coupled light-matter sub-system},\[IndentingNewLine]{Ds0,{},List of sites that are D at start},\[IndentingNewLine]{Phis0,{},List of sites that are \[Phi]s at start},
+{g,1.0,strenght of light-matter coupling for a single molecule,(wR=g.Sqrt[N])},\[IndentingNewLine]{dw,00,Detuning,w0-wc},
+{tpar,{0.1,0.001,0.001,0.05,0.1,0.1,0.1,0.1},Hopping parameters,{th,tl,tlh,thl,JhR,JlR,JhL,JlL}},
+{Eb,{0.0,0.0},Barriers at the left and right ontacts,Eb={Ebl,Ebr}},\[IndentingNewLine]{kappa,0.005,Cavity losses \[Kappa]},\[IndentingNewLine]{gamma,0.005,Exciton non-radiative decay rate \[Gamma]},\[IndentingNewLine]{Er,0.5,Energy Er due to the applied electric field},\[IndentingNewLine]{w0,2.0,Exciton bare energy Subscript[\[Omega],0]},\[IndentingNewLine]{beta,40.0,\[Beta]=1/Subscript[k,b] T},\[IndentingNewLine]{maxiter,20,Max number of iterations/time steps in the dynamics},\[IndentingNewLine]{includecross,True,Include cross hops,L-H and H-L?},
+{BlockInjection,{False,False},Block injection of charge carriers?{BlockLeft,BlockRight}Left contact is cathode,right contact is anodeBlock electron from left and holes from right},
+{M,wv,lambda,3,0.2,1.0,Vibrational levels,energy,coupling to electronic statesUsed when VibAssis=True},
+{AlwaysLP,True,Quickly relax the quantum system to its lowest eigenstate before an other hop can take place?},
+{VibAssis,False,Include vibrational assistance for the Zener tunneling,H-L transitions from active sites H levels?},
+{printmem, False, Print memory and some other information},
+{fullout, False, full or short output},
+{staylow,True, stay in the lowest 2-3 Wr levels, issues when dw =! 0 due to unknown number of states in deg dectors but energetic penalty removes them for 2nd level onwards anyway}\[IndentingNewLine]}
 
 \!\(\*
-StyleBox[\"Optional\",\nFontSize->14]\)\!\(\*
-StyleBox[\" \",\nFontSize->14]\)\!\(\*
-StyleBox[\"Arguments\",\nFontSize->14]\)\!\(\*
-StyleBox[\":\",\nFontSize->14]\)
-Ntot: 5; Number of molecules in the system.;
-m0: 1; number of excitations in the coupled light-matter sub-system;
-Ds0: {}; List of sites that are D;
-Phis0: {};List of sites that are \[Phi]s;					
-g: 1.0; strenght of light-matter coupling for a single molecule: (\!\(\*SubscriptBox[\(\[Omega]\), \(R\)]\) = g \!\(\*SqrtBox[SubscriptBox[\(N\), \(Active\)]]\));
-dw: 0.0; Detuning, \!\(\*SubscriptBox[\(\[Omega]\), \(0\)]\)-\!\(\*SubscriptBox[\(\[Omega]\), \(c\)]\);
-tpar: {0.1,0.001,0.001,0.1,0.1,0.1,0.1,0.1}; 
-		Hopping parameters, {th,tl,tlh,thl,JhR,JlR,JhL,JlL};
-Eb: {0.0,0.0}; Barriers at the left and right ontacts: Eb={Ebl,Ebr};
-kappa: 0.005; Cavity losses \[Kappa];
-gamma: 0.005; Exciton non-radiative decay rate \[Gamma];
-Er: 0.5; Energy E.r due to the applied electric field.
-w0: 2.0; Exciton bare energy \!\(\*SubscriptBox[\(\[Omega]\), \(0\)]\).
-beta: 40.0; \[Beta] = 1/\!\(\*SubscriptBox[\(k\), \(b\)]\)T;
-maxiter: 20; Max number of iterations/time steps in the dynamics.
-includecross: True; Include cross hops, L-H and H-L?
-BlockInjection: {False,False}; Block injection of charge carriers? {BlockLeft,BlockRight}. 
-				Left contact is cathode, right contact is anode. Block electron from left and holes from right.
-M,wv,lambda: 3,0.2,1.0; Vibrational levels, energy, coupling to electronic states.
-AlwaysLP: True; Quickly relax the quantum system to its lowest eigenstate before an other hop can take place?
-VibAssis: False; Include vibrational assistance for the Zener tunneling, H-L transitions from active sites H levels?"
+StyleBox[\"The\",\nFontSize->16]\)\!\(\*
+StyleBox[\" \",\nFontSize->16]\)\!\(\*
+StyleBox[\"input\",\nFontSize->16]\)\!\(\*
+StyleBox[\" \",\nFontSize->16]\)\!\(\*
+StyleBox[\"argument\",\nFontSize->16]\)\!\(\*
+StyleBox[\" \",\nFontSize->16]\)\!\(\*
+StyleBox[\"should\",\nFontSize->16]\)\!\(\*
+StyleBox[\" \",\nFontSize->16]\)\!\(\*
+StyleBox[\"be\",\nFontSize->16]\)\!\(\*
+StyleBox[\" \",\nFontSize->16]\)\!\(\*
+StyleBox[\"given\",\nFontSize->16]\)\!\(\*
+StyleBox[\" \",\nFontSize->16]\)\!\(\*
+StyleBox[\"as\",\nFontSize->16]\)\!\(\*
+StyleBox[\" \",\nFontSize->16]\)\!\(\*
+StyleBox[\"Mathematica\",\nFontSize->16]\)\!\(\*
+StyleBox[\" \",\nFontSize->16]\)\!\(\*
+StyleBox[\"rules\",\nFontSize->16]\)\!\(\*
+StyleBox[\" \",\nFontSize->16]\)\!\(\*
+StyleBox[\"to\",\nFontSize->16]\)\!\(\*
+StyleBox[\" \",\nFontSize->16]\)\!\(\*
+StyleBox[\"override\",\nFontSize->16]\)\!\(\*
+StyleBox[\" \",\nFontSize->16]\)\!\(\*
+StyleBox[\"the\",\nFontSize->16]\)\!\(\*
+StyleBox[\" \",\nFontSize->16]\)\!\(\*
+StyleBox[\"default\",\nFontSize->16]\)\!\(\*
+StyleBox[\" \",\nFontSize->16]\)\!\(\*
+StyleBox[\"values\",\nFontSize->16]\)\!\(\*
+StyleBox[\":\",\nFontSize->16]\)
+For example,
+out = Trajectory[maxiter -> 100, Ntot \[Rule]  7, m0 -> 5, g \[Rule] 1.5, includecross\[Rule]False];
+";
 
 
 Begin["`Private`"];

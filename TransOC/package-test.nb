@@ -10,10 +10,10 @@
 NotebookFileLineBreakTest
 NotebookFileLineBreakTest
 NotebookDataPosition[       158,          7]
-NotebookDataLength[      4944,        126]
-NotebookOptionsPosition[      4279,         97]
-NotebookOutlinePosition[      4791,        119]
-CellTagsIndexPosition[      4706,        114]
+NotebookDataLength[     30420,        826]
+NotebookOptionsPosition[     29585,        792]
+NotebookOutlinePosition[     30103,        814]
+CellTagsIndexPosition[     30017,        809]
 WindowFrame->Normal*)
 
 (* Beginning of Notebook Content *)
@@ -45,7 +45,11 @@ Cell[BoxData[
   3.7116289256566763`*^9, 3.711629042459681*^9, 3.7116291035206842`*^9, 
   3.711629146105219*^9, 3.711630842121537*^9, 3.711631487884708*^9, 
   3.7116510796030607`*^9, 3.711651201189649*^9, 3.7116593945541687`*^9, 
-  3.7116599273683357`*^9, 3.7116610661524982`*^9}]
+  3.7116599273683357`*^9, 3.7116610661524982`*^9, 3.711691677285404*^9, 
+  3.711692088862462*^9, 3.7116921376762466`*^9, 3.711692258046054*^9, 
+  3.711696046036538*^9, 3.7117900966613827`*^9, 3.7117917036848516`*^9, 
+  3.711794068361991*^9, 3.7117992921171494`*^9, 3.71187224056951*^9, 
+  3.7118723085291157`*^9}]
 }, Open  ]],
 
 Cell[CellGroupData[{
@@ -57,46 +61,737 @@ Cell[BoxData[
 
 Cell[BoxData[
  StyleBox["\<\"Trajectory runs a Montr Carlo \
-trajectory.\\n\\n\!\(\*\\nStyleBox[\\\"Optional\\\",\\nFontSize->14]\)\!\(\*\\\
+trajectory.\\n\\n{\!\(\*\\nStyleBox[\\\"{\\\",\\nFontSize->18]\)\!\(\*\\\
+nStyleBox[\\\"Name\\\",\\nFontSize->18]\)\!\(\*\\nStyleBox[\\\",\\\",\\\
+nFontSize->18]\)\!\(\*\\nStyleBox[\\\"Default\\\",\\nFontSize->18]\)\!\(\*\\\
 nStyleBox[\\\" \
-\\\",\\nFontSize->14]\)\!\(\*\\nStyleBox[\\\"Arguments\\\",\\nFontSize->14]\)\
-\!\(\*\\nStyleBox[\\\":\\\",\\nFontSize->14]\)\\nNtot: 5; Number of molecules \
-in the system.;\\nm0: 1; number of excitations in the coupled light-matter \
-sub-system;\\nDs0: {}; List of sites that are D;\\nPhis0: {};List of sites \
-that are \[Phi]s;\t\t\t\t\t\\ng: 1.0; strenght of light-matter coupling for a \
-single molecule: (\!\(\*SubscriptBox[\(\[Omega]\), \(R\)]\) = g \
-\!\(\*SqrtBox[SubscriptBox[\(N\), \(Active\)]]\));\\ndw: 0.0; Detuning, \
-\!\(\*SubscriptBox[\(\[Omega]\), \(0\)]\)-\!\(\*SubscriptBox[\(\[Omega]\), \
-\(c\)]\);\\ntpar: {0.1,0.001,0.001,0.1,0.1,0.1,0.1,0.1}; \\n\t\tHopping \
-parameters, {th,tl,tlh,thl,JhR,JlR,JhL,JlL};\\nEb: {0.0,0.0}; Barriers at the \
-left and right ontacts: Eb={Ebl,Ebr};\\nkappa: 0.005; Cavity losses \[Kappa];\
-\\ngamma: 0.005; Exciton non-radiative decay rate \[Gamma];\\nEr: 0.5; Energy \
-E.r due to the applied electric field.\\nw0: 2.0; Exciton bare energy \
-\!\(\*SubscriptBox[\(\[Omega]\), \(0\)]\).\\nbeta: 40.0; \[Beta] = \
-1/\!\(\*SubscriptBox[\(k\), \(b\)]\)T;\\nmaxiter: 20; Max number of \
-iterations/time steps in the dynamics.\\nincludecross: True; Include cross \
-hops, L-H and H-L?\\nBlockInjection: {False,False}; Block injection of charge \
-carriers? {BlockLeft,BlockRight}. \\n\t\t\t\tLeft contact is cathode, right \
-contact is anode. Block electron from left and holes from \
-right.\\nM,wv,lambda: 3,0.2,1.0; Vibrational levels, energy, coupling to \
-electronic states.\\nAlwaysLP: True; Quickly relax the quantum system to its \
-lowest eigenstate before an other hop can take place?\\nVibAssis: False; \
-Include vibrational assistance for the Zener tunneling, H-L transitions from \
-active sites H levels?\"\>", "MSG"]], "Print", "PrintUsage",
- CellChangeTimes->{3.7116610689095507`*^9},
- CellTags->"Info43711664668-2204119"]
+\\\",\\nFontSize->18]\)\!\(\*\\nStyleBox[\\\"value\\\",\\nFontSize->18]\)\!\(\
+\*\\nStyleBox[\\\" \
+\\\",\\nFontSize->18]\)\!\(\*\\nStyleBox[\\\"(\\\",\\nFontSize->18]\)\!\(\*\\\
+nStyleBox[\\\"data\\\",\\nFontSize->18]\)\!\(\*\\nStyleBox[\\\" \
+\\\",\\nFontSize->18]\)\!\(\*\\nStyleBox[\\\"type\\\",\\nFontSize->18]\)\!\(\*\
+\\nStyleBox[\\\")\\\",\\nFontSize->18]\)\!\(\*\\nStyleBox[\\\",\\\",\\\
+nFontSize->18]\)\!\(\*\\nStyleBox[\\\"Description\\\",\\nFontSize->18]\)\!\(\*\
+\\nStyleBox[\\\"}\\\",\\nFontSize->18]\),\[IndentingNewLine]{Ntot,5,Number of \
+molecules in the system},\[IndentingNewLine]{m0,1,number of excitations in \
+the coupled light-matter sub-system},\[IndentingNewLine]{Ds0,{},List of sites \
+that are D at start},\[IndentingNewLine]{Phis0,{},List of sites that are \
+\[Phi]s at start},\\n{g,10,strenght of light-matter coupling for a single \
+molecule,(wR=g.Sqrt[N])},\[IndentingNewLine]{dw,00,Detuning,w0-wc},\\n{tpar,{\
+01,0001,0001,01,01,01,01,01},Hopping \
+parameters,{th,tl,tlh,thl,JhR,JlR,JhL,JlL}},\\n{Eb,{00,00},Barriers at the \
+left and right ontacts,Eb={Ebl,Ebr}},\[IndentingNewLine]{kappa,0005,Cavity \
+losses \[Kappa]},\[IndentingNewLine]{gamma,0005,Exciton non-radiative decay \
+rate \[Gamma]},\[IndentingNewLine]{Er,05,Energy Er due to the applied \
+electric field},\[IndentingNewLine]{w0,20,Exciton bare energy Subscript[\
+\[Omega],0]},\[IndentingNewLine]{beta,400,\[Beta]=1/Subscript[k,b] T},\
+\[IndentingNewLine]{maxiter,20,Max number of iterations/time steps in the \
+dynamics},\[IndentingNewLine]{includecross,True,Include cross hops,L-H and \
+H-L?},\\n{BlockInjection,{False,False},Block injection of charge \
+carriers?{BlockLeft,BlockRight}Left contact is cathode,right contact is \
+anodeBlock electron from left and holes from \
+right},\\n{M,wv,lambda,3,02,10,Vibrational levels,energy,coupling to \
+electronic statesUsed when VibAssis=True},\\n{AlwaysLP,True,Quickly relax the \
+quantum system to its lowest eigenstate before an other hop can take place?},\
+\\n{VibAssis,False,Include vibrational assistance for the Zener tunneling,H-L \
+transitions from active sites H levels?},\\n{printmem, False, Print memory \
+and some other information},\\n{fullout, False, full or short output}\
+\[IndentingNewLine]}\\n\\n\!\(\*\\nStyleBox[\\\"The\\\",\\nFontSize->16]\)\!\(\
+\*\\nStyleBox[\\\" \
+\\\",\\nFontSize->16]\)\!\(\*\\nStyleBox[\\\"input\\\",\\nFontSize->16]\)\!\(\
+\*\\nStyleBox[\\\" \\\",\\nFontSize->16]\)\!\(\*\\nStyleBox[\\\"argument\\\",\
+\\nFontSize->16]\)\!\(\*\\nStyleBox[\\\" \
+\\\",\\nFontSize->16]\)\!\(\*\\nStyleBox[\\\"should\\\",\\nFontSize->16]\)\!\(\
+\*\\nStyleBox[\\\" \
+\\\",\\nFontSize->16]\)\!\(\*\\nStyleBox[\\\"be\\\",\\nFontSize->16]\)\!\(\*\\\
+nStyleBox[\\\" \
+\\\",\\nFontSize->16]\)\!\(\*\\nStyleBox[\\\"given\\\",\\nFontSize->16]\)\!\(\
+\*\\nStyleBox[\\\" \
+\\\",\\nFontSize->16]\)\!\(\*\\nStyleBox[\\\"as\\\",\\nFontSize->16]\)\!\(\*\\\
+nStyleBox[\\\" \
+\\\",\\nFontSize->16]\)\!\(\*\\nStyleBox[\\\"Mathematica\\\",\\nFontSize->16]\
+\)\!\(\*\\nStyleBox[\\\" \\\",\\nFontSize->16]\)\!\(\*\\nStyleBox[\\\"rules\\\
+\",\\nFontSize->16]\)\!\(\*\\nStyleBox[\\\" \
+\\\",\\nFontSize->16]\)\!\(\*\\nStyleBox[\\\"to\\\",\\nFontSize->16]\)\!\(\*\\\
+nStyleBox[\\\" \
+\\\",\\nFontSize->16]\)\!\(\*\\nStyleBox[\\\"override\\\",\\nFontSize->16]\)\!\
+\(\*\\nStyleBox[\\\" \
+\\\",\\nFontSize->16]\)\!\(\*\\nStyleBox[\\\"the\\\",\\nFontSize->16]\)\!\(\*\
+\\nStyleBox[\\\" \
+\\\",\\nFontSize->16]\)\!\(\*\\nStyleBox[\\\"default\\\",\\nFontSize->16]\)\!\
+\(\*\\nStyleBox[\\\" \\\",\\nFontSize->16]\)\!\(\*\\nStyleBox[\\\"values\\\",\
+\\nFontSize->16]\)\!\(\*\\nStyleBox[\\\":\\\",\\nFontSize->16]\)\\nFor \
+example,\\nout = Trajectory[maxiter -> 100, Ntot \[Rule]  7, m0 -> 5, g \
+\[Rule] 1.5, includecross\[Rule]False];\\n\"\>", "MSG"]], "Print", \
+"PrintUsage",
+ CellChangeTimes->{3.711872310745964*^9},
+ CellTags->"Info43711875910-1188471"]
 }, Open  ]],
 
 Cell[BoxData[
- RowBox[{"Trajectory", "[", 
+ RowBox[{
+  RowBox[{"{", 
+   RowBox[{
+    StyleBox[
+     RowBox[{"{", 
+      RowBox[{"Name", ",", 
+       RowBox[{"Default", " ", "value", " ", 
+        RowBox[{"(", 
+         RowBox[{"data", " ", "type"}], ")"}]}], ",", "Description"}], "}"}],
+     FontSize->18], ",", "\[IndentingNewLine]", 
+    RowBox[{"{", 
+     RowBox[{"Ntot", ",", "5", ",", 
+      RowBox[{
+      "Number", " ", "of", " ", "molecules", " ", "in", " ", "the", " ", 
+       "system"}]}], "}"}], ",", "\[IndentingNewLine]", 
+    RowBox[{"{", 
+     RowBox[{"m0", ",", "1", ",", 
+      RowBox[{
+       RowBox[{
+       "number", " ", "of", " ", "excitations", " ", "in", " ", "the", " ", 
+        "coupled", " ", "light"}], "-", 
+       RowBox[{"matter", " ", "sub"}], "-", "system"}]}], "}"}], ",", 
+    "\[IndentingNewLine]", 
+    RowBox[{"{", 
+     RowBox[{"Ds0", ",", 
+      RowBox[{"{", "}"}], ",", 
+      RowBox[{
+      "List", " ", "of", " ", "sites", " ", "that", " ", "are", " ", "D", " ",
+        "at", " ", "start"}]}], "}"}], ",", "\[IndentingNewLine]", 
+    RowBox[{"{", 
+     RowBox[{"Phis0", ",", 
+      RowBox[{"{", "}"}], ",", 
+      RowBox[{
+      "List", " ", "of", " ", "sites", " ", "that", " ", "are", " ", 
+       "\[Phi]s", " ", "at", " ", "start"}]}], "}"}], ",", 
+    RowBox[{"{", 
+     RowBox[{"g", ",", "1.0", ",", 
+      RowBox[{
+       RowBox[{"strenght", " ", "of", " ", "light"}], "-", 
+       RowBox[{
+       "matter", " ", "coupling", " ", "for", " ", "a", " ", "single", " ", 
+        RowBox[{"molecule", ":", 
+         RowBox[{"(", 
+          RowBox[{
+           RowBox[{"Subscript", "[", 
+            RowBox[{"\[Omega]", ",", "R"}], "]"}], "=", 
+           RowBox[{"g", " ", 
+            RowBox[{"Sqrt", "[", 
+             RowBox[{"Subscript", "[", 
+              RowBox[{"N", ",", "Active"}], "]"}], "]"}]}]}], ")"}]}]}]}]}], 
+     "}"}], ",", "\[IndentingNewLine]", 
+    RowBox[{"{", 
+     RowBox[{"dw", ",", "0.0", ",", "Detuning", ",", 
+      RowBox[{
+       RowBox[{
+        RowBox[{"Subscript", "[", 
+         RowBox[{"\[Omega]", ",", "0"}], "]"}], "-", 
+        RowBox[{"Subscript", "[", 
+         RowBox[{"\[Omega]", ",", "c"}], "]"}]}], ";"}]}], "}"}], ",", 
+    RowBox[{"{", 
+     RowBox[{"tpar", ",", 
+      RowBox[{"{", 
+       RowBox[{
+       "0.1", ",", "0.001", ",", "0.001", ",", "0.1", ",", "0.1", ",", "0.1", 
+        ",", "0.1", ",", "0.1"}], "}"}], ",", 
+      RowBox[{"Hopping", " ", "parameters"}], ",", 
+      RowBox[{
+       RowBox[{"{", 
+        RowBox[{
+        "th", ",", "tl", ",", "tlh", ",", "thl", ",", "JhR", ",", "JlR", ",", 
+         "JhL", ",", "JlL"}], "}"}], ";"}]}], "}"}], ",", 
+    RowBox[{"{", 
+     RowBox[{"Eb", ",", 
+      RowBox[{"{", 
+       RowBox[{"0.0", ",", "0.0"}], "}"}], ",", 
+      RowBox[{
+       RowBox[{
+        RowBox[{
+        "Barriers", " ", "at", " ", "the", " ", "left", " ", "and", " ", 
+         "right", " ", 
+         RowBox[{"ontacts", ":", "Eb"}]}], "=", 
+        RowBox[{"{", 
+         RowBox[{"Ebl", ",", "Ebr"}], "}"}]}], ";"}]}], "}"}], ",", 
+    "\[IndentingNewLine]", 
+    RowBox[{"{", 
+     RowBox[{"kappa", ",", "0.005", ",", 
+      RowBox[{
+       RowBox[{"Cavity", " ", "losses", " ", "\[Kappa]"}], ";"}]}], "}"}], 
+    ",", "\[IndentingNewLine]", 
+    RowBox[{"{", 
+     RowBox[{"gamma", ",", "0.005", ",", 
+      RowBox[{
+       RowBox[{
+        RowBox[{"Exciton", " ", "non"}], "-", 
+        RowBox[{"radiative", " ", "decay", " ", "rate", " ", "\[Gamma]"}]}], 
+       ";"}]}], "}"}], ",", "\[IndentingNewLine]", 
+    RowBox[{"{", 
+     RowBox[{"Er", ",", "0.5", ",", 
+      RowBox[{"Energy", " ", 
+       RowBox[{"E", ".", "r"}], " ", "due", " ", "to", " ", "the", " ", 
+       "applied", " ", "electric", " ", 
+       RowBox[{"field", "."}]}]}], "}"}], ",", "\[IndentingNewLine]", 
+    RowBox[{"{", 
+     RowBox[{"w0", ",", "2.0", ",", 
+      RowBox[{"Exciton", " ", "bare", " ", "energy", " ", 
+       RowBox[{
+        RowBox[{"Subscript", "[", 
+         RowBox[{"\[Omega]", ",", "0"}], "]"}], "."}]}]}], "}"}], ",", 
+    "\[IndentingNewLine]", 
+    RowBox[{"{", 
+     RowBox[{"beta", ",", "40.0", ",", 
+      RowBox[{
+       RowBox[{"\[Beta]", "=", 
+        RowBox[{
+         RowBox[{"1", "/", 
+          RowBox[{"Subscript", "[", 
+           RowBox[{"k", ",", "b"}], "]"}]}], " ", "T"}]}], ";"}]}], "}"}], 
+    ",", "\[IndentingNewLine]", 
+    RowBox[{"{", 
+     RowBox[{"maxiter", ",", "20", ",", 
+      RowBox[{"Max", " ", "number", " ", "of", " ", 
+       RowBox[{"iterations", "/", "time"}], " ", "steps", " ", "in", " ", 
+       "the", " ", 
+       RowBox[{"dynamics", "."}]}]}], "}"}], ",", "\[IndentingNewLine]", 
+    RowBox[{"{", 
+     RowBox[{"includecross", ",", "True", ",", 
+      RowBox[{"Include", " ", "cross", " ", "hops"}], ",", 
+      RowBox[{"L", "-", 
+       RowBox[{"H", " ", "and", " ", "H"}], "-", 
+       RowBox[{"L", "?"}]}]}], "}"}], ",", 
+    RowBox[{"{", 
+     RowBox[{"BlockInjection", ",", 
+      RowBox[{"{", 
+       RowBox[{"False", ",", "False"}], "}"}], ",", 
+      RowBox[{"Block", " ", "injection", " ", "of", " ", "charge", " ", 
+       RowBox[{
+        RowBox[{"carriers", "?", 
+         RowBox[{"{", 
+          RowBox[{"BlockLeft", ",", "BlockRight"}], "}"}]}], ".", "Left"}], 
+       " ", "contact", " ", "is", " ", "cathode"}], ",", 
+      RowBox[{"right", " ", "contact", " ", "is", " ", 
+       RowBox[{"anode", ".", "Block"}], " ", "electron", " ", "from", " ", 
+       "left", " ", "and", " ", "holes", " ", "from", " ", 
+       RowBox[{"right", "."}]}]}], "}"}], ",", 
+    RowBox[{"{", 
+     RowBox[{
+     "M", ",", "wv", ",", "lambda", ",", "3", ",", "0.2", ",", "1.0", ",", 
+      RowBox[{"Vibrational", " ", "levels"}], ",", "energy", ",", 
+      RowBox[{
+       RowBox[{"coupling", " ", "to", " ", "electronic", " ", 
+        RowBox[{"states", ".", "Used"}], " ", "when", " ", "VibAssis"}], "=", 
+       
+       RowBox[{"True", "."}]}]}], "}"}], ",", 
+    RowBox[{"{", 
+     RowBox[{"AlwaysLP", ",", "True", ",", 
+      RowBox[{
+      "Quickly", " ", "relax", " ", "the", " ", "quantum", " ", "system", " ",
+        "to", " ", "its", " ", "lowest", " ", "eigenstate", " ", "before", 
+       " ", "an", " ", "other", " ", "hop", " ", "can", " ", "take", " ", 
+       RowBox[{"place", "?"}]}]}], "}"}], ",", 
+    RowBox[{"{", 
+     RowBox[{"VibAssis", ",", "False", ",", 
+      RowBox[{
+      "Include", " ", "vibrational", " ", "assistance", " ", "for", " ", 
+       "the", " ", "Zener", " ", "tunneling"}], ",", 
+      RowBox[{"H", "-", 
+       RowBox[{
+       "L", " ", "transitions", " ", "from", " ", "active", " ", "sites", " ",
+         "H", " ", 
+        RowBox[{"levels", "?"}]}]}]}], "}"}]}], "\[IndentingNewLine]", "}"}], 
+  "\n"}]], "Input"],
+
+Cell[BoxData[{
+ RowBox[{
   RowBox[{
-   RowBox[{"g", "\[Rule]", " ", "2"}], ",", 
-   RowBox[{"Ntot", "\[Rule]", " ", "5"}], ",", 
-   RowBox[{"m0", "\[Rule]", " ", "2"}]}], "]"}]], "Input",
- CellChangeTimes->{3.711631540976214*^9}]
+   RowBox[{
+    StyleBox["Optional",
+     FontSize->14], 
+    StyleBox[" ",
+     FontSize->14], 
+    RowBox[{
+     StyleBox["Arguments",
+      FontSize->14], 
+     StyleBox[":",
+      FontSize->14], "\n", "\n", 
+     StyleBox["Ntot5",
+      FontSize->14]}]}], 
+   StyleBox[";",
+    FontSize->14], 
+   StyleBox[" ",
+    FontSize->14], 
+   RowBox[{
+   "Number", " ", "of", " ", "molecules", " ", "in", " ", "the", " ", 
+    "system"}], ";"}], "\n"}], "\n", 
+ RowBox[{
+  RowBox[{
+   StyleBox[
+    RowBox[{"m0", ":", " ", "1"}],
+    FontSize->14], 
+   StyleBox[";",
+    FontSize->14], " ", 
+   RowBox[{
+    RowBox[{
+    "number", " ", "of", " ", "excitations", " ", "in", " ", "the", " ", 
+     "coupled", " ", "light"}], "-", 
+    RowBox[{"matter", " ", "sub"}], "-", "system"}], ";"}], "\n"}], "\n", 
+ RowBox[{
+  RowBox[{
+   StyleBox[
+    RowBox[{"maxiter", ":", " ", "20"}],
+    FontSize->14], 
+   StyleBox[";",
+    FontSize->14], " ", 
+   RowBox[{"Max", " ", "number", " ", "of", " ", 
+    RowBox[{"iterations", "/", "time"}], " ", "steps", " ", "in", " ", "the", 
+    " ", "dynamics"}], ";"}], "\n"}], "\n", 
+ RowBox[{
+  RowBox[{
+   StyleBox["Ds0",
+    FontSize->14], 
+   StyleBox[",",
+    FontSize->14], 
+   StyleBox[
+    RowBox[{"Phis0", ":", " ", 
+     RowBox[{"{", "}"}]}],
+    FontSize->14], 
+   StyleBox[",",
+    FontSize->14], 
+   RowBox[{
+    StyleBox[
+     RowBox[{"{", "}"}],
+     FontSize->14], 
+    StyleBox[";",
+     FontSize->14], " ", 
+    RowBox[{
+    "List", " ", "of", " ", "sites", " ", "that", " ", "are", " ", "D"}], ";", 
+    RowBox[{
+    "List", " ", "of", " ", "sites", " ", "that", " ", "are", " ", 
+     "\[Phi]s"}], ";"}]}], "\n"}], "\n", 
+ RowBox[{
+  RowBox[{
+   StyleBox[
+    RowBox[{"g", ":", " ", "1.0"}],
+    FontSize->14], 
+   StyleBox[";",
+    FontSize->14], " ", 
+   RowBox[{
+    RowBox[{"strenght", " ", "of", " ", "light"}], "-", 
+    RowBox[{
+    "matter", " ", "coupling", " ", "for", " ", "a", " ", "single", " ", 
+     RowBox[{"molecule", ":", " ", 
+      RowBox[{"(", 
+       RowBox[{
+        SubscriptBox["\[Omega]", "R"], " ", "=", " ", 
+        RowBox[{"g", " ", 
+         SqrtBox[
+          SubscriptBox["N", "Active"]]}]}], ")"}]}]}]}], ";"}], "\n"}], "\n", 
+
+ RowBox[{
+  RowBox[{
+   StyleBox["w0",
+    FontSize->14], 
+   StyleBox[",",
+    FontSize->14], 
+   StyleBox[" ",
+    FontSize->14], 
+   StyleBox[
+    RowBox[{"dw", ":", "2.0"}],
+    FontSize->14], 
+   StyleBox[",",
+    FontSize->14], 
+   StyleBox[" ",
+    FontSize->14], 
+   RowBox[{
+    StyleBox["0.0",
+     FontSize->14], 
+    StyleBox[";",
+     FontSize->14], " ", 
+    RowBox[{"Exciton", " ", "bare", " ", "energy", " ", 
+     SubscriptBox["\[Omega]", "0"]}], ";", " ", 
+    RowBox[{"cavity", "-", 
+     RowBox[{"exciton", " ", "detuning"}]}]}], ",", " ", 
+   RowBox[{
+    RowBox[{
+     SubscriptBox["\[Omega]", "c"], "-", 
+     SubscriptBox["\[Omega]", "0"]}], ";"}]}], "\[IndentingNewLine]"}], "\n", 
+
+ RowBox[{
+  RowBox[{
+   RowBox[{
+    StyleBox[
+     RowBox[{"tpar", ":", " ", 
+      RowBox[{"{", 
+       RowBox[{
+       "0.1", ",", "0.001", ",", "0.001", ",", "0.1", ",", "0.1", ",", "0.1", 
+        ",", "0.1", ",", "0.1"}], "}"}]}],
+     FontSize->14], 
+    StyleBox[";",
+     FontSize->14], 
+    StyleBox[" ",
+     FontSize->14], 
+    RowBox[{"Hopping", " ", "parameters"}]}], ",", " ", 
+   RowBox[{
+    RowBox[{"{", 
+     RowBox[{
+     "th", ",", "tl", ",", "tlh", ",", "thl", ",", "JhR", ",", "JlR", ",", 
+      "JhL", ",", "JlL"}], "}"}], ";"}]}], "\n"}], "\n", 
+ RowBox[{
+  RowBox[{
+   StyleBox[
+    RowBox[{"Eb", ":", " ", 
+     RowBox[{"{", 
+      RowBox[{"0.0", ",", "0.0"}], "}"}]}],
+    FontSize->14], 
+   StyleBox[";",
+    FontSize->14], 
+   StyleBox[" ",
+    FontSize->14], 
+   RowBox[{
+    RowBox[{
+    "Barriers", " ", "at", " ", "the", " ", "left", " ", "and", " ", "right", 
+     " ", 
+     RowBox[{"ontacts", ":", " ", "Eb"}]}], "=", 
+    RowBox[{"{", 
+     RowBox[{"Ebl", ",", "Ebr"}], "}"}]}], ";"}], 
+  "\[IndentingNewLine]"}], "\n", 
+ RowBox[{
+  RowBox[{
+   StyleBox["kappa",
+    FontSize->14], 
+   StyleBox[",",
+    FontSize->14], 
+   StyleBox[" ",
+    FontSize->14], 
+   StyleBox[
+    RowBox[{"gamma", ":", " ", "0.005"}],
+    FontSize->14], 
+   StyleBox[",",
+    FontSize->14], 
+   RowBox[{
+    StyleBox["0.005",
+     FontSize->14], 
+    StyleBox[";",
+     FontSize->14], " ", 
+    RowBox[{"Cavity", " ", "losses", " ", "\[Kappa]"}]}], ",", " ", 
+   RowBox[{
+    RowBox[{
+     RowBox[{"Exciton", " ", "non"}], "-", 
+     RowBox[{"radiative", " ", "decay", " ", "rate", " ", "\[Gamma]"}]}], 
+    ";"}]}], "\[IndentingNewLine]"}], "\n", 
+ RowBox[{
+  RowBox[{
+   StyleBox["Er",
+    FontSize->14], 
+   StyleBox[",",
+    FontSize->14], 
+   StyleBox[" ",
+    FontSize->14], 
+   StyleBox[
+    RowBox[{"beta", ":", " ", "0.5"}],
+    FontSize->14], 
+   StyleBox[",",
+    FontSize->14], 
+   StyleBox[" ",
+    FontSize->14], 
+   RowBox[{
+    StyleBox["40.0",
+     FontSize->14], 
+    StyleBox[";",
+     FontSize->14], " ", 
+    RowBox[{"Energy", " ", 
+     RowBox[{"E", ".", "r"}], " ", "due", " ", "to", " ", "the", " ", 
+     "applied", " ", "electric", " ", "field"}], ";", "  ", 
+    RowBox[{"\[Beta]", " ", "=", " ", 
+     RowBox[{
+      RowBox[{"1", "/", 
+       SubscriptBox["k", "b"]}], "T"}]}], ";"}]}], "\n"}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{
+    StyleBox[
+     RowBox[{"includecross", ":", " ", "True"}],
+     FontSize->14], 
+    StyleBox[";",
+     FontSize->14], " ", 
+    RowBox[{"Include", " ", "cross", " ", "hops"}]}], ",", " ", 
+   RowBox[{
+    RowBox[{"L", "-", 
+     RowBox[{"H", " ", "and", " ", "H"}], "-", 
+     RowBox[{"L", "?"}]}], ";"}]}], "\n"}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{
+    StyleBox[
+     RowBox[{"BlockInjection", ":", " ", 
+      RowBox[{"{", 
+       RowBox[{"False", ",", "False"}], "}"}]}],
+     FontSize->14], 
+    StyleBox[";",
+     FontSize->14], " ", 
+    RowBox[{"Block", " ", "injection", " ", "of", " ", "charge", " ", 
+     RowBox[{
+      RowBox[{"carriers", "?", " ", 
+       RowBox[{"{", 
+        RowBox[{"BlockLeft", ",", "BlockRight"}], "}"}]}], ".", " ", "Left"}],
+      " ", "contact", " ", "is", " ", "cathode"}]}], ",", " ", 
+   RowBox[{
+    RowBox[{"right", " ", "contact", " ", "is", " ", 
+     RowBox[{"anode", ".", " ", "Block"}], " ", "electron", " ", "from", " ", 
+     "left", " ", "and", " ", "holes", " ", "from", " ", "right"}], ";"}]}], 
+  "\n"}], "\n", 
+ RowBox[{
+  RowBox[{
+   StyleBox["M",
+    FontSize->14], 
+   StyleBox[",",
+    FontSize->14], 
+   StyleBox["wv",
+    FontSize->14], 
+   StyleBox[",",
+    FontSize->14], 
+   StyleBox[
+    RowBox[{"lambda", ":", " ", "3"}],
+    FontSize->14], 
+   StyleBox[",",
+    FontSize->14], 
+   StyleBox["0.2",
+    FontSize->14], 
+   StyleBox[",",
+    FontSize->14], 
+   RowBox[{
+    StyleBox["1.0",
+     FontSize->14], 
+    StyleBox[";",
+     FontSize->14], " ", 
+    RowBox[{"Vibrational", " ", "levels"}]}], ",", " ", "energy", ",", " ", 
+   RowBox[{
+    RowBox[{"coupling", " ", "to", " ", "electronic", " ", "states"}], 
+    ";"}]}], "\n"}], "\n", 
+ RowBox[{
+  RowBox[{
+   StyleBox[
+    RowBox[{"AlwaysLP", ":", " ", "True"}],
+    FontSize->14], 
+   StyleBox[";",
+    FontSize->14], " ", 
+   RowBox[{
+   "Quickly", " ", "relax", " ", "the", " ", "quantum", " ", "system", " ", 
+    "to", " ", "its", " ", "lowest", " ", "eigenstate", " ", "before", " ", 
+    "an", " ", "other", " ", "hop", " ", "can", " ", "take", " ", 
+    RowBox[{"place", "?"}]}], ";"}], "\n"}], "\n", 
+ RowBox[{
+  RowBox[{
+   StyleBox[
+    RowBox[{"VibAssis", ":", " ", "False"}],
+    FontSize->14], 
+   StyleBox[";",
+    FontSize->14], " ", 
+   RowBox[{
+   "Include", " ", "vibrational", " ", "assistance", " ", "for", " ", "the", 
+    " ", "Zener", " ", "tunneling"}]}], ",", " ", 
+  RowBox[{
+   RowBox[{"H", "-", 
+    RowBox[{
+    "L", " ", "transitions", " ", "from", " ", "active", " ", "sites", " ", 
+     "H", " ", 
+     RowBox[{"levels", "?"}]}]}], ";"}]}], "\n"}], "Text",
+ CellChangeTimes->{{3.7116954365079737`*^9, 3.711695454265642*^9}}],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"Trajectory", "[", 
+  RowBox[{"maxiter", "\[Rule]", "20"}], "]"}]], "Input",
+ CellChangeTimes->{{3.7117993059986153`*^9, 3.711799341108584*^9}, {
+  3.7118722553166237`*^9, 3.711872255658991*^9}}],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+   RowBox[{"{", 
+    RowBox[{"4", ",", "1", ",", "1", ",", "0", ",", 
+     RowBox[{"{", 
+      RowBox[{
+      "0", ",", "0", ",", "0", ",", "0.08972135954999583`", ",", "0", ",", 
+       "0", ",", "0", ",", "0", ",", "0", ",", "0.010000000000000012`"}], 
+      "}"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"4", ",", "2", ",", "0", ",", "1", ",", 
+     RowBox[{"{", 
+      RowBox[{
+      "0.022743278714573035`", ",", "0", ",", "0", ",", "0", ",", "0", ",", 
+       "1.849295052465862`*^-10", ",", "0", ",", "0", ",", "0", ",", "0"}], 
+      "}"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"4", ",", "3", ",", "0", ",", "1", ",", 
+     RowBox[{"{", 
+      RowBox[{
+      "0.030383459382309155`", ",", "0.030285107893438582`", ",", 
+       "0.07606765574849755`", ",", "0.07606765574849755`", ",", 
+       "0.019739041414354723`", ",", "0", ",", "0", ",", "0", ",", 
+       "0.02317989410429977`", ",", "0.023179894104299725`"}], "}"}]}], "}"}],
+    ",", 
+   RowBox[{"{", 
+    RowBox[{"3", ",", "3", ",", 
+     RowBox[{"-", "1"}], ",", "0", ",", 
+     RowBox[{"{", 
+      RowBox[{
+      "0.12004444510979323`", ",", "0.0002553944794796211`", ",", 
+       "0.06794433701667356`", ",", "0", ",", "0.031328674302437`", ",", 
+       "0.0982260331582007`", ",", "0.06794433701667356`", ",", 
+       "0.031922777927797706`", ",", "0.03132867430243702`", ",", "0"}], 
+      "}"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"4", ",", "3", ",", "1", ",", "0", ",", 
+     RowBox[{"{", 
+      RowBox[{
+      "0.04154852691356193`", ",", "0.04152549834755766`", ",", "0", ",", "0",
+        ",", "0.09650048795669287`", ",", "0.0679446367963944`", ",", 
+       "0.03667453307279983`", ",", "0.036674533067845426`", ",", "0", ",", 
+       "0"}], "}"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"5", ",", "4", ",", 
+     RowBox[{"-", "1"}], ",", "0", ",", 
+     RowBox[{"{", 
+      RowBox[{
+      "0.12004444510979323`", ",", "0.0002553944794796211`", ",", 
+       "0.06794433701667356`", ",", "0", ",", "0.031328674302437`", ",", 
+       "0.0982260331582007`", ",", "0.06794433701667356`", ",", 
+       "0.031922777927797706`", ",", "0.03132867430243702`", ",", "0"}], 
+      "}"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"3", ",", "3", ",", "0", ",", "0", ",", 
+     RowBox[{"{", 
+      RowBox[{
+      "0.1085296287135321`", ",", "0.1085253007470414`", ",", 
+       "0.06797871357741964`", ",", "0.06797871357741964`", ",", 
+       "0.03192372709934799`", ",", "0.031922776070107614`", ",", 
+       "0.06757167559440187`", ",", "0.06757167559440187`", ",", 
+       "0.03201415231851879`", ",", "0.032014152318518695`"}], "}"}]}], "}"}],
+    ",", 
+   RowBox[{"{", 
+    RowBox[{"3", ",", "4", ",", "0", ",", "1", ",", 
+     RowBox[{"{", 
+      RowBox[{
+      "0.041548526913561916`", ",", "0.2609119135826221`", ",", "0", ",", 
+       "0.061332310008257895`", ",", "0.09650048795669287`", ",", 
+       "3.9970629444848317`*^-7", ",", "0.03667453307279983`", ",", "0", ",", 
+       "0", ",", "0.03829169394203693`"}], "}"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"4", ",", "5", ",", "1", ",", "0", ",", 
+     RowBox[{"{", 
+      RowBox[{
+      "0.021314746788967647`", ",", "0.08775624478023754`", ",", "0", ",", 
+       "0.05791071940955385`", ",", "0.0998009535998287`", ",", 
+       "0.04177156573658272`", ",", "0.08333881699661565`", ",", "0", ",", 
+       "0", ",", "0.04191472719219108`"}], "}"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"3", ",", "5", ",", "1", ",", "0", ",", 
+     RowBox[{"{", 
+      RowBox[{
+      "0.051867093628310094`", ",", "0.11510985270193255`", ",", 
+       "0.05979499460264958`", ",", "0.059980565161852684`", ",", 
+       "0.03990465887418491`", ",", "0.03990347008763456`", ",", 
+       "0.05979499460264958`", ",", "0.05979499460264958`", ",", 
+       "0.04001769039814842`", ",", "0.04001769039814842`"}], "}"}]}], "}"}], 
+   ",", 
+   RowBox[{"{", 
+    RowBox[{"3", ",", "6", ",", "0", ",", "1", ",", 
+     RowBox[{"{", 
+      RowBox[{
+      "0.09515389282726935`", ",", "0.04546943193924265`", ",", 
+       "0.056043829085030195`", ",", "0", ",", "0.043770359951949`", ",", 
+       "0.09987434196988564`", ",", "0.056043829085030195`", ",", 
+       "0.04194427558755704`", ",", "0.043770359951949014`", ",", "0"}], 
+      "}"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"2", ",", "6", ",", 
+     RowBox[{"-", "1"}], ",", "0", ",", 
+     RowBox[{"{", 
+      RowBox[{
+      "0.09642487391876253`", ",", "0.04645196457103015`", ",", 
+       "0.054880981896580694`", ",", "0", ",", "0.044997942507972614`", ",", 
+       "0.09991557222600617`", ",", "0.054880981896580694`", ",", 
+       "0.049975923210166875`", ",", "0.04499794250797262`", ",", "0"}], 
+      "}"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"4", ",", "7", ",", "0", ",", "0", ",", 
+     RowBox[{"{", 
+      RowBox[{
+      "0.09754697670112064`", ",", "0.29175075691058705`", ",", "0", ",", "0",
+        ",", "0.09994523948415113`", ",", "0.05488098196573728`", ",", 
+       "0.04582488004800209`", ",", "0.04582488004800209`", ",", "0", ",", 
+       "0"}], "}"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"3", ",", "7", ",", "1", ",", "0", ",", 
+     RowBox[{"{", 
+      RowBox[{
+      "0.18020706697792516`", ",", "0.07950742825265243`", ",", 
+       "0.05653653505339489`", ",", "0", ",", "0.043383195257507494`", ",", 
+       "0.09992308743914295`", ",", "0.056536534872680545`", ",", 
+       "0.0998961702547273`", ",", "0.043383195257507494`", ",", "0"}], 
+      "}"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"3", ",", "8", ",", "0", ",", "1", ",", 
+     RowBox[{"{", 
+      RowBox[{
+      "0.194545443605998`", ",", "0.0004182260212604675`", ",", 
+       "0.09993414805653789`", ",", "0", ",", "0", ",", "0.0999398054932862`",
+        ",", "0", ",", "0.09993414805653789`", ",", "0.09993980549328621`", 
+       ",", "0"}], "}"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"4", ",", "8", ",", 
+     RowBox[{"-", "1"}], ",", "0", ",", 
+     RowBox[{"{", 
+      RowBox[{
+      "0.17037164562045612`", ",", "0.0488473371417764`", ",", 
+       "0.09995152791386512`", ",", "0.053518585178580616`", ",", "0", ",", 
+       "0.046418668424571055`", ",", "0", ",", "0.053518585178580616`", ",", 
+       "0.09995504954415912`", ",", "0.04644887337362932`"}], "}"}]}], "}"}], 
+   ",", 
+   RowBox[{"{", 
+    RowBox[{"4", ",", "8", ",", "0", ",", "0", ",", 
+     RowBox[{"{", 
+      RowBox[{
+      "0.15404198723893792`", ",", "0.15403973376348262`", ",", 
+       "0.05558820152770644`", ",", "0.05564544035771494`", ",", 
+       "0.044354401274761326`", ",", "0.04430898949069202`", ",", 
+       "0.05558774121879215`", ",", "0.05558774121879215`", ",", 
+       "0.044354401274761326`", ",", "0.044354401274761326`"}], "}"}]}], 
+    "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"2", ",", "7", ",", "0", ",", "0", ",", 
+     RowBox[{"{", 
+      RowBox[{
+      "0.18067288963418557`", ",", "0.0798907645243763`", ",", 
+       "0.05558820152770644`", ",", "0", ",", "0.044354401274761326`", ",", 
+       "0.09994105027377045`", ",", "0.05558774121879215`", ",", 
+       "0.09992453158316406`", ",", "0.044354401274761326`", ",", "0"}], 
+      "}"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"3", ",", "7", ",", "1", ",", "0", ",", 
+     RowBox[{"{", 
+      RowBox[{
+      "0.09815066959746616`", ",", "0.2929274695820153`", ",", "0", ",", "0", 
+       ",", "0.09996122016620469`", ",", "0.054090583655265784`", ",", 
+       "0.046418668424571055`", ",", "0.046418668424571055`", ",", "0", ",", 
+       "0"}], "}"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"2", ",", "7", ",", "1", ",", "0", ",", 
+     RowBox[{"{", 
+      RowBox[{
+      "0.09727272180299901`", ",", "0.047141194710820504`", ",", 
+       "0.054090215652510244`", ",", "0", ",", "0.04582488004800209`", ",", 
+       "0.0999398054932862`", ",", "0.054090215652510244`", ",", 
+       "0.09993414805653789`", ",", "0.045824880048002094`", ",", "0"}], 
+      "}"}]}], "}"}]}], "}"}]], "Output",
+ CellChangeTimes->{{3.7117993086357718`*^9, 3.7117993421434183`*^9}, 
+   3.711872258451673*^9, 3.711872316781014*^9}]
+}, Open  ]]
 },
-WindowSize->{808, 705},
-WindowMargins->{{9, Automatic}, {Automatic, 0}},
+WindowSize->{1201, 705},
+WindowMargins->{{-1509, Automatic}, {Automatic, 0}},
 FrontEndVersion->"10.4 for Mac OS X x86 (32-bit, 64-bit Kernel) (February 25, \
 2016)",
 StyleDefinitions->"Default.nb"
@@ -106,28 +801,33 @@ StyleDefinitions->"Default.nb"
 (* Internal cache information *)
 (*CellTagsOutline
 CellTagsIndex->{
- "Info43711664668-2204119"->{
-  Cell[1976, 57, 2037, 29, 454, "Print",
-   CellTags->"Info43711664668-2204119"]}
+ "Info43711875910-1188471"->{
+  Cell[2239, 61, 4201, 66, 553, "Print",
+   CellTags->"Info43711875910-1188471"]}
  }
 *)
 (*CellTagsIndex
 CellTagsIndex->{
- {"Info43711664668-2204119", 4600, 108}
+ {"Info43711875910-1188471", 29911, 803}
  }
 *)
 (*NotebookFileOutline
 Notebook[{
 Cell[CellGroupData[{
 Cell[580, 22, 464, 11, 63, "Input"],
-Cell[1047, 35, 743, 12, 46, "Output"]
+Cell[1047, 35, 1006, 16, 28, "Output"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[1827, 52, 146, 3, 28, "Input"],
-Cell[1976, 57, 2037, 29, 454, "Print",
- CellTags->"Info43711664668-2204119"]
+Cell[2090, 56, 146, 3, 28, "Input"],
+Cell[2239, 61, 4201, 66, 553, "Print",
+ CellTags->"Info43711875910-1188471"]
 }, Open  ]],
-Cell[4028, 89, 247, 6, 28, "Input"]
+Cell[6455, 130, 6706, 171, 414, "Input"],
+Cell[13164, 303, 8019, 295, 620, "Text"],
+Cell[CellGroupData[{
+Cell[21208, 602, 218, 4, 28, "Input"],
+Cell[21429, 608, 8140, 181, 352, "Output"]
+}, Open  ]]
 }
 ]
 *)
