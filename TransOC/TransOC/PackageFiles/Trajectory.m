@@ -96,7 +96,7 @@ If[EBL==True,thops[[16,1]]=0;thops[[21,1]]=0;];
 (* jump # 10,18 prob\[Rule]0*)
 If[HBL,thops[[10,1]]=0;thops[[18,1]]=0;];
 
-VibOccupHomo[NN_,m_]:=VibOccupHomo[NN,m]=Module[{pr},
+VibOccupHomo[NN_,m_]:=(*VibOccupHomo[NN,m]=*)Module[{pr},
 pr=Table[0,{nv,1,M}];pr[[1]]=1;
 If[NN>0,
 If[NN==1,
@@ -203,12 +203,14 @@ ASites=Complement[Table[i,{i,1,Ntot}],Ds,Phis];
 If[ITER==0,
 NN=Length[ASites];
 If[debug,
-Print["Initial variables: "];
+Print["--------------------------"];
+Print["Iteration ",ITER];
 Print["N,m: ",{NN,m}];
 Print["Ds: ",Ds];
 Print["\[Phi]s: ",Phis];
 ];
 ];
+
 
 If[staylow,NmaxEig=Sum[c[NN,mm],{mm,0,Min[4,Min[m,NN]]}]];
 
@@ -262,7 +264,7 @@ If[debug,Print["----------- rates starting-------------"];];
 (*Clear and initiate as definitions works*)
 Clear[r,rz,rlist];
 r[j_]=0;rlist[j_]={};
-rz[j_][i_,ii_]=0;rz[j_][jj_]=0;
+rz[j_][i_,ii_]={};rz[j_][jj_]={};
 
 Clear[RDAR,RDAL,RPhiAR,RPhiAL,RDPhiA,RDPhiAinv,RCDAl,RCDAh,RCAlR,RCAhR,RCAlL,RCAhL,Rkappa,Rgamma];
 RDAR[x_,y_]=0;RDAL[x_,y_]=0;
@@ -273,6 +275,9 @@ RCAlR=0;RCAhR=0;
 RCAlL=0;RCAhL=0;
 Rkappa=0;Rgamma[x_]=0;
 
+(*Print["-------------------------------------------"];
+Print["starting: r[j] set: ",Table[r[j],{j,1,26}]];
+Print["starting: rlist[j] set: ",Table[rlist[j],{j,1,26}]];*)
 
 
 ldr=Length[DhopsR];
@@ -316,8 +321,8 @@ ii=4;
 RDAR[i,ii]=psi.HtDAchl.U[EUinds[[j,ii]]];
 rz[j][i,ii]=Rates[j,i,ii];
 r[j]+=Total[rz[j][i,ii]];
-Do[AppendTo[rlist[j],Total[rz[j][i,ii]]],{ii,1,4}];
 ];
+Do[AppendTo[rlist[j],Total[rz[j][i,ii]]],{ii,1,4}];
 ,{i,1,ldr}];
 
 (*Print["------j=2"];*)
@@ -677,12 +682,15 @@ dt = (1/R )*Log[1/u]; (* or just average value= 1/R ? dev \[Sigma]=1/R *)
 t += dt;
 AppendTo[times,t];
 
-If[debug,Print["----------- rates done -------------"];];
-
-If[debug,Print["rlist: ",Table[rlist[j],{j,1,26}]//Chop];];
+If[debug,
+Print["----------- rates done -------------"];
+Print["selected wj: r[wj] = ",r[wj]];
+Print["rlist: ",Table[rlist[j],{j,1,26}]//Chop];
+];
 
 wc=1;
-If[wj<= 8,(*Print["wj = ",wj," rlist[wj]: ",rlist[wj]];*){ws,wc}=WhichSiteChannel[rlist[wj]],
+If[wj<= 8,(*Print["wj = ",wj," rlist[wj]: ",rlist[wj]];*)
+{ws,wc}=WhichSiteChannel[rlist[wj]];,
 If[wj==26,(*Print["---- wj=26"];*)ws=WhichSite[rlist[wj]]]
 ];
 
@@ -845,7 +853,6 @@ Print["Dimensions of eigensystems:",Table[Dimensions[Es[p]],{p,1,13}]
 out2
 ];
 
-Complement
 (*X={Ntot,gg,maxiter,
 initstate,
 tpar,kappa,gamma,
@@ -854,7 +861,7 @@ includecross,BlockInjection,AlwaysLP,
 VibAssis,M,wv,lambda};
 Table[x\[Rule] OptionValue[x],{x,X}]*)
 
-Options[Trajectory]={Ntot-> 5,m0-> 1,Ds0-> {},Phis0-> {},g-> 1,dw-> 0,tpar-> {0.1,0.001,0.001,0.05,0.01,0.01,0.01,0.01},Eb-> {0,0},kappa-> 0.005,gamma-> 0.005,Er-> 0.5,w0->2,beta-> 40,maxiter-> 20,includecross-> True,BlockInjection->{ False,False},M-> 3,wv->0.2 ,lambda-> 1,AlwaysLP-> True,VibAssis-> False,printmem-> False,fullout-> False,staylow-> True};
+Options[Trajectory]={Ntot->5,m0->1,Ds0->{},Phis0->{},g->1,dw->0,tpar->{1,1,0.001,0.5,1,1,1,1},Eb->{0,0},kappa->0.05,gamma->0.05,Er->0.5,w0->2,beta->40,maxiter->20,includecross->True,BlockInjection->{False,False},M->3,wv->0.2,lambda->1,AlwaysLP->True,VibAssis->False,printmem->False,fullout->False,staylow->True};
 
 Trajectory[OptionsPattern[]]:=
 CalcTrajectory[OptionValue[Ntot],OptionValue[m0],OptionValue[g],OptionValue[maxiter],OptionValue[Ds0],OptionValue[Phis0],OptionValue[tpar],OptionValue[kappa],OptionValue[gamma],OptionValue[dw],OptionValue[Eb],OptionValue[Er],OptionValue[w0],OptionValue[beta],OptionValue[includecross],OptionValue[BlockInjection],OptionValue[AlwaysLP],OptionValue[VibAssis],OptionValue[M],OptionValue[wv],OptionValue[lambda],OptionValue[printmem],OptionValue[fullout],OptionValue[staylow]];

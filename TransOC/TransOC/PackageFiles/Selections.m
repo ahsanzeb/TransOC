@@ -98,7 +98,7 @@ dqc=Table[Table[
 If[wj<= 8,dEbulk[[wc]],dEcont[[wj-8]]]
 -signEr[[wj]]*Er,
 {wc,1,4}],{wj,1,26}];
-Print["dqc = ",dqc];
+(*Print["dqc = ",dqc];*)
 dqc
 ];
 
