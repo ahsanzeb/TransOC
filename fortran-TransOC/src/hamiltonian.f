@@ -1,10 +1,6 @@
 
 	module hamiltonian
-	use modmain
 	implicit none
-
-
-
 
 !------------------------------------------
 	subroutine HgMap(ib,n,k,ntot,map)
@@ -33,7 +29,8 @@
 			call Complement(sites,na,set1,k,flipsites)
 			do j=1,nak
 				flip = flipsites(j);
-				call Append(set1,k,flip,set2)
+				!call Append(set1,k,flip,set2)
+				set2(1:k) = set1; set2(k+1) = flip;
 				call Sort(set2,k+1);
 				map(i,j) = LexicoIndex(set2,n,k+1)
 			end do
@@ -42,11 +39,14 @@
 	return
 	end subroutine HgMap
 !------------------------------------------
-	subroutine makeHg(itype)
+	subroutine makeHg(itype,nnz)
 	! makes Hg of type index itype \in [1,13]
-	use modmain, only: basis,na,nx,nainds,dna,dnx,g,dw
+	use modmain, only: basis,na,nx,nainds,dna,dnx,g,dw,detuning
 	implicit none
-	integer nnz,nnzg,nnzd,indf
+	integer, intent(in) :: itype
+	integer(kind=4), intent(out) :: nnz ! no of nonzero elements
+	! local
+	integer nnzg,nnzd,indf
 	double precision:: val
 
 	! N,m values of itype:
@@ -112,19 +112,7 @@
 		end if
 		
 	end do
-!------------------------------------------
-
-
 	
-
-
-
-	
-
-
-
-
-
 	end subroutine makeHg
 !------------------------------------------
 
