@@ -6,10 +6,10 @@
 !-------------------------------------
 	subroutine Drop(a,la,x,b)
 	implicit none
-	integer, intent(in):: x,la
-	integer, dimension(la), intent(in):: a
-	integer, dimension(la-1), intent(out):: b
-	integer i,j
+	integer(kind=1), intent(in):: x,la
+	integer(kind=1), dimension(la), intent(in):: a
+	integer(kind=1), dimension(la-1), intent(out):: b
+	integer(kind=1):: i,j
 	j = 1;
 	do i=1,la
 		if (a(i) .ne. x) b(j)=a(i); j = j + 1;
@@ -19,18 +19,18 @@
 !-------------------------------------
 	subroutine Append(a,la,x,b)
 	implicit none
-	integer, intent(in):: x,la
-	integer, dimension(la), intent(in):: a
-	integer, dimension(la+1), intent(out):: b
+	integer(kind=1), intent(in):: x,la
+	integer(kind=1), dimension(la), intent(in):: a
+	integer(kind=1), dimension(la+1), intent(out):: b
 	b(1:la) = a(:); b(la+1) = x;
 	return
 	end subroutine
 !-------------------------------------
 	subroutine Substitute(a,la,x,y)
 	implicit none
-	integer, intent(in):: x,la,y
-	integer, dimension(la), intent(inout):: a
-	integer i
+	integer(kind=1), intent(in):: x,la,y
+	integer(kind=1), dimension(la), intent(inout):: a
+	integer(kind=1):: i
 	do i=1,la
 		if (a(i) == x) then
 			a(i)=y;
@@ -43,11 +43,11 @@
 	subroutine Complement0(a,la,b,lb,c,lc)
 	!	output array size unknown to calling routine
 	implicit none
-	integer, intent(in):: la,lb
-	integer, dimension(la), intent(in):: a
-	integer, dimension(lb), intent(in):: b
-	integer, intent(out) :: lc
-	integer, dimension(la), intent(out):: c ! dim=la, calling routine will fix the size later
+	integer(kind=1), intent(in):: la,lb
+	integer(kind=1), dimension(la), intent(in):: a
+	integer(kind=1), dimension(lb), intent(in):: b
+	integer(kind=1), intent(out) :: lc
+	integer(kind=1), dimension(la), intent(out):: c ! dim=la, calling routine will fix the size later
 	integer i,j
 	logical inb
 
@@ -69,33 +69,44 @@
 	subroutine Complement(a,la,b,lb,c)
 	!	b is a subset of a: output array size known lc = la-lb
 	implicit none
-	integer, intent(in):: la,lb
-	integer, dimension(la), intent(in):: a
-	integer, dimension(lb), intent(in):: b
-	integer, dimension(la-lb), intent(out):: c
-	integer i,j,lc
-	logical inb
+	integer(kind=1), intent(in):: la,lb
+	integer(kind=1), dimension(la), intent(in):: a
+	integer(kind=1), dimension(lb), intent(in):: b
+	integer(kind=1), dimension(la-lb), intent(out):: c
+	integer:: i,j,lc
+	logical:: inb
+
+	!write(*,*) "a=",a
+	!write(*,*) "la-lb, b=", la-lb, b
 
 	lc=0;
 	do i=1,la
+	
 		inb = .false.
+		
 		do j=1,lb	
-		if (a(i) == b(j)) then
-			inb = .true.
-			exit
-		endif
+			if (a(i) == b(j)) then
+				inb = .true.
+				exit
+			endif
 		end do
-		if(.not. inb) lc = lc+1; c(lc) = a(i); 
+		
+		if(.not. inb) then
+			lc = lc+1;
+			c(lc) = a(i);
+		endif
+
 	end do
 
+	!write(*,*) "====> c=",c
 	return
 	end subroutine
 !-------------------------------------
 	logical function MemberQ(a,la,x)
 	implicit none
-	integer, intent(in):: la,x
-	integer, dimension(la), intent(in):: a
-	integer i
+	integer(kind=1), intent(in):: la,x
+	integer(kind=1), dimension(la), intent(in):: a
+	integer(kind=1):: i
 	
 	MemberQ = .false.
 	do i=1,la
@@ -109,9 +120,9 @@
 !-------------------------------------
 	logical function FreeQ(a,la,x)
 	implicit none
-	integer, intent(in):: la,x
-	integer, dimension(la), intent(in):: a
-	integer i
+	integer(kind=1), intent(in):: la,x
+	integer(kind=1), dimension(la), intent(in):: a
+	integer(kind=1):: i
 	
 	FreeQ = .true.
 	do i=1,la
@@ -126,11 +137,11 @@
 	subroutine Intersection(a,la,b,lb,c,lc)
 	!	output array size unknown to calling routine
 	implicit none
-	integer, intent(in):: la,lb
-	integer, dimension(la), intent(in):: a
-	integer, dimension(lb), intent(in):: b
-	integer, intent(out) :: lc
-	integer, dimension(la), intent(out):: c ! dim=la, calling routine will fix the size later
+	integer(kind=1), intent(in):: la,lb
+	integer(kind=1), dimension(la), intent(in):: a
+	integer(kind=1), dimension(lb), intent(in):: b
+	integer(kind=1), intent(out) :: lc
+	integer(kind=1), dimension(la), intent(out):: c ! dim=la, calling routine will fix the size later
 	integer i,j
 	logical inb
 
@@ -143,7 +154,10 @@
 			exit
 		endif
 		end do
-		if(inb) lc = lc+1; c(lc) = a(i); 
+		if(inb) then
+			lc = lc+1;
+			c(lc) = a(i);
+		endif 
 	end do
 	
 	return
@@ -152,10 +166,10 @@
 	subroutine Join(a,la,b,lb,c)
 	!	output array size known lc = la+lb
 	implicit none
-	integer, intent(in):: la,lb
-	integer, dimension(la), intent(in):: a
-	integer, dimension(lb), intent(in):: b
-	integer, dimension(la+lb), intent(out):: c
+	integer(kind=1), intent(in):: la,lb
+	integer(kind=1), dimension(la), intent(in):: a
+	integer(kind=1), dimension(lb), intent(in):: b
+	integer(kind=1), dimension(la+lb), intent(out):: c
 
 	c(1:la) = a(:);
 	c(la+1:la+lb) = b(:);
@@ -166,15 +180,15 @@
  ! a modified version of https://rosettacode.org/wiki/Sorting_algorithms/Quicksort#Fortran
 	recursive subroutine Sort(a,la)
  	implicit none
-	integer, intent(in):: la
-	integer, dimension(la), intent(inout):: a
+	integer(kind=1), intent(in):: la
+	integer(kind=1), dimension(la), intent(inout):: a
  
 	! LOCAL VARIABLES
-	integer :: left, right
+	integer(kind=1) :: left, right
 	real :: random
 	real :: pivot
-	integer :: temp
-	integer :: marker
+	integer(kind=1) :: temp
+	integer(kind=1) :: marker,marker2
  
 	if (la > 1) then
  
@@ -205,8 +219,10 @@
 		marker = left
 	end if
 
-	call Sort(A(:marker-1),marker-1)
-	call Sort(A(marker:),la-marker+1)
+	marker2 = marker-1;
+	call Sort(A(:marker2),marker2);
+	marker2 = la-marker+1;
+	call Sort(A(marker:),marker2)
  
 	end if
 	end subroutine Sort

@@ -2,37 +2,50 @@
 	module hamiltonian
 	implicit none
 
+	contains
 !------------------------------------------
 	subroutine HgMap(ib,n,k,ntot,map)
-	use modmain, only: basis, sites,na
-	use lists, only: Complement,Append,Sort,LexicoIndex
+	use modmain, only: basis
+	use lists, only: Complement,Append,Sort
+	use basisstates, only: LexicoIndex
 	implicit none
-	integer, intent(in) :: ib,n,k,ntot
+	integer(kind=1), intent(in) :: ib,n,k
+	integer(kind=4), intent(in) :: ntot
 	integer(kind=4), dimension(ntot,n-k), intent(out):: map
 	! local
-	integer:: nak,flip,i,j
+	integer:: nk,flip,i,j
 	integer(kind=1), dimension(k):: set1
 	integer(kind=1), dimension(k+1):: set2
 	integer(kind=1), dimension(n-k):: flipsites
-		
+	integer(kind=1) k1
+	integer(kind=1), allocatable :: sites(:)
+	
 	if (k==0) then
 		map(1,:) = (/ (i,i=1,n,1)/)
 	elseif(k==n) then
 		! all map to the single state with all up
 		map(:,1) = 1;
 	else
-		nak = na-k;
+		! initialise sites array
+		if(allocated(sites))deallocate(sites)
+		allocate(sites(n))
+		sites(:) = (/ (i,i=1,n,1)/)
+		
+		nk = n-k;
+		!write(*,*) "MapHg: k, ntot = ",k, ntot
 		do i=1,ntot
 		! sec(k) are defined for k>0,
 		! so index match with k
 			set1=basis(ib)%sec(k)%sets(i,:)
-			call Complement(sites,na,set1,k,flipsites)
-			do j=1,nak
+			!write(*,*) "ib,k,i: ",ib,k,i,", set1=",set1
+			call Complement(sites,n,set1,k,flipsites)
+			do j=1,nk
 				flip = flipsites(j);
 				!call Append(set1,k,flip,set2)
-				set2(1:k) = set1; set2(k+1) = flip;
-				call Sort(set2,k+1);
-				map(i,j) = LexicoIndex(set2,n,k+1)
+				k1 = k+1;
+				set2(1:k) = set1; set2(k1) = flip;
+				call Sort(set2,k1);
+				map(i,j) = LexicoIndex(set2,n,k1)
 			end do
 		end do
 	endif
@@ -41,13 +54,18 @@
 !------------------------------------------
 	subroutine makeHg(itype,nnz)
 	! makes Hg of type index itype \in [1,13]
-	use modmain, only: basis,na,nx,nainds,dna,dnx,g,dw,detuning
+	use modmain, only: basis,na,nx,nainds,dna,dnx,g,dw,detuning,Hg
 	implicit none
 	integer, intent(in) :: itype
 	integer(kind=4), intent(out) :: nnz ! no of nonzero elements
 	! local
-	integer nnzg,nnzd,indf
-	double precision:: val
+	integer(kind=4) nnzg,nnzd,indf,i,j,ind,ntot
+	integer(kind=1) ib,k,m,m1,n
+	double precision:: val,kdw
+	integer(kind=4), allocatable, dimension(:):: pntr
+	integer(kind=4), allocatable, dimension(:):: ind1
+	integer(kind=4), allocatable, dimension(:,:):: map
+	!character*1000:: fmt
 
 	! N,m values of itype:
 	n = na + dna(itype); ! no of active sites
@@ -57,7 +75,11 @@
 	! ib: itype ===> which of 5 N case?
 	ib = nainds(itype);
 	! pointers for start index
+	if(allocated(pntr))deallocate(pntr)
+	allocate(pntr(m1+2));
 	pntr(:) = basis(ib)%pntr(1:m1+2) ! only the relevant part
+	!fmt = '(i5' // repeat (', 1x, i5', m1+2 - 1) // ')'
+	!write(*,fmt),itype, pntr
 
 	! find nnz: no of non-zero elem in Hg
 	!	light-matter coupling terms:
@@ -75,18 +97,23 @@
 	nnz = nnzg + nnzd;
 	! allocate memory to Hg(itype)
 	if(allocated(Hg(itype)%row))deallocate(Hg(itype)%row)
-	if(allocated(Hg(itype)%row))deallocate(Hg(itype)%col)
-	if(allocated(Hg(itype)%row))deallocate(Hg(itype)%dat)
+	if(allocated(Hg(itype)%col))deallocate(Hg(itype)%col)
+	if(allocated(Hg(itype)%dat))deallocate(Hg(itype)%dat)
 	allocate(Hg(itype)%row(nnz))
-	allocate(Hg(itype)%row(nnz))
-	allocate(Hg(itype)%row(nnz))
+	allocate(Hg(itype)%col(nnz))
+	allocate(Hg(itype)%dat(nnz))
 
-	ind = 0;
+	ind = 1;
 	! calc maps for diff k and combine to get full matrix
 	do k=0,m1-1,1
 		ntot = pntr(k+2) - pntr(k+1);
+		!write(*,*)"makeHg: n,m,k,m1,ntot = ",n,m,k,m1,ntot
+		if(allocated(ind1))deallocate(ind1)
+		allocate(ind1(ntot));
 		ind1(:) = pntr(k+1) + (/ (i, i=1,ntot,1) /);
 		! calc map from k to k+1 up spin sector
+		if(allocated(map))deallocate(map)
+		allocate(map(ntot,n-k));
 		call HgMap(ib,n,k,ntot,map)
 		! assign values to final matrix		
 		val = dsqrt((m-k)*1.d0)*g;
@@ -104,7 +131,7 @@
 		! diagonal elements 
 		kdw = (m - k)*dw;
 		if (detuning) then
-			indf=ind+ntot;
+			indf=ind+ntot-1;
 			Hg(itype)%dat(ind:indf) = kdw;
 			Hg(itype)%row(ind:indf) = ind1(:);
 			Hg(itype)%col(ind:indf) = ind1(:);

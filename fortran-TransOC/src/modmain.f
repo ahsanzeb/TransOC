@@ -7,20 +7,23 @@
 	implicit none
 	
 	! total number of sites in the system
-	integer nmax
+	integer(kind=1):: nsites
 	! active sites
-	integer na
+	integer(kind=1):: na
 	! number of excitatons
-	integer nx
+	integer(kind=1):: nx
 	!	na, nx lists for 13 Hilbert spaces
-	integer, dimension(13):: nalist,nxlist
-	integer, dimension(13):: dna=[0,0,0,2,1,2,-2,-2,-2,1,1,-1,-1];
-	integer, dimension(13):: dnx=[0,-1,1,1,0,2,-1,-2,0,1,0,-1,0];
-	integer, dimension(5):: nalist5
-	integer, dimension(5):: dnalist5=[-2,-1,0,1,2];
-	integer, dimension(13):: nainds=[3,3,3,5,4,5,1,1,1,4,4,2,2];
+	integer(kind=1), dimension(13):: nalist,nxlist
+	integer(kind=1), dimension(13)::
+     . 			dna=(/ 0,0,0,2,1,2,-2,-2,-2,1,1,-1,-1 /);
+	integer(kind=1), dimension(13)::
+     . 			dnx=(/ 0,-1,1,1,0,2,-1,-2,0,1,0,-1,0 /);
+	integer(kind=1), dimension(5):: nalist5
+	integer(kind=1), dimension(5):: dnalist5=(/ -2,-1,0,1,2 /);
+	integer(kind=1), dimension(13)::
+     . 			nainds=(/ 3,3,3,5,4,5,1,1,1,4,4,2,2 /);
 	! index for jump, channel, site
-	integer ij, ic, is
+	integer itype
 	! 
 	!integer*4, allocatable :: pntr(:)
 	!integer :: ind													! use as work array
@@ -58,16 +61,14 @@
 		double precision, allocatable :: dat(:)
 	end type Ham
 
-	type(BasisSet), dimension(5) basis
-	type(HilbertSpace), dimension(13) hspace
-	type(Ham), dimension(13) Hg
+	type(BasisSet), dimension(5) :: basis
+	type(HilbertSpace), dimension(13) :: hspace
+	type(Ham), dimension(13) :: Hg
 
-	integer(kind=1), allocatable :: sites(:)
+	!integer(kind=1), allocatable :: sites(:)
 
-
-
-
-
+	double precision :: dw,g
+	logical :: detuning
 
 
 	end module
