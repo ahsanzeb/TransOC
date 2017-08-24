@@ -50,10 +50,20 @@
 		double precision, allocatable :: evec(:,:)
 	end type HilbertSpace
 
+	! hamiltonian for 13 diff (N,m)
+	type :: Ham
+		integer(kind=4) :: ntot
+		integer(kind=4), allocatable :: row(:)
+		integer(kind=4), allocatable :: col(:)
+		double precision, allocatable :: dat(:)
+	end type Ham
+
 	type(BasisSet), dimension(5) basis
 	type(HilbertSpace), dimension(13) hspace
+	type(Ham), dimension(13) Hg
 
 	integer(kind=1), allocatable :: sites(:)
+
 
 
 
