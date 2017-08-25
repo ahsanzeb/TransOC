@@ -1,5 +1,5 @@
 
-objects = basisstates.o main.o hamiltonian.o lists.o modmain.o
+objects = basisstates.o main.o hamiltonian.o lists.o modmain.o memory.o
 
 include make.inc
 
@@ -42,6 +42,9 @@ modmain.o:	modmain.f
 
 lists.o: lists.f
 	$(FC) -c $(switch) lists.f
+
+memory.o: memory.f
+	$(FC) -c $(switch) memory.f
 
 basisstates.o: modmain.mod basisstates.f
 	$(FC) -c $(switch) basisstates.f

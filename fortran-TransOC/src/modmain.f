@@ -31,9 +31,11 @@
 	!integer(kind=1), allocatable :: combset(:,:) 	! use as work array
 
 	logical crosshops ! L-H and H-L cross hops allowed? 
-	
+
+	!---------------------------------------	
 	! for 5 values of N; smaller m can use larger m's data
 	! basis sectors for a given na,k-up spins
+	!---------------------------------------
 	type :: BSectors
 		integer :: ntot ! will see later if these ntot are needed?
 		integer(kind=1), allocatable :: sets(:,:)
@@ -45,30 +47,81 @@
 		type(BSectors), allocatable :: sec(:)
 	end type BasisSet
 
-
+	!---------------------------------------	
 	! for 13 different (N,m)
+	!---------------------------------------	
 	type :: HilbertSpace
 		integer :: ntot
 		double precision, allocatable :: eval(:)
 		double precision, allocatable :: evec(:,:)
 	end type HilbertSpace
-
+	!---------------------------------------	
 	! hamiltonian for 13 diff (N,m)
+	!---------------------------------------	
 	type :: Ham
 		integer(kind=4) :: ntot
 		integer(kind=4), allocatable :: row(:)
 		integer(kind=4), allocatable :: col(:)
 		double precision, allocatable :: dat(:)
 	end type Ham
+	!---------------------------------------
+	! hoppings: transition matrices
+	!---------------------------------------	
+	type :: HoppingProcesses
+		character(len=*) :: spfrmt ! format of sparse matrix; coo,  csr, diag, etc.
+		type(HoppingChannels), allocatable :: chan(:)
+	end type HoppingProcesses
+	!---------------------------------------	
+	type :: HoppingChannels
+		integer :: ns	
+		type(HoppingSites), allocatable :: site(:)
+	end type HoppingChannels
+	!---------------------------------------	
+	type :: HoppingSites
+		! transition matrix data
+		integer(kind=4) :: nnz
+		integer(kind=4), allocatable :: row(:)
+		integer(kind=4), allocatable :: col(:)
+		!double precision, allocatable :: dat(:)
+		!	dat: t's will be multiplied latter
+		!	dat ====>  1 always; so no need to store it.
+	end type HoppingSites
+	!---------------------------------------	
 
+
+	! 5 BasisSet
 	type(BasisSet), dimension(5) :: basis
+	! change name of HilbertSpace to something like eigensystem ??
+	!	13 hamiltonians and eigensystems
 	type(HilbertSpace), dimension(13) :: hspace
 	type(Ham), dimension(13) :: Hg
+	!	26 hopping processes
+	type(HoppingProcesses), dimension(26) :: hop
 
-	!integer(kind=1), allocatable :: sites(:)
+	! set the format for sparse matrix
+	hop(1:4)%spfrmt = 'diagonal';
+
 
 	double precision :: dw,g
 	logical :: detuning
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 	end module

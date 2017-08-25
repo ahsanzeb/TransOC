@@ -96,12 +96,25 @@
 	if (detuning) nnzd = pntr(m1+2) ! total no of basis states
 	nnz = nnzg + nnzd;
 	! allocate memory to Hg(itype)
-	if(allocated(Hg(itype)%row))deallocate(Hg(itype)%row)
-	if(allocated(Hg(itype)%col))deallocate(Hg(itype)%col)
-	if(allocated(Hg(itype)%dat))deallocate(Hg(itype)%dat)
+	!if(allocated(Hg(itype)%row))deallocate(Hg(itype)%row)
+	!if(allocated(Hg(itype)%col))deallocate(Hg(itype)%col)
+	!if(allocated(Hg(itype)%dat))deallocate(Hg(itype)%dat)
+	!allocate(Hg(itype)%row(nnz))
+	!allocate(Hg(itype)%col(nnz))
+	!allocate(Hg(itype)%dat(nnz))
+
+
+
+	if(allocated(Hg(itype)%row)) then
+		deallocate(Hg(itype)%row)
+		deallocate(Hg(itype)%col)
+		deallocate(Hg(itype)%dat)
+		!call memory('d','i4',100,'makeHg')
+	endif
 	allocate(Hg(itype)%row(nnz))
 	allocate(Hg(itype)%col(nnz))
 	allocate(Hg(itype)%dat(nnz))
+	!call memory('a','i',100,'makeHg')
 
 	ind = 1;
 	! calc maps for diff k and combine to get full matrix
