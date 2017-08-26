@@ -210,6 +210,13 @@
 	integer(kind=1) n,r,i,large,small
 	integer(kind=8) Numer,Denom 
 
+	 !define =0 for n<r ??? only needed in LexicoIndex
+	 !or just dont call it when n<r ????
+	if (n<r) then
+		nCr=0
+		return
+	endif
+
 	if (n==r .or. r==0) then
 		nCr=1
 		return
@@ -247,7 +254,7 @@
 	do p=0,k-1,1
 		np = n - list(p+1);
 		kp = k - p;
-		if (np .ge. kp )	LexicoIndex = LexicoIndex - nCr(np,kp)
+		LexicoIndex = LexicoIndex - nCr(np,kp) ! only if (np .ge. kp )	
 	end do
 	return
 	end function
