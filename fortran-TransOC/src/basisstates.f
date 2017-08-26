@@ -13,6 +13,7 @@
 	integer(kind=1), intent (in) :: na,nx
 	integer(kind=4) :: ntot
 	integer(kind=1) :: nxmax,r,m1,i,j,n,l
+	integer  :: i1,i2
 	!nalist = na + dna
 	!nxlist = nx + dnx
 
@@ -22,7 +23,7 @@
 	! max nx possible in 13 cases => nx+1 or nx+2
 	nxmax = nx+1;
 	if(crosshops) nxmax = nx+2;
-
+	write(*,*) "nxmax, nx = ",nxmax, nx
 	! indexes pointers for basis set sectors with diff no of up spins
 	do i=1,5
 		n = nalist5(i);
@@ -46,9 +47,15 @@
 			call mksets(n,j,ntot,basis(i)%sec(j)%sets)
 			!write(*,*)"======== dims = ",ntot
 			!write(*,*)"======== ib, k = ",i,j
-			!do l=1,ntot
-			!	write(*,*)" sets(l,:):", basis(i)%sec(j)%sets(l,:)
-			!end do
+			!write(*,*)"==============================="
+			write(*,*) "n,k, ntot = ", n,j,ntot
+			i1 =0
+			do l=1,size(basis(i)%sec(j)%sets(:,1))
+				!write(*,*)"sets(l,:):", basis(i)%sec(j)%sets(l,:)
+				i1 = i1+1
+				i2 = LexicoIndex(basis(i)%sec(j)%sets(l,:),n,j);
+				if(i2 .ne. i1)write(*,*)"%%%%%%% i1,i2=",i1,i2			
+			end do
 		end do
 	end do
 
@@ -57,54 +64,128 @@
 
 !------------------------------------------
 
-	subroutine mksets(n,k,ntot,combset)
+	subroutine mksets(n,k,ntot,comb)
 	! genrates subsets
 	implicit none
 	integer(kind=1), intent (in) :: n,k
 	integer(kind=4), intent (in) :: ntot
-	integer(kind=1), dimension(ntot,k),intent(out):: combset
-	integer(kind=1), dimension(k)::comb
-	integer :: ind
+	integer(kind=1), dimension(ntot,k),intent(out):: comb
+	integer :: ind,i
+	integer(kind=1) :: m, m2
+	logical mtc
+	integer(kind=1), dimension(k):: a
 	
-	ind = 1; combset(:,:)=0;
+	comb(:,:)=0;
+	!----------- k=n ------------
 	if (k==n) then
-		combset(1,:) = (/ (ind,ind=1,n,1) /);
-	else
-		call subsets(n,k,1)
+		comb(1,:) = (/ (ind,ind=1,n,1) /);
+		return
 	endif
+	!----------- k<n ------------
+	ind = 1;	
+	mtc=.true.
+	do while (mtc)
+		if (ind==1) 	mtc=.false.
+		call ksub_next(n,k,a,mtc,m, m2) ! ( n, k, a, more, m, m2 )
+		!write(*,*) (a(i),i=1,k)
+		comb(ind,:) = a(:)
+		ind = ind + 1;
+	end do
+	return
+	end subroutine
+	!------------------------------
 
-	
-	contains
-	recursive subroutine subsets(n,k,r)
-	! genrates subsets
+	subroutine ksub_next ( n, k, a, more, m, m2 )
+
+!*****************************************************************************80
+!
+!! KSUB_NEXT generates the subsets of size K from a set of size N.
+!
+!	Licensing:
+!
+!		This code is distributed under the GNU LGPL license.
+!
+!	Modified:
+!
+!		26 May 2015
+!
+!	Author:
+!
+!		Original FORTRAN77 version by Albert Nijenhuis, Herbert Wilf.
+!		FORTRAN90 version by John Burkardt.
+!
+!	Reference:
+!
+!		Albert Nijenhuis, Herbert Wilf,
+!		Combinatorial Algorithms for Computers and Calculators,
+!		Second Edition,
+!		Academic Press, 1978,
+!		ISBN: 0-12-519260-6,
+!		LC: QA164.N54.
+!
+!	Parameters:
+!
+!		Input, integer ( kind = 4 ) N, the size of the set from which subsets
+!		are drawn.
+!
+!		Input, integer ( kind = 4 ) K, the desired size of the subsets.	K must
+!		be between 0 and N.
+!
+!		Input/output, integer ( kind = 4 ) A(K).	A(I) is the I-th element of the
+!		subset.	Thus A(I) will be an integer between 1 and N.
+!		Note that the routine will return the values in A
+!		in sorted order: 1 <= A(1) < A(2) < ... < A(K) <= N
+!
+!		Input/output, logical MORE.	Set MORE = FALSE before first call
+!		for a new sequence of subsets.	It then is set and remains
+!		TRUE as long as the subset computed on this call is not the
+!		final one.	When the final subset is computed, MORE is set to
+!		FALSE as a signal that the computation is done.
+!
+!		Input/output, integer ( kind = 4 ) M, M2, two variables used by this
+!		procedure for bookkeeping.	The user must declare these variables,
+!		and the output values from one call must be used as the input values
+!		on the next.	The user should not change these values.
+!
 	implicit none
-	integer(kind=1), intent (in) :: n,k
-	integer(kind=4), intent (in) ::	r
-	integer(kind=1) :: l
 
-	if (r > k) then
-	 !write (*,*) comb
-	 combset(ind,:) = comb;
-	 ind = ind + 1;
-	else
-	 do l = 1, n
-		!if ((r == 1) .or. (l > comb(r - 1))) then
-		!	comb(r) = l
-		!	call subsets (n,k,r + 1)
-		!end if
-		if(r == 1) then
-			comb(r) = l
-			call subsets (n,k,r + 1)
-		elseif (l > comb(r - 1)) then
-			comb(r) = l
-			call subsets (n,k,r + 1)
-		end if
+	integer ( kind = 1 ) k
 
-	 end do
+	integer ( kind = 1 ) a(k)
+	integer ( kind = 1 ) j
+	integer ( kind = 1 ) m
+	integer ( kind = 1 ) m2
+	logical more
+	integer ( kind = 1 ) n
+
+	if ( k < 0 .or. n < k ) then
+		write ( *, '(a)' ) ''
+		write ( *, '(a)' ) 'KSUB_NEXT - Fatal error!'
+		write ( *, '(a,i8)' ) 'N = ', n
+		write ( *, '(a,i8)' ) 'K = ', k
+		write ( *, '(a)' ) 'but 0 <= K <= N is required!'
+		stop 1
 	end if
 
-	end subroutine subsets
-	end subroutine mksets
+	if ( .not. more ) then
+		m2 = 0
+		m = k
+	else
+		if ( m2 < n - m ) then
+			m = 0
+		end if
+		m = m + 1
+		m2 = a(k+1-m)
+	end if
+
+	do j = 1, m
+		a(k+j-m) = m2 + j
+	end do
+
+	more = ( a(1) /= (n-k+1) )
+
+	return
+	end
 
 !------------------------------------------
 	subroutine pointerslist(n,k,pntr)
@@ -161,12 +242,12 @@
 	integer(kind=1), intent(in) :: n,k
 	integer(kind=1), dimension(k), intent(in)::list
 	integer(kind=1) :: p,np,kp
-	!x1 = c[N, k] - Sum[c[N - listf[[p + 1]], k - p], {p, 0, k - 1}]; 
+	!x1 = c[N, k] - Sum[c[N - listf[[p + 1]], k - p], {p, 0, k - 1}];
 	LexicoIndex = nCr(n,k);
-	do p=0,k-1
+	do p=0,k-1,1
 		np = n - list(p+1);
-		kp = k -p;
-		LexicoIndex = LexicoIndex - nCr(np,kp)
+		kp = k - p;
+		if (np .ge. kp )	LexicoIndex = LexicoIndex - nCr(np,kp)
 	end do
 	return
 	end function

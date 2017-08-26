@@ -6,18 +6,18 @@
 !------------------------------------------
 	subroutine HgMap(ib,n,k,ntot,map)
 	use modmain, only: basis
-	use lists, only: Complement,Append,Sort
+	use lists, only: Complement,SortedInsert !SortedInsert=Append+Sort
 	use basisstates, only: LexicoIndex
 	implicit none
 	integer(kind=1), intent(in) :: ib,n,k
 	integer(kind=4), intent(in) :: ntot
 	integer(kind=4), dimension(ntot,n-k), intent(out):: map
 	! local
-	integer:: nk,flip,i,j
+	integer:: nk,i,j
 	integer(kind=1), dimension(k):: set1
 	integer(kind=1), dimension(k+1):: set2
 	integer(kind=1), dimension(n-k):: flipsites
-	integer(kind=1) k1
+	integer(kind=1) k1,flip
 	integer(kind=1), allocatable :: sites(:)
 	
 	if (k==0) then
@@ -43,8 +43,9 @@
 				flip = flipsites(j);
 				!call Append(set1,k,flip,set2)
 				k1 = k+1;
-				set2(1:k) = set1; set2(k1) = flip;
-				call Sort(set2,k1);
+				!set2(1:k) = set1; set2(k1) = flip;
+				!call Sort(set2,k1);
+				call SortedInsert(set1,k1,flip,set2)
 				map(i,j) = LexicoIndex(set2,n,k1)
 			end do
 		end do
@@ -95,6 +96,9 @@
 	end do
 	if (detuning) nnzd = pntr(m1+2) ! total no of basis states
 	nnz = nnzg + nnzd;
+
+	Hg(itype)%ntot = pntr(m1+2); 	! ntot = hilbert space dimension
+	write(*,*) "itype, ntot ",itype, pntr(m1+2)
 	! allocate memory to Hg(itype)
 	!if(allocated(Hg(itype)%row))deallocate(Hg(itype)%row)
 	!if(allocated(Hg(itype)%col))deallocate(Hg(itype)%col)
@@ -150,9 +154,9 @@
 			Hg(itype)%col(ind:indf) = ind1(:);
 			ind = indf + 1;
 		end if
-		
 	end do
-	
+
+	return
 	end subroutine makeHg
 !------------------------------------------
 

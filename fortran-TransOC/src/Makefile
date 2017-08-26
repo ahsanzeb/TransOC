@@ -1,5 +1,5 @@
 
-objects = basisstates.o main.o hamiltonian.o lists.o modmain.o memory.o
+objects = basisstates.o main.o hamiltonian.o lists.o modmain.o memory.o hoppings.o dhops.o kinds.o multiply.o
 
 include make.inc
 
@@ -26,11 +26,17 @@ modmain.mod:	modmain.o modmain.f
 lists.mod: lists.o lists.f
 	$(FC) -c $(switch) lists.f
 
+kinds.mod: kinds.o kinds.f
+	$(FC) -c $(switch) kinds.f
+
 basisstates.mod: modmain.mod basisstates.o basisstates.f
 	$(FC) -c $(switch) basisstates.f
 
 hamiltonian.mod: modmain.mod lists.mod basisstates.mod hamiltonian.o hamiltonian.f
 	$(FC) -c $(switch)  hamiltonian.f 
+
+hoppings.mod: modmain.mod lists.mod basisstates.mod hoppings.o hoppings.f
+	$(FC) -c $(switch)  hoppings.f 
 
 
 #-----------------------------------------------------
@@ -46,10 +52,24 @@ lists.o: lists.f
 memory.o: memory.f
 	$(FC) -c $(switch) memory.f
 
+kinds.o: kinds.f
+	$(FC) -c $(switch) kinds.f
+
+multiply.o: multiply.f
+	$(FC) -c $(switch) multiply.f
+
 basisstates.o: modmain.mod basisstates.f
 	$(FC) -c $(switch) basisstates.f
 
-main.o:	modmain.mod basisstates.mod hamiltonian.mod lists.mod main.f
+
+
+hoppings.o: modmain.mod hoppings.f
+	$(FC) -c $(switch) hoppings.f 
+
+dhops.o: modmain.mod basisstates.mod lists.mod dhops.f
+	$(FC) -c $(switch) dhops.f
+
+main.o:	modmain.mod hoppings.mod basisstates.mod hamiltonian.mod lists.mod main.f
 	$(FC) -c $(switch) main.f 
 
 hamiltonian.o: modmain.mod basisstates.mod hamiltonian.f

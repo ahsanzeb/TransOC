@@ -12,7 +12,10 @@
 	integer(kind=1):: i,j
 	j = 1;
 	do i=1,la
-		if (a(i) .ne. x) b(j)=a(i); j = j + 1;
+		if (a(i) .ne. x) then
+			b(j)=a(i);
+			j = j + 1;
+		endif
 	end do
 	return
 	end subroutine
@@ -23,6 +26,33 @@
 	integer(kind=1), dimension(la), intent(in):: a
 	integer(kind=1), dimension(la+1), intent(out):: b
 	b(1:la) = a(:); b(la+1) = x;
+	return
+	end subroutine
+!-------------------------------------
+	subroutine SortedInsert(a,la,x,b)
+	! only use when a is already sorted
+	implicit none
+	integer(kind=1), intent(in):: x,la
+	integer(kind=1), dimension(la), intent(in):: a
+	integer(kind=1), dimension(la+1), intent(out):: b
+	integer(kind=1) :: ix,j,i
+
+	j = 1;
+	do i=1,la
+		if (a(i) .lt. x) then
+			b(j)=a(i); j = j + 1;
+		else
+			b(j) = x; ix = i;
+			exit
+		endif		
+	end do
+
+	if( j > la ) then ! a(:) > x and x not inserted in above loop
+		b(j) = x
+	else
+		b(j:la) = a(ix:la) ! x was inserted, the rest of a here
+	endif
+	
 	return
 	end subroutine
 !-------------------------------------

@@ -67,17 +67,8 @@
 	!---------------------------------------
 	! hoppings: transition matrices
 	!---------------------------------------	
-	type :: HoppingProcesses
-		character(len=*) :: spfrmt ! format of sparse matrix; coo,  csr, diag, etc.
-		type(HoppingChannels), allocatable :: chan(:)
-	end type HoppingProcesses
 	!---------------------------------------	
-	type :: HoppingChannels
-		integer :: ns	
-		type(HoppingSites), allocatable :: site(:)
-	end type HoppingChannels
-	!---------------------------------------	
-	type :: HoppingSites
+	type :: TransitionMatrix
 		! transition matrix data
 		integer(kind=4) :: nnz
 		integer(kind=4), allocatable :: row(:)
@@ -85,7 +76,15 @@
 		!double precision, allocatable :: dat(:)
 		!	dat: t's will be multiplied latter
 		!	dat ====>  1 always; so no need to store it.
-	end type HoppingSites
+		!integer(kind=4), allocatable :: map(:,:)
+	end type TransitionMatrix
+	!---------------------------------------	
+	type :: HoppingProcesses
+		character(len=3) :: frmt ! format of sparse matrix; coo,  csr, diag, etc.
+		integer :: nc, ns
+		integer, allocatable, dimension(:) :: sites
+		type(TransitionMatrix), allocatable :: ht(:,:) ! for channel, sites
+	end type HoppingProcesses
 	!---------------------------------------	
 
 
@@ -99,29 +98,13 @@
 	type(HoppingProcesses), dimension(26) :: hop
 
 	! set the format for sparse matrix
-	hop(1:4)%spfrmt = 'diagonal';
+	!hop(1:4)%spfrmt = 'diagonal';
 
 
 	double precision :: dw,g
 	logical :: detuning
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+	!integer :: EvecKind
 
 
 	end module
