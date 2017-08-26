@@ -1,5 +1,5 @@
 
-objects = basisstates.o main.o hamiltonian.o lists.o modmain.o memory.o hoppings.o dhops.o kinds.o multiply.o
+objects = basisstates.o main.o hamiltonian.o lists.o modmain.o memory.o hoppings.o dhops.o kinds.o multiply.o annihilation.o
 
 include make.inc
 
@@ -68,6 +68,9 @@ hoppings.o: modmain.mod hoppings.f
 
 dhops.o: modmain.mod basisstates.mod lists.mod dhops.f
 	$(FC) -c $(switch) dhops.f
+
+annihilation.o: modmain.mod basisstates.mod annihilation.f
+	$(FC) -c $(switch) annihilation.f
 
 main.o:	modmain.mod hoppings.mod basisstates.mod hamiltonian.mod lists.mod main.f
 	$(FC) -c $(switch) main.f 

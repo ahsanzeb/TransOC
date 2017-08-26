@@ -10,10 +10,10 @@
 NotebookFileLineBreakTest
 NotebookFileLineBreakTest
 NotebookDataPosition[       158,          7]
-NotebookDataLength[     35973,        914]
-NotebookOptionsPosition[     35654,        898]
-NotebookOutlinePosition[     36045,        915]
-CellTagsIndexPosition[     36002,        912]
+NotebookDataLength[     35906,        913]
+NotebookOptionsPosition[     35587,        897]
+NotebookOutlinePosition[     35978,        914]
+CellTagsIndexPosition[     35935,        911]
 WindowFrame->Normal*)
 
 (* Beginning of Notebook Content *)
@@ -257,93 +257,91 @@ Cell[BoxData[
    StyleBox["\[IndentingNewLine]",
     FontSize->18], 
    RowBox[{
-    RowBox[{
-     RowBox[{"mapDPhiAc", "[", 
-      RowBox[{"N_", ",", "k_"}], "]"}], ":=", 
-     RowBox[{"Module", "[", 
-      RowBox[{
-       RowBox[{"{", 
-        RowBox[{
-        "x", ",", "ind1", ",", "ind2", ",", "listi", ",", "tab1", ",", "tab2",
-          ",", "set1", ",", "listf", ",", "xlh", ",", "xhl", ",", "tabhl", 
-         ",", "tablh"}], "}"}], ",", "\[IndentingNewLine]", 
+    RowBox[{"mapDPhiAc", "[", 
+     RowBox[{"N_", ",", "k_"}], "]"}], ":=", 
+    RowBox[{"Module", "[", 
+     RowBox[{
+      RowBox[{"{", 
        RowBox[{
-        RowBox[{"tab1", "=", 
-         RowBox[{"{", "}"}]}], ";", 
-        RowBox[{"tab2", "=", 
-         RowBox[{"{", "}"}]}], ";", 
-        RowBox[{"tablh", "=", 
-         RowBox[{"{", "}"}]}], ";", 
-        RowBox[{"tabhl", "=", 
-         RowBox[{"{", "}"}]}], ";", "\[IndentingNewLine]", 
-        RowBox[{"listi", "=", 
-         RowBox[{"comb", "[", 
-          RowBox[{"N", ",", "k"}], "]"}]}], ";", "\[IndentingNewLine]", 
-        RowBox[{"Do", "[", "\[IndentingNewLine]", 
+       "x", ",", "ind1", ",", "ind2", ",", "listi", ",", "tab1", ",", "tab2", 
+        ",", "set1", ",", "listf", ",", "xlh", ",", "xhl", ",", "tabhl", ",", 
+        "tablh"}], "}"}], ",", "\[IndentingNewLine]", 
+      RowBox[{
+       RowBox[{"tab1", "=", 
+        RowBox[{"{", "}"}]}], ";", 
+       RowBox[{"tab2", "=", 
+        RowBox[{"{", "}"}]}], ";", 
+       RowBox[{"tablh", "=", 
+        RowBox[{"{", "}"}]}], ";", 
+       RowBox[{"tabhl", "=", 
+        RowBox[{"{", "}"}]}], ";", "\[IndentingNewLine]", 
+       RowBox[{"listi", "=", 
+        RowBox[{"comb", "[", 
+         RowBox[{"N", ",", "k"}], "]"}]}], ";", "\[IndentingNewLine]", 
+       RowBox[{"Do", "[", "\[IndentingNewLine]", 
+        RowBox[{
          RowBox[{
-          RowBox[{
-           RowBox[{"set1", "=", 
-            RowBox[{"listi", "[", 
-             RowBox[{"[", "i", "]"}], "]"}]}], ";", "\[IndentingNewLine]", 
-           RowBox[{"listf", "=", 
-            RowBox[{"Sort", "[", 
-             RowBox[{"Join", "[", 
-              RowBox[{"set1", ",", 
-               RowBox[{"{", 
-                RowBox[{"N", "+", "1"}], "}"}]}], "]"}], "]"}]}], ";", 
-           RowBox[{"(*", " ", 
-            RowBox[{"Lexicographical", " ", 
-             RowBox[{"ordering", "!"}]}], " ", "*)"}], "\[IndentingNewLine]", 
-           
-           RowBox[{"x", "=", 
-            RowBox[{
-             RowBox[{"c", "[", 
-              RowBox[{
-               RowBox[{"N", "+", "2"}], ",", 
-               RowBox[{"k", "+", "1"}]}], "]"}], "-", 
-             RowBox[{"Sum", "[", 
-              RowBox[{
-               RowBox[{"c", "[", 
-                RowBox[{
-                 RowBox[{"N", "+", "2", "-", 
-                  RowBox[{"listf", "[", 
-                   RowBox[{"[", 
-                    RowBox[{"p", "+", "1"}], "]"}], "]"}]}], ",", 
-                 RowBox[{"k", "+", "1", "-", "p"}]}], "]"}], ",", 
-               RowBox[{"{", 
-                RowBox[{"p", ",", "0", ",", "k"}], "}"}]}], "]"}]}]}], ";", 
-           "\[IndentingNewLine]", 
-           RowBox[{"(*", " ", 
-            RowBox[{
-             RowBox[{
-              RowBox[{
-               RowBox[{"only", " ", "when", " ", 
-                RowBox[{"(", 
-                 RowBox[{"D", ",", "Phi"}], ")"}]}], " ", "\[Rule]", " ", 
-               RowBox[{"(", 
-                RowBox[{"up", ",", "down"}], ")"}]}], ";", " ", 
-              RowBox[{"when", " ", "they", " ", "go", " ", "to", " ", 
-               RowBox[{"(", 
-                RowBox[{"down", ",", "up"}], ")"}]}]}], ",", " ", 
-             RowBox[{"add", " ", "1", " ", "in", " ", "the", " ", "indices"}],
-              ",", " ", 
-             RowBox[{
-             "this", " ", "is", " ", "done", " ", "when", " ", "this", " ", 
-              "map", " ", "is", " ", "used"}]}], " ", "*)"}], 
-           "\[IndentingNewLine]", 
-           RowBox[{"AppendTo", "[", 
-            RowBox[{"tab1", ",", "x"}], "]"}], ";"}], 
-          RowBox[{"(*", 
+          RowBox[{"set1", "=", 
+           RowBox[{"listi", "[", 
+            RowBox[{"[", "i", "]"}], "]"}]}], ";", "\[IndentingNewLine]", 
+          RowBox[{"listf", "=", 
+           RowBox[{"Sort", "[", 
+            RowBox[{"Join", "[", 
+             RowBox[{"set1", ",", 
+              RowBox[{"{", 
+               RowBox[{"N", "+", "1"}], "}"}]}], "]"}], "]"}]}], ";", 
+          RowBox[{"(*", " ", 
+           RowBox[{"Lexicographical", " ", 
+            RowBox[{"ordering", "!"}]}], " ", "*)"}], "\[IndentingNewLine]", 
+          RowBox[{"x", "=", 
            RowBox[{
-            RowBox[{"AppendTo", "[", 
-             RowBox[{"tab2", ",", 
-              RowBox[{"x", "+", "1"}]}], "]"}], ";"}], "*)"}], 
-          "\[IndentingNewLine]", ",", 
-          RowBox[{"{", 
-           RowBox[{"i", ",", "1", ",", 
-            RowBox[{"Length", "[", "listi", "]"}]}], "}"}]}], "]"}], ";", 
-        "\[IndentingNewLine]", "tab1"}]}], "]"}]}], ";"}], 
-   "\[IndentingNewLine]", "\[IndentingNewLine]", 
+            RowBox[{"c", "[", 
+             RowBox[{
+              RowBox[{"N", "+", "2"}], ",", 
+              RowBox[{"k", "+", "1"}]}], "]"}], "-", 
+            RowBox[{"Sum", "[", 
+             RowBox[{
+              RowBox[{"c", "[", 
+               RowBox[{
+                RowBox[{"N", "+", "2", "-", 
+                 RowBox[{"listf", "[", 
+                  RowBox[{"[", 
+                   RowBox[{"p", "+", "1"}], "]"}], "]"}]}], ",", 
+                RowBox[{"k", "+", "1", "-", "p"}]}], "]"}], ",", 
+              RowBox[{"{", 
+               RowBox[{"p", ",", "0", ",", "k"}], "}"}]}], "]"}]}]}], ";", 
+          "\[IndentingNewLine]", 
+          RowBox[{"(*", " ", 
+           RowBox[{
+            RowBox[{
+             RowBox[{
+              RowBox[{"only", " ", "when", " ", 
+               RowBox[{"(", 
+                RowBox[{"D", ",", "Phi"}], ")"}]}], " ", "\[Rule]", " ", 
+              RowBox[{"(", 
+               RowBox[{"up", ",", "down"}], ")"}]}], ";", " ", 
+             RowBox[{"when", " ", "they", " ", "go", " ", "to", " ", 
+              RowBox[{"(", 
+               RowBox[{"down", ",", "up"}], ")"}]}]}], ",", " ", 
+            RowBox[{"add", " ", "1", " ", "in", " ", "the", " ", "indices"}], 
+            ",", " ", 
+            RowBox[{
+            "this", " ", "is", " ", "done", " ", "when", " ", "this", " ", 
+             "map", " ", "is", " ", "used"}]}], " ", "*)"}], 
+          "\[IndentingNewLine]", 
+          RowBox[{"AppendTo", "[", 
+           RowBox[{"tab1", ",", "x"}], "]"}], ";"}], 
+         RowBox[{"(*", 
+          RowBox[{
+           RowBox[{"AppendTo", "[", 
+            RowBox[{"tab2", ",", 
+             RowBox[{"x", "+", "1"}]}], "]"}], ";"}], "*)"}], 
+         "\[IndentingNewLine]", ",", 
+         RowBox[{"{", 
+          RowBox[{"i", ",", "1", ",", 
+           RowBox[{"Length", "[", "listi", "]"}]}], "}"}]}], "]"}], ";", 
+       "\[IndentingNewLine]", "tab1"}]}], "]"}]}], "\[IndentingNewLine]", 
+   "\[IndentingNewLine]", 
    RowBox[{"(*", 
     RowBox[{
      RowBox[{"cc", "===", 
@@ -894,11 +892,12 @@ Cell[BoxData[
          RowBox[{"Htsplh", ",", "Htsphl"}], "}"}]}]}], "\[IndentingNewLine]", 
       "]"}]}], ";"}], "\[IndentingNewLine]"}]}]], "Input",
  InitializationCell->True,
- CellChangeTimes->{3.711615266881003*^9}]
+ CellChangeTimes->{3.711615266881003*^9, 3.712749781075636*^9, 
+  3.7127549179988317`*^9}]
 },
 AutoGeneratedPackage->Automatic,
 WindowSize->{808, 706},
-WindowMargins->{{Automatic, 199}, {Automatic, 0}},
+WindowMargins->{{Automatic, -74}, {Automatic, 0}},
 FrontEndVersion->"10.4 for Mac OS X x86 (32-bit, 64-bit Kernel) (February 25, \
 2016)",
 StyleDefinitions->"Default.nb"
@@ -914,7 +913,7 @@ CellTagsIndex->{}
 *)
 (*NotebookFileOutline
 Notebook[{
-Cell[558, 20, 35092, 876, 2438, "Input",
+Cell[558, 20, 35025, 875, 2438, "Input",
  InitializationCell->True]
 }
 ]

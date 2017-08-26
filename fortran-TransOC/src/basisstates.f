@@ -48,14 +48,14 @@
 			!write(*,*)"======== dims = ",ntot
 			!write(*,*)"======== ib, k = ",i,j
 			!write(*,*)"==============================="
-			write(*,*) "n,k, ntot = ", n,j,ntot
-			i1 =0
-			do l=1,size(basis(i)%sec(j)%sets(:,1))
-				!write(*,*)"sets(l,:):", basis(i)%sec(j)%sets(l,:)
-				i1 = i1+1
-				i2 = LexicoIndex(basis(i)%sec(j)%sets(l,:),n,j);
-				if(i2 .ne. i1)write(*,*)"%%%%%%% i1,i2=",i1,i2			
-			end do
+			!write(*,*) "n,k, ntot = ", n,j,ntot
+			!i1 =0
+			!do l=1,size(basis(i)%sec(j)%sets(:,1))
+			!	!write(*,*)"sets(l,:):", basis(i)%sec(j)%sets(l,:)
+			!	i1 = i1+1
+			!	i2 = LexicoIndex(basis(i)%sec(j)%sets(l,:),n,j);
+			!	if(i2 .ne. i1)write(*,*)"%%%%%%% i1,i2=",i1,i2			
+			!end do
 		end do
 	end do
 

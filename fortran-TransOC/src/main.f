@@ -36,12 +36,35 @@
 	end if
 
 
-	if (1==1) then
+	if (1==0) then
 		call dhops()
+		write(*,*) " dhops done....  "
+	end if
+	
+
+
+	if (1==1) then
+		call DPhiAn1()
+		write(*,*) " DPhiAn1() done.... "
 	end if
 
+	if (1==1) then
+		call DPhiAn2()	
+		write(*,*) " DPhiAn2() done.... "
+	end if
+
+
+
+
+
+
+
+
+	return
+
+
+
 	
-	write(*,*) " dhops done....  "
 
 	n1 = Hg(1)%ntot
 	n2 = Hg(2)%ntot
@@ -66,8 +89,42 @@
 
 
 
-	nnz = hop(1)%ht(4,1)%nnz
-	write(*,*) "Ht chan 2,4 nnz: ",nnz
+
+
+
+	write(*,*) "======== channel 1,3 done =========="
+
+
+
+
+
+	! check channel 4, m -> m+1
+	n1 = Hg(1)%ntot
+	n2 = Hg(3)%ntot
+	! Ht(n1 x n2) . mat( n2 x n2 ) ==> matf(n1 x n2 )
+	if(allocated(mat))deallocate(mat)
+	if(allocated(matf))deallocate(matf)
+	allocate(mat(n2,n2))
+	allocate(matf(n1,n2))
+	call random_number(mat)
+
+	nnz = hop(1)%ht(2,1)%nnz;
+	write(*,*) "Ht chal 2,4 nnz: ",nnz
+	if(allocated(row))deallocate(row)
+	if(allocated(col))deallocate(col)
+	allocate(row(nnz))
+	allocate(col(nnz))
+
+	row = hop(1)%ht(2,1)%row
+	col = hop(1)%ht(4,1)%col
+
+	write(*,*) "nnz,n1,n2 = ",nnz,n1,n2
+  !	hop 1, chan 3, is=1 => site 1
+  ! Ht(n1 x n2) . mat( n2 x n2 ) ==> matf(n1 x n2 )
+	write(*,*) "max: row, col= ",maxval(row),maxval(col)
+	call multiply(row,col,nnz,mat,n2,n2,matf,n1,n2)
+
+	write(*,*) "======== channel 2,4 done =========="
 
 	write(*,*) " multiply done....  "
 	

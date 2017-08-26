@@ -64,7 +64,7 @@ x=c[N+2,k+1]-Sum[c[N+2-listf[[p+1]],k+1-p],{p,0,k}];
 (* only when (D,Phi) \[Rule] (up,down); when they go to (down,up), add 1 in the indices, this is done when this map is used *)
 AppendTo[tab1,x];(*AppendTo[tab2,x+1];*)
 ,{i,1,Length[listi]}];
-tab1];
+tab1]
 
 (*cc===> classical, cross transitions*)
 mapDPhiAcc[N_,k_]:=Module[{x,ind1,ind2,listi,set1,xlh,xhl,tabhl,tablh,listf2},
