@@ -5,7 +5,7 @@
 	use hamiltonian, only: makeHg
 	use hoppings, only: dhops
 	implicit none
-	integer i,nnz,j,n1,n2,k
+	integer i,nnz,j,n1,n2,k,ih,is,ib,itype1,itype2
 	real(kind=4), allocatable,dimension(:,:):: mat,matf
 	integer(kind=4), allocatable,dimension(:):: row,col
 
@@ -29,7 +29,7 @@
 
 
 	if (1==1) then
-		do j=1,5
+		do j=1,13
 			call makeHg(j,nnz)
 			write(*,*) " itype, nnz= ",j, nnz
 		end do
@@ -48,89 +48,50 @@
 		write(*,*) " DPhiAn1() done.... "
 	end if
 
-	if (1==1) then
+	if (1==0) then
 		call DPhiAn2()	
 		write(*,*) " DPhiAn2() done.... "
 	end if
 
 
-
-
-
-
-
-
-	return
-
-
-
+!============================================
+! dphi annihilation: ih = 5; multiply test 
+!============================================
+	IF (1==1) then
+	ih = 5; is=1;	
+	itype1 = 1; itype2= 4 
 	
-
-	n1 = Hg(1)%ntot
-	n2 = Hg(2)%ntot
+	n1 = Hg(itype1)%ntot
+	n2 = Hg(itype2)%ntot
 	! Ht(n1 x n2) . mat( n2 x n2 ) ==> matf(n1 x n2 )
 	allocate(mat(n2,n2))
 	allocate(matf(n1,n2))
 	call random_number(mat)
 
-	nnz = hop(1)%ht(1,1)%nnz;
-	write(*,*) "Ht chal 1,3 nnz: ",nnz
+	nnz = hop(ih)%ht(1,is)%nnz;
+	write(*,*) "Ht chal 1,2 nnz: ",nnz
 	allocate(row(nnz))
 	allocate(col(nnz))
 
-	row = hop(1)%ht(1,1)%row
-	col = hop(1)%ht(3,1)%col
+	row = (/ (i, i=1,n1) /)
+	col = hop(ih)%ht(1,is)%col
 
 	write(*,*) "nnz,n1,n2 = ",nnz,n1,n2
-  !	hop 1, chan 3, is=1 => site 1
-  ! Ht(n1 x n2) . mat( n2 x n2 ) ==> matf(n1 x n2 )
-	write(*,*) "max: row, col= ",maxval(row),maxval(col)
 	call multiply(row,col,nnz,mat,n2,n2,matf,n1,n2)
-
-
-
-
-
-
-	write(*,*) "======== channel 1,3 done =========="
-
-
-
-
-
-	! check channel 4, m -> m+1
-	n1 = Hg(1)%ntot
-	n2 = Hg(3)%ntot
-	! Ht(n1 x n2) . mat( n2 x n2 ) ==> matf(n1 x n2 )
-	if(allocated(mat))deallocate(mat)
-	if(allocated(matf))deallocate(matf)
-	allocate(mat(n2,n2))
-	allocate(matf(n1,n2))
-	call random_number(mat)
-
-	nnz = hop(1)%ht(2,1)%nnz;
-	write(*,*) "Ht chal 2,4 nnz: ",nnz
-	if(allocated(row))deallocate(row)
-	if(allocated(col))deallocate(col)
-	allocate(row(nnz))
-	allocate(col(nnz))
-
-	row = hop(1)%ht(2,1)%row
-	col = hop(1)%ht(4,1)%col
-
-	write(*,*) "nnz,n1,n2 = ",nnz,n1,n2
-  !	hop 1, chan 3, is=1 => site 1
-  ! Ht(n1 x n2) . mat( n2 x n2 ) ==> matf(n1 x n2 )
-	write(*,*) "max: row, col= ",maxval(row),maxval(col)
-	call multiply(row,col,nnz,mat,n2,n2,matf,n1,n2)
-
-	write(*,*) "======== channel 2,4 done =========="
-
 	write(*,*) " multiply done....  "
-	
+	endif
+!============================================
 
 
 
+	allocate(hop(25)%ht(1,1))
+	call LossKappa()
+
+
+	allocate(hop(26)%ht(1,1))
+	call LossGamma(1)
+
+	write(*,*) " kappa, gamma done .... "
 
 
 

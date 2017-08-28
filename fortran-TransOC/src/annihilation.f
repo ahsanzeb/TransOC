@@ -95,6 +95,7 @@
 	if (n==0) then
 !		write(*,*) "DPhiAn1: n = 0"
 	! allocate transition matrix: diagonal format
+		hop(ih)%ht(1,is)%nnz = 1;
 		do i=1,2
 			if (allocated(hop(ih)%ht(i,is)%col))
      .				deallocate(hop(ih)%ht(i,is)%col)
@@ -118,12 +119,13 @@
 	pntr2(:) = basis(ib2)%pntr(1:m2+2) 
 	ntot1 = pntr1(m1+2); ! total number of basis states
 	!ntot2 = pntr2(m2+2);
-
+	write(*,*) "=======>>>>>> pntr2(m2+2)=",pntr2(m2+2)
 !	write(*,*) "DPhiAn1: pntr done .... "
 
 
 
 	! allocate transition matrix: diagonal format
+		hop(ih)%ht(1,is)%nnz = ntot1;
 		do i=1,2
 			if (allocated(hop(ih)%ht(i,is)%col))
      .				deallocate(hop(ih)%ht(i,is)%col)
@@ -143,7 +145,7 @@
 		ntot = pntr1(k+2)-pntr1(k+1)
 		allocate(map(ntot));
 		call AnMap1(ib1,n,k,map,ntot)
-		map = pntr2(k+2) + map
+		map = pntr2(k+2) + map ! shift k by 1; final k+1 up
 		hop(ih)%ht(1,is)%col(ind:ind+ntot-1) = map
 		hop(ih)%ht(2,is)%col(ind:ind+ntot-1) = map + 1
 		ind = ind+ntot
@@ -189,6 +191,7 @@
 	m = nx; ! no of excitations
 	if (n==0) then
 	! allocate transition matrix: diagonal format
+		hop(ih)%ht(1,is)%nnz = 1;
 		do i=1,4
 			if (allocated(hop(ih)%ht(i,is)%col))
      .				deallocate(hop(ih)%ht(i,is)%col)
@@ -218,6 +221,7 @@
 	ntot1 = pntr1(m1+2); ! total number of basis states
 
 	! allocate transition matrix: diagonal format
+		hop(ih)%ht(1,is)%nnz = ntot1;
 		do i=1,4
 			if (allocated(hop(ih)%ht(i,is)%col))
      .				deallocate(hop(ih)%ht(i,is)%col)
@@ -249,7 +253,7 @@
 		ind = ind2+1
 		deallocate(map,map2)
 	end do
-	
+
 	deallocate(pntr1,pntr2)
 	return
 	end subroutine DPhiAn2

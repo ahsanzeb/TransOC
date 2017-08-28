@@ -1,5 +1,5 @@
 
-objects = basisstates.o main.o hamiltonian.o lists.o modmain.o memory.o hoppings.o dhops.o kinds.o multiply.o annihilation.o
+objects = basisstates.o main.o hamiltonian.o lists.o modmain.o memory.o hoppings.o dhops.o kinds.o multiply.o annihilation.o kappa.o gamma.o
 
 include make.inc
 
@@ -71,6 +71,18 @@ dhops.o: modmain.mod basisstates.mod lists.mod dhops.f
 
 annihilation.o: modmain.mod basisstates.mod annihilation.f
 	$(FC) -c $(switch) annihilation.f
+
+creation.o: modmain.mod basisstates.mod creation.f
+	$(FC) -c $(switch) creation.f
+
+kappa.o: modmain.mod basisstates.mod kappa.f
+	$(FC) -c $(switch) kappa.f
+
+gamma.o: modmain.mod basisstates.mod lists.mod gamma.f
+	$(FC) -c $(switch) gamma.f
+
+creation.o: modmain.mod basisstates.mod creation.f
+	$(FC) -c $(switch) creation.f
 
 main.o:	modmain.mod hoppings.mod basisstates.mod hamiltonian.mod lists.mod main.f
 	$(FC) -c $(switch) main.f 

@@ -110,7 +110,7 @@ makeHtApairsc[N_,m_,sapos_]:=Module[
 {pntr0,pntr1,ntot0,Hta,Htb,coora,coorb,ntot1,tab1,tab2,ind1,ind01,ind02,t1,t2,Htsph,Htspl,m1,m2,m3},
 (* v v importnat: in  sapos, n2>n1 *)
 (* pointers for start index *)
-m1=Min[m,N];m2=Min[m-1,N-2];m3=Min[m,N-1];
+m1=Min[m,N];m2=Min[m-1,N-2];m3=Min[m,N-1];(* m3=> a dn is also needed so all up excludeed in the loop below*)
 pntr0=Insert[Table[Sum[c[N,j],{j,0,i}],{i,0,m1}],0,1];
 pntr1=Insert[Table[Sum[c[N-2,j],{j,0,i}],{i,0,m2}],0,1];
 ntot0=pntr0[[-1]];
@@ -143,9 +143,6 @@ pntr1=Insert[Table[Sum[c[N-2,j],{j,0,i}],{i,0,m2}],0,1];
 ntot0=pntr0[[-1]];
 ntot1=pntr1[[-1]];
 Hta={};
-(* k loop up to m3=Min[m,N-1] so that 
-there is always a down spin available for non-empty map;
-starts from 1, so for an up spin available *)
 Do[
 (* indices list of initial states *)
 tab=mapHtApairsclh[N,k,sapos];
@@ -168,9 +165,6 @@ pntr1=Insert[Table[Sum[c[N-2,j],{j,0,i}],{i,0,m2}],0,1];
 ntot0=pntr0[[-1]];
 ntot1=pntr1[[-1]];
 Hta={};
-(* k loop up to m3=Min[m,N-1] so that 
-there is always a down spin available for non-empty map;
-starts from 1, so for an up spin available *)
 Do[
 (* indices list of initial states *)
 tab=mapHtApairschl[N,k,sapos];
