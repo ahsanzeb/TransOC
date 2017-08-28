@@ -15,7 +15,7 @@
 	!	na, nx lists for 13 Hilbert spaces
 	integer(kind=1), dimension(13):: nalist,nxlist
 	integer(kind=1), dimension(13)::
-     . 			dna=(/ 0,0,0,2,1,2,-2,-2,-2,1,1,-1,-1 /); ! itype
+     . 			dna=(/ 0,0,0,2,2,2,-2,-2,-2,1,1,-1,-1 /); ! itype
 	integer(kind=1), dimension(13)::
      . 			dnx=(/ 0,-1,1,1,0,2,-1,-2,0,1,0,-1,0 /); ! itype
 	integer(kind=1), dimension(5):: nalist5
