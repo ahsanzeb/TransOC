@@ -1,4 +1,4 @@
-	!program combinations
+
 	module basisstates
 	use modmain
 	
@@ -9,12 +9,23 @@
 	subroutine mkbasis(na,nx)
 	! this routine calculates the index pointers
 	! and subsets for all 5 basis defined in modmain
+
+	! if a range of N above and below the N-2,N+2
+	! are used to save processing on cost of memory, then 
+	! the routine might build up extra sectors that are rarely used
+	! otherwise at every iteration of dyanamics, some of N will go out of the range
+	!	and basis will be calculated for them, so overall this will avoid building up
+	!	extra ksub sectors.
+	
+	!use modmain, only mapb
 	implicit none
 	integer(kind=1), intent (in) :: na,nx
 	integer(kind=4) :: ntot
 	integer(kind=1) :: nxmax,r,m1,i,j,n,l
 	integer(kind=1), dimension(5):: nalist5
-	integer  :: i1,i2
+	integer  :: i1,i2, maxk,ibl,ib
+	logical :: calc
+	type(BSectors), allocatable :: sec(:)
 
 	! list of N for 5 cases
 	nalist5 = na + dns
@@ -23,39 +34,67 @@
 	if(crosshops) nxmax = nx+2;
 	write(*,*) "nxmax, nx = ",nxmax, nx
 	! indexes pointers for basis set sectors with diff no of up spins
+
 	do i=1,5
 		n = nalist5(i);
 		m1 = min(nalist5(i),nxmax); ! max up spin possible
-		! indexed pointers
-		if(allocated(basis(i)%pntr)) deallocate(basis(i)%pntr)
-		allocate(basis(i)%pntr(m1+2))
-		call pointerslist(nalist5(i),m1,basis(i)%pntr)
-		!write(*,*) "i =",i,", basis(i)%pntr = ", basis(i)%pntr
-
-		! subsets
-		if(allocated(basis(i)%sec)) deallocate(basis(i)%sec)
-		allocate(basis(i)%sec(m1)) ! m1 sectors
-		!	ignore the 0-up (all down) sector (a single basis state)
-		!	start j=1:m1 for sectors with j up spins (2nd onwards)
-		do j=1,m1,1	
-			ntot = basis(i)%pntr(j+2) - basis(i)%pntr(j+1); ! for config of this type
-			if(allocated(basis(i)%sec(j)%sets))
-     .								deallocate( basis(i)%sec(j)%sets )
-			allocate(basis(i)%sec(j)%sets(ntot,j))
-			call mksets(n,j,ntot,basis(i)%sec(j)%sets)
-			!write(*,*)"======== dims = ",ntot
-			!write(*,*)"======== ib, k = ",i,j
-			!write(*,*)"==============================="
-			!write(*,*) "n,k, ntot = ", n,j,ntot
-			!i1 =0
-			!do l=1,size(basis(i)%sec(j)%sets(:,1))
-			!	!write(*,*)"sets(l,:):", basis(i)%sec(j)%sets(l,:)
-			!	i1 = i1+1
-			!	i2 = LexicoIndex(basis(i)%sec(j)%sets(l,:),n,j);
-			!	if(i2 .ne. i1)write(*,*)"%%%%%%% i1,i2=",i1,i2			
-			!end do
+		ibl = mapb%map(i); ! localtion of this ib=i
+		! calculate full basis or update for some extra k-subsets?
+		calc = .false.	
+		do ib=1,5
+			if (mapb%cal(ib) == i) then
+				calc = .true.
+				exit
+			endif
 		end do
-	end do
+		!-------------------------------------------
+		if (calc) then
+			! update maxk
+			basis(ibl)%maxk = m1;
+			! indexed pointers
+			if(allocated(basis(ibl)%pntr)) deallocate(basis(ibl)%pntr)
+			allocate(basis(ibl)%pntr(m1+2))
+			call pointerslist(nalist5(i),m1,basis(ibl)%pntr)
+			! subsets
+			if(allocated(basis(ibl)%sec)) deallocate(basis(ibl)%sec)
+			allocate(basis(ibl)%sec(m1)) ! m1 sectors
+			!	ignore the 0-up (all down) sector (a single basis state)
+			!	start j=1:m1 for sectors with j up spins (2nd onwards)
+			do j=1,m1,1	
+				ntot = basis(ibl)%pntr(j+2) - basis(ibl)%pntr(j+1); ! for config of this type
+				if(allocated(basis(ibl)%sec(j)%sets))
+     .								deallocate( basis(ibl)%sec(j)%sets )
+				allocate(basis(ibl)%sec(j)%sets(ntot,j))
+				call mksets(n,j,ntot,basis(ibl)%sec(j)%sets)
+			end do
+		!-------------------------------------------
+		else ! update
+			maxk = basis(ibl)%maxk ! subsets up to maxk available
+			!	update the subsets etc only if m1 > maxk
+			if (m1 > maxk) then
+				! update maxk
+				basis(ibl)%maxk = m1; 
+				! pntr not costly, so compute full array
+				deallocate(basis(ibl)%pntr)
+				allocate(basis(ibl)%pntr(m1+2))
+				call pointerslist(nalist5(i),m1,basis(ibl)%pntr)
+				! subsets
+				allocate(sec(maxk))
+				sec = basis(ibl)%sec ! save current value
+				deallocate(basis(ibl)%sec)
+				allocate(basis(ibl)%sec(m1)) ! m1 sectors
+				basis(ibl)%sec(1:maxk) = sec ! set to prev value
+				! compute extra sectors
+				do j=maxk+1,m1,1
+					ntot = basis(ibl)%pntr(j+2) - basis(ibl)%pntr(j+1); ! for config of this type
+					allocate(basis(ibl)%sec(j)%sets(ntot,j))
+					call mksets(n,j,ntot,basis(ibl)%sec(j)%sets)
+				end do
+			end if
+
+		endif ! calc or update
+		!-------------------------------------------
+	end do ! i [ib]
 
 	end subroutine mkbasis
 
@@ -262,6 +301,4 @@
 
 
 !------------------------------------------
-
-	!end program
 	end module

@@ -121,3 +121,35 @@
 	return
 	end subroutine UpdateMapT
 
+
+
+
+	subroutine UpdateGroupTB()
+	!	group itypes with the same ib
+	use modmain, only : mapt,ibs
+	! local
+	integer(kind=1), dimension(13):: cal
+	integer(kind=1), dimension(5,13):: grouptb
+	integer(kind=1), dimension(5):: ntb
+	
+	integer :: ib,i,nnu,itype
+
+
+	cal = mapt%cal
+	nnu = mapt%nnu
+
+	ntb=0; grouptb=0
+	do i=1,nnu
+		itype = cal(i);
+		ib = ibs(itype);
+		ntb(ib) = ntb(ib) + 1; ! number of cases for ib
+		grouptb(ib,ntb(ib)) = itype; ! itype for ib
+	end do
+
+	! set global arrays
+	mapt%ntb = ntb
+	mapt%grouptb = grouptb
+	
+	return
+	end subroutine UpdateGroupTB
+

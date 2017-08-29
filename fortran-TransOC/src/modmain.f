@@ -51,6 +51,9 @@
 		!integer :: ntot
 		integer(kind=1), allocatable :: map(:)	 ! map for ib or it
 		integer(kind=1), allocatable :: cal(:) ! which ib to be calculated?
+		! which itypes for a given ib; ntb,grouptb only for mapt
+		integer(kind=1), dimension(5) :: ntb 
+		integer(kind=1), dimension(5,13) :: grouptb 
 	end type BTMaps
 
 	type(BTMaps) :: mapb, mapt
@@ -72,6 +75,7 @@
 
 	type :: BasisSet
 		integer :: ntot
+		integer :: maxk ! max k of k-sub it has.
 		integer(kind=4), allocatable :: pntr(:)
 		type(BSectors), allocatable :: sec(:)
 	end type BasisSet

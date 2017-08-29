@@ -8,7 +8,7 @@
 	integer i,nnz,j,n1,n2,k,ih,is,ib,itype1,itype2,nt
 	real(kind=4), allocatable,dimension(:,:):: mat,matf
 	integer(kind=4), allocatable,dimension(:):: row,col
-	
+	integer :: wj,wc
 	! to test make-hg-multi
 	integer(kind=4), dimension(3):: itlist
 
@@ -18,6 +18,11 @@
 
 	crosshops = .true.;
 	detuning = .true.;
+
+	!	initialise maps etc
+	call init()
+
+	
 	call mkbasis(na,nx)
 	write(*,*) " basis done....  "
 
@@ -28,22 +33,67 @@
 	!	call mksets(n,k,ntot,sets)
 	
 
-	!wj=10; wc=1;
+
+	wj=3; wc=4;
+	write(*,*) "--------wj,wc=3,4----------"
+	write(*,*) mapb%map
+	write(*,*) mapt%map
+	
 	! update mapb and mapt
-	!call UpdateMapB(wj,wc,mapb,notusedb,nnub)
-	!call UpdateMapT(wj,wc,mapt,notusedt,nnut)
+	call UpdateMapB(wj,wc)
+	call UpdateMapT(wj,wc)
+	call UpdateGroupTB()
+	write(*,*) "----- updated mapb,mapt--------"
+	write(*,*) mapb%map
+	write(*,*) mapt%map
+	write(*,*) "----- updated grouptb --------"
+	write(*,*) "ntb = ",mapt%ntb
+	do i=1,5
+		write(*,*) mapt%grouptb(i,:)
+	end do
 
 
 
 
+	wj=5; wc=3;
+	write(*,*) "------ wj,wc=5,4------------"
+	write(*,*) mapb%map
+	write(*,*) mapt%map
+	
+	! update mapb and mapt
+	call UpdateMapB(wj,wc)
+	call UpdateMapT(wj,wc)
+	call UpdateGroupTB()
+	write(*,*) "----- updated mapb,mapt--------"
+	write(*,*) mapb%map
+	write(*,*) mapt%map
+	write(*,*) "----- updated grouptb --------"
+	write(*,*) "ntb = ",mapt%ntb
+	do i=1,5
+		write(*,*) mapt%grouptb(i,:)
+	end do
 
-	itlist = (/ 1,2,3 /);
-	nt = 3;
+
+	! update basis
+
+
+	
+	
+	! update hamiltonian
 	if (1==1) then
-			call MakeHgMulti(itlist,nt)
-			write(*,*) "main: done..."
-			write(*,*) " >>>> MakeHgMulti(itlist,nt) for itlist=",itlist
+		do ib=1,5
+			nt = mapt%ntb(ib);
+			if(nt > 0) then
+				itlist = mapt%grouptb(ib,1:nt)
+				call MakeHgMulti(itlist,nt)
+				write(*,*) "main: done..."
+				write(*,*) " >>>> MakeHgMulti for itlist=",itlist
+			end if
+		end do
 	end if
+
+	stop
+
 
 
 	if (1==1) then

@@ -156,7 +156,7 @@
 
 !------------------------------------------
 	subroutine MakeHgMulti(itlist,nt)
-	! makes Hg of types in itlist
+	! makes Hg of types in itlist; all for same n, diff m.
 	use modmain, only: basis,na,nx,ibs,dna,dnx,
      .								g,dw,detuning,Hg,mapb,mapt
 	implicit none
