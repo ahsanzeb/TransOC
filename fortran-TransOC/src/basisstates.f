@@ -79,11 +79,13 @@
 				allocate(basis(ibl)%pntr(m1+2))
 				call pointerslist(nalist5(i),m1,basis(ibl)%pntr)
 				! subsets
+				!if (allocated(sec)) deallocate(sec)
 				allocate(sec(maxk))
 				sec = basis(ibl)%sec ! save current value
 				deallocate(basis(ibl)%sec)
 				allocate(basis(ibl)%sec(m1)) ! m1 sectors
 				basis(ibl)%sec(1:maxk) = sec ! set to prev value
+				deallocate(sec)
 				! compute extra sectors
 				do j=maxk+1,m1,1
 					ntot = basis(ibl)%pntr(j+2) - basis(ibl)%pntr(j+1); ! for config of this type

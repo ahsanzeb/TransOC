@@ -4,12 +4,12 @@
 
 	contains
 !------------------------------------------
-	subroutine HgMap(ib,n,k,ntot,map)
+	subroutine HgMap(ibl,n,k,ntot,map)
 	use modmain, only: basis
 	use lists, only: Complement,SortedInsert !SortedInsert=Append+Sort
 	use basisstates, only: LexicoIndex
 	implicit none
-	integer(kind=1), intent(in) :: ib,n,k
+	integer(kind=1), intent(in) :: ibl,n,k
 	integer(kind=4), intent(in) :: ntot
 	integer(kind=4), dimension(ntot,n-k), intent(out):: map
 	! local
@@ -36,7 +36,8 @@
 		do i=1,ntot
 		! sec(k) are defined for k>0,
 		! so index match with k
-			set1=basis(ib)%sec(k)%sets(i,:)
+			!write(*,*) " k,i = ",k,i
+			set1=basis(ibl)%sec(k)%sets(i,:)
 			!write(*,*) "ib,k,i: ",ib,k,i,", set1=",set1
 			call Complement(sites,n,set1,k,flipsites)
 			do j=1,nk
@@ -125,7 +126,7 @@
 		! calc map from k to k+1 up spin sector
 		if(allocated(map))deallocate(map)
 		allocate(map(ntot,n-k));
-		call HgMap(ib,n,k,ntot,map)
+		call HgMap(ibl,n,k,ntot,map)
 		! assign values to final matrix		
 		val = dsqrt((m-k)*1.d0)*g;
 		indf=ind+ntot*(n-k);
@@ -251,7 +252,7 @@
 		! calc map from k to k+1 up spin sector
 		if(allocated(map))deallocate(map)
 		allocate(map(ntot,n-k));
-		call HgMap(ib,n,k,ntot,map)
+		call HgMap(ibl,n,k,ntot,map)
 		
 		! assign values to final matrix			
 		indf=ind+ntot*(n-k);

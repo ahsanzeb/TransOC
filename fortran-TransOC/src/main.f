@@ -8,13 +8,11 @@
 	integer i,nnz,j,n1,n2,k,ih,is,ib,itype1,itype2,nt
 	real(kind=4), allocatable,dimension(:,:):: mat,matf
 	integer(kind=4), allocatable,dimension(:):: row,col
-	integer :: wj,wc
+	integer :: wj,wc !,itype
 	! to test make-hg-multi
-	integer(kind=4), dimension(3):: itlist
+	integer(kind=4), dimension(13):: itlist
 
 
-	! set no of active sites and excitations
-	na = 10; nx = 5;
 
 	crosshops = .true.;
 	detuning = .true.;
@@ -22,7 +20,9 @@
 	!	initialise maps etc
 	call init()
 
-	
+	! set no of active sites and excitations
+	na = 10; nx = 5;
+
 	call mkbasis(na,nx)
 	write(*,*) " basis done....  "
 
@@ -75,19 +75,24 @@
 
 
 	! update basis
-
+	itype = itypes(wj,wc);
+	na = na + dna(itype);
+	nx = na + dnx(itype);
+	call mkbasis(na,nx)
+	write(*,*) " basis done....  "
 
 	
 	
 	! update hamiltonian
 	if (1==1) then
+		write(*,*) "main: ntb = ",mapt%ntb
 		do ib=1,5
 			nt = mapt%ntb(ib);
 			if(nt > 0) then
-				itlist = mapt%grouptb(ib,1:nt)
-				call MakeHgMulti(itlist,nt)
+				itlist(1:nt) = mapt%grouptb(ib,1:nt)
+				call MakeHgMulti(itlist(1:nt),nt)
 				write(*,*) "main: done..."
-				write(*,*) " >>>> MakeHgMulti for itlist=",itlist
+				write(*,*) " >>>> MakeHgMulti for itlist=",itlist(1:nt)
 			end if
 		end do
 	end if
