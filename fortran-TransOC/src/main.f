@@ -2,12 +2,16 @@
 	program TransOC
 	use modmain
 	use basisstates, only: mkbasis
-	use hamiltonian, only: makeHg
+	use hamiltonian, only: makeHg,MakeHgMulti
 	use hoppings, only: dhops
 	implicit none
-	integer i,nnz,j,n1,n2,k,ih,is,ib,itype1,itype2
+	integer i,nnz,j,n1,n2,k,ih,is,ib,itype1,itype2,nt
 	real(kind=4), allocatable,dimension(:,:):: mat,matf
 	integer(kind=4), allocatable,dimension(:):: row,col
+	
+	! to test make-hg-multi
+	integer(kind=4), dimension(3):: itlist
+
 
 	! set no of active sites and excitations
 	na = 10; nx = 5;
@@ -24,8 +28,22 @@
 	!	call mksets(n,k,ntot,sets)
 	
 
+	!wj=10; wc=1;
+	! update mapb and mapt
+	!call UpdateMapB(wj,wc,mapb,notusedb,nnub)
+	!call UpdateMapT(wj,wc,mapt,notusedt,nnut)
 
 
+
+
+
+	itlist = (/ 1,2,3 /);
+	nt = 3;
+	if (1==1) then
+			call MakeHgMulti(itlist,nt)
+			write(*,*) "main: done..."
+			write(*,*) " >>>> MakeHgMulti(itlist,nt) for itlist=",itlist
+	end if
 
 
 	if (1==1) then

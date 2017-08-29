@@ -12,25 +12,54 @@
 	integer(kind=1):: na
 	! number of excitatons
 	integer(kind=1):: nx
+
 	!	na, nx lists for 13 Hilbert spaces
-	integer(kind=1), dimension(13):: nalist,nxlist
-	integer(kind=1), dimension(13)::
-     . 			dna=(/ 0,0,0,2,2,2,-2,-2,-2,1,1,-1,-1 /); ! itype
-	integer(kind=1), dimension(13)::
-     . 			dnx=(/ 0,-1,1,1,0,2,-1,-2,0,1,0,-1,0 /); ! itype
-	integer(kind=1), dimension(5):: nalist5
-	integer(kind=1), dimension(5):: dnalist5=(/ -2,-1,0,1,2 /); ! ib
-	integer(kind=1), dimension(13)::
-     . 			nainds=(/ 3,3,3,5,4,5,1,1,1,4,4,2,2 /); ! itype :--> ib
+	integer(kind=1), dimension(13):: nalist,nxlist !CHECK  not used????
+
 	! index for jump, channel, site
 	integer itype
-	! 
-	!integer*4, allocatable :: pntr(:)
-	!integer :: ind													! use as work array
-	!integer(kind=1), allocatable :: comb(:) 				! use as work array
-	!integer(kind=1), allocatable :: combset(:,:) 	! use as work array
+
+	!	--------------- maps ---------------
+	integer(kind=1), dimension(13)::
+     . dna	= (/ 0,0,0,2,2,2,-2,-2,-2,1,1,-1,-1 /);
+	integer(kind=1), dimension(13)::
+     . dnx = (/ 0,-1,1,1,0,2,-1,-2,0,1,0,-1,0 /);
+	integer(kind=1), dimension(13)::
+     . ibs = (/ 3,3,3,5,5,5,1,1,1,4,4,2,2 /);
+	integer(kind=1), dimension(5)::
+     . dns = (/ -2,-1,0,1,2 /); 
+	integer(kind=1), dimension(26,4)::
+     . itypes = reshape( ( / 1, 1, 2, 3, 1, 1, 2, 3, 1, 1,
+     . 2, 3, 1, 1, 2, 3, 4, 4, 5, 6,
+     . 4, 4, 5, 6, 7, 7, 8, 9, 7, 7,
+     . 8, 9, 11, 11, 11, 11, 10, 10, 
+     . 10, 10, 11, 11, 11, 11, 10, 10,
+     . 10, 10, 11, 11, 11, 11, 10,
+     . 10, 10, 10, 11, 11, 11, 11,
+     . 10, 10, 10, 10, 13, 13, 13,
+     . 13, 13, 13, 13, 13, 12, 12,
+     . 12, 12, 12, 12, 12, 12, 13,
+     . 13, 13, 13, 13, 13, 13, 13,
+     . 12, 12, 12, 12, 12, 12, 12,
+     . 12, 2, 2, 2, 2, 2, 2, 2, 2 /),
+     . (/ 26,4 /), order=(/2,1/) );     
+	!integer(kind=1), dimension(5):: mapb 	! map for ib
+	!integer(kind=1), dimension(13):: mapt	! map for itype
+
+	type :: BTMaps
+		integer :: nnu
+		!integer :: ntot
+		integer(kind=1), allocatable :: map(:)	 ! map for ib or it
+		integer(kind=1), allocatable :: cal(:) ! which ib to be calculated?
+	end type BTMaps
+
+	type(BTMaps) :: mapb, mapt
+	!	------------------------------
+
 
 	logical crosshops ! L-H and H-L cross hops allowed? 
+
+
 
 	!---------------------------------------	
 	! for 5 values of N; smaller m can use larger m's data
@@ -103,6 +132,10 @@
 
 	double precision :: dw,g
 	logical :: detuning
+
+
+
+
 
 	!integer :: EvecKind
 

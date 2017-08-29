@@ -13,13 +13,11 @@
 	integer(kind=1), intent (in) :: na,nx
 	integer(kind=4) :: ntot
 	integer(kind=1) :: nxmax,r,m1,i,j,n,l
+	integer(kind=1), dimension(5):: nalist5
 	integer  :: i1,i2
-	!nalist = na + dna
-	!nxlist = nx + dnx
 
-	!nainds
 	! list of N for 5 cases
-	nalist5 = na + dnalist5
+	nalist5 = na + dns
 	! max nx possible in 13 cases => nx+1 or nx+2
 	nxmax = nx+1;
 	if(crosshops) nxmax = nx+2;

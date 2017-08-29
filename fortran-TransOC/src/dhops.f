@@ -31,7 +31,7 @@
 !-----------------------------------
 	subroutine dhops1(ih,is)
 	! chan 1,2 only
-	use modmain, only: basis,hop,na,nx,dna,dnx,nainds
+	use modmain, only: basis,hop,na,nx,dna,dnx,ibs
 	implicit none
 
 	integer(kind=1), intent(in) :: ih, is
@@ -68,7 +68,7 @@
 	! pointers for start index
 	allocate(pntr(m1+2));
 	! ib: itype ===> which of 5 N case?
-	ib = nainds(itype);
+	ib = ibs(itype);
 	pntr(:) = basis(ib)%pntr(1:m1+2) ! only the relevant part
 	! dimensions of maps for diff k
 	allocate(las(m1))
@@ -178,7 +178,7 @@
 	subroutine dhops2(ih,is)
 	!	channel 1,2 have diagonal Ht, save row only
 	!	channel 3,4 have the same row as 1,2, save col only
-	use modmain, only: basis,hop,na,nx,dna,dnx,nainds
+	use modmain, only: basis,hop,na,nx,dna,dnx,ibs
 	implicit none
 	integer(kind=1), intent(in) :: ih, is
 	!	local
@@ -217,7 +217,7 @@
 	! m1 > 0 case
 	!------------------------------------------
 	! ib: itype ===> which of 5 N case?
-	ib = nainds(itype);
+	ib = ibs(itype);
 	! pointers for start index
 	allocate(pntr(m3+2));
 	pntr(:) = basis(ib)%pntr(1:m3+2) ! only the relevant part

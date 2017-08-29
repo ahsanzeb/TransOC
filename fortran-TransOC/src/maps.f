@@ -1,80 +1,16 @@
 
 
-	!module maps
-	program maps
-	implicit none
-
-	integer(kind=1), dimension(26,4):: itypes
-	integer(kind=1), dimension(13):: dna,dnx,ibs
-	integer(kind=1), dimension(5):: dns
-	integer :: wj,wc,i
-	integer(kind=1), dimension(5):: mapb
-	integer(kind=1), dimension(13):: mapt,num
-	
-	dna	= (/ 0,0,0,2,2,2,-2,-2,-2,1,1,-1,-1 /);
-	dnx = (/ 0,-1,1,1,0,2,-1,-2,0,1,0,-1,0 /);
-	ibs = (/ 3,3,3,5,5,5,1,1,1,4,4,2,2 /);
-	dns = (/ -2,-1,0,1,2 /); 
-	itypes = reshape( ( / 1, 1, 2, 3, 1, 1, 2, 3, 1, 1,
-     . 2, 3, 1, 1, 2, 3, 4, 4, 5, 6,
-     . 4, 4, 5, 6, 7, 7, 8, 9, 7, 7,
-     . 8, 9, 11, 11, 11, 11, 10, 10, 
-     . 10, 10, 11, 11, 11, 11, 10, 10,
-     . 10, 10, 11, 11, 11, 11, 10,
-     . 10, 10, 10, 11, 11, 11, 11,
-     . 10, 10, 10, 10, 13, 13, 13,
-     . 13, 13, 13, 13, 13, 12, 12,
-     . 12, 12, 12, 12, 12, 12, 13,
-     . 13, 13, 13, 13, 13, 13, 13,
-     . 12, 12, 12, 12, 12, 12, 12,
-     . 12, 2, 2, 2, 2, 2, 2, 2, 2 /),
-     . (/ 26,4 /), order=(/2,1/) );     
-
-
-	num = (/ (i,i=1,13,1)/)
-
-	!do wj =1,26
-	!	write(*,*) "wj = ",wj," itype = ", itypes(wj,:)
-	!end do
-
-
-
-	! start with some simple values
-	mapb = (/ (i,i=1,5,1) /)
-	mapt = (/ (i,i=1,13,1) /)
-
-	write(*,*) "mapb; mapt: "
-	write(*,*) mapb
-	write(*,*) mapt
-
-
-	do i=1,10
-		! select random wj,wc
-		wj=int(rand(0)*(26))+1
-		wc=int(rand(0)*(4))+1
-		write(*,*) " ----- iteration ------- ",i
-		write(*,*) "wj,wc = ",wj,wc
-		! change maps accordingly
-		call GetMapIb(wj,wc,mapb)
-		call GetMapItype(wj,wc,mapt)
-		write(*,*) mapb
-		write(*,*) num
-		write(*,*) mapt
-	end do
-
-
-
-	
-	contains
-
-	subroutine GetMapIb(wj,wc,map)
+	subroutine UpdateMapB(wj,wc)
 	!	map for ib: ==> 5 basis
+	use modmain, only : dna,dnx,ibs,dns,itypes,mapb
 	integer, intent(in):: wj,wc
-	integer(kind=1), dimension(5),intent(inout):: map
-	integer(kind=1), dimension(5):: temp,notused
+	! local
+	integer(kind=1), dimension(5):: temp,map,notused
 	integer :: itype, ib,d,jb,jb2,i,inu
 	logical :: used
-	
+
+		map = mapb%map;
+		
 		itype = itypes(wj,wc);
 		ib = ibs(itype);
 		d = dns(ib);
@@ -96,10 +32,12 @@
 				inu = inu + 1;
 			endif			
 		end do
-
+		inu = inu - 1
+		
 		write(*,*) map
 		! where to put to be calculated results?
-		do i = 1,inu-1,1		
+
+		do i = 1,inu,1		
 			do jb=1,5
 				if (map(jb)==-1) then
 						map(jb) = temp(notused(i))
@@ -107,19 +45,27 @@
 				endif
 			end do
 		end do
-		
-	return
-	end subroutine GetMapIb
 
-	subroutine GetMapItype(wj,wc,map)
+	! set global variables
+	mapb%map = map;
+	mapb%cal = notused;
+	mapb%nnu = inu;
+	
+	return
+	end subroutine UpdateMapB
+
+	subroutine UpdateMapT(wj,wc)
 	!	map for itype: ==> ib, 13 Hilbert spaces
+	use modmain, only : dna,dnx,ibs,dns,itypes,mapt
 	integer, intent(in):: wj,wc
-	integer(kind=1), dimension(13),intent(inout):: map
-	integer(kind=1), dimension(13):: temp,notused
+	! local
+	integer(kind=1), dimension(13):: temp,map,notused
 	integer :: itype, it1,it2,dn,dm,d,dnsel,dmsel
-	integer :: i,iu,inu
+	integer :: i,inu
 	logical :: used
 
+		map = mapt%map;	
+				
 		itype = itypes(wj,wc);
 		dnsel = dna(itype)
 		dmsel = dnx(itype)
@@ -147,10 +93,11 @@
 				inu = inu + 1;
 			endif
 		end do
-
+		inu = inu-1
+		
 		write(*,*) map
 		! where to put to be calculated results?
-		do i = 1,inu-1,1		
+		do i = 1,inu,1		
 			do it1=1,13
 				if (map(it1)==-1) then
 						map(it1) =  temp(notused(i));
@@ -166,12 +113,11 @@
 !			end if
 !		end do
 		
+	! set global variables
+	mapt%map = map;
+	mapt%cal = notused;
+	mapt%nnu = inu;
 
 	return
-	end subroutine GetMapItype
+	end subroutine UpdateMapT
 
-
-
-
-	end program
-	!end module maps
