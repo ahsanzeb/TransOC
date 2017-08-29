@@ -31,17 +31,17 @@
 !-----------------------------------
 	subroutine dhops1(ih,is)
 	! chan 1,2 only
-	use modmain, only: basis,hop,na,nx,dna,dnx,ibs
+	use modmain, only: basis,hop,na,nx,dna,dnx,ibs,mapb
 	implicit none
 
 	integer(kind=1), intent(in) :: ih, is
 	!	local
 	integer :: itype=1
 	!	itype? n,m, etc....?
-	integer(kind=1)::ib,k,n,m,m1
+	integer(kind=1)::ib,ibi,k,n,m,m1
 	integer :: ntot, lat,lbt,inda,indb,la,lb
 	integer, allocatable, dimension(:) :: las, lbs
-	integer, allocatable, dimension(:) :: mapa, mapb
+	integer, allocatable, dimension(:) :: mapa, mapbb
 	integer, allocatable, dimension(:):: pntr
 
 	!------------------------------------------	
@@ -68,7 +68,8 @@
 	! pointers for start index
 	allocate(pntr(m1+2));
 	! ib: itype ===> which of 5 N case?
-	ib = ibs(itype);
+	ibi = ibs(itype);
+	ib = mapb%map(ibi);	
 	pntr(:) = basis(ib)%pntr(1:m1+2) ! only the relevant part
 	! dimensions of maps for diff k
 	allocate(las(m1))
@@ -100,14 +101,14 @@
 	do k=1,m1,1
 		la = las(k); lb = lbs(k); 
 		allocate(mapa(la));
-		allocate(mapb(lb))
+		allocate(mapbb(lb))
 		!	calc maps
-		call dhopsmap1(ib,k,is,mapa,la,mapb,lb)
+		call dhopsmap1(ib,k,is,mapa,la,mapbb,lb)
 		!	assign values to transition matrices
 		hop(ih)%ht(1,is)%row(inda:inda+la-1) = pntr(k) + mapa
-		hop(ih)%ht(2,is)%row(indb:indb+lb-1) = pntr(k) + mapb
+		hop(ih)%ht(2,is)%row(indb:indb+lb-1) = pntr(k) + mapbb
 		inda = inda+la; indb = indb+lb
-		deallocate(mapa,mapb)
+		deallocate(mapa,mapbb)
 	end do
 
 	!write(*,*)"row2=", hop(ih)%ht(2,is)%row(1:min(10,lbt))
@@ -178,16 +179,16 @@
 	subroutine dhops2(ih,is)
 	!	channel 1,2 have diagonal Ht, save row only
 	!	channel 3,4 have the same row as 1,2, save col only
-	use modmain, only: basis,hop,na,nx,dna,dnx,ibs
+	use modmain, only: basis,hop,na,nx,dna,dnx,ibs,mapb
 	implicit none
 	integer(kind=1), intent(in) :: ih, is
 	!	local
 	integer :: itype=1
 	!	itype? n,m, etc....?
-	integer(kind=1)::ib,k,n,m,m1,m3!,k1,m2
+	integer(kind=1)::ib,ibi,k,n,m,m1,m3!,k1,m2
 	integer :: ntot, lat,lbt,inda,indb,la,lb
 	integer, allocatable, dimension(:) :: las, lbs
-	integer, allocatable, dimension(:,:) :: mapa, mapb
+	integer, allocatable, dimension(:,:) :: mapa, mapbb
 	integer, allocatable, dimension(:):: pntr
 
 	!------------------------------------------	
@@ -217,7 +218,9 @@
 	! m1 > 0 case
 	!------------------------------------------
 	! ib: itype ===> which of 5 N case?
-	ib = ibs(itype);
+	ibi = ibs(itype);
+	ib = mapb%map(ibi);
+
 	! pointers for start index
 	allocate(pntr(m3+2));
 	pntr(:) = basis(ib)%pntr(1:m3+2) ! only the relevant part
@@ -263,16 +266,16 @@
 	do k=1,m1,1
 		la = las(k); lb = lbs(k); 
 		allocate(mapa(la,2));
-		allocate(mapb(lb,2));
+		allocate(mapbb(lb,2));
 		!	calc maps
-		call dhopsmap2(ib,n,k,is,mapa,la,mapb,lb)
+		call dhopsmap2(ib,n,k,is,mapa,la,mapbb,lb)
 		!	assign values to transition matrices
 		hop(ih)%ht(1,is)%row(inda:inda+la-1) = pntr(k+1) + mapa(:,1)
-		hop(ih)%ht(2,is)%row(indb:indb+lb-1) = pntr(k+1) + mapb(:,1)
+		hop(ih)%ht(2,is)%row(indb:indb+lb-1) = pntr(k+1) + mapbb(:,1)
 		hop(ih)%ht(3,is)%col(inda:inda+la-1) = pntr(k) + mapa(:,2) !prev sector
-		hop(ih)%ht(4,is)%col(indb:indb+lb-1) = pntr(k+2) + mapb(:,2)!next sector
+		hop(ih)%ht(4,is)%col(indb:indb+lb-1) = pntr(k+2) + mapbb(:,2)!next sector
 		inda = inda+la; indb = indb+lb
-		deallocate(mapa,mapb)
+		deallocate(mapa,mapbb)
 	end do
 
 	!write(*,*)"row2=", hop(ih)%ht(2,is)%row(1:min(10,lbt))	

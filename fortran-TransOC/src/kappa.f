@@ -2,12 +2,12 @@
 
 
 	subroutine LossKappa()
-	use modmain, only: basis,hop,na,nx
+	use modmain, only: basis,hop,na,nx,mapb
 	implicit none
 	!	local
 	integer(kind=1):: ih=25, is=1, ib1=3, ib2=3 ! see dnalist5 in modmain
 	integer(kind=1)::n,m,m1,m2,i
-	integer :: ntot1, ntot2
+	integer :: ntot1, ntot2,ibl1,ibl2
 
 	!------------------------------------------	
 	! N,m values of itype:
@@ -16,10 +16,13 @@
 
 	m1 = min(n,m);
 	m2 = min(n,m-1);
+	ibl1= mapb%map(ib1);
+	ibl2=mapb%map(ib2);
+
 
 	! ib: itype ===> which of 5 N case?
-	ntot1 = basis(ib1)%pntr(m1+2) ! initial
-	ntot2 = basis(ib2)%pntr(m2+2) ! final
+	ntot1 = basis(mapb%map(ibl1))%pntr(m1+2) ! initial
+	ntot2 = basis(ibl2)%pntr(m2+2) ! final
 
 	! allocate transition matrix: diag format
 	hop(ih)%ht(1,is)%nnz = ntot2;

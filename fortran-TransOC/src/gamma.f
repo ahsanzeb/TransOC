@@ -1,19 +1,21 @@
 
-	subroutine GammaMap(n,k,l,ntot1,map,ntot)
-	use modmain, only: basis
+	subroutine GammaMap(ib,n,k,l,ntot1,map,ntot)
+	use modmain, only: basis, mapb
 	use basisstates, only: LexicoIndex
 	use lists, only: Drop, MemberQ
 	implicit none
-	integer(kind=1), intent(in) :: n,k,l
+	integer(kind=1), intent(in) :: ib,n,k,l
 	integer(kind=4), intent(in) :: ntot, ntot1
 	integer(kind=4), dimension(2,ntot), intent(out):: map
 	! local
 	integer(kind=1):: k1
-	integer(kind=1):: ib=3
+	!integer(kind=1):: ibi=3, ib
 	integer(kind=1), dimension(k):: set
 	integer(kind=1), dimension(k-1) :: set2
 	
 	integer:: i, ind
+
+	!ib = mapb%map(ibi);
 
 	k1 = k-1;
 	ind = 1
@@ -34,16 +36,18 @@
 
 
 	subroutine LossGamma(is)
-	use modmain, only: basis,hop,na,nx
+	use modmain, only: basis,hop,na,nx,mapb
 	implicit none
 	integer(kind=1), intent(in):: is 
 	!	local
-	integer(kind=1):: ih=26, ib1=3, ib2=3 ! see dnalist5 in modmain
-	integer(kind=1)::k,n,m,m1,n1,n2,m2,i
+	integer(kind=1):: ih=26, ib1i=3 !, ib2i=3 ! see dnalist5 in modmain
+	integer(kind=1)::k,n,m,m1,n1,n2,m2,i, ib1 !,ib2
 	integer :: ntot, ind, ntot1,nnz,inda,la,lat
 	integer, allocatable, dimension(:,:) :: map
 	integer, allocatable, dimension(:):: pntr1, las
 
+	ib1 = mapb%map(ib1i);
+	!ib2 = mapb%map(ib2i);
 	!------------------------------------------	
 	! N,m values of itype:
 	n = na; ! no of active sites
@@ -82,7 +86,7 @@
 		allocate(map(2,la));
 		ntot1 = pntr1(k+2) - pntr1(k+1); 
 		!	calc maps
-		call GammaMap(n,k,is,ntot1,map,la)
+		call GammaMap(ib1,n,k,is,ntot1,map,la)
 		!	assign values to transition matrices
 		hop(ih)%ht(1,is)%row(inda:inda+la-1) = pntr1(k+1) + map(1,:)
 		hop(ih)%ht(1,is)%col(inda:inda+la-1) = pntr1(k) + map(2,:)

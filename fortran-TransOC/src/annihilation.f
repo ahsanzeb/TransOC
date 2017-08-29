@@ -3,7 +3,7 @@
 !------------------------------------------
 !	Map for D Phi Annihilation for channel 1,2
 !------------------------------------------
-	subroutine AnMap1(ib,n,k,mapa,la)
+	subroutine AnMap1(ibl,n,k,mapa,la)
 	!	chan 1,2
 	! D&Phi sites appended to active list.
 	! out: index for D,Phi ==> up,dn
@@ -13,7 +13,7 @@
 	use modmain, only: basis
 	use basisstates, only: LexicoIndex
 	implicit none
-	integer(kind=1), intent(in) :: ib,n,k
+	integer(kind=1), intent(in) :: ibl,n,k
 	integer(kind=4), intent(in) :: la
 	integer(kind=4), dimension(la), intent(out):: mapa
 	! local
@@ -24,7 +24,7 @@
 	n1 = n+1;	n2 = n+2;
 	k1 = k+1;
 	do i=1,la
-		set2(1:k) = basis(ib)%sec(k)%sets(i,:)
+		set2(1:k) = basis(ibl)%sec(k)%sets(i,:)
 		set2(k1) = n1; ! an up at n+1, dn at n+2
 		mapa(i) = LexicoIndex(set2,n2,k1)
 	end do
@@ -33,7 +33,7 @@
 !------------------------------------------
 !	Map for D Phi Annihilation for channel 1,2,3,4
 !------------------------------------------
-	subroutine AnMap2(ib,n,k,map,la)
+	subroutine AnMap2(ibl,n,k,map,la)
 	!	chan 1,2,3,4
 	! D&Phi sites appended to active list.
 	! out: index for D,Phi ==> up,dn
@@ -42,7 +42,7 @@
 	use basisstates, only: LexicoIndex
 	!use lists, only: MemberQ
 	implicit none
-	integer(kind=1), intent(in) :: ib,n,k
+	integer(kind=1), intent(in) :: ibl,n,k
 	integer(kind=4), intent(in) :: la
 	integer(kind=4), dimension(3,la), intent(out):: map
 	! local
@@ -54,7 +54,7 @@
 	k1 = k+1; k2 = k+2;
 	do i=1,la
 		! for channel 1,2
-		set2(1:k) = basis(ib)%sec(k)%sets(i,:)
+		set2(1:k) = basis(ibl)%sec(k)%sets(i,:)
 		set2(k1) = n1; ! an up at n+1, dn at n+2
 		map(1,i) = LexicoIndex(set2(1:k1),n2,k1)
 		! for channel 3: dn,dn at n+1,n+2
@@ -74,14 +74,20 @@
 !	D Phi Annihilation for channel 1,2
 !------------------------------------------
 	subroutine DPhiAn1()
-	use modmain, only: basis,hop,na,nx
+	use modmain, only: basis,hop,na,nx,mapb
 	implicit none
 	!	local
-	integer(kind=1):: ih=5, is=1, ib1=3, ib2=5 ! see dnalist5 in modmain
+	integer(kind=1):: ih=5, is=1, ib1i=3, ib2i=5 ! see dnalist5 in modmain
+	integer(kind=1):: ib1,ib2
 	integer(kind=1)::k,n,m,m1,n1,n2,m2,i
 	integer :: ntot, ind, ntot1
 	integer, allocatable, dimension(:) :: map
 	integer, allocatable, dimension(:):: pntr1,pntr2
+
+
+	ib1= mapb%map(ib1i);
+	ib2= mapb%map(ib2i);
+
 
 	!nc=4; 
 	!hop(ih)%nc = nc
@@ -168,16 +174,19 @@
 !------------------------------------------
 	subroutine DPhiAn2()
 	! chan 1,2,3,4 
-	use modmain, only: basis,hop,na,nx
+	use modmain, only: basis,hop,na,nx,mapb
 	implicit none
 	!	local
-	integer(kind=1):: ih=5, is=1, ib1=3, ib2=5 ! see dnalist5 in modmain
+	integer(kind=1):: ih=5, is=1, ib1i=3, ib2i=5 ! see dnalist5 in modmain
 	!	itype? n,m, etc....?
+	integer(kind=1):: ib1,ib2
 	integer(kind=1)::k,n,m,m1,n1,n2,m2,m3,m4,i
 	integer :: ntot, ind, ind2, ntot1 !, ntot2, ntot3, ntot4
 	integer, allocatable, dimension(:,:) :: map
 	integer, allocatable, dimension(:):: pntr1,pntr2,map2
 
+	ib1= mapb%map(ib1i);
+	ib2=mapb%map(ib2i);
 
 
 	!nc=4; 

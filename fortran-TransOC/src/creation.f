@@ -7,7 +7,7 @@
 ! or dn/up to make (N, k) 
 	subroutine CreatMap1(n,k,l1,l2,map,ntot)
 	! only k > 0
-	use modmain, only: basis
+	use modmain, only: basis,mapb
 	use basisstates, only: LexicoIndex,Shift
 	implicit none
 	integer(kind=1), intent(in) :: n,k,l1,l2
@@ -16,10 +16,12 @@
 	! local
 	integer(kind=1), dimension(k+1) :: set2
 	integer(kind=1):: n2,k1
-	integer(kind=1):: ib=1 ! ib1=1: dN=-2 for starting basis
+	integer(kind=1):: ibi=1, ib ! ib1=1: dN=-2 for starting basis
 	integer(kind=1), dimension(k-1):: set
 	
 	integer:: i
+
+	ib= mapb%map(ibi);
 
 	n2 = n+2; k1 = k-1;
 	do i=1,la
@@ -45,7 +47,7 @@
 ! starting with (N-2, k-2), add up,up at l1,l2 to make (N, k) 
 	subroutine CreatMap3(n,k,l1,l2,map,ntot)
 	! only k > 0
-	use modmain, only: basis
+	use modmain, only: basis,mapb
 	use basisstates, only: LexicoIndex,Shift
 	implicit none
 	integer(kind=1), intent(in) :: n,k,l1,l2
@@ -53,11 +55,13 @@
 	integer(kind=4), dimension(ntot), intent(out):: map
 	! local
 	integer(kind=1):: n2,k1
-	integer(kind=1):: ib=1 ! ib1=1: dN=-2 for starting basis
+	integer(kind=1):: ibi=1,ib ! ib1=1: dN=-2 for starting basis
 	integer(kind=1), dimension(k-2):: set
 	integer(kind=1), dimension(k-1) :: set2
 	integer(kind=1), dimension(k):: set3	
 	integer:: i
+
+	ib = mapb%map(ibi);
 
 	n2 = n+2; k1 = k-1; k2=k-2;
 	do i=1,ntot
@@ -81,7 +85,7 @@
 ! starting with (N-2, k), add dn,dn at l1,l2 to make (N, k) 
 	subroutine CreatMap4(n,k,l1,l2,map,ntot)
 	! only k > 0
-	use modmain, only: basis
+	use modmain, only: basis,mapb
 	use basisstates, only: LexicoIndex,Shift
 	implicit none
 	integer(kind=1), intent(in) :: n,k,l1,l2
@@ -89,10 +93,12 @@
 	integer(kind=4), dimension(ntot), intent(out):: map
 	! local
 	integer(kind=1):: n2,k1
-	integer(kind=1):: ib=1 ! ib1=1: dN=-2 for starting basis
+	integer(kind=1):: ib=1,ib ! ib1=1: dN=-2 for starting basis
 	integer(kind=1), dimension(k):: set	
 	integer:: i
 
+	ib = mapb%map(ibi);
+	
 	n2 = n+2;
 	do i=1,ntot
 		set = basis(ib)%sec(k)%sets(i,:)
