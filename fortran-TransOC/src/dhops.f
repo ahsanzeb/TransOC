@@ -107,36 +107,10 @@
 		deallocate(mapa,mapbb)
 	end do
 
-	! both channel 1,2 same dimensions so loop
 	! calculate transition amplitudes
-	do ic=1,2
-		!itype = itypes(1,ic);
-		itl = mapt%map(itype); ! location of final hilber space
-		n1=hspace(itl)%n1;
-		n2=hspace(itl)%n2;
-		n3=pntr(m1+2) ! dim of initial hilbert space
-		allocate(HtUf(n3,n2))	
-		ia = maph(ih,ic); ! location of amplitudes
-		! NOTE: allocate qt(ih)%cs(:,:) in calling routine
-		! sizes: Ht(n3 x n1) . Uf(n1 x n2) = HtUf(n3 x n2)
-		! out: HtUf
-		if(ic==1) then
-			call multiplyd(row1,lat,hspace(itl)%evec,n1,n2,
-     .							HtUf,n3,n2)
-		else
-			call multiplyd(row2,lbt,hspace(itl)%evec,n1,n2,
-     .							HtUf,n3,n2)
-		endif
-		!if(allocated(qt(ia)%cs(1,is)%amp))deallocate(qt(ia)%cs(1,is)%amp)
-		allocate(qt(ia)%cs(ic,is)%amp(n2))
-		! set the size for possible future use
-		!	DELETE THIS namp VARIABLE IF NOT NEEDED/USED.
-		qt(ia)%cs(ic,is)%namp = n2
-		! multiply psi with HtUf to get amplitudes
-		! psi should be a row vector; shape = 1 x n3
-		qt(ia)%cs(ic,is)%amp = matmul(psi,HtUf); ! both input dense
-	deallocate(HtUf)
-	end do
+	n3=pntr(m1+2) ! dim of initial hilbert space
+	call CalAmp(ih,1,is,row1,lat,n3,"multiplyd") ! ic=1
+	call CalAmp(ih,2,is,row2,lbt,n3,"multiplyd") ! ic=2
 
 	deallocate(pntr,las,lbs)
 	
@@ -296,42 +270,12 @@
 	!-------------------------------------------------------
 	! calculate transition amplitudes
 	!-------------------------------------------------------
-	do ic=1,4
-		itl = mapt%map(itypes(1,ic)) ! location of final hilber space
-		n1=hspace(itl)%n1 ! dim of final hilbert space
-		n2=hspace(itl)%n2
-		n3=pntr(m1+2) ! dim of initial hilbert space
-	
-		allocate(HtUf(n3,n2))
-		ia = maph(ih,ic); ! location of amplitudes
-		! NOTE: allocate qt(ih)%cs(:,:) in calling routine
-		! sizes: Ht(n3 x n1) . Uf(n1 x n2) = HtUf(n3 x n2)
-		! out: HtUf
-		select case(ic)
-			case (1)
-				call multiplyd(row1,lat,hspace(itl)%evec,n1,n2,
-     .							HtUf,n3,n2)
-			case (2)
-				call multiplyd(row2,lbt,hspace(itl)%evec,n1,n2,
-     .							HtUf,n3,n2)
-			case (3)
-				call multiply(row1,col3,lat,hspace(itl)%evec,n1,n2,
-     .							HtUf,n3,n2)
-			case (4)
-				call multiply(row2,col4,lbt,hspace(itl)%evec,n1,n2,
-     .							HtUf,n3,n2)
-		end select
-
-		!if(allocated(qt(ia)%cs(1,is)%amp))deallocate(qt(ia)%cs(1,is)%amp)
-		allocate(qt(ia)%cs(ic,is)%amp(n2))
-		! set the size for possible future use
-		!	DELETE THIS namp VARIABLE IF NOT NEEDED/USED.
-		qt(ia)%cs(ic,is)%namp = n2
-		! multiply psi with HtUf to get amplitudes
-		! psi should be a row vector; shape = 1 x n3
-		qt(ia)%cs(ic,is)%amp = matmul(psi,HtUf); ! both input dense
-		deallocate(HtUf)
-	end do
+	! calculate transition amplitudes
+	n3=pntr(m1+2) ! dim of initial hilbert space
+	call CalAmp(ih,1,is,row1,lat,n3,"multiplyd") ! ic=1
+	call CalAmp(ih,2,is,row2,lbt,n3,"multiplyd") ! ic=2
+	call CalAmp(ih,1,is,row1,lat,n3,"multiply",col3) ! ic=3
+	call CalAmp(ih,1,is,row2,lbt,n3,"multiply",col4) ! ic=4
 	!---------------------------------
 
 	deallocate(pntr,las,lbs)

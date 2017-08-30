@@ -1,5 +1,5 @@
 
-objects = basisstates.o main.o hamiltonian.o lists.o modmain.o memory.o hoppings.o dhops.o kinds.o multiply.o annihilation.o kappa.o gamma.o maps.o init.o
+objects = basisstates.o main.o hamiltonian.o lists.o modmain.o memory.o hoppings.o dhops.o kinds.o multiply.o annihilation.o kappa.o gamma.o maps.o init.o amplitudes.o
 
 include make.inc
 
@@ -74,24 +74,20 @@ maps.o:	modmain.mod maps.f
 hoppings.o: modmain.mod hoppings.f
 	$(FC) -c $(switch) hoppings.f 
 
-dhops.o: modmain.mod basisstates.mod lists.mod dhops.f
+dhops.o: modmain.mod basisstates.mod lists.mod amplitudes.o dhops.f
 	$(FC) -c $(switch) dhops.f
 
-annihilation.o: modmain.mod basisstates.mod annihilation.f
+annihilation.o: modmain.mod basisstates.mod amplitudes.o annihilation.f
 	$(FC) -c $(switch) annihilation.f
 
-creation.o: modmain.mod basisstates.mod creation.f
+creation.o: modmain.mod basisstates.mod amplitudes.o creation.f
 	$(FC) -c $(switch) creation.f
 
-kappa.o: modmain.mod basisstates.mod kappa.f
+kappa.o: modmain.mod basisstates.mod amplitudes.o kappa.f
 	$(FC) -c $(switch) kappa.f
 
-gamma.o: modmain.mod basisstates.mod lists.mod gamma.f
+gamma.o: modmain.mod basisstates.mod lists.mod amplitudes.o gamma.f
 	$(FC) -c $(switch) gamma.f
-
-creation.o: modmain.mod basisstates.mod creation.f
-	$(FC) -c $(switch) creation.f
-
 
 main.o:	modmain.mod hoppings.mod basisstates.mod hamiltonian.mod lists.mod main.f
 	$(FC) -c $(switch) main.f 
@@ -99,6 +95,8 @@ main.o:	modmain.mod hoppings.mod basisstates.mod hamiltonian.mod lists.mod main.
 hamiltonian.o: modmain.mod basisstates.mod hamiltonian.f
 	$(FC) -c $(switch) hamiltonian.f
 
+amplitudes.o: modmain.mod amplitudes.f
+	$(FC) -c $(switch) amplitudes.f
 #-----------------------------------------------------
 
 

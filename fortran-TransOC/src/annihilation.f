@@ -79,9 +79,9 @@
 	!	local
 	integer(kind=1):: ih=5, is=1, ib1i=3, ib2i=5 ! see dnalist5 in modmain
 	integer(kind=1):: ib1,ib2
-	integer(kind=1)::k,n,m,m1,n1,n2,m2,i
-	integer :: ntot, ind, ntot1
-	integer, allocatable, dimension(:) :: map
+	integer(kind=1)::k,n,m,m1,m2,i
+	integer :: ntot, ind, ntot1,n1,n2,n3
+	integer, allocatable, dimension(:) :: map,col1,col2
 	integer, allocatable, dimension(:):: pntr1,pntr2
 
 
@@ -89,11 +89,6 @@
 	ib2= mapb%map(ib2i);
 
 
-	!nc=4; 
-	!hop(ih)%nc = nc
-	!hop(ih)%ns = ns
-	if (allocated(hop(ih)%ht))deallocate(hop(ih)%ht)
-	allocate(hop(ih)%ht(4,1))
 	!------------------------------------------	
 	! N,m values of itype:
 	n = na; ! no of active sites
@@ -101,17 +96,12 @@
 	if (n==0) then
 !		write(*,*) "DPhiAn1: n = 0"
 	! allocate transition matrix: diagonal format
-		hop(ih)%ht(1,is)%nnz = 1;
-		do i=1,2
-			if (allocated(hop(ih)%ht(i,is)%col))
-     .				deallocate(hop(ih)%ht(i,is)%col)
-			allocate(hop(ih)%ht(i,is)%col(1)) 
-		end do
-		hop(ih)%ht(1,is)%col(1) = 1 + 1 ! n+1 = 1 ==> ind=1 in k=1 sec
-		hop(ih)%ht(2,is)%col(1) = 1 + 2 ! n+2 = 2 ==> ind=2 in k=1 sec
+		allocate(col1(1)) 
+		!allocate(col2(1)) 
+		col1(1) = 1 + 1 ! n+1 = 1 ==> ind=1 in k=1 sec
+		!col2(1) = 1 + 2 ! n+2 = 2 ==> ind=2 in k=1 sec
 														! 1 added for k=0 sector
-		return
-	endif
+	else
 
 	m1 = min(m,n); ! max no of up spins possible
 	n1 = n+1; n2 = n+2;
@@ -128,21 +118,15 @@
 	write(*,*) "=======>>>>>> pntr2(m2+2)=",pntr2(m2+2)
 !	write(*,*) "DPhiAn1: pntr done .... "
 
-
-
 	! allocate transition matrix: diagonal format
-		hop(ih)%ht(1,is)%nnz = ntot1;
-		do i=1,2
-			if (allocated(hop(ih)%ht(i,is)%col))
-     .				deallocate(hop(ih)%ht(i,is)%col)
-			allocate(hop(ih)%ht(i,is)%col(ntot1)) 
-		end do
+	allocate(col1(ntot1)) 
+	allocate(col2(ntot1)) 
 
 	!	calc the matrix
 
 	! k==0
-	hop(ih)%ht(1,is)%col(1) = n1;
-	hop(ih)%ht(2,is)%col(1) = n2;
+	col2(1) = n1;
+	!col2(1) = n2;
 
 !	write(*,*) "DPhiAn1: hop k=0 done .... "
 
@@ -152,13 +136,22 @@
 		allocate(map(ntot));
 		call AnMap1(ib1,n,k,map,ntot)
 		map = pntr2(k+2) + map ! shift k by 1; final k+1 up
-		hop(ih)%ht(1,is)%col(ind:ind+ntot-1) = map
-		hop(ih)%ht(2,is)%col(ind:ind+ntot-1) = map + 1
+		col1(ind:ind+ntot-1) = map
+		!col2(ind:ind+ntot-1) = map + 1
 		ind = ind+ntot
 		deallocate(map)
 	end do
 
-!	write(*,*) "DPhiAn1: hop k>0 done .... "
+	endif
+
+	!-------------------------------------------------------
+	! calculate transition amplitudes
+	!-------------------------------------------------------
+	! calculate transition amplitudes
+	n3=pntr1(m1+2) ! dim of initial hilbert space
+	call CalAmp(ih,1,is,col1,n3,n3,"multiplydc") ! ic=1
+	call CalAmp(ih,2,is,col1+1,n3,n3,"multiplydc") ! ic=2
+	!---------------------------------
 
 	deallocate(pntr1,pntr2)
 	return
@@ -180,70 +173,50 @@
 	integer(kind=1):: ih=5, is=1, ib1i=3, ib2i=5 ! see dnalist5 in modmain
 	!	itype? n,m, etc....?
 	integer(kind=1):: ib1,ib2
-	integer(kind=1)::k,n,m,m1,n1,n2,m2,m3,m4,i
-	integer :: ntot, ind, ind2, ntot1 !, ntot2, ntot3, ntot4
-	integer, allocatable, dimension(:,:) :: map
+	integer(kind=1)::k,n,m,m1,m2,m3,m4,i,ic
+	integer :: ntot, ind, ind2, ntot1,n1,n2,n3 !, ntot2, ntot3, ntot4
+	integer, allocatable, dimension(:,:) :: map,col
 	integer, allocatable, dimension(:):: pntr1,pntr2,map2
 
 	ib1= mapb%map(ib1i);
 	ib2=mapb%map(ib2i);
 
-
-	!nc=4; 
-	!hop(ih)%nc = nc
-	!hop(ih)%ns = ns
-	if (allocated(hop(ih)%ht))deallocate(hop(ih)%ht)
-	allocate(hop(ih)%ht(4,1))
 	!------------------------------------------	
 	! N,m values of itype:
 	n = na; ! no of active sites
 	m = nx; ! no of excitations
+	!--------------- n=0 --------------------	
 	if (n==0) then
 	! allocate transition matrix: diagonal format
-		hop(ih)%ht(1,is)%nnz = 1;
-		do i=1,4
-			if (allocated(hop(ih)%ht(i,is)%col))
-     .				deallocate(hop(ih)%ht(i,is)%col)
-			allocate(hop(ih)%ht(i,is)%col(1)) 
-		end do
-		hop(ih)%ht(1,is)%col(1) = 1 + 1 ! n+1 = 1 ==> ind=1 in k=1 sec
-		hop(ih)%ht(2,is)%col(1) = 1 + 2 ! n+2 = 2 ==> ind=2 in k=1 sec
-																! 1 added for k=0 sector
-		hop(ih)%ht(3,is)%col(1) = 1 			! no up ==> ind=1 in k=0 sec
-		hop(ih)%ht(4,is)%col(1) = 1 + 2 ! 1,2 ==> ind=1 in k=2 sec (both up)
-		return
-	endif
-
+		!hop(ih)%ht(1,is)%nnz = 1;
+		allocate(col(1,4)) 
+		col(1,1) = 1 + 1 ! n+1 = 1 ==> ind=1 in k=1 sec
+		col(1,2) = 1 + 2 ! n+2 = 2 ==> ind=2 in k=1 sec,
+		! 1 added for k=0 sector
+		col(1,3) = 1 			! no up ==> ind=1 in k=0 sec
+		col(1,4) = 1 + 2 ! 1,2 ==> ind=1 in k=2 sec (both up)
+	else
+	!----------------- n>0 -----------------	
 	m1 = min(m,n); ! max no of up spins possible
 	n1 = n+1; n2 = n+2;
 	m2 = min(m+1,n2); ! chan 1,2
 	m3 = min(m,n2); ! chan 3
 	m4 = min(m+2,n2); ! chan 4
-
-
 	allocate(pntr1(m1+2))
 	allocate(pntr2(m4+2))
-
 	! ib: itype ===> which of 5 N case?
 	pntr1(:) = basis(ib1)%pntr(1:m1+2) ! only the relevant part
 	pntr2(:) = basis(ib2)%pntr(1:m4+2) 
 	ntot1 = pntr1(m1+2); ! total number of basis states
-
 	! allocate transition matrix: diagonal format
-		hop(ih)%ht(1,is)%nnz = ntot1;
-		do i=1,4
-			if (allocated(hop(ih)%ht(i,is)%col))
-     .				deallocate(hop(ih)%ht(i,is)%col)
-			allocate(hop(ih)%ht(i,is)%col(ntot1)) 
-		end do
-
+	!hop(ih)%ht(1,is)%nnz = ntot1;
+	allocate(col(ntot1,4)) 
 	!	calc the matrix
-
 	! k==0
-	hop(ih)%ht(1,is)%col(1) = 1	+ n1; ! 1 for k=0 sec in n+2 case
-	hop(ih)%ht(2,is)%col(1) = 1 + n2; ! 
-	hop(ih)%ht(3,is)%col(1) = 1; ! k=0 sec in n+2 case
-	hop(ih)%ht(4,is)%col(1) = pntr2(3);! k=2 sec in n+2 case
+	col(1,1) = 1	+ n1; ! 1 for k=0 sec in n+2 case
+	col(1,2) = 1 + n2; ! 
+	col(1,3) = 1; ! k=0 sec in n+2 case
+	col(1,4) = pntr2(3);! k=2 sec in n+2 case
 	! pntr2(3) = pntr2(2) + ind of last basis of k=2	
 
 	! k>0 	
@@ -253,15 +226,33 @@
 		allocate(map(3,ntot));
 		call AnMap2(ib1,n,k,map,ntot)
 		allocate(map2(ntot));
-		map2(:) = pntr2(k+2) + map(1,:)
+		map2(:) = pntr2(k+2) + map(1,:) ! final k+1
 		ind2 = ind+ntot-1;
-		hop(ih)%ht(1,is)%col(ind:ind2) = map2
-		hop(ih)%ht(2,is)%col(ind:ind2) = map2 + 1
-		hop(ih)%ht(3,is)%col(ind:ind2) = pntr2(k+1) + map(2,:)
-		hop(ih)%ht(4,is)%col(ind:ind2) = pntr2(k+3) + map(3,:)
+		col(ind:ind2,1) = map2
+		col(ind:ind2,2) = map2 + 1
+		col(ind:ind2,3) = pntr2(k+1) + map(2,:) ! final k
+		col(ind:ind2,4) = pntr2(k+3) + map(3,:) ! final k+2
 		ind = ind2+1
 		deallocate(map,map2)
 	end do
+
+	endif ! n==0
+	!--------------------------------------	
+
+
+	!-------------------------------------------------------
+	! calculate transition amplitudes
+	!-------------------------------------------------------
+	! calculate transition amplitudes
+	n3=pntr1(m1+2) ! dim of initial hilbert space
+	do ic=1,4
+		call CalAmp(ih,ic,is,col(:,ic),n3,n3,"multiplydc") ! ic=1
+	end do
+	!call CalAmp(ih,1,is,col(:,1),n3,n3,"multiplydc") ! ic=1
+	!call CalAmp(ih,2,is,col(:,2),n3,n3,"multiplydc") ! ic=2
+	!call CalAmp(ih,3,is,col(:,3),n3,n3,"multiplydc") ! ic=2
+	!call CalAmp(ih,4,is,col(:,4),n3,n3,"multiplydc") ! ic=2
+	!---------------------------------
 
 	deallocate(pntr1,pntr2)
 	return

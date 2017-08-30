@@ -157,10 +157,10 @@
 	integer(kind=1), intent(in):: is,l1,l2 
 	!	local
 	integer(kind=1):: ih=7, ib1=3, ib2=1 ! see dnalist5 in modmain
-	integer(kind=1)::k,n,m,m1,n1,n2,m2,i,m3
-	integer :: ntot, ind, ntot1,nnz
-	integer, allocatable, dimension(:,:) :: map
-	integer, allocatable, dimension(:):: pntr1,pntr2
+	integer(kind=1)::k,n,m,m1,m2,i,m3
+	integer :: ntot, ind, ntot1,nnz,n1,n2
+	integer, allocatable, dimension(:,:) :: map,row
+	integer, allocatable, dimension(:):: pntr1,pntr2,col
 
 	!------------------------------------------	
 	! N,m values of itype:
@@ -178,28 +178,22 @@
 	pntr2(:) = basis(ib2)%pntr(1:m2+2) ! final
 	ntot1 = pntr1(m1+2); ! total number of basis states
 
-	! nnz total number fo non zero elements
+	! nnz total number of non zero elements
 	nnz = pntr2(m3+2) - 1; ! up to pntr2(m3+2), -1 to exclude k=0 
 	! allocate transition matrix: coo format
-	hop(ih)%ht(1,is)%nnz = nnz;
-	hop(ih)%ht(2,is)%nnz = nnz;
+	!hop(ih)%ht(1,is)%nnz = nnz;
+	!hop(ih)%ht(2,is)%nnz = nnz;
 
-	do i=1,2
-		if (allocated(hop(ih)%ht(i,is)%row)) &
-			& deallocate(hop(ih)%ht(i,is)%row)
-		if (allocated(hop(ih)%ht(i,is)%col)) &
-			& deallocate(hop(ih)%ht(i,is)%col)
-			allocate(hop(ih)%ht(i,is)%row(nnz)) 
-			allocate(hop(ih)%ht(i,is)%col(nnz)) 
-	end do
+	allocate(row(nnz,2)) 
+	allocate(col(nnz)) 
 
 	!	calc the matrix
 	!	k=1
 	ind = 1; ntot=1
-	hop(ih)%ht(1,is)%row(1) = l1 ! l1 up in k=1 sec
-	hop(ih)%ht(2,is)%row(1) = l2 ! l2 up in k=1 sec
+	row(1,1) = l1 ! l1 up in k=1 sec
+	row(1,2) = l2 ! l2 up in k=1 sec
 	! final basis
-	hop(ih)%ht(1,is)%col(1) = (/ 1 /) ! k=0 sec of final
+	col(1,1) = (/ 1 /) ! k=0 sec of final
 
 	!	k>1
 	ind = 2;
@@ -209,14 +203,23 @@
 		call CreatMap1(n,k,l1,l2,map,ntot)
 		! initial basis
 		map = pntr1(k+1) + map
-		hop(ih)%ht(1,is)%row(ind:ind+ntot-1) = map(1,:)
-		hop(ih)%ht(2,is)%row(ind:ind+ntot-1) = map(2,:)
+		row(ind:ind+ntot-1,1) = map(1,:)
+		row(ind:ind+ntot-1,2) = map(2,:)
 		! final basis
-		hop(ih)%ht(1,is)%col(ind:ind+ntot-1) = &
+		col(ind:ind+ntot-1,1) = &
 			& (/ (i,i=pntr2(k)+1,pntr2(k+1),1 ) /) ! k-1 sec of final
 		ind = ind+ntot
 		deallocate(map)
 	end do
+
+	!-------------------------------------------------------
+	! calculate transition amplitudes
+	!-------------------------------------------------------
+	! calculate transition amplitudes
+	n3=pntr1(m1+2) ! dim of initial hilbert space
+	call CalAmp(ih,1,is,row(:,1),nnz,n3,"multiply",col) ! ic=1
+	call CalAmp(ih,2,is,row(:,2),nnz,n3,"multiply",col) ! ic=2
+	!---------------------------------
 
 	deallocate(pntr1,pntr2)
 	return
@@ -242,9 +245,9 @@
 	integer(kind=1), intent(in):: is,l1,l2 
 	!	local
 	integer(kind=1):: ih=7, ib1=3, ib2=1 ! see dnalist5 in modmain
-	integer(kind=1)::k,n,m,m1,n1,n2,m2,i
-	integer :: ntot, ind, nnz
-	integer, allocatable, dimension(:) :: map
+	integer(kind=1)::k,n,m,m1,m2,i
+	integer :: ntot, ind, nnz,n1,n2
+	integer, allocatable, dimension(:) :: map,row,col
 	integer, allocatable, dimension(:):: pntr1,pntr2
 
 	!------------------------------------------	
@@ -265,16 +268,10 @@
 	! nnz total number fo non zero elements
 	nnz = pntr2(m3+2); ! from k=0 sec up to k=m3; pntr2(m3+2) 
 	! allocate transition matrix: coo format
-	hop(ih)%ht(3,is)%nnz = nnz;
+	!hop(ih)%ht(3,is)%nnz = nnz;
 
-	do i=3,3
-		if (allocated(hop(ih)%ht(i,is)%row)) &
-			& deallocate(hop(ih)%ht(i,is)%row)
-		if (allocated(hop(ih)%ht(i,is)%col)) &
-			& deallocate(hop(ih)%ht(i,is)%col)
-			allocate(hop(ih)%ht(i,is)%row(nnz)) 
-			allocate(hop(ih)%ht(i,is)%col(nnz)) 
-	end do
+	allocate(row(nnz)) 
+	allocate(col(nnz)) 
 
 	!	2 >= k <= m3
 	ind = 1;
@@ -284,13 +281,22 @@
 		call CreatMap3(n,k,l1,l2,map,ntot)
 		! initial basis
 		map = pntr1(k+1) + map
-		hop(ih)%ht(3,is)%row(ind:ind+ntot-1) = map
+		row(ind:ind+ntot-1) = map
 		! final basis
-		hop(ih)%ht(3,is)%col(ind:ind+ntot-1) = &
+		col(ind:ind+ntot-1) = &
 			& (/ (i,i=pntr2(k-1)+1,pntr2(k),1 ) /) ! k-2 sec of final
 		ind = ind+ntot
 		deallocate(map)
 	end do
+
+	!-------------------------------------------------------
+	! calculate transition amplitudes
+	!-------------------------------------------------------
+	! calculate transition amplitudes
+	n3=pntr1(m1+2) ! dim of initial hilbert space
+	call CalAmp(ih,3,is,row,nnz,n3,"multiply",col) ! ic=3
+	!---------------------------------
+
 
 	deallocate(pntr1,pntr2)
 	return
@@ -309,9 +315,9 @@
 	integer(kind=1), intent(in):: is,l1,l2 
 	!	local
 	integer(kind=1):: ih=7, ib1=3, ib2=1 ! see dnalist5 in modmain
-	integer(kind=1)::k,n,m,m1,n1,n2,m2,i,m3
-	integer :: ntot, ind, nnz
-	integer, allocatable, dimension(:) :: map
+	integer(kind=1)::k,n,m,m1,m2,i,m3
+	integer :: ntot, ind, nnz,n1,n2
+	integer, allocatable, dimension(:) :: map,row,col
 	integer, allocatable, dimension(:):: pntr1,pntr2
 
 	!------------------------------------------	
@@ -332,17 +338,10 @@
 	! nnz total number fo non zero elements
 	nnz = pntr2(m2+2);
 	! allocate transition matrix: coo format
-	hop(ih)%ht(4,is)%nnz = nnz;
+	!hop(ih)%ht(4,is)%nnz = nnz;
 
-	do i=4,4
-		if (allocated(hop(ih)%ht(i,is)%row)) &
-			& deallocate(hop(ih)%ht(i,is)%row)
-		if (allocated(hop(ih)%ht(i,is)%col)) &
-			& deallocate(hop(ih)%ht(i,is)%col)
-			allocate(hop(ih)%ht(i,is)%row(nnz)) 
-			allocate(hop(ih)%ht(i,is)%col(nnz)) 
-	end do
-
+	allocate(row(nnz)) 
+	allocate(col(nnz)) 
 
 	! final | initial k=0 case: by hand for efficiency !
 	! no actual need to seperate from the k loop below
@@ -364,6 +363,14 @@
 		ind = ind+ntot
 		deallocate(map)
 	end do
+
+	!-------------------------------------------------------
+	! calculate transition amplitudes
+	!-------------------------------------------------------
+	! calculate transition amplitudes
+	n3=pntr1(m1+2) ! dim of initial hilbert space
+	call CalAmp(ih,4,is,row,nnz,n3,"multiply",col) ! ic=4
+	!---------------------------------
 
 	deallocate(pntr1,pntr2)
 	return

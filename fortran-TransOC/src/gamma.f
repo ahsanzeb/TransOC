@@ -42,9 +42,9 @@
 	!	local
 	integer(kind=1):: ih=26, ib1i=3 !, ib2i=3 ! see dnalist5 in modmain
 	integer(kind=1)::k,n,m,m1,n1,n2,m2,i, ib1 !,ib2
-	integer :: ntot, ind, ntot1,nnz,inda,la,lat
+	integer :: ntot, ind, ntot1,nnz,inda,la,lat,n3
 	integer, allocatable, dimension(:,:) :: map
-	integer, allocatable, dimension(:):: pntr1, las
+	integer, allocatable, dimension(:)::pntr1,las,row,col
 
 	ib1 = mapb%map(ib1i);
 	!ib2 = mapb%map(ib2i);
@@ -69,14 +69,10 @@
 	! dimensions of full transition matrices
 	lat = sum(las)
 	! allocate transition matrix: coo format
-	if (allocated(hop(ih)%ht(1,is)%row)) then
-		deallocate(hop(ih)%ht(1,is)%row)
-		deallocate(hop(ih)%ht(1,is)%col)
-	endif
-	allocate(hop(ih)%ht(1,is)%row(lat)) 
-	allocate(hop(ih)%ht(1,is)%col(lat))
+	allocate(row(lat)) 
+	allocate(col(lat))
 
-	hop(ih)%ht(1,is)%nnz = lat ! nnz 
+	!hop(ih)%ht(1,is)%nnz = lat ! nnz 
 	
 	!	calc the matrix
 	! k>0 only, need a spin up to decay it!
@@ -88,11 +84,20 @@
 		!	calc maps
 		call GammaMap(ib1,n,k,is,ntot1,map,la)
 		!	assign values to transition matrices
-		hop(ih)%ht(1,is)%row(inda:inda+la-1) = pntr1(k+1) + map(1,:)
-		hop(ih)%ht(1,is)%col(inda:inda+la-1) = pntr1(k) + map(2,:)
+		row(inda:inda+la-1) = pntr1(k+1) + map(1,:)
+		col(inda:inda+la-1) = pntr1(k) + map(2,:)
 		inda = inda+la;
 		deallocate(map)
 	end do
+
+	!-------------------------------------------------------
+	! calculate transition amplitudes
+	n3 = pntr1(m1+2);
+	!-------------------------------------------------------
+	call CalAmp(ih,1,is,row,lat,n3,"multiply",col) ! ic=1
+	!---------------------------------
+
+
 
 	deallocate(pntr1,las)
 	return

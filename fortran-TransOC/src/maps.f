@@ -187,11 +187,11 @@
 			! icl=ic except for ih=8
 			mapc(ih,ic) = ic
 			if(ih<5) then
-				maph(ih,ic) = ih 
+				maph(ih,ic) = ih
 			elseif(ih<7) then
-				maph(ih,ic) = 5
+				maph(ih,ic) = 5   
 			elseif(ih==7) then
-				maph(ih,ic) = 6
+				maph(ih,ic) = 6 	
 			elseif(ih==8) then
 				maph(ih,ic) = 6
 				if(ic==1) then
