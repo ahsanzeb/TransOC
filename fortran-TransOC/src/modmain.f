@@ -84,7 +84,7 @@
 	! for 13 different (N,m)
 	!---------------------------------------	
 	type :: HilbertSpace
-		integer :: ntot
+		integer :: ntot, n1,n2
 		double precision, allocatable :: eval(:)
 		double precision, allocatable :: evec(:,:)
 	end type HilbertSpace
@@ -121,6 +121,46 @@
 	!---------------------------------------	
 
 
+	!---------------------------------------
+	! hoppings: transition amplitudes
+	!---------------------------------------	
+	type :: TransitionAmplitudes
+		integer(kind=4) :: namp ! size of amp array
+		double precision, allocatable :: amp(:) ! amplitudes
+	end type TransitionAmplitudes
+
+	type :: QuantumTransitions
+		integer(kind=4) :: nc,ns ! number of channels, sites
+		type(TransitionAmplitudes), allocatable:: cs(:,:) ! channels and sites
+	end type QuantumTransitions
+	!---------------------------------------	
+	! map from ih,ic to ia,icl
+	!---------------------------------------	
+	integer(kind=4), dimension(26,4) :: maph ! ih  to ia
+	integer(kind=4), dimension(26,4) :: mapc ! ic to icl
+	!	mapc only needed for channel 8,
+	!	channel 8: swap channel 1 and 2 for amplitudes
+	!---------------------------------------	
+
+	!---------------------------------------	
+	! define system
+	!---------------------------------------	
+	type :: System
+		integer:: nsites
+		integer:: n0,n1,n2 ! number of phi, acive, D
+		integer, allocatable :: occ(:) ! occupancy of the site
+	end type System
+	type(System) :: sys
+	!---------------------------------------	
+	! define ways; sites for various hopping processes
+	!---------------------------------------	
+	type :: HoppingWays
+		integer:: ns ! number of sites
+		integer, allocatable :: sites(:)
+	end type HoppingWays
+	type(HoppingWays) :: ways
+
+
 	! 5 BasisSet
 	type(BasisSet), dimension(5) :: basis
 	! change name of HilbertSpace to something like eigensystem ??
@@ -129,6 +169,10 @@
 	type(Ham), dimension(13) :: Hg
 	!	26 hopping processes
 	type(HoppingProcesses), dimension(26) :: hop
+	! not 26: in some cases, multiple hopping processes share amplitudes.
+	! maph would give location for a given hopping process, ih ---> ihl
+	type(QuantumTransitions), dimension(14) :: qt 
+	double precision, allocatable :: psi(:) ! to store quantum state
 
 	! set the format for sparse matrix
 	!hop(1:4)%spfrmt = 'diagonal';

@@ -71,8 +71,6 @@ basisstates.o: modmain.mod basisstates.f
 maps.o:	modmain.mod maps.f
 	$(FC) -c $(switch) maps.f
 
-
-
 hoppings.o: modmain.mod hoppings.f
 	$(FC) -c $(switch) hoppings.f 
 

@@ -1,4 +1,5 @@
 
+!-------------------------------------------
 
 	subroutine UpdateMapB(wj,wc)
 	!	map for ib: ==> 5 basis
@@ -53,6 +54,10 @@
 	
 	return
 	end subroutine UpdateMapB
+
+
+!-------------------------------------------
+
 
 	subroutine UpdateMapT(wj,wc)
 	!	map for itype: ==> ib, 13 Hilbert spaces
@@ -122,6 +127,7 @@
 	end subroutine UpdateMapT
 
 
+!-------------------------------------------
 
 
 	subroutine UpdateGroupTB()
@@ -153,3 +159,72 @@
 	return
 	end subroutine UpdateGroupTB
 
+
+
+
+!-------------------------------------------
+	subroutine calmaphc()
+	use modmain, only: maph,mapc
+	implicit none
+
+	!integer(kind=4), dimension(26,4,2) :: maphc
+	integer(kind=4) :: ic,ih
+
+	! input: ih,ic
+	!	output: ia,icl
+	! index: ih,ic; 1 ==> ia, 2 ==> icl
+
+	! ia: 1 - 14 in Mathematica notaitons:
+	! RDAR,RDAL,RPhiAR,RPhiAL
+	! RDPhiA, RDPhiAinv, [ih=8: ic swap 1,2]
+	! RCDAl, RCDAh
+	! RCAlR,RCAhR
+	! RCAlL,RCAhL
+	! Rkappa, Rgamma
+	
+	do ih=1,26
+		do ic=1,4
+			! icl=ic except for ih=8
+			mapc(ih,ic) = ic
+			if(ih<5) then
+				maph(ih,ic) = ih 
+			elseif(ih<7) then
+				maph(ih,ic) = 5
+			elseif(ih==7) then
+				maph(ih,ic) = 6
+			elseif(ih==8) then
+				maph(ih,ic) = 6
+				if(ic==1) then
+					mapc(ih,ic) = 2
+				elseif(ic==2) then
+					mapc(ih,ic) = 1
+				endif	
+			elseif(ih==9 .or. ih==11 .or. ih==13 .or. ih==15) then
+				maph(ih,ic) = 7
+			elseif(ih==10 .or. ih==12 .or. ih==14 .or. ih==16) then
+				maph(ih,ic) = 8
+			elseif(ih==17 .or. ih==18) then
+				maph(ih,ic) = 9
+			elseif(ih==19 .or. ih==20) then
+				maph(ih,ic) = 10
+			elseif(ih==21 .or. ih==22) then
+				maph(ih,ic) = 11
+			elseif(ih==23 .or. ih==24) then
+				maph(ih,ic) = 12
+			elseif(ih==25) then
+				maph(ih,ic) = 13
+			elseif(ih==26) then
+				maph(ih,ic) = 14
+			else
+				write(*,*) "ih > 26 ?????"
+				stop
+			endif
+		enddo !ic
+	enddo ! ih
+
+	end subroutine calmaphc
+!-------------------------------------------
+
+
+
+			
