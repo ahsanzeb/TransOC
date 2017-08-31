@@ -10,7 +10,6 @@
 	double precision, allocatable:: HtUf(:,:)
 	integer :: ia,n1,n2,n3,itl
 	character(len=*) :: routine
-	
 	!-------------------------------------------------------
 	! calculate transition amplitudes
 	!-------------------------------------------------------
@@ -47,8 +46,31 @@
 		qt(ia)%cs(ic,is)%amp = matmul(psi,HtUf); ! both input dense
 		deallocate(HtUf)
 
+		! calculate amp^2 for degenerate sectors
+		call GetAmp2(qt(ia)%cs(ic,is)%amp, n2,
+     .		qt(ia)%cs(ic,is)%amp2, eig(itl)%nsec, eig(itl)%ind)
+
+	return
 	end subroutine CalAmp
+!---------------------------------------------
+	subroutine GetAmp2(amp,ne,amp2,nsec,ind)
+	! calculates total amplitude squared for degenerate sectors
+	integer, intent(in) :: ne, nsec
+	double precision,dimension(ne),intent(in):: amp
+	integer,dimension(nsec),intent(in):: ind !start index of sectors
+	double precision,dimension(nsec),intent(out):: amp2 !tot amp^2 of sec
+	! local
+	integer:: i,i1,i2
 
-
-
+	amp2 = 0.0d0;
+	do i=1,nsec-1
+		i1 = ind(i); i2=ind(i+1)-1
+		!do j = i1,i2,1
+		!	amp2(i) = amp2(i) + amp(j)
+		!end do
+		amp2(i) = sum(abs(amp(i1:i2))**2)	
+	end do
+	return
+	end subroutine GetAmp2
+!---------------------------------------
 

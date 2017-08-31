@@ -87,6 +87,9 @@
 		integer :: ntot, n1,n2 ! size of hilbert space, =nrows, ncols=nevecs
 		double precision, allocatable :: eval(:)
 		double precision, allocatable :: evec(:,:)
+		integer :: nsec ! number of degenerate sectors
+		integer, allocatable:: ind(:) ! start index of all sectors
+		double precision, allocatable :: esec(:)	 ! energy of deg sec
 	end type Eigensystems
 	!---------------------------------------	
 	! hamiltonian for 13 diff (N,m)
@@ -123,6 +126,10 @@
 	type :: TransitionAmplitudes
 		integer(kind=4) :: namp ! size of amp array
 		double precision, allocatable :: amp(:) ! amplitudes
+		! amplitudes squared of degen sectors
+		integer :: nsec ! number of degenerate sectors
+		!integer, allocatable:: ind(:) ! start index of all sectors
+		double precision, allocatable :: amp2(:) 
 	end type TransitionAmplitudes
 
 	type :: QuantumTransitions
@@ -137,6 +144,16 @@
 	!	mapc only needed for channel 8,
 	!	channel 8: swap channel 1 and 2 for amplitudes
 	!---------------------------------------	
+
+
+	!---------------------------------------
+	! hoppings: transition rates
+	!---------------------------------------	
+	type :: TransitionRates
+		integer(kind=4) :: nc,ns ! number of channels, sites		
+		double precision :: r ! total
+		double precision, allocatable :: rcs(:,:) !channel,site resolved
+	end type TransitionRates
 
 	!---------------------------------------	
 	! define system
@@ -172,6 +189,7 @@
 	type(QuantumTransitions), dimension(14) :: qt 
 	double precision, allocatable :: psi(:) ! to store quantum state
 
+	type(TransitionRates), dimension(26):: rates
 	! set the format for sparse matrix
 	!hop(1:4)%spfrmt = 'diagonal';
 
