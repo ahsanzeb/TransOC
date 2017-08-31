@@ -36,7 +36,7 @@
 
 
 	subroutine LossGamma(is)
-	use modmain, only: basis,hop,na,nx,mapb
+	use modmain, only: basis,na,nx,mapb
 	implicit none
 	integer(kind=1), intent(in):: is 
 	!	local

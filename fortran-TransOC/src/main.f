@@ -3,7 +3,6 @@
 	use modmain
 	use basisstates, only: mkbasis
 	use hamiltonian, only: makeHg,MakeHgMulti
-	use hoppings, only: dhops
 	implicit none
 	integer i,nnz,j,n1,n2,k,ih,is,ib,itype1,itype2,nt
 	real(kind=4), allocatable,dimension(:,:):: mat,matf
@@ -141,28 +140,28 @@
 	allocate(matf(n1,n2))
 	call random_number(mat)
 
-	nnz = hop(ih)%ht(1,is)%nnz;
+	!nnz = hop(ih)%ht(1,is)%nnz;
 	write(*,*) "Ht chal 1,2 nnz: ",nnz
 	allocate(row(nnz))
 	allocate(col(nnz))
 
 	row = (/ (i, i=1,n1) /)
-	col = hop(ih)%ht(1,is)%col
+	!col = hop(ih)%ht(1,is)%col
 
 	write(*,*) "nnz,n1,n2 = ",nnz,n1,n2
-	call multiply(row,col,nnz,mat,n2,n2,matf,n1,n2)
+	!call multiply(row,col,nnz,mat,n2,n2,matf,n1,n2)
 	write(*,*) " multiply done....  "
 	endif
 !============================================
 
 
 
-	allocate(hop(25)%ht(1,1))
-	call LossKappa()
+	!allocate(hop(25)%ht(1,1))
+	!call LossKappa()
 
 
-	allocate(hop(26)%ht(1,1))
-	call LossGamma(1)
+	!allocate(hop(26)%ht(1,1))
+	!call LossGamma(1)
 
 	write(*,*) " kappa, gamma done .... "
 

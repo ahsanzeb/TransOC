@@ -2,7 +2,7 @@
 
 
 	subroutine LossKappa()
-	use modmain, only: basis,hop,na,nx,mapb
+	use modmain, only: basis,na,nx,mapb
 	implicit none
 	!	local
 	integer(kind=1):: ih=25, is=1, ib1=3, ib2=3 ! see dnalist5 in modmain

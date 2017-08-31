@@ -152,7 +152,7 @@
 ! up,dn become D,Phi
 !------------------------------------------
 	subroutine DPhiCreat1(is,l1,l2)
-	use modmain, only: basis,hop,na,nx
+	use modmain, only: basis,na,nx
 	implicit none
 	integer(kind=1), intent(in):: is,l1,l2 
 	!	local
@@ -240,7 +240,7 @@
 ! up,up become D,Phi
 !------------------------------------------
 	subroutine DPhiCreat3(is,l1,l2)
-	use modmain, only: basis,hop,na,nx
+	use modmain, only: basis,na,nx
 	implicit none
 	integer(kind=1), intent(in):: is,l1,l2 
 	!	local
@@ -310,7 +310,7 @@
 ! dn,dn become D,Phi
 !------------------------------------------
 	subroutine DPhiCreat4(is,l1,l2)
-	use modmain, only: basis,hop,na,nx
+	use modmain, only: basis,na,nx
 	implicit none
 	integer(kind=1), intent(in):: is,l1,l2 
 	!	local
@@ -338,15 +338,14 @@
 	! nnz total number fo non zero elements
 	nnz = pntr2(m2+2);
 	! allocate transition matrix: coo format
-	!hop(ih)%ht(4,is)%nnz = nnz;
 
 	allocate(row(nnz)) 
 	allocate(col(nnz)) 
 
 	! final | initial k=0 case: by hand for efficiency !
 	! no actual need to seperate from the k loop below
-	hop(ih)%ht(4,is)%row(1) = (/1/)
-	hop(ih)%ht(4,is)%col(1) = (/1/)
+	row(1) = (/1/)
+	col(1) = (/1/)
 
 	!	1 >= k <= m3=m2 cases:
 	ind = 2;
@@ -356,9 +355,9 @@
 		call CreatMap4(n,k,l1,l2,map,ntot)
 		! initial basis
 		map = pntr1(k+1) + map
-		hop(ih)%ht(4,is)%row(ind:ind+ntot-1) = map
+		row(ind:ind+ntot-1) = map
 		! final basis
-		hop(ih)%ht(4,is)%col(ind:ind+ntot-1) = &
+		col(ind:ind+ntot-1) = &
 			& (/ (i,i=pntr2(k+1)+1,pntr2(k+2),1 ) /) ! k sec of final
 		ind = ind+ntot
 		deallocate(map)

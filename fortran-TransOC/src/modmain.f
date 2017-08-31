@@ -83,11 +83,11 @@
 	!---------------------------------------	
 	! for 13 different (N,m)
 	!---------------------------------------	
-	type :: HilbertSpace
-		integer :: ntot, n1,n2
+	type :: Eigensystems
+		integer :: ntot, n1,n2 ! size of hilbert space, =nrows, ncols=nevecs
 		double precision, allocatable :: eval(:)
 		double precision, allocatable :: evec(:,:)
-	end type HilbertSpace
+	end type Eigensystems
 	!---------------------------------------	
 	! hamiltonian for 13 diff (N,m)
 	!---------------------------------------	
@@ -106,10 +106,6 @@
 		integer(kind=4) :: nnz
 		integer(kind=4), allocatable :: row(:)
 		integer(kind=4), allocatable :: col(:)
-		!double precision, allocatable :: dat(:)
-		!	dat: t's will be multiplied latter
-		!	dat ====>  1 always; so no need to store it.
-		!integer(kind=4), allocatable :: map(:,:)
 	end type TransitionMatrix
 	!---------------------------------------	
 	type :: HoppingProcesses
@@ -165,10 +161,12 @@
 	type(BasisSet), dimension(5) :: basis
 	! change name of HilbertSpace to something like eigensystem ??
 	!	13 hamiltonians and eigensystems
-	type(HilbertSpace), dimension(13) :: hspace
+	type(Eigensystems), dimension(13) :: eig
 	type(Ham), dimension(13) :: Hg
+
 	!	26 hopping processes
-	type(HoppingProcesses), dimension(26) :: hop
+	!type(HoppingProcesses), dimension(26) :: hop
+
 	! not 26: in some cases, multiple hopping processes share amplitudes.
 	! maph would give location for a given hopping process, ih ---> ihl
 	type(QuantumTransitions), dimension(14) :: qt 

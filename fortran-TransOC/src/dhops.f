@@ -31,8 +31,7 @@
 !-----------------------------------
 	subroutine dhops1(ih,is)
 	! chan 1,2 only
-	use modmain, only: basis,na,nx,dna,dnx,ibs,mapb,
-     .			qt,hspace, psi,itypes,maph,mapt
+	use modmain, only: basis,na,nx,dna,dnx,ibs,mapb
 	implicit none
 
 	integer(kind=1), intent(in) :: ih, is
@@ -179,8 +178,7 @@
 	subroutine dhops2(ih,is)
 	!	channel 1,2 have diagonal Ht, save row only
 	!	channel 3,4 have the same row as 1,2, save col only
-	use modmain, only: basis,na,nx,dna,maph,mapt,
-     .			dnx,ibs,mapb,qt,hspace, psi,itypes
+	use modmain, only: basis,na,nx,dna,dnx,ibs,mapb
 	implicit none
 	integer(kind=1), intent(in) :: ih, is
 	!	local

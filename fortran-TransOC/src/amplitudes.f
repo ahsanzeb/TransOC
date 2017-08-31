@@ -1,7 +1,7 @@
 
 ! transition matrices and amplitudes
 	subroutine CalAmp(ih,ic,is,rowc,nnz,n3,routine,col)
-	use modmain, only: qt,mapt,maph,hspace,itypes,psi
+	use modmain, only: qt,mapt,maph,eig,itypes,psi
 	implicit none
 	integer(kind=1), intent(in) :: ih,is,ic,nnz
 	integer, dimension(nnz), intent(in)  :: rowc
@@ -15,8 +15,8 @@
 	! calculate transition amplitudes
 	!-------------------------------------------------------
 		itl = mapt%map(itypes(ih,ic)) !???????! location of final hilber space
-		n1=hspace(itl)%n1 ! dim of final hilbert space
-		n2=hspace(itl)%n2
+		n1=eig(itl)%n1 ! dim of final hilbert space
+		n2=eig(itl)%n2
 !		n3=pntr1(m1+2) ! dim of initial hilbert space
 	
 		allocate(HtUf(n3,n2))
@@ -25,13 +25,13 @@
 		! sizes: Ht(n3 x n1) . Uf(n1 x n2) = HtUf(n3 x n2)
 		! out: HtUf
 		if (present(col)) then
-			call multiply(rowc,col,nnz,hspace(itl)%evec,n1,n2,
+			call multiply(rowc,col,nnz,eig(itl)%evec,n1,n2,
      .							HtUf,n3,n2)
 		elseif(routine=="multiplyd") then
-			call multiplyd(rowc,nnz,hspace(itl)%evec,n1,n2,
+			call multiplyd(rowc,nnz,eig(itl)%evec,n1,n2,
      .							HtUf,n3,n2)
 		elseif(routine=="multiplydc") then
-			call multiplydc(rowc,nnz,hspace(itl)%evec,n1,n2,
+			call multiplydc(rowc,nnz,eig(itl)%evec,n1,n2,
      .							HtUf,n3,n2)
 		else
 			write(*,*) "amplitudes: something wrong....!"

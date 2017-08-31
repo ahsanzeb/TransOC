@@ -74,7 +74,7 @@
 !	D Phi Annihilation for channel 1,2
 !------------------------------------------
 	subroutine DPhiAn1()
-	use modmain, only: basis,hop,na,nx,mapb
+	use modmain, only: basis,na,nx,mapb
 	implicit none
 	!	local
 	integer(kind=1):: ih=5, is=1, ib1i=3, ib2i=5 ! see dnalist5 in modmain
@@ -167,7 +167,7 @@
 !------------------------------------------
 	subroutine DPhiAn2()
 	! chan 1,2,3,4 
-	use modmain, only: basis,hop,na,nx,mapb
+	use modmain, only: basis,na,nx,mapb
 	implicit none
 	!	local
 	integer(kind=1):: ih=5, is=1, ib1i=3, ib2i=5 ! see dnalist5 in modmain
