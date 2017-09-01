@@ -7,6 +7,7 @@
 	use Hoppings, only: AllHops ! 
 	use rates, only: CalRates
 	use selection, only: ihSelect, icsSelect
+	use modways, only: UpdateWays, UpdateOcc
 	
 	implicit none
 	integer i,nnz,j,n1,n2,k,ih,is,ib,itype1,itype2,nt

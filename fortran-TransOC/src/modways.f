@@ -1,29 +1,28 @@
 
-	module ways
+	module modways
 	use modmain, only: sys, ways
 	implicit none
 
-	public :: UpdateWays
+	public :: UpdateWays, UpdateOcc
 	private:: WhichBulkHop
 
 	contains
 !**********************************************
 	subroutine UpdateWays()
+	implicit none
 	! local
-	integer:: ntot, p,la,lo,is
+	integer(kind=1):: ntot, p,la,lo,is
 	integer, dimension(26) :: nps
-	integer, dimension, dimension(:,:) :: act,oth
+	integer, allocatable, dimension(:,:) :: act,oth
 
 	! initialise
-	nps = 0
-	act = 0
-	oth = 0
-	
+	nps = 0	
 	! copy current sys
 	ntot = sys%nsites
-
 	allocate(act(26,ntot))
 	allocate(oth(26,ntot))
+	act = 0
+	oth = 0
 
 	! bulk processes
 	do is=1,ntot-1
@@ -77,11 +76,11 @@
 ! 8, Phi,D created
 	subroutine WhichBulkHop(is,p,la,lo)
 	implicit none
-	integer, intent(in) :: is
-	integer, intent(out) :: p,la,lo 
+	integer(kind=1), intent(in) :: is
+	integer(kind=1), intent(out) :: p,la,lo 
 	! process ind, active site, other site (or phi if D,Phi annihilation)
 	! local
-	integer:: l,r ! occupation on left, right sites
+	integer:: l,r,is1 ! occupation on left, right sites
 
 	l = sys%occ(is);
 	r = sys%occ(is+1)
@@ -131,25 +130,9 @@
 	endif
 
 	return
-	end subroutine WhichHop
+	end subroutine WhichBulkHop
 !**********************************************
 
-	! DO IT LATER.... 
-	integer function WhichLCHop(occ)
-	implicit none
-	integer :: occ,p ! occupation on left, right sites
-
-		select case (occ)
-			case (0)
-      		p = 0 ! 
-			case(1)
-				p = 0 ! 
-			case(2)
-				p = 0 ! 
-		end select
-	endif
-	end function WhichLCHop
-!**********************************************
 	subroutine UpdateOcc(ih,is)
 	! only for bulk hoppings at the moment
 	use modmain, only: sys,Asites,ways
@@ -157,7 +140,7 @@
 	implicit none
 	integer, intent(in):: ih,is
 	! local
-	integer :: la,lo,n0,n1,n2
+	integer(kind=1) :: la,lo,n0,n1,n2,two=2
 
 	if (ih > 8 .and. ih < 25 ) then
 		write(*,*) "UpdateOcc: ERROR!!!"
@@ -185,7 +168,7 @@
 			sys%occ(la) = 1
 			sys%occ(lo) = 1
 			! append first D then Phi; la=D for ih=5,6
-			call Join(Asites,n1,(/la,lo/),2,Asites)
+			call Join(Asites,n1,(/la,lo/),two,Asites)
 			sys%n0 = n0-1
 			sys%n1 = n1+2
 			sys%n2 = n2-1
@@ -202,4 +185,4 @@
 	return
 	end subroutine UpdateOcc
 !**********************************************
-	end module ways
+	end module modways

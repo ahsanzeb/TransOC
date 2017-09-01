@@ -1,7 +1,7 @@
 
 objects = basisstates.o main.o hamiltonian.o lists.o modmain.o memory.o \
  hoppings.o dhops.o kinds.o multiply.o annihilation.o losses.o \
- maps.o init.o amplitudes.o creation.o selection.o rates.o
+ maps.o init.o amplitudes.o creation.o selection.o rates.o modways.o
 
 include make.inc
 
@@ -63,6 +63,9 @@ rates.mod: modmain.mod rates.o rates.f
 selection.mod: modmain.mod selection.f
 	$(FC) -c $(switch) selection.f
 
+modways.mod: modmain.mod lists.mod modways.o modways.f
+	$(FC) -c $(switch) modways.f
+
 #-----------------------------------------------------
 # objects
 #-----------------------------------------------------
@@ -108,7 +111,8 @@ creation.o: modmain.mod basisstates.mod amplitudes.o creation.f
 losses.o: modmain.mod basisstates.mod lists.mod amplitudes.o losses.f
 	$(FC) -c $(switch) losses.f
 
-main.o:	modmain.mod basisstates.mod hamiltonian.mod lists.mod hoppings.mod init.mod selection.mod rates.mod main.f
+main.o:	modmain.mod basisstates.mod hamiltonian.mod lists.mod \
+hoppings.mod init.mod selection.mod rates.mod modways.mod main.f 
 	$(FC) -c $(switch) main.f 
 
 hamiltonian.o: modmain.mod basisstates.mod hamiltonian.f
@@ -123,6 +127,9 @@ losses.mod hoppings.f
 
 rates.o: modmain.mod rates.f
 	$(FC) -c $(switch) rates.f
+
+modways.o: modmain.mod lists.mod modways.f
+	$(FC) -c $(switch) modways.f
 
 #-----------------------------------------------------
 

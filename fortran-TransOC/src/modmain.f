@@ -14,7 +14,7 @@
 	integer(kind=1):: nx
 
 	! list of active sites in order they appear in the basis 
-	integer, allocatable :: ASites(:)
+	integer(kind=1), allocatable :: ASites(:)
 
 	! PermSym: if all sites have same w0 and g, and AlwaysLP=True, i.e,
 	!	 	a quick relaxation to Lower polariton state after every hop,

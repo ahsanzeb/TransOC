@@ -414,7 +414,7 @@
 	subroutine ActiveOrder(ASites,na,l,l1,l2,order)
 	implicit none
 	integer(kind=1), intent(in) :: na,l
-	integer, dimension(na), intent(in):: Asites
+	integer(kind=1), dimension(na), intent(in):: Asites
 	integer(kind=1), intent(out) :: l1,l2
 	logical, intent(out) :: order
 	! local
@@ -435,7 +435,7 @@
 !----------------------------------
 	integer function GetPosition(Asites,na,l)
 	integer(kind=1), intent(in):: na,l
-	integer, dimension(na), intent(in):: Asites
+	integer(kind=1), dimension(na), intent(in):: Asites
 	! local
 	integer(kind=1) :: i
 
