@@ -202,11 +202,12 @@
 	! define ways; sites for various hopping processes
 	!---------------------------------------	
 	type :: HoppingWays
-		integer:: ns ! number of sites
-		!XXXXXXXXXXXXXXXXXXXXXXXXXXXX
-		!XXXXXXXXXXXXXXXXXXX
-		!XXXXXXXXXXXXXXXXXXXXXXXXX
-		integer, allocatable :: sites(:) ! change to sensible....
+		integer:: ns ! number of ways/sites for the given hop type
+		! sites: 	d or phi if d/phi hop, 
+		!				 	phi if d,phi pair annihilation
+		!					right active if other is also active
+		integer, allocatable :: sites(:) 
+		!	active: active site or D if d,phi annihilation
 		integer, allocatable :: active(:) ! active site(s) involved
 	end type HoppingWays
 	type(HoppingWays), dimension(26) :: ways ! 8 bulk, others contact

@@ -31,6 +31,7 @@
 
 	!-------------------------------
 	! ih:1-4 DHopsR/L, PhiHopsR/L
+	! ?? L/R also same if PermSym. D/phi also same, swaped 1,2 channels?
 	do ih=1,4
 		do is=1,ways(ih)%ns,1
 			l = ways(ih)%active(is); ! active site 
