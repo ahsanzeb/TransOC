@@ -1,7 +1,7 @@
 
 objects = basisstates.o main.o hamiltonian.o lists.o modmain.o memory.o \
- hoppings.o dhops.o kinds.o multiply.o annihilation.o kappa.o gamma.o \
- maps.o init.o amplitudes.o Aorder.o 
+ hoppings.o dhops.o kinds.o multiply.o annihilation.o losses.o \
+ maps.o init.o amplitudes.o
 
 include make.inc
 
@@ -40,24 +40,18 @@ hamiltonian.mod: modmain.mod lists.mod basisstates.mod hamiltonian.o hamiltonian
 dhops.mod: modmain.mod dhops.o dhops.f
 	$(FC) -c $(switch) dhops.f
 
-Aorder.mod: Aorder.o Aorder.f
-	$(FC) -c $(switch) Aorder.f
-
 
 annihilation.mod: modmain.mod annihilation.o annihilation.f
 	$(FC) -c $(switch) annihilation.f
 
-creation.mod: modmain.mod Aorder.mod creation.o creation.f
+creation.mod: modmain.mod creation.o creation.f
 	$(FC) -c $(switch) creation.f
 
-kappa.mod: modmain.mod kappa.o kappa.f
-	$(FC) -c $(switch) kappa.f
-
-gamma.mod: modmain.mod gamma.o gamma.f
-	$(FC) -c $(switch) gamma.f
+losses.mod: modmain.mod losses.o losses.f
+	$(FC) -c $(switch) losses.f
 
 hoppings.mod: modmain.mod dhops.mod annihilation.mod creation.mod\
- kappa.mod gamma.mod hoppings.o hoppings.f
+ losses.mod hoppings.o hoppings.f
 	$(FC) -c $(switch) hoppings.f
 
 #-----------------------------------------------------
@@ -66,10 +60,6 @@ hoppings.mod: modmain.mod dhops.mod annihilation.mod creation.mod\
 
 modmain.o:	modmain.f
 	$(FC) -c $(switch) modmain.f
-
-
-Aorder.o:	Aorder.f
-	$(FC) -c $(switch) Aorder.f
 
 lists.o: lists.f
 	$(FC) -c $(switch) lists.f
@@ -101,14 +91,12 @@ dhops.o: modmain.mod basisstates.mod lists.mod amplitudes.o dhops.f
 annihilation.o: modmain.mod basisstates.mod amplitudes.o annihilation.f
 	$(FC) -c $(switch) annihilation.f
 
-creation.o: modmain.mod basisstates.mod amplitudes.o Aorder.o creation.f
+creation.o: modmain.mod basisstates.mod amplitudes.o creation.f
 	$(FC) -c $(switch) creation.f
 
-kappa.o: modmain.mod basisstates.mod amplitudes.o kappa.f
-	$(FC) -c $(switch) kappa.f
 
-gamma.o: modmain.mod basisstates.mod lists.mod amplitudes.o gamma.f
-	$(FC) -c $(switch) gamma.f
+losses.o: modmain.mod basisstates.mod lists.mod amplitudes.o losses.f
+	$(FC) -c $(switch) losses.f
 
 main.o:	modmain.mod basisstates.mod hamiltonian.mod lists.mod hoppings.mod main.f
 	$(FC) -c $(switch) main.f 
@@ -120,7 +108,7 @@ amplitudes.o: modmain.mod amplitudes.f
 	$(FC) -c $(switch) amplitudes.f
 
 hoppings.o: modmain.mod dhops.mod annihilation.mod creation.mod\
- kappa.mod gamma.mod hoppings.f
+losses.mod hoppings.f
 	$(FC) -c $(switch) hoppings.f
 
 #-----------------------------------------------------

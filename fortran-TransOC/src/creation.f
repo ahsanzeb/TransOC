@@ -1,11 +1,11 @@
 	module Creation
-	use Aorder, only : activeorder
+	!use Aorder, only : activeorder
 
 	implicit none
 
 	public::DPhiCreat1, DPhiCreat3, DPhiCreat4
-	private::CreatMap1,CreatMap3,CreatMap4,ActiveOrder
-
+	private::CreatMap1,CreatMap3,CreatMap4
+	private:: ActiveOrder,GetPosition
 	
 	contains
 !------------------------------------------
@@ -412,6 +412,49 @@
 	end subroutine DPhiCreat4
 !------------------------------------------
 
+!---------------------------------------
+	subroutine ActiveOrder(ASites,na,l,l1,l2,order)
+	implicit none
+	integer(kind=1), intent(in) :: na,l
+	integer, dimension(na), intent(in):: Asites
+	integer(kind=1), intent(out) :: l1,l2
+	logical, intent(out) :: order
+	! local
+	integer(kind=1) :: i,x1,x2,lp1
+
+	lp1 = l + 1;
+	! order in the list of active sites
+	x1 = GetPosition(ASites,na,l);
+	x2 = GetPosition(ASites,na,lp1);
+	if (x1<x2) then
+		l1=x1; l2=x2; order=.true.;
+	else
+		l2=x1; l1=x2; order=.false.;
+	endif
+
+	return
+	end subroutine ActiveOrder
+!----------------------------------
+	integer function GetPosition(Asites,na,l)
+	integer(kind=1), intent(in):: na,l
+	integer, dimension(na), intent(in):: Asites
+	! local
+	integer(kind=1) :: i
+
+	GetPosition = 0;
+	do i=1,na
+		if(l == ASites(i)) then
+			GetPosition = i;
+			exit
+		endif
+	end do
+	if(GetPosition==0) then
+		write(*,*) "GetPosition: element not found!"
+		stop
+	endif
+	return
+	end function GetPosition
+!----------------------------------
 
 
 

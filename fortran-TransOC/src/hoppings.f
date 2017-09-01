@@ -18,8 +18,7 @@
 	use dhops, only: dhops1, dhops2
 	use creation, only: DPhiCreat1,DPhiCreat3,DPhiCreat4
 	use annihilation, only: DPhiAn1,DPhiAn2
-	use kappa, only: losskappa
-	use gamma, only: lossgamma
+	use losses, only: losskappa, lossgamma
 
 	implicit none
 	! local
