@@ -1,5 +1,6 @@
 	module Creation
-	!use Aorder, only : activeorder
+	use lists, only: SortedInsert
+	use basisstates, only: LexicoIndex !,Shift
 
 	implicit none
 
@@ -16,7 +17,6 @@
 	subroutine CreatMap1(n,k,l1,l2,map,ntot)
 	! only k > 0
 	use modmain, only: basis,mapb
-	use basisstates, only: LexicoIndex !,Shift
 	implicit none
 	integer(kind=1), intent(in) :: n,k,l1,l2
 	integer(kind=4), intent(in) :: ntot
@@ -58,7 +58,6 @@
 	subroutine CreatMap3(n,k,l1,l2,map,ntot)
 	! only k > 0
 	use modmain, only: basis,mapb
-	use basisstates, only: LexicoIndex !,Shift
 	implicit none
 	integer(kind=1), intent(in) :: n,k,l1,l2
 	integer(kind=4), intent(in) :: ntot
@@ -99,7 +98,6 @@
 	subroutine CreatMap4(n,k,l1,l2,map,ntot)
 	! only k > 0
 	use modmain, only: basis,mapb
-	use basisstates, only: LexicoIndex !,Shift
 	implicit none
 	integer(kind=1), intent(in) :: n,k,l1,l2
 	integer(kind=4), intent(in) :: ntot

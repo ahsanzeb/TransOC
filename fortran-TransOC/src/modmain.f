@@ -27,7 +27,11 @@
 	integer(kind=1), dimension(13):: nalist,nxlist !CHECK  not used????
 
 	! index for jump, channel, site
-	integer itype
+	integer:: itype
+
+	! hopping parameters
+	double precision, dimension(26,4):: hpar
+
 
 	!	--------------- maps ---------------
 	integer(kind=1), dimension(13)::

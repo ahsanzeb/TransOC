@@ -1,7 +1,7 @@
 
 objects = basisstates.o main.o hamiltonian.o lists.o modmain.o memory.o \
  hoppings.o dhops.o kinds.o multiply.o annihilation.o losses.o \
- maps.o init.o amplitudes.o
+ maps.o init.o amplitudes.o creation.o
 
 include make.inc
 
