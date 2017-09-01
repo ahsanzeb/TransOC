@@ -43,10 +43,16 @@
 	! bare exciton energy, right and left contact barriers
 	!	Electric field energy Er assumed constant for all hops
 	double precision:: w0, Ebr,Ebl, Er
-
+	! beta = 1/KbT for penalty function
+	double precision:: beta	
 	! block injection of electron/holes?
 	logical, dimension(2):: BlockInjection
-	
+	!	periodic boundary conditions?
+	logical:: periodic ! XXXXXXX make it about geometry of the system
+	! only bulk processes? with or without periodic boundary conditions
+	logical :: onlybulk ! no contacts?
+	logical :: nolosses ! kappa=0=gamma ?
+
 	!	--------------- maps ---------------
 	integer(kind=1), dimension(13)::
      . dna	= (/ 0,0,0,2,2,2,-2,-2,-2,1,1,-1,-1 /);
@@ -220,7 +226,7 @@
 	type(QuantumTransitions), dimension(14) :: qt 
 	double precision, allocatable :: psi(:) ! to store quantum state
 
-	type(TransitionRates), dimension(26):: rates
+	type(TransitionRates), dimension(26):: rate
 	! set the format for sparse matrix
 	!hop(1:4)%spfrmt = 'diagonal';
 

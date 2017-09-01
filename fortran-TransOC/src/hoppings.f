@@ -57,7 +57,7 @@
 				! chan 1,2 swapped, handled via maph, mapc
 	do is=1,ways(ih)%ns,1
 			l = ways(ih)%active(is); ! active site, on the left in the lattice
-			if (nx .ge. 0) then
+			if (nx .ge. 1) then
 				call DPhiCreat1(is,l) ! 1-2
 			endif
 			if (crosshops) then
