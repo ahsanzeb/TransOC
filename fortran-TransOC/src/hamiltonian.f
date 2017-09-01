@@ -295,6 +295,36 @@
 	end subroutine MakeHgMulti
 !------------------------------------------
 
+
+
+!---------------------------------------
+	subroutine DegenSectors(es,ne,nsec,esec,ind)
+	! importnat:only if es are in ascending order
+	integer, intent(in) :: ne
+	double precision,dimension(ne),intent(in):: es
+	double precision,dimension(ne),intent(out):: esec ! 1:nsec contains esec
+	integer, intent(out) :: nsec
+	integer,dimension(ne),intent(out):: ind !start index of sectors; 1:nsec
+	! local
+	double precision:: tol = 1.0d-6 ! tolerance
+	integer:: i,j
+
+	esec(1) = es(1); j = 1; ! start with the lowest energy
+	ind(1) = 1;
+	do i=1,ne
+		if (es(i) > esec(j) + tol ) then
+			j = j + 1; 
+			esec(j) = es(i);
+			ind(j) = i;
+		endif		
+	end do
+
+	nsec = j; ! total number of sectors
+	
+	return
+	end subroutine DegenSectors
+!---------------------------------------
+
 	
 	end module
 

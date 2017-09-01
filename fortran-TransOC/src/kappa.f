@@ -1,6 +1,11 @@
 
+	module kappa
+	implicit none
 
-
+	public:: LossKappa
+	
+	contains
+	
 	subroutine LossKappa()
 	use modmain, only: basis,na,nx,mapb
 	implicit none
@@ -42,6 +47,6 @@
 
 
 
-
+	end module
 
 

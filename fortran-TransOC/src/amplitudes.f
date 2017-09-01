@@ -36,7 +36,8 @@
 			write(*,*) "amplitudes: something wrong....!"
 			stop
 		endif
-		!if(allocated(qt(ia)%cs(1,is)%amp))deallocate(qt(ia)%cs(1,is)%amp)
+		if(allocated(qt(ia)%cs(ic,is)%amp))
+     .						deallocate(qt(ia)%cs(ic,is)%amp)
 		allocate(qt(ia)%cs(ic,is)%amp(n2))
 		! set the size for possible future use
 		!	DELETE THIS namp VARIABLE IF NOT NEEDED/USED.
@@ -47,12 +48,21 @@
 		deallocate(HtUf)
 
 		! calculate amp^2 for degenerate sectors
+		if(allocated(qt(ia)%cs(ic,is)%amp2))
+     .					deallocate(qt(ia)%cs(ic,is)%amp2)
+		allocate(qt(ia)%cs(ic,is)%amp2(eig(itl)%nsec))
+		!	DELETE THIS nsec VARIABLE IF NOT NEEDED/USED.
+		qt(ia)%cs(ic,is)%nsec = eig(itl)%nsec ! 
 		call GetAmp2(qt(ia)%cs(ic,is)%amp, n2,
      .		qt(ia)%cs(ic,is)%amp2, eig(itl)%nsec, eig(itl)%ind)
 
 	return
 	end subroutine CalAmp
 !---------------------------------------------
+	! if no disorder in site w0 and g, and AlwaysLP,
+	!	then permutation symmetry holds for all sites for a given hop,
+	!	so calculate amplitudes for a single site and use it for all sites; 
+	! similarly, calcualte amp2 once.
 	subroutine GetAmp2(amp,ne,amp2,nsec,ind)
 	! calculates total amplitude squared for degenerate sectors
 	integer, intent(in) :: ne, nsec

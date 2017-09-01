@@ -3,6 +3,8 @@
 	use modmain
 	use basisstates, only: mkbasis
 	use hamiltonian, only: makeHg,MakeHgMulti
+	use Hoppings, only: AllHops ! 
+	
 	implicit none
 	integer i,nnz,j,n1,n2,k,ih,is,ib,itype1,itype2,nt
 	real(kind=4), allocatable,dimension(:,:):: mat,matf
@@ -24,6 +26,13 @@
 
 	call mkbasis(na,nx)
 	write(*,*) " basis done....  "
+
+
+
+
+
+	call AllHops()
+
 
 	!do k=1,m1,1	
 	!	ntot = basis(i)%pntr(j+2) - basis(i)%pntr(j+1); ! for config of this type

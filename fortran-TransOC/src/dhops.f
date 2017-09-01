@@ -1,5 +1,11 @@
 
+	module Dhops
+	implicit none
 
+	public :: dhops1, dhops2
+	private :: dhopsmap1, dhopsmap2
+
+	contains
 !-----------------------------------
 	subroutine dhopsmap1(ib,k,l,mapa,la,mapb,lb)
 	use modmain, only: basis
@@ -281,4 +287,4 @@
 	end subroutine dhops2
 !------------------------------------------
 
-
+	end module dhops

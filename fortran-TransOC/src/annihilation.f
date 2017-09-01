@@ -1,5 +1,11 @@
 
+	module Annihilation
+	implicit none
 
+	public::DPhiAn1,DPhiAn2
+	private::AnMap1,AnMap2
+
+	contains
 !------------------------------------------
 !	Map for D Phi Annihilation for channel 1,2
 !------------------------------------------
@@ -259,3 +265,5 @@
 	end subroutine DPhiAn2
 !------------------------------------------
 
+
+	end module Annihilation

@@ -300,6 +300,14 @@
 !------------------------------------------
 
 
+	!subroutine Shift(set,k,l)
+	!implicit none
+	!integer, intent(in):: k,l
+	!integer, dimension(k), intent(inout) :: set
+	! local
+	!integer :: i
+	!set(l:k) = 	set(l:k) + 1;
+	!end subroutine Shift
 
 
 !------------------------------------------

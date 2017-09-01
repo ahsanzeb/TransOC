@@ -13,6 +13,16 @@
 	! number of excitatons
 	integer(kind=1):: nx
 
+	! list of active sites in order they appear in the basis 
+	integer, allocatable :: ASites(:)
+
+	! PermSym: if all sites have same w0 and g, and AlwaysLP=True, i.e,
+	!	 	a quick relaxation to Lower polariton state after every hop,
+	!		then we are always in the LP state when any type of hopping
+	!		occurs, all sites will be similar and we can use amplitudes
+	!		calculated for one site for others.
+	logical:: PermSym
+
 	!	na, nx lists for 13 Hilbert spaces
 	integer(kind=1), dimension(13):: nalist,nxlist !CHECK  not used????
 
@@ -169,10 +179,13 @@
 	!---------------------------------------	
 	type :: HoppingWays
 		integer:: ns ! number of sites
-		integer, allocatable :: sites(:)
+		!XXXXXXXXXXXXXXXXXXXXXXXXXXXX
+		!XXXXXXXXXXXXXXXXXXX
+		!XXXXXXXXXXXXXXXXXXXXXXXXX
+		integer, allocatable :: sites(:) ! change to sensible....
+		integer, allocatable :: active(:) ! active site(s) involved
 	end type HoppingWays
-	type(HoppingWays) :: ways
-
+	type(HoppingWays), dimension(26) :: ways ! 8 bulk, others contact
 
 	! 5 BasisSet
 	type(BasisSet), dimension(5) :: basis
@@ -192,6 +205,7 @@
 	type(TransitionRates), dimension(26):: rates
 	! set the format for sparse matrix
 	!hop(1:4)%spfrmt = 'diagonal';
+
 
 
 	double precision :: dw,g

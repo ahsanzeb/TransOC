@@ -1,4 +1,13 @@
 
+	module gamma
+	implicit none
+
+	public:: LossGamma
+	private:: GammaMap
+
+	contains
+	
+
 	subroutine GammaMap(ib,n,k,l,ntot1,map,ntot)
 	use modmain, only: basis, mapb
 	use basisstates, only: LexicoIndex
@@ -105,7 +114,7 @@
 
 
 
-
+	end module gamma
 
 
 
