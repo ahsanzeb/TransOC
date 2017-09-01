@@ -12,7 +12,7 @@
 ! calculates total rates for all processes
 !----------------------------------------------------
 	subroutine CalRates()
-	use modmain, only: crosshops,nolosses,nocontacts
+	use modmain, only: crosshops,nolosses,onlybulk
 	implicit none
 	! local
 	integer :: nc
@@ -65,7 +65,7 @@
 				end do
 				if(PermSym) exit; ! only a single site/case for each hop type
 			end do
-		rate(ih)%r = sum(rate(ih)%rcs(ic,is)); ! total rate for ih hop
+		rate(ih)%r = sum(rate(ih)%rcs(:,:)); ! total rate for ih hop
 		end do
 	case('annihilation')
 	!-------------------------------------------------
@@ -79,7 +79,7 @@
 					rate(ih)%rcs(ic,1)=rate(ih)%rcs(ic,1)*ways(ih)%ns
 				end do
 			endif
-			rate(ih)%r = sum(rate(ih)%rcs(ic,is)); ! total rate for ih hop
+			rate(ih)%r = sum(rate(ih)%rcs(:,:)); ! total rate for ih hop
 		end do
 	case('losses')
 	!-------------------------------------------------
@@ -99,7 +99,7 @@
 			endif
 			if(PermSym) exit; ! only a single site/case for each hop type
 		end do
-		rate(ih)%r = sum(rate(ih)%rcs(ic,is)); ! total rate for ih hop
+		rate(ih)%r = sum(rate(ih)%rcs(:,:)); ! total rate for ih hop
 
 	case('contacts')
 	!-------------------------------------------------
@@ -119,12 +119,13 @@
 	subroutine ratehcs(ih,ic,is)
 	! rates for ih hop, ic channel, is site
 	! sets global variable rate(ih)%rcs(ic,is)
-	use modmain, only: nx,qt,eig,itypes,mapt,maph,mapc,Einit,rate
+	use modmain, only: nx,qt,eig,itypes,
+     .  mapt,maph,mapc,Einit,rate,ways,dqc
 	implicit none
 	integer, intent(in) :: ih,ic,is
 	! local
 	double precision, allocatable :: de(:)
-	integer :: nsec
+	integer :: nsec, ia,icl,itl
 
 
 	! if no available hops, set rate = 0
@@ -134,7 +135,7 @@
 	endif
 
 	! conditions on nx for ih=7,8
-	if ((ih==7 .or. ih==8) then
+	if (ih==7 .or. ih==8) then
 		if ( (ic < 3 .and. nx .lt. 1) .or. 
      .   (ic == 3 .and. nx .lt. 2) ) then
 			rate(ih)%rcs(ic,is) = 0.d0
@@ -157,7 +158,7 @@
 
 	! rates; total for this hop/hchannel/site
 	rate(ih)%rcs(ic,is) =
-     .   sum(PenaltyArray(de,nsec) * qt(ia)%cs(icl,is)%amp2(i))
+     .   sum(PenaltyArray(de,nsec) * qt(ia)%cs(icl,is)%amp2)
 
 	!	the final degenerate sector will be slected on basis of amp2
 	!	once ih, ic,is are selected on basis of rate(ih)%rcs, and rate(ih)%r
@@ -173,20 +174,12 @@
 		double precision, dimension(ne):: PenaltyArray
 		! local
 		integer:: i
-		penalty = 1.0d0;
+		PenaltyArray = 1.0d0;
 		do i=1,ne
 			if(de(i) > 0.0d0)PenaltyArray(i)=dexp(-de(i)*beta);
 		end do
 	return
 	end function PenaltyArray
-!******************************************************
-	double precision function penalty(de)
-	use modmain, only: beta
-	implicit none
-		penalty = 1.0d0;
-		if(de > 0.0d0 ) penalty = dexp(-de*beta);
-	return
-	end function penalty
 !******************************************************
 	end module rates
 

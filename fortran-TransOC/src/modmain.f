@@ -52,7 +52,7 @@
 	! only bulk processes? with or without periodic boundary conditions
 	logical :: onlybulk ! no contacts?
 	logical :: nolosses ! kappa=0=gamma ?
-
+	double precision:: Einit ! intial energy in every iteration
 	!	--------------- maps ---------------
 	integer(kind=1), dimension(13)::
      . dna	= (/ 0,0,0,2,2,2,-2,-2,-2,1,1,-1,-1 /);

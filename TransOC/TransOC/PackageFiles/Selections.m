@@ -81,7 +81,7 @@ EUinds={
 ListdNm={{0,0},{0,-1},{0,1},{2,1},{2,0},{2,2},
 {-2,-1},{-2,-2},{-2,0},{1,1},{1,0},{-1,-1},{-1,0}};
 
-DEQCsum[w0_,Ebr_,Ebl_,Er_]:=Module[{dqc,dEbulk,dEcont,dEs,signEr},
+DEQCsum[w0_,Ebr_,Ebl_,Er_]:=Module[{dqc,dEbulk,dEcont,signEr},
 dEbulk={0,0,-w0,w0};
 dEcont={
 -Ebr,-Ebr+w0,-Ebl,-Ebl+w0,

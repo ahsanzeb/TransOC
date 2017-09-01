@@ -1,10 +1,13 @@
 
 	program TransOC
 	use modmain
+	use init, only: initialise
 	use basisstates, only: mkbasis
 	use hamiltonian, only: makeHg,MakeHgMulti
 	use Hoppings, only: AllHops ! 
-	use init, only: initialise
+	use rates, only: CalRates
+	use selection, only: ihSelect, icsSelect
+	
 	implicit none
 	integer i,nnz,j,n1,n2,k,ih,is,ib,itype1,itype2,nt
 	real(kind=4), allocatable,dimension(:,:):: mat,matf

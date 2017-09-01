@@ -92,8 +92,8 @@
 
 
 	! only bulk processes? nh=1-8
-	nh = 26;
-	if(nocontacts) then
+	!nh = 26;
+	!if(nocontacts) then
 
 
 
