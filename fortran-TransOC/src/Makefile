@@ -40,6 +40,9 @@ hamiltonian.mod: modmain.mod lists.mod basisstates.mod hamiltonian.o hamiltonian
 dhops.mod: modmain.mod dhops.o dhops.f
 	$(FC) -c $(switch) dhops.f
 
+init.mod: modmain.mod init.o init.f
+	$(FC) -c $(switch) init.f
+
 
 annihilation.mod: modmain.mod annihilation.o annihilation.f
 	$(FC) -c $(switch) annihilation.f
@@ -77,13 +80,11 @@ multiply.o: multiply.f
 init.o: modmain.mod init.f
 	$(FC) -c $(switch) init.f
 
-
 basisstates.o: modmain.mod basisstates.f
 	$(FC) -c $(switch) basisstates.f
 
 maps.o:	modmain.mod maps.f
 	$(FC) -c $(switch) maps.f
-
 
 dhops.o: modmain.mod basisstates.mod lists.mod amplitudes.o dhops.f
 	$(FC) -c $(switch) dhops.f
@@ -98,7 +99,7 @@ creation.o: modmain.mod basisstates.mod amplitudes.o creation.f
 losses.o: modmain.mod basisstates.mod lists.mod amplitudes.o losses.f
 	$(FC) -c $(switch) losses.f
 
-main.o:	modmain.mod basisstates.mod hamiltonian.mod lists.mod hoppings.mod main.f
+main.o:	modmain.mod basisstates.mod hamiltonian.mod lists.mod hoppings.mod init.mod main.f
 	$(FC) -c $(switch) main.f 
 
 hamiltonian.o: modmain.mod basisstates.mod hamiltonian.f

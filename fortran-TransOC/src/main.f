@@ -4,7 +4,7 @@
 	use basisstates, only: mkbasis
 	use hamiltonian, only: makeHg,MakeHgMulti
 	use Hoppings, only: AllHops ! 
-	
+	use init, only: initialise
 	implicit none
 	integer i,nnz,j,n1,n2,k,ih,is,ib,itype1,itype2,nt
 	real(kind=4), allocatable,dimension(:,:):: mat,matf
@@ -19,7 +19,7 @@
 	detuning = .true.;
 
 	!	initialise maps etc
-	call init()
+	call initialise()
 
 	! set no of active sites and excitations
 	na = 10; nx = 5;

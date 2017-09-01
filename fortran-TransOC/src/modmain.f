@@ -29,10 +29,24 @@
 	! index for jump, channel, site
 	integer:: itype
 
+	! hopping parameters for Homo-Homo, etc
+	!	set defauls after reading input file
+	double precision, dimension(8):: tpar
+	
+	! cavity and exciton loss rates
+	double precision :: kappa, gamma	
+
 	! hopping parameters
 	double precision, dimension(26,4):: hpar
+	! energy changes due to contact barriers, applied field, etc
+	double precision, dimension(26,4):: dqc
+	! bare exciton energy, right and left contact barriers
+	!	Electric field energy Er assumed constant for all hops
+	double precision:: w0, Ebr,Ebl, Er
 
-
+	! block injection of electron/holes?
+	logical, dimension(2):: BlockInjection
+	
 	!	--------------- maps ---------------
 	integer(kind=1), dimension(13)::
      . dna	= (/ 0,0,0,2,2,2,-2,-2,-2,1,1,-1,-1 /);

@@ -9,6 +9,12 @@
 	contains
 
 
+
+	! Right and left contact energy barriers
+	{Ebl, Ebr} = Eb;
+	! classical + quantum changes
+	DCQ = DEQCsum[w0, Ebr, Ebl, Er];
+
 	
 
 
