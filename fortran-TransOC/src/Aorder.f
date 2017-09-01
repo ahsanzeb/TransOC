@@ -1,3 +1,9 @@
+
+	module Aorder
+	implicit none
+	public :: ActiveOrder
+
+	contains
 !---------------------------------------
 	subroutine ActiveOrder(ASites,na,l,l1,l2,order)
 	implicit none
@@ -42,3 +48,4 @@
 	end subroutine ActiveOrder
 !---------------------------------------
 
+	end module Aorder

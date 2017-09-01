@@ -2,12 +2,7 @@
 
 
 	module Hoppings
-	use modmain, only: ways,PermSym,na,nx,crosshops
-
-	use dhops, only: dhops1, dhops2
-	use creation, only: DPhiCreat1,DPhiCreat3,DPhiCreat4
-	use annihilation, only: DPhiAn1,DPhiAn2
-
+	
 	implicit none
 
 	public :: AllHops
@@ -19,7 +14,13 @@
 	!	respective quantum amplitudes
 	!-------------------------------------------------------	
 	subroutine AllHops()
-	
+	use modmain, only: ways,PermSym,na,nx,crosshops
+	use dhops, only: dhops1, dhops2
+	use creation, only: DPhiCreat1,DPhiCreat3,DPhiCreat4
+	use annihilation, only: DPhiAn1,DPhiAn2
+	use kappa, only: losskappa
+	use gamma, only: lossgamma
+
 	implicit none
 	! local
 	integer(kind=1) :: ih,is,l
@@ -59,13 +60,13 @@
 	do is=1,ways(ih)%ns,1
 			l = ways(ih)%active(is); ! active site, on the left in the lattice
 			if (nx .ge. 0) then
-				call DPhiCreat1(is,l) ! 1-2
+				!call DPhiCreat1(is,l) ! 1-2
 			endif
 			if (crosshops) then
 				if (nx .ge. 2) then
-					call DPhiCreat3(is,l) ! 3
+				!	call DPhiCreat3(is,l) ! 3
 				endif
-				call DPhiCreat4(is,l) ! 4
+				!call DPhiCreat4(is,l) ! 4
 			endif
 			if(PermSym) exit! only a single site/case for each hop type
 	end do

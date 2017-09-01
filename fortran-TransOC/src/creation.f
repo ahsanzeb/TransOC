@@ -1,10 +1,11 @@
 	module Creation
+	use Aorder, only : activeorder
+
 	implicit none
 
-	public::DPhiCreat1,DPhiCreat3,DPhiCreat4
+	public::DPhiCreat1, DPhiCreat3, DPhiCreat4
 	private::CreatMap1,CreatMap3,CreatMap4,ActiveOrder
 
-	external :: activeorder
 	
 	contains
 !------------------------------------------
@@ -168,6 +169,7 @@
 !------------------------------------------
 	subroutine DPhiCreat1(is,l)
 	use modmain, only: basis,na,nx,Asites
+	
 	implicit none
 	integer(kind=1), intent(in):: is,l
 	!	local
