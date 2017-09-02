@@ -1,6 +1,7 @@
 
 	module rates
-	use modmain, only: qt,eig,itypes,mapb,mapt,maph,mapc
+	use modmain, only: qt,eig,itypes,
+     .  mapb,mapt,maph,mapc,nokappa, nogamma
 	implicit none
 
 	public:: CalRates
@@ -87,20 +88,27 @@
 	!-------------------------------------------------
 		! caivty losses
 		ih=25; ic=1; is=1
-		call ratehcs(ih,ic,is)
-		rate(ih)%r = rate(ih)%rcs(ic,is); ! total rate for ih hop
-
+		if (.not. nokappa) then
+			call ratehcs(ih,ic,is)
+			rate(ih)%r = rate(ih)%rcs(ic,is); ! total rate for ih hop
+		else
+			rate(ih)%r = 0.0d0
+		endif
 		! exciton losses
 		ih=25; ic=1;
-		do is=1,ways(ih)%ns,1
-			call ratehcs(ih,ic,is)
-			if(PermSym) then ! total rate = (rates for one site) * ns
-				rate(ih)%rcs(ic,is)=rate(ih)%rcs(ic,is)*ways(ih)%ns
-			endif
-			if(PermSym) exit; ! only a single site/case for each hop type
-		end do
-		rate(ih)%r = sum(rate(ih)%rcs(:,:)); ! total rate for ih hop
-
+		if (.not. nogamma) then
+			do is=1,ways(ih)%ns,1
+				call ratehcs(ih,ic,is)
+				if(PermSym) then ! total rate = (rates for one site) * ns
+					rate(ih)%rcs(ic,is)=rate(ih)%rcs(ic,is)*ways(ih)%ns
+				endif
+				if(PermSym) exit; ! only a single site/case for each hop type
+			end do
+			rate(ih)%r = sum(rate(ih)%rcs(:,:)); ! total rate for ih hop
+		else
+			rate(ih)%r = 0.0d0
+		endif
+		
 	case('contacts')
 	!-------------------------------------------------
 	! ih:9-24; R/L contacts injection/extraction of e/h

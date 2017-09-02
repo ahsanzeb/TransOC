@@ -1,7 +1,7 @@
 
 objects = basisstates.o main.o hamiltonian.o lists.o modmain.o memory.o \
  hoppings.o dhops.o kinds.o multiply.o annihilation.o losses.o \
- maps.o init.o amplitudes.o creation.o selection.o rates.o modways.o
+ maps.o init.o amplitudes.o creation.o selection.o rates.o modways.o readinput.o
 
 include make.inc
 
@@ -24,6 +24,9 @@ transoc: $(objects)
 #-----------------------------------------------------
 modmain.mod:	modmain.o modmain.f
 	$(FC) -c $(switch) modmain.f
+
+readinput.mod: modmain.mod readinput.o readinput.f
+	$(FC) -c $(switch) readinput.f
 
 lists.mod: lists.o lists.f
 	$(FC) -c $(switch) lists.f
@@ -76,6 +79,9 @@ modmain.o:	modmain.f
 lists.o: lists.f
 	$(FC) -c $(switch) lists.f
 
+readinput.o: modmain.mod readinput.f
+	$(FC) -c $(switch) readinput.f
+
 memory.o: memory.f
 	$(FC) -c $(switch) memory.f
 
@@ -112,7 +118,7 @@ losses.o: modmain.mod basisstates.mod lists.mod amplitudes.o losses.f
 	$(FC) -c $(switch) losses.f
 
 main.o:	modmain.mod basisstates.mod hamiltonian.mod lists.mod \
-hoppings.mod init.mod selection.mod rates.mod modways.mod main.f 
+hoppings.mod init.mod selection.mod rates.mod modways.mod readinput.mod main.f 
 	$(FC) -c $(switch) main.f 
 
 hamiltonian.o: modmain.mod basisstates.mod hamiltonian.f

@@ -8,7 +8,7 @@
 	use rates, only: CalRates
 	use selection, only: ihSelect, icsSelect
 	use modways, only: UpdateWays, UpdateOcc
-	
+	use readinput, only: input
 	implicit none
 	integer i,nnz,j,n1,n2,k,ih,is,ib,itype1,itype2,nt
 	real(kind=4), allocatable,dimension(:,:):: mat,matf

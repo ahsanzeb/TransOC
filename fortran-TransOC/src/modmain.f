@@ -35,23 +35,28 @@
 	
 	! cavity and exciton loss rates
 	double precision :: kappa, gamma	
-
+	logical :: nokappa, nogamma
 	! hopping parameters
 	double precision, dimension(26,4):: hpar
 	! energy changes due to contact barriers, applied field, etc
 	double precision, dimension(26,4):: dqc
+	! hopping parameters
+	double precision:: th, tl, tlh, thl
+	double precision:: JhR, JlR, JhL, JlL
 	! bare exciton energy, right and left contact barriers
 	!	Electric field energy Er assumed constant for all hops
 	double precision:: w0, Ebr,Ebl, Er
 	! beta = 1/KbT for penalty function
 	double precision:: beta	
 	! block injection of electron/holes?
-	logical, dimension(2):: BlockInjection
+	!logical, dimension(2):: BlockInjection
+	logical:: EBlock, HBlock
 	!	periodic boundary conditions?
 	logical:: periodic ! XXXXXXX make it about geometry of the system
 	! only bulk processes? with or without periodic boundary conditions
 	logical :: onlybulk ! no contacts?
 	logical :: nolosses ! kappa=0=gamma ?
+	logical :: AlwaysLP ! quickly relax to Lower Polariton after a hop
 	double precision:: Einit ! intial energy in every iteration
 	!	--------------- maps ---------------
 	integer(kind=1), dimension(13)::
@@ -94,8 +99,7 @@
 	!	------------------------------
 
 
-	logical crosshops ! L-H and H-L cross hops allowed? 
-
+	logical :: crosshops ! L-H and H-L cross hops allowed? 
 
 
 	!---------------------------------------	

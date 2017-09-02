@@ -1,7 +1,8 @@
 
 	!	calls routines that calculate amplitudes for all hops
 	module Hoppings
-	use modmain, only: ways,PermSym,na,nx,crosshops
+	use modmain, only: ways,PermSym,na,nx,crosshops,
+     .              nokappa,nogamma
 	use dhops, only: dhops1, dhops2
 	use creation !, only: DPhiCreat1,DPhiCreat3,DPhiCreat4
 	use annihilation, only: DPhiAn1,DPhiAn2
@@ -76,12 +77,16 @@
 	!-------------------------------
 	if (nx .gt. 0) then
 		! Exciton non-radiative decay
-		do is=1,na
-			call LossGamma(is);
-			if(PermSym) exit; ! only a single site/case for each hop type
-		end do
+		if( .not. nogamma) then
+			do is=1,na
+				call LossGamma(is);
+				if(PermSym) exit; ! only a single site/case for each hop type
+			end do
+		endif
 		! Cavity photon losses
-		call LossKappa() ! kappa
+		if( .not. nokappa) then
+			call LossKappa() ! kappa
+		endif
 	endif
 	!-------------------------------
 
