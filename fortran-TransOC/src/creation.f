@@ -168,8 +168,8 @@
 	integer(kind=1), intent(in):: is
 	!	local
 	integer(kind=1):: ih=7, ib1i=3, ib2i=1,ib1,ib2 ! see dnalist5 in modmain
-	integer(kind=1)::k,n,m,m1,m2,i,m3
-	integer :: ntot, ind, ntot1,nnz,n1,n2,n3
+	integer(kind=1)::k,n,m,m1,m2,m3
+	integer :: ntot, ind, ntot1,nnz,n1,n2,n3,i
 	integer, allocatable, dimension(:,:) :: map,row
 	integer, allocatable, dimension(:):: pntr1,pntr2,col
 	integer(kind=1) :: l1,l2,l
@@ -185,7 +185,7 @@
 
 	m1 = min(n,m);
 	m2 = min(n-2,m-1);
-	m3 = min(m1,n-1); ! at least 1 dn required
+	m3 = min(m1,n-1); ! =?min(m,n-1);at least 1 dn required
 
 
 	l = ways(ih)%active(is); ! localtion of active site in lattice
@@ -208,13 +208,15 @@
 	allocate(row(nnz,2)) 
 	allocate(col(nnz)) 
 
+	col = 0
+
 	!	calc the matrix
 	!	init k=1 ===> final k'=1-1=0
 	ind = 1; ntot=1
 	row(1,1) = l1 ! l1 up in k=1 sec
 	row(1,2) = l2 ! l2 up in k=1 sec
 	! final basis
-	col(1) = 1; !(/ 1 /) ! k=0 sec of final
+	col(1) = 1;! k=0 sec of final
 
 	!	init k>1 ====> final k'=k-1
 	ind = 2;
@@ -228,11 +230,23 @@
 		row(ind:ind+ntot-1,2) = map(2,:)
 		! final basis
 		col(ind:ind+ntot-1) =
-     .		(/ (i,i=pntr2(k)+1,pntr2(k+1),1 ) /) ! k-1 sec of final
-		ind = ind+ntot
-		deallocate(map)
+     .		(/ (i,i=pntr2(k)+1,pntr2(k+1),1 ) /); ! k-1 sec of final
+		!write(*,*)"pntr2(k)+1,pntr2(k+1) = ",pntr2(k)+1,pntr2(k+1)
+		!write(*,*)"ind,indf = ",ind,ind+ntot
+
+		ind = ind+ntot;
+		
+		deallocate(map);
 	end do
 
+	! final basis
+	!col=(/ (i,i=1,nnz ) /);! same as in k loop
+	!write(*,*)"nnz = ",nnz
+	!write(*,*)"***********************************************"
+	!write(*,*)"pntr1",pntr1
+	!write(*,*)"pntr2",pntr2
+	!write(*,*) "row",row
+	!write(*,*) "col",col
 
 	!-------------------------------------------------------
 	! calculate transition amplitudes
@@ -277,8 +291,8 @@
 	integer(kind=1), intent(in):: is
 	!	local
 	integer(kind=1):: ih=7, ib1i=3, ib2i=1,ib1,ib2 ! see dnalist5 in modmain
-	integer(kind=1)::n,k,m,m1,m2,i
-	integer :: ntot, ind, nnz,n1,n2,n3,i1,i2
+	integer(kind=1)::n,k,m,m1,m2
+	integer :: ntot, ind, nnz,n1,n2,n3,i1,i2,i
 	integer, allocatable, dimension(:) :: map,row,col
 	integer, allocatable :: pntr1(:), pntr2(:)
 	integer(kind=1) :: l1,l2,l
@@ -371,8 +385,8 @@
 	integer(kind=1), intent(in):: is
 	!	local
 	integer(kind=1):: ih=7, ib1i=3, ib2i=1,ib1,ib2! see dnalist5 in modmain
-	integer(kind=1)::k,n,m,m1,m2,i
-	integer :: ntot, ind, nnz,n1,n2,n3
+	integer(kind=1)::k,n,m,m1,m2
+	integer :: ntot, ind, nnz,n1,n2,n3,i
 	integer, allocatable, dimension(:) :: map,row,col
 	integer, allocatable, dimension(:):: pntr1,pntr2
 	integer(kind=1) :: l1,l2,l

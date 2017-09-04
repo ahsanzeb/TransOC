@@ -1,6 +1,6 @@
 
 	module modways
-	use modmain, only: sys, ways
+	use modmain, only: sys, ways, periodic
 	implicit none
 
 	public :: UpdateWays, UpdateOcc
@@ -11,7 +11,7 @@
 	subroutine UpdateWays()
 	implicit none
 	! local
-	integer(kind=1):: ntot, p,la,lo,is
+	integer(kind=1):: ntot, p,la,lo,is,is1
 	integer, dimension(26) :: nps
 	integer, allocatable, dimension(:,:) :: act,oth
 
@@ -26,8 +26,18 @@
 
 	!write(*,*)'sys%nsites====>',  sys%nsites
 	! bulk processes
-	do is=1,ntot-1
-		call WhichBulkHop(is,p,la,lo)
+	do is=1,ntot ! loop over left site
+
+		! choose the right site
+		if (is < ntot) then
+			is1 = is+1;
+		elseif (periodic) then
+			is1 = 1;
+		else
+			exit ! if not periodic then is=1,ntot-1
+		endif
+	
+		call WhichBulkHop(is,is1,p,la,lo)
 		!write(*,*) "is, p, la,lo =",is, p, la,lo 
 		if (p .gt. 0 ) then
 			nps(p) = nps(p) + 1;
@@ -40,6 +50,7 @@
 				oth(8,nps(8)) = la 		
 			endif
 		endif
+		
 	end do
 
 	! contact processes: DO LATER
@@ -90,18 +101,16 @@
 ! 6, Phi,D annihilated
 ! 7, D, Phi created
 ! 8, Phi,D created
-	subroutine WhichBulkHop(is,p,la,lo)
+	subroutine WhichBulkHop(is,is1,p,la,lo)
 	implicit none
-	integer(kind=1), intent(in) :: is
+	integer(kind=1), intent(in) :: is,is1
 	integer(kind=1), intent(out) :: p,la,lo 
 	! process ind, active site, other site (or phi if D,Phi annihilation)
 	! local
-	integer:: l,r,is1 ! occupation on left, right sites
+	integer:: l,r ! occupation on left, right sites
 
-	is1 = is+1;
-	
 	l = sys%occ(is);
-	r = sys%occ(is+1)
+	r = sys%occ(is1)
 	! both D or both Phi
 	if ((l==0 .and. r==0).or.(l==2 .and. r==2))then
 		p=-1; la=-1;lo=-1; ! no way

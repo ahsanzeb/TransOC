@@ -17,7 +17,12 @@
 
 	! local
 	integer :: i
-	matf = 0
+
+	!write(*,*)"nnz,n1,n2,n3,n4 = ",nnz,n1,n2,n3,n4
+	!write(*,*)minval(row), minval(col)
+	!write(*,*) col
+
+	matf = 0.d0
 	do i=1,nnz
 		matf(row(i),:) = mat(col(i),:)
 	end do
@@ -42,7 +47,7 @@
 	! local
 	integer :: i,j
 
-	matf = 0
+	matf = 0.0d0
 	do i=1,nnz ! diagonal but not full diagonal, selected rows/cols
 		j = row(i)
 		matf(j,:) = mat(j,:)
@@ -72,7 +77,7 @@
 	! local
 	integer :: i
 
-	matf = 0
+	matf = 0.0d0
 	do i=1,nnz ! nnz = dim of initial Hilbert space
 		matf(i,:) = mat(col(i),:)
 	end do
