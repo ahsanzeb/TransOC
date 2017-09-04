@@ -22,7 +22,6 @@
 	! no crosshops? nc=1-2, otherwise nc=4
 	nc=2;
 	if (crosshops) nc=4; 
-
 	! calculate rate(:)%r and rate(:)%rcs(:,:) for all hops
 	call totr('dphihops',nc)
 	call totr('annihilation',nc)
@@ -37,7 +36,7 @@
 	subroutine totr(process,nc)
 	! calculates c,s resolved rate and total rate
 	!	rate(ih)%rcs(ic,is) and rate(ih)%r
-	use modmain, only: rate, ways, PermSym
+	use modmain, only: rate, ways, PermSym,na,nx,ts
 	implicit none
 	character(len=*), intent(in):: process
 	integer, intent(in) :: nc
@@ -57,30 +56,39 @@
 			ih1=7;ih2=8;
 		endif
 		do ih=ih1,ih2
+			write(*,*)"ih, ways(ih)%ns = ",ih, ways(ih)%ns
+			write(*,'(a,i5,5x,4f10.5)')"ih, ts(ih,:) =",ih, ts(ih,:)
+			if(ways(ih)%ns>0) then
 			do is=1,ways(ih)%ns,1
 				do ic=1,nc
 					call ratehcs(ih,ic,is)
 					if(PermSym) then ! total rate = (rates for one site) * ns
-						rate(ih)%rcs(ic,is)=rate(ih)%rcs(ic,is)*ways(ih)%ns
+						rate(ih)%rcs(ic,is)=ts(ih,ic)*rate(ih)%rcs(ic,is)*ways(ih)%ns
 					endif
 				end do
 				if(PermSym) exit; ! only a single site/case for each hop type
 			end do
-		rate(ih)%r = sum(rate(ih)%rcs(:,:)); ! total rate for ih hop
+			rate(ih)%r = sum(rate(ih)%rcs); ! total rate for ih hop
+			else
+				rate(ih)%r = 0.0d0;
+			endif
 		end do
 	case('annihilation')
 	!-------------------------------------------------
 	! ih:5-6 D,Phi annihilation R,L ==> D,Phi | Phi,D
 	!-------------------------------------------------
+
 		do ih=5,6
 			if (ways(ih)%ns>0) then
 				do ic=1,nc
 					call ratehcs(ih,ic,1)
 					! total rate = (rates for one site) * ns
-					rate(ih)%rcs(ic,1)=rate(ih)%rcs(ic,1)*ways(ih)%ns
+					rate(ih)%rcs(ic,1)=ts(ih,ic)*rate(ih)%rcs(ic,1)*ways(ih)%ns
 				end do
+				rate(ih)%r = sum(rate(ih)%rcs(:,:)); ! total rate for ih hop
+			else
+				rate(ih)%r = 0.0d0;
 			endif
-			rate(ih)%r = sum(rate(ih)%rcs(:,:)); ! total rate for ih hop
 		end do
 	case('losses')
 	!-------------------------------------------------
@@ -88,7 +96,7 @@
 	!-------------------------------------------------
 		! caivty losses
 		ih=25; ic=1; is=1
-		if (.not. nokappa) then
+		if (.not. nokappa .and. nx > 0) then
 			call ratehcs(ih,ic,is)
 			rate(ih)%r = rate(ih)%rcs(ic,is); ! total rate for ih hop
 		else
@@ -96,11 +104,11 @@
 		endif
 		! exciton losses
 		ih=25; ic=1;
-		if (.not. nogamma) then
-			do is=1,ways(ih)%ns,1
+		if (.not. nogamma .and. nx*na > 0 ) then ! both na, nx >0
+			do is=1,na
 				call ratehcs(ih,ic,is)
 				if(PermSym) then ! total rate = (rates for one site) * ns
-					rate(ih)%rcs(ic,is)=rate(ih)%rcs(ic,is)*ways(ih)%ns
+					rate(ih)%rcs(ic,is)=ts(ih,ic)*rate(ih)%rcs(ic,is)*ways(ih)%ns
 				endif
 				if(PermSym) exit; ! only a single site/case for each hop type
 			end do
@@ -115,8 +123,8 @@
 	!-------------------------------------------------
 		ic=1; is=1
 		do ih=9,24
-			call ratehcs(ih,ic,1)
-			rate(ih)%r = rate(ih)%rcs(ic,is); ! total rate for ih hop
+			!call ratehcs(ih,ic,1)
+			rate(ih)%r = 0.0d0 !rate(ih)%rcs(ic,is); ! total rate for ih hop
 		end do
 
 	end select
@@ -146,7 +154,7 @@
 	if (ih==7 .or. ih==8) then
 		if ( (ic < 3 .and. nx .lt. 1) .or. 
      .   (ic == 3 .and. nx .lt. 2) ) then
-			rate(ih)%rcs(ic,is) = 0.d0
+			rate(ih)%rcs(ic,is) = 0.d0;
 			return 
 		endif
 	endif
@@ -168,6 +176,12 @@
 	rate(ih)%rcs(ic,is) =
      .   sum(PenaltyArray(de,nsec) * qt(ia)%cs(icl,is)%amp2)
 
+
+
+	write(*,*) "rates:********************"
+	write(*,*) "ih,ic, dqc(ih,ic) = ",ih,ic, dqc(ih,ic)
+	write(*,'(i5,5x,f12.6)') ic, rate(ih)%rcs(ic,is) 
+
 	!	the final degenerate sector will be slected on basis of amp2
 	!	once ih, ic,is are selected on basis of rate(ih)%rcs, and rate(ih)%r
 
@@ -179,13 +193,22 @@
 	implicit none
 		integer,intent(in) :: ne
 		double precision, dimension(ne),intent(in):: de
+		double precision, dimension(ne):: tmp
 		double precision, dimension(ne):: PenaltyArray
 		! local
 		integer:: i
+		double precision:: x, fac=10.0d0
+		
 		PenaltyArray = 1.0d0;
+		tmp = de*beta;
 		do i=1,ne
-			if(de(i) > 0.0d0)PenaltyArray(i)=dexp(-de(i)*beta);
+			if(tmp(i) > fac) then
+				PenaltyArray(i)=0.0d0
+			elseif (tmp(i) > 0.0d0) then
+					PenaltyArray(i)= dexp(-tmp(i))
+			endif
 		end do
+
 	return
 	end function PenaltyArray
 !******************************************************

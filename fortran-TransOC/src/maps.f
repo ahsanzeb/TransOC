@@ -1,4 +1,9 @@
 
+
+	module maps
+	implicit none
+
+	contains
 !-------------------------------------------
 
 	subroutine UpdateMapB(wj,wc)
@@ -35,7 +40,7 @@
 		end do
 		inu = inu - 1
 		
-		write(*,*) map
+		!write(*,*) map
 		! where to put to be calculated results?
 
 		do i = 1,inu,1		
@@ -46,6 +51,25 @@
 				endif
 			end do
 		end do
+
+
+
+
+
+	! notused: calc only if allowed by positive N,m values
+	
+
+
+
+
+
+
+
+
+
+
+
+
 
 	! set global variables
 	mapb%map = map;
@@ -100,13 +124,13 @@
 		end do
 		inu = inu-1
 		
-		write(*,*) map
+		!write(*,*) map
 		! where to put to be calculated results?
 		do i = 1,inu,1		
 			do it1=1,13
 				if (map(it1)==-1) then
 						map(it1) =  temp(notused(i));
-						write(*,*) "Calc new Hg etc for itype ",it1
+						!write(*,*) "Calc new Hg etc for itype ",it1
 						exit
 				endif
 			end do
@@ -225,5 +249,41 @@
 	end subroutine calmaphc
 !-------------------------------------------
 
+	subroutine DONTUSEmaps()
+	use modmain, only: mapt,mapb
+	implicit none
 
-			
+	if (allocated(mapb%map)) deallocate(mapb%map)
+	if (allocated(mapb%cal)) deallocate(mapb%cal)
+	if (allocated(mapt%map)) deallocate(mapt%map)
+	if (allocated(mapt%cal)) deallocate(mapt%cal)
+	allocate(mapb%map(5))
+	allocate(mapb%cal(5))
+	allocate(mapt%map(13))
+	allocate(mapt%cal(13))
+
+	
+ 	mapb%nnu = 5; mapt%nnu = 13 ! calc all 
+	mapb%map = (/ 1,2,3,4,5 /)
+	mapb%cal = (/ 1,2,3,4,5 /)
+	mapt%map = (/ 1,2,3,4,5,6,7,8,9,10,11,12,13 /)
+	mapt%cal = (/ 1,2,3,4,5,6,7,8,9,10,11,12,13 /)
+	!------------------------------------------
+	!	initialise mapt% ntb/GroupTB
+	!------------------------------------------
+	mapt%ntb = (/3,2,3,2,3 /); ! no of cases with N=[N-2,N-1,N,N+1,N+2]
+	!mapt%grouptb ==> which itypes for these 3,2,3,2,3 
+	mapt%grouptb= reshape( (/
+     .   7,8,9,0,0,0,0,0,0,0,0,0,0,
+     .   12,13,0,0,0,0,0,0,0,0,0,0,0,
+     .   1,2,3,0,0,0,0,0,0,0,0,0,0,
+     .   10,11,0,0,0,0,0,0,0,0,0,0,0,
+     .   4,5,6,0,0,0,0,0,0,0,0,0,0
+     .   /),(/5,13/), order=(/2,1/))
+
+	return
+	end subroutine
+
+!------------------------------------------
+	end module maps
+	

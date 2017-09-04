@@ -21,13 +21,15 @@
 	ntot = sys%nsites
 	allocate(act(26,ntot))
 	allocate(oth(26,ntot))
-	act = 0
-	oth = 0
+	act = -2
+	oth = -2
 
+	!write(*,*)'sys%nsites====>',  sys%nsites
 	! bulk processes
 	do is=1,ntot-1
 		call WhichBulkHop(is,p,la,lo)
-		if (p .ne. 0 ) then
+		!write(*,*) "is, p, la,lo =",is, p, la,lo 
+		if (p .gt. 0 ) then
 			nps(p) = nps(p) + 1;
 			act(p,nps(p)) = la
 			oth(p,nps(p)) = lo
@@ -42,20 +44,34 @@
 
 	! contact processes: DO LATER
 
+	!write(*,*) 'nps(:) = ',nps(:)
+	!write(*,*) 'sys%occ = ',sys%occ
+
 	! set gloable variable ways
 	do p=1,8 ! only 8 at the moment, contact processes later
 		ways(p)%ns = nps(p)
 		if(allocated(ways(p)%active)) deallocate(ways(p)%active)
 		if(allocated(ways(p)%sites)) deallocate(ways(p)%sites)
-		if (nps(p) > 0) then
+		if (nps(p) .gt. 0) then
+			!write(*,*) "nps(p) > 0 ?????   p, nps(p) = ",p, nps(p)		
 			allocate(ways(p)%active(nps(p)))
 			allocate(ways(p)%sites(nps(p)))
-			ways(p)%active = act(p,1:nps(p+1))
-			ways(p)%sites = oth(p,1:nps(p+1))
+			ways(p)%active = act(p,1:nps(p))
+			ways(p)%sites = oth(p,1:nps(p))
+			!write(*,*) 'ways(p)%active = ',ways(p)%active
+			!write(*,*) 'ways(p)%sites = ',ways(p)%sites
 		endif
 	end do
 	
 	deallocate(act,oth)
+
+	!-----------------------------------
+	! allocate qt etc
+	!-----------------------------------
+
+
+
+	
 
 	end subroutine UpdateWays
 !**********************************************
@@ -82,6 +98,8 @@
 	! local
 	integer:: l,r,is1 ! occupation on left, right sites
 
+	is1 = is+1;
+	
 	l = sys%occ(is);
 	r = sys%occ(is+1)
 	! both D or both Phi
@@ -127,7 +145,13 @@
 		! right must be a D, since all other options crossed above.
 		la=is1;lo=is; ! la=D
 		p = 6 ! phi,d annihilated
+
+	else
+		p = -1; la=-1;lo=-1;
+		write(*,*) "modways: something wrong .... "
+		stop
 	endif
+
 
 	return
 	end subroutine WhichBulkHop

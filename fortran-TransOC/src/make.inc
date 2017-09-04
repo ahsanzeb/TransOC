@@ -4,7 +4,7 @@
 
 FC 	= gfortran
 
-switch  = -O3
+switch  = -O3 
 #LIB	= -llapack
 
 

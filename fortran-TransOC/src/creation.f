@@ -1,6 +1,6 @@
 	module Creation
-	use lists, only: SortedInsert
-	use basisstates, only: LexicoIndex !,Shift
+	use lists, only: SortedInsert,GetPosition
+	use basisstates, only: LexicoIndex,Shift
 
 	implicit none
 
@@ -22,32 +22,32 @@
 	integer(kind=4), intent(in) :: ntot
 	integer(kind=4), dimension(2,ntot), intent(out):: map
 	! local
-	integer(kind=1), dimension(k+1) :: set2
+	integer(kind=1), dimension(k) :: set2
 	integer(kind=1):: n2,k1
 	integer(kind=1):: ibi=1, ib ! ib1=1: dN=-2 for starting basis
 	integer(kind=1), dimension(k-1):: set
 	
-	integer:: i,la
+	integer:: i
 
 	ib= mapb%map(ibi);
 
-	n2 = n+2; k1 = k-1;
-	do i=1,la
+	!n2 = n+2; 
+	k1 = k-1;
+	do i=1,ntot
 		set = basis(ib)%sec(k1)%sets(i,:)
 		! add an up site at n1 position and a down at n2 position;
 		! shift n1+ and n2+ labels by 1 or 2 as they should be.
 		!	shift by +1 twice for second case means +2 total as desired
-		!call Shift(set,k1,l1) ! shift all elem by +1 from l1 onwards
-		!call Shift(set,k1,l2) ! shift all elem by +1 from l2 onwards
-		set(l1:k1) = 	set(l1:k1) + 1;
-		set(l2:k1) = 	set(l2:k1) + 1;
+		call Shift(set,k1,l1) ! shift all elem by +1 from l1 onwards
+		call Shift(set,k1,l2) ! shift all elem by +1 from l2 onwards
 		! Adding up/down  at l1/l2
-		call SortedInsert(set,k1,l1,set2)
-		map(1,i) = LexicoIndex(set2,n2,k)
+		call SortedInsert(set,k1,l1,set2)	
+		map(1,i) = LexicoIndex(set2,n,k)
 		! Adding down/up  at l1/l2
 		call SortedInsert(set,k1,l2,set2)
-		map(2,i) = LexicoIndex(set2,n2,k)
+		map(2,i) = LexicoIndex(set2,n,k)
 	end do
+	
 	return
 	end subroutine CreatMap1
 
@@ -70,24 +70,29 @@
 	integer(kind=1), dimension(k):: set3	
 	integer:: i
 
+	if (k==2) then ! only a single final state, k'=k-2=0;
+		map = (/ 1 /)
+		return
+	endif
+
 	ib = mapb%map(ibi);
 
-	n2 = n+2; k1 = k-1; k2=k-2;
+	!n2 = n+2; 
+	k1 = k-1; k2=k-2;
 	do i=1,ntot
+		write(*,*) "i, shape(sets(i,:))",i,shape(basis(ib)%sec(k2)%sets)
 		set = basis(ib)%sec(k2)%sets(i,:)
 		! add an up site at n1 position and a down at n2 position;
 		! shift n1+ and n2+ labels by 1 or 2 as they should be.
 		!	shift by +1 twice for second case means +2 total as desired
-		!call Shift(set,k2,l1) ! shift all elem by +1 from l1 onwards
-		!call Shift(set,k2,l2) ! shift all elem by +1 from l2 onwards
-		set(l1:k2) = 	set(l1:k2) + 1;
-		set(l2:k2) = 	set(l2:k2) + 1;
+		call Shift(set,k2,l1) ! shift all elem by +1 from l1 onwards
+		call Shift(set,k2,l2) ! shift all elem by +1 from l2 onwards
 
 		! Adding up  at l1
 		call SortedInsert(set,k2,l1,set2)
 		! Adding up  at l2
 		call SortedInsert(set2,k1,l2,set3)
-		map(i) = LexicoIndex(set3,n2,k)
+		map(i) = LexicoIndex(set3,n,k)
 	end do
 	return
 	end subroutine CreatMap3
@@ -110,18 +115,15 @@
 
 	ib = mapb%map(ibi);
 	
-	n2 = n+2;
+	!n2 = n+2;
 	do i=1,ntot
 		set = basis(ib)%sec(k)%sets(i,:)
 		! add an up site at n1 position and a down at n2 position;
 		! shift n1+ and n2+ labels by 1 or 2 as they should be.
 		!	shift by +1 twice for second case means +2 total as desired
-		!call Shift(set,k,l1) ! shift all elem by +1 from l1 onwards
-		!call Shift(set,k,l2) ! shift all elem by +1 from l2 onwards
-		set(l1:k) = 	set(l1:k) + 1;
-		set(l2:k) = 	set(l2:k) + 1;
-		
-		map(i) = LexicoIndex(set,n2,k)
+		call Shift(set,k,l1) ! shift all elem by +1 from l1 onwards
+		call Shift(set,k,l2) ! shift all elem by +1 from l2 onwards
+		map(i) = LexicoIndex(set,n,k)
 	end do
 	return
 	end subroutine CreatMap4
@@ -165,19 +167,23 @@
 !	D Phi Annihilation for channel 1,2
 ! up,dn become D,Phi
 !------------------------------------------
-	subroutine DPhiCreat1(is,l)
-	use modmain, only: basis,na,nx,Asites
+	subroutine DPhiCreat1(is)
+	use modmain, only: basis,na,nx,Asites,ways,mapb
 	
 	implicit none
-	integer(kind=1), intent(in):: is,l
+	integer(kind=1), intent(in):: is
 	!	local
-	integer(kind=1):: ih=7, ib1=3, ib2=1 ! see dnalist5 in modmain
+	integer(kind=1):: ih=7, ib1i=3, ib2i=1,ib1,ib2 ! see dnalist5 in modmain
 	integer(kind=1)::k,n,m,m1,m2,i,m3
 	integer :: ntot, ind, ntot1,nnz,n1,n2,n3
 	integer, allocatable, dimension(:,:) :: map,row
 	integer, allocatable, dimension(:):: pntr1,pntr2,col
-	integer(kind=1) :: l1,l2
+	integer(kind=1) :: l1,l2,l
 	logical :: order
+
+	ib1= mapb%map(ib1i);
+	ib2= mapb%map(ib2i);
+
 	!------------------------------------------	
 	! N,m values of itype:
 	n = na; ! no of active sites
@@ -187,6 +193,8 @@
 	m2 = min(n-2,m-1);
 	m3 = min(m1,n-1); ! at least 1 dn required
 
+
+	l = ways(ih)%active(is); ! localtion of active site in lattice
 	! order in list of active sites
 	call ActiveOrder(ASites,na,l,l1,l2,order)
 
@@ -198,7 +206,7 @@
 	ntot1 = pntr1(m1+2); ! total number of basis states
 
 	! nnz total number of non zero elements
-	nnz = pntr2(m3+2) - 1; ! up to pntr2(m3+2), -1 to exclude k=0 
+	nnz = pntr2(m2+2) !- 1; ! up to pntr2(m3+2), -1 to exclude k=0 
 	! allocate transition matrix: coo format
 	!hop(ih)%ht(1,is)%nnz = nnz;
 	!hop(ih)%ht(2,is)%nnz = nnz;
@@ -207,14 +215,14 @@
 	allocate(col(nnz)) 
 
 	!	calc the matrix
-	!	k=1
+	!	init k=1 ===> final k'=1-1=0
 	ind = 1; ntot=1
 	row(1,1) = l1 ! l1 up in k=1 sec
 	row(1,2) = l2 ! l2 up in k=1 sec
 	! final basis
 	col(1) = 1; !(/ 1 /) ! k=0 sec of final
 
-	!	k>1
+	!	init k>1 ====> final k'=k-1
 	ind = 2;
 	do k=2,m3,1
 		ntot = pntr2(k+1)-pntr2(k) ! k-1 sec of final
@@ -231,17 +239,23 @@
 		deallocate(map)
 	end do
 
+
 	!-------------------------------------------------------
 	! calculate transition amplitudes
 	!-------------------------------------------------------
 	! calculate transition amplitudes
 	n3=pntr1(m1+2) ! dim of initial hilbert space
 	if (order) then
-		call CalAmp(ih,1,is,row(:,1),nnz,n3,"multiply",col) ! ic=1
-		call CalAmp(ih,2,is,row(:,2),nnz,n3,"multiply",col) ! ic=2
+		!write(*,*)"creat: order=T"
+		!write(*,*) "nnz,n3 = ",nnz,n3
+		!write(*,*) row(:,1)
+		call CalAmp0(ih,1,is,row(:,1),nnz,n3,col) ! ic=1
+		call CalAmp0(ih,2,is,row(:,2),nnz,n3,col) ! ic=2
 	else
-		call CalAmp(ih,1,is,row(:,2),nnz,n3,"multiply",col) ! ic=1
-		call CalAmp(ih,2,is,row(:,1),nnz,n3,"multiply",col) ! ic=2
+		!write(*,*)"creat: order=F"
+		!write(*,*) "nnz,n3 = ",nnz,n3
+		call CalAmp0(ih,1,is,row(:,2),nnz,n3,col) ! ic=1
+		call CalAmp0(ih,2,is,row(:,1),nnz,n3,col) ! ic=2
 	endif
 	!---------------------------------
 
@@ -263,18 +277,21 @@
 !	D Phi Annihilation for channel 3
 ! up,up become D,Phi
 !------------------------------------------
-	subroutine DPhiCreat3(is,l)
-	use modmain, only: basis,na,nx,Asites
+	subroutine DPhiCreat3(is)
+	use modmain, only: basis,na,nx,Asites,ways,mapb
 	implicit none
-	integer(kind=1), intent(in):: is,l
+	integer(kind=1), intent(in):: is
 	!	local
-	integer(kind=1):: ih=7, ib1=3, ib2=1 ! see dnalist5 in modmain
+	integer(kind=1):: ih=7, ib1i=3, ib2i=1,ib1,ib2 ! see dnalist5 in modmain
 	integer(kind=1)::k,n,m,m1,m2,i
 	integer :: ntot, ind, nnz,n1,n2,n3
 	integer, allocatable, dimension(:) :: map,row,col
 	integer, allocatable, dimension(:):: pntr1,pntr2
-	integer(kind=1) :: l1,l2
+	integer(kind=1) :: l1,l2,l
 	logical :: order
+
+	ib1= mapb%map(ib1i);
+	ib2= mapb%map(ib2i);
 
 	!------------------------------------------	
 	! N,m values of itype:
@@ -284,6 +301,7 @@
 	m1 = min(n,m);
 	m2 = min(n-2,m-2);
 
+	l = ways(ih)%active(is); ! localtion of active site in lattice
 	! order in list of active sites
 	call ActiveOrder(ASites,na,l,l1,l2,order)
 
@@ -323,7 +341,7 @@
 	!-------------------------------------------------------
 	! calculate transition amplitudes
 	n3=pntr1(m1+2) ! dim of initial hilbert space
-	call CalAmp(ih,3,is,row,nnz,n3,"multiply",col) ! ic=3
+	call CalAmp0(ih,3,is,row,nnz,n3,col) ! ic=3
 	!---------------------------------
 
 
@@ -338,18 +356,21 @@
 !	D Phi Annihilation for channel 4
 ! dn,dn become D,Phi
 !------------------------------------------
-	subroutine DPhiCreat4(is,l)
-	use modmain, only: basis,na,nx,Asites
+	subroutine DPhiCreat4(is)
+	use modmain, only: basis,na,nx,Asites,ways,mapb
 	implicit none
-	integer(kind=1), intent(in):: is,l
+	integer(kind=1), intent(in):: is
 	!	local
-	integer(kind=1):: ih=7, ib1=3, ib2=1 ! see dnalist5 in modmain
+	integer(kind=1):: ih=7, ib1i=3, ib2i=1,ib1,ib2! see dnalist5 in modmain
 	integer(kind=1)::k,n,m,m1,m2,i
 	integer :: ntot, ind, nnz,n1,n2,n3
 	integer, allocatable, dimension(:) :: map,row,col
 	integer, allocatable, dimension(:):: pntr1,pntr2
-	integer(kind=1) :: l1,l2
+	integer(kind=1) :: l1,l2,l
 	logical :: order
+
+	ib1= mapb%map(ib1i);
+	ib2= mapb%map(ib2i);
 
 	!------------------------------------------	
 	! N,m values of itype:
@@ -359,6 +380,7 @@
 	m1 = min(n,m);
 	m2 = min(n-2,m); ! m3=min(n-2,m)=m2 at least two up required
 
+	l = ways(ih)%active(is); ! localtion of active site in lattice
 	! order in list of active sites
 	call ActiveOrder(ASites,na,l,l1,l2,order)
 
@@ -402,7 +424,7 @@
 	!-------------------------------------------------------
 	! calculate transition amplitudes
 	n3=pntr1(m1+2) ! dim of initial hilbert space
-	call CalAmp(ih,4,is,row,nnz,n3,"multiply",col) ! ic=4
+	call CalAmp0(ih,4,is,row,nnz,n3,col) ! ic=4
 	!---------------------------------
 
 	deallocate(pntr1,pntr2)
@@ -433,30 +455,5 @@
 	return
 	end subroutine ActiveOrder
 !----------------------------------
-	integer function GetPosition(Asites,na,l)
-	integer(kind=1), intent(in):: na,l
-	integer(kind=1), dimension(na), intent(in):: Asites
-	! local
-	integer(kind=1) :: i
-
-	GetPosition = 0;
-	do i=1,na
-		if(l == ASites(i)) then
-			GetPosition = i;
-			exit
-		endif
-	end do
-	if(GetPosition==0) then
-		write(*,*) "GetPosition: element not found!"
-		stop
-	endif
-	return
-	end function GetPosition
-!----------------------------------
-
-
-
-
-
 
 	end module Creation

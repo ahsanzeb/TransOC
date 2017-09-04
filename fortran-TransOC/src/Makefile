@@ -9,6 +9,7 @@ include make.inc
 execname= transoc
 
 switch= -O3 -fbounds-check -fbacktrace -ffpe-trap=zero,overflow,underflow
+# -O -Wall -fcheck=all -g -fbacktrace
 # -g -fbounds-check
 # -g 
 # -fbounds-check
@@ -28,6 +29,10 @@ modmain.mod:	modmain.o modmain.f
 readinput.mod: modmain.mod readinput.o readinput.f
 	$(FC) -c $(switch) readinput.f
 
+maps.mod: modmain.mod maps.f
+	$(FC) -c $(switch) maps.f
+
+
 lists.mod: lists.o lists.f
 	$(FC) -c $(switch) lists.f
 
@@ -43,7 +48,7 @@ hamiltonian.mod: modmain.mod lists.mod basisstates.mod hamiltonian.o hamiltonian
 dhops.mod: modmain.mod dhops.o dhops.f
 	$(FC) -c $(switch) dhops.f
 
-init.mod: modmain.mod init.o init.f
+init.mod: modmain.mod maps.mod init.o init.f
 	$(FC) -c $(switch) init.f
 
 
@@ -118,7 +123,8 @@ losses.o: modmain.mod basisstates.mod lists.mod amplitudes.o losses.f
 	$(FC) -c $(switch) losses.f
 
 main.o:	modmain.mod basisstates.mod hamiltonian.mod lists.mod \
-hoppings.mod init.mod selection.mod rates.mod modways.mod readinput.mod main.f 
+hoppings.mod init.mod selection.mod rates.mod modways.mod\
+ readinput.mod maps.mod main.f 
 	$(FC) -c $(switch) main.f 
 
 hamiltonian.o: modmain.mod basisstates.mod hamiltonian.f

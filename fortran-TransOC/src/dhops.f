@@ -1,5 +1,7 @@
 
 	module Dhops
+	use lists, only: MemberQ,Drop,SortedInsert,GetPosition
+
 	implicit none
 
 	public :: dhops1, dhops2
@@ -9,7 +11,6 @@
 !-----------------------------------
 	subroutine dhopsmap1(ib,k,l,mapa,la,mapb,lb)
 	use modmain, only: basis
-	use lists, only: MemberQ
 	implicit none
 	integer(kind=1), intent(in) :: ib,k,l
 	integer(kind=4), intent(in) :: la,lb
@@ -37,14 +38,14 @@
 !-----------------------------------
 	subroutine dhops1(ih,is)
 	! chan 1,2 only
-	use modmain, only: basis,na,nx,dna,dnx,ibs,mapb
+	use modmain,only: basis,na,nx,dna,dnx,ibs,mapb,ways,Asites
 	implicit none
 
 	integer(kind=1), intent(in) :: ih, is
 	!	local
 	integer :: itype=1
 	!	itype? n,m, etc....?
-	integer(kind=1)::ib,ibi,k,n,m,m1,ia
+	integer(kind=1)::ib,ibi,k,n,m,m1,ia,l
 	integer :: ntot, lat,lbt,inda,indb,la,lb
 	integer, allocatable, dimension(:) :: las, lbs
 	integer, allocatable, dimension(:) :: mapa, mapbb
@@ -52,6 +53,9 @@
 	double precision, allocatable:: HtUf(:,:)
 	integer:: n1,n2,n3
 	integer:: ic,itl
+
+	l = ways(ih)%active(is); ! localtion of active site in lattice
+	l = GetPosition(Asites,na,l); ! localtion of active site in Asites
 
 	!------------------------------------------	
 	! N,m values of itype:
@@ -104,7 +108,7 @@
 		allocate(mapa(la));
 		allocate(mapbb(lb))
 		!	calc maps
-		call dhopsmap1(ib,k,is,mapa,la,mapbb,lb)
+		call dhopsmap1(ib,k,l,mapa,la,mapbb,lb)
 		!	assign values to transition matrices
 		row1(inda:inda+la-1) = pntr(k) + mapa
 		row2(indb:indb+lb-1) = pntr(k) + mapbb
@@ -114,8 +118,8 @@
 
 	! calculate transition amplitudes
 	n3=pntr(m1+2) ! dim of initial hilbert space
-	call CalAmp(ih,1,is,row1,lat,n3,"multiplyd") ! ic=1
-	call CalAmp(ih,2,is,row2,lbt,n3,"multiplyd") ! ic=2
+	call CalAmp(ih,1,is,row1,lat,n3,'multiplyd') ! ic=1
+	call CalAmp(ih,2,is,row2,lbt,n3,'multiplyd') ! ic=2
 
 	deallocate(pntr,las,lbs)
 	
@@ -136,7 +140,7 @@
 	subroutine dhopsmap2(ib,n,k,l,mapa,la,mapb,lb)
 	use modmain, only: basis
 	use basisstates, only: LexicoIndex
-	use lists, only: MemberQ,Drop,SortedInsert
+	
 	implicit none
 	integer(kind=1), intent(in) :: ib,n,k,l
 	integer(kind=4), intent(in) :: la,lb
@@ -184,13 +188,13 @@
 	subroutine dhops2(ih,is)
 	!	channel 1,2 have diagonal Ht, save row only
 	!	channel 3,4 have the same row as 1,2, save col only
-	use modmain, only: basis,na,nx,dna,dnx,ibs,mapb
+	use modmain,only: basis,na,nx,dna,dnx,ibs,mapb,ways,Asites
 	implicit none
 	integer(kind=1), intent(in) :: ih, is
 	!	local
 	integer :: itype=1
 	!	itype? n,m, etc....?
-	integer(kind=1)::ib,ibi,k,n,m,m1,m3!,k1,m2
+	integer(kind=1)::ib,ibi,k,n,m,m1,m3,l !,k1,m2
 	integer :: ntot, lat,lbt,inda,indb,la,lb,ia,n1,n2,n3
 	integer, allocatable, dimension(:) :: las, lbs
 	integer, allocatable, dimension(:,:) :: mapa, mapbb
@@ -198,6 +202,9 @@
 	integer, allocatable, dimension(:):: row1,row2,col3,col4
 	double precision, allocatable:: HtUf(:,:)
 	integer :: ic,itl
+
+	l = ways(ih)%active(is); ! localtion of active site in lattice
+	l = GetPosition(Asites,na,l); ! localtion of active site in Asites
 
 	!-------------------------------------------------------
 	! calculate Transition matrix
@@ -259,7 +266,7 @@
 		allocate(mapa(la,2));
 		allocate(mapbb(lb,2));
 		!	calc maps
-		call dhopsmap2(ib,n,k,is,mapa,la,mapbb,lb)
+		call dhopsmap2(ib,n,k,l,mapa,la,mapbb,lb)
 		!	assign values to transition matrices
 		row1(inda:inda+la-1) = pntr(k+1) + mapa(:,1)
 		row2(indb:indb+lb-1) = pntr(k+1) + mapbb(:,1)
@@ -276,10 +283,10 @@
 	!-------------------------------------------------------
 	! calculate transition amplitudes
 	n3=pntr(m1+2) ! dim of initial hilbert space
-	call CalAmp(ih,1,is,row1,lat,n3,"multiplyd") ! ic=1
-	call CalAmp(ih,2,is,row2,lbt,n3,"multiplyd") ! ic=2
-	call CalAmp(ih,1,is,row1,lat,n3,"multiply",col3) ! ic=3
-	call CalAmp(ih,1,is,row2,lbt,n3,"multiply",col4) ! ic=4
+	call CalAmp(ih,1,is,row1,lat,n3,'multiplyd') ! ic=1
+	call CalAmp(ih,2,is,row2,lbt,n3,'multiplyd') ! ic=2
+	call CalAmp0(ih,3,is,row1,lat,n3,col3) ! ic=3
+	call CalAmp0(ih,4,is,row2,lbt,n3,col4) ! ic=4
 	!---------------------------------
 
 	deallocate(pntr,las,lbs)

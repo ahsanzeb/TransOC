@@ -2,6 +2,9 @@
 	! some functions to manipulate lists (1-d arrays)
 	implicit none
 
+	!public::
+	!private::
+
 	contains
 !-------------------------------------
 	subroutine Drop(a,la,x,b)
@@ -50,7 +53,7 @@
 	if( j > la ) then ! a(:) > x and x not inserted in above loop
 		b(j) = x
 	else
-		b(j:la) = a(ix:la) ! x was inserted, the rest of a here
+		b(j+1:la+1) = a(ix:la) ! x was inserted, the rest of a here
 	endif
 	
 	return
@@ -257,6 +260,36 @@
 	end if
 	end subroutine Sort
 !-------------------------------------
+	integer function GetPosition(Asites,na,l)
+	integer(kind=1), intent(in):: na,l
+	integer(kind=1), dimension(na), intent(in):: Asites
+	! local
+	integer(kind=1) :: i
+
+	GetPosition = 0;
+	do i=1,na
+		if(l == ASites(i)) then
+			GetPosition = i;
+			exit
+		endif
+	end do
+	if(GetPosition==0) then
+		write(*,*) "GetPosition: element not found!"
+		write(*,*) "Asites = ",Asites
+		write(*,*) " l = ",l		
+		stop
+	endif
+	return
+	end function GetPosition
+!----------------------------------
+
+
+
+
+
+
+
+
 
 	end module
 	

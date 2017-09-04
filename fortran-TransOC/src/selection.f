@@ -21,11 +21,11 @@
 		rlist(ih+1) = 	rlist(ih) + rate(ih)%r
 	end do
 	! eta, random real in range 0-rlist(27)
-	eta = rand() * rlist(27);
+	eta = rand(0) * rlist(27);
 	! location of eta on accumulated rates
 	ihSelect = -1;
 	do ih=1,26
-		if (eta > rlist(ih) .and. eta .le. rlist(ih) ) then
+		if (eta > rlist(ih) .and. eta .le. rlist(ih+1) ) then
 			ihSelect = ih;
 			exit
 		endif
@@ -33,6 +33,7 @@
 	! error?
 	if (ihSelect == -1) then
 		write(*,*) "ihSelect: something wrong.... "
+		write(*,*) "ihSelect: eta = ",	eta		
 		write(*,*) "ihSelect: rlist = ",	rlist	
 		stop
 	endif
@@ -75,11 +76,11 @@
 	enddo
 			
 	! eta, random real in range 0-rlist(27)
-	eta = rand()* rlist(ntot);
+	eta = rand(0)* rlist(ntot);
 	! location of eta on accumulated rates
 	which = -1;
 	do i=1,ntot-1
-		if (eta > rlist(i) .and. eta .le. rlist(i) ) then
+		if (eta > rlist(i) .and. eta .le. rlist(i+1) ) then
 			which = i;
 			exit
 		endif

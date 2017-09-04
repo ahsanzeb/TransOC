@@ -13,6 +13,11 @@
 	! number of excitatons
 	integer(kind=1):: nx
 
+	! total number of iterations/hops in the trajectory
+	integer(kind=4):: niter
+
+	! reuse basis/hamiltonians (fixmap=F) or not (fixmap=T)
+	logical :: fixmap
 	! list of active sites in order they appear in the basis 
 	integer(kind=1), allocatable :: ASites(:)
 
@@ -37,7 +42,7 @@
 	double precision :: kappa, gamma	
 	logical :: nokappa, nogamma
 	! hopping parameters
-	double precision, dimension(26,4):: hpar
+	double precision, dimension(26,4):: ts
 	! energy changes due to contact barriers, applied field, etc
 	double precision, dimension(26,4):: dqc
 	! hopping parameters
@@ -133,10 +138,13 @@
 	! hamiltonian for 13 diff (N,m)
 	!---------------------------------------	
 	type :: Ham
-		integer(kind=4) :: ntot
-		integer(kind=4), allocatable :: row(:)
+		integer(kind=4) :: ntot ! HilbertSpace dimension
+		integer(kind=4) :: nnz  ! no of non-zero elements
 		integer(kind=4), allocatable :: col(:)
+		integer(kind=4), allocatable :: rowpntr(:)
 		double precision, allocatable :: dat(:)
+		integer(kind=4), allocatable :: row(:)
+
 	end type Ham
 	!---------------------------------------
 	! hoppings: transition matrices
@@ -229,7 +237,7 @@
 	! not 26: in some cases, multiple hopping processes share amplitudes.
 	! maph would give location for a given hopping process, ih ---> ihl
 	type(QuantumTransitions), dimension(14) :: qt 
-	double precision, allocatable :: psi(:) ! to store quantum state
+	double precision, allocatable :: psi(:,:) ! to store quantum state
 
 	type(TransitionRates), dimension(26):: rate
 	! set the format for sparse matrix

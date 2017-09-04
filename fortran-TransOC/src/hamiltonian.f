@@ -1,8 +1,30 @@
 
 	module hamiltonian
 	implicit none
+	public :: mkHamilt, MakeHgMulti
+	public ::  makeHg, DegenSectors
+	private:: HgMap
 
 	contains
+
+!------------------------------------------
+	subroutine mkHamilt()
+	use modmain, only: mapt
+	implicit none
+	! local
+	integer(kind=1):: nt,ib
+	
+	do ib=1,5
+		nt = mapt%ntb(ib)
+		if (nt > 0) then ! something to calculate or not?
+			call MakeHgMulti(mapt%grouptb(ib,1:nt),nt)
+		endif
+	end do
+	
+	return
+	end	subroutine mkHamilt
+!------------------------------------------
+
 !------------------------------------------
 	subroutine HgMap(ibl,n,k,ntot,map)
 	use modmain, only: basis
@@ -158,25 +180,26 @@
 !------------------------------------------
 	subroutine MakeHgMulti(itlist,nt)
 	! makes Hg of types in itlist; all for same n, diff m.
+	! saves the Hamiltonians in CSR format
 	use modmain, only: basis,na,nx,ibs,dna,dnx,
      .								g,dw,detuning,Hg,mapb,mapt
 	implicit none
-	integer, intent(in) :: nt
-	integer, dimension(nt), intent(in) :: itlist
+	integer(kind=1), intent(in) :: nt
+	integer(kind=1), dimension(nt), intent(in) :: itlist
 	!integer(kind=4), intent(out) :: nnz ! no of nonzero elements
 	! local
-	integer(kind=4) indf,i,j,ind,ntot,itype,indi
-	integer(kind=1) ib,k,m,m1,n,ibl,i2
+	integer(kind=4):: indf,i,j,ind,ntot,itype,indi
+	integer(kind=1):: ib,k,m,m1,n,ibl,i2
 	double precision:: val,kdw
 	integer(kind=4), allocatable, dimension(:):: pntr
 	integer(kind=4), allocatable, dimension(:):: ind1
 	integer(kind=4), allocatable, dimension(:,:):: map
 	integer, dimension(nt) :: ms,m1s,nnz,nnzg,nnzd,itl
-	
+	integer :: ptr,ptrf,ptr0
 	!character*1000:: fmt
 
 
-	! check if all types have the same n
+	! JUST A CHECK: if all types have the same n
 	n = dna(itlist(1))
 	do i=2,nt,1
 		itype = itlist(i)
@@ -188,7 +211,7 @@
 
 	! N,m values
 	n = na + dna(itlist(1)); ! no of active sites
-	do i=2,nt,1
+	do i=1,nt,1
 		m	=	 nx + dnx(itlist(i)); ! no of excitations
 		ms(i) = m;
 		m1s(i)=min(m,n); ! max no of up spins possible
@@ -203,8 +226,6 @@
 	if(allocated(pntr))deallocate(pntr)
 	allocate(pntr(m1+2));
 	pntr(:) = basis(ibl)%pntr(1:m1+2) ! is this already calculated?
-
-
 
 	nnzg=0; nnzd=0;
 	do k=0,m1-1
@@ -228,21 +249,33 @@
 	do i=1,nt
 		itl(i) = mapt%map(itlist(i));! map for the location of itype
 		Hg(itl(i))%ntot = pntr(m1s(i)+2);
+		Hg(itl(i))%nnz = nnz(i);
+		!write(*,*) "ham: it, itl = ",i, itl(i)
+		!write(*,*) "ham: n, m, m1 = ",n, ms(i),m1s(i)
+		!write(*,*) "ham: nnz, ntot = ",nnz(i),pntr(m1s(i)+2)
 	end do
+		!write(*,*) "ham: DETUNING = ", detuning
 
 	! allocate memory to Hg(itype)
 	do i=1,nt
-		if(allocated(Hg(itl(i))%row)) then
-			deallocate(Hg(itl(i))%row)
+		if(allocated(Hg(itl(i))%col)) then
+			!deallocate(Hg(itl(i))%row)
 			deallocate(Hg(itl(i))%col)
 			deallocate(Hg(itl(i))%dat)
+			deallocate(Hg(itl(i))%rowpntr)
 		endif
-		allocate(Hg(itl(i))%row(nnz(i)))
+		!allocate(Hg(itl(i))%row(nnz(i)))
 		allocate(Hg(itl(i))%col(nnz(i)))
 		allocate(Hg(itl(i))%dat(nnz(i)))
+		if(detuning) then
+			allocate(Hg(itl(i))%rowpntr(2*pntr(m1s(i)+2))) ! 2*hilbert space dim
+		else
+			allocate(Hg(itl(i))%rowpntr(pntr(m1s(i)+2))) ! hilbert space dim
+		endif
 	end do
-	
-	ind = 1;
+
+			
+	ind = 1; ptr=1; ptr0=0;
 	! calc maps for diff k and combine to get full matrix
 	do k=0,m1-1,1
 		ntot = pntr(k+2) - pntr(k+1);
@@ -255,22 +288,22 @@
 		call HgMap(ibl,n,k,ntot,map)
 		
 		! assign values to final matrix			
-		indf=ind+ntot*(n-k);
-		indi = ind;
+		indf=ind+ntot*(n-k)-1;
+		indi = ind; 
+		ptrf = ptr + ntot -1
 		do i2=1,nt
 			ind = indi; ! save the index for i2 loop
 			if(k < m1s(i2)) then
 				val = dsqrt((ms(i2)-k)*1.d0)*g;
 				Hg(itl(i2))%dat(ind:indf) = val;
-				do i=1,ntot
-					do j=1,n-k
-						Hg(itl(i2))%row(ind) = ind1(i);
-						Hg(itl(i2))%col(ind) = map(i,j);
-						ind = ind + 1;
-					end do
-				end do
+				! transpose map to get col first for reshape
+				Hg(itl(i2))%col(ind:indf) = 
+     .   reshape(transpose(map), (/ntot*(n-k)/)) 
+				Hg(itl(i2))%rowpntr(ptr:ptrf) =
+     .    (/(ptr0 + (i-1)*(n-k)+1, i=1,ntot)/)
 			endif
 		end do
+		ind = indf+1; ! advance the index
 		
 		! diagonal elements 
 		if (detuning) then
@@ -281,14 +314,27 @@
 				kdw = (ms(i2) - k)*dw;
 				if(k < m1s(i2)) then
 					Hg(itl(i2))%dat(ind:indf) = kdw;
-					Hg(itl(i2))%row(ind:indf) = ind1(:);
+					!Hg(itl(i2))%row(ind:indf) = ind1(:);
 					Hg(itl(i2))%col(ind:indf) = ind1(:);
 					ind = indf + 1;
+					! shift pntrs, by one for each prev row
+					Hg(itl(i2))%rowpntr(ptr:ptrf) = 
+     .   		Hg(itl(i2))%rowpntr(ptr:ptrf) + 
+     .   			(/(i,i=0,ntot-1)/)
 				endif
 			end do
+			ptr = ptrf+1	
+			ptr0 = ptr0 + ntot*(n-k+1); ! shift for nxt k-blocks		
+		else
+			ptr = ptrf+1		
+			ptr0 = ptr0 + ntot*(n-k); ! shift for nxt k-blocks		
 		end if ! detuning
 
+
+
+
 	end do ! k
+
 
 
 	return

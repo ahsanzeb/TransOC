@@ -19,7 +19,10 @@
 	!     default values       !
 	!--------------------------!
 
-	nsites = 5
+	nsites = 5;
+	nx = 1;
+	niter = 20;
+	fixmap = .false.
 	g = 0.3d0;
 	th = 1.0d0; tl=1.0d0; tlh=0.005d0; thl=1.0d0;
 	JhR=10*th; JlR=10*th; JhL=10*th; JlL=10*th;
@@ -62,6 +65,16 @@
 
 	case('Nsites')
 		read(50,*,err=20) nsites
+
+	case('Nexcitations')
+		read(50,*,err=20) nx
+
+	case('Niter')
+		read(50,*,err=20) niter
+
+	case('DontReuseData')
+		read(50,*,err=20) fixmap
+		write(*,*) "DontReuseData = ",fixmap
 
 	case('CavityMoleculeCoupling')
 		read(50,*,err=20) g
@@ -141,7 +154,7 @@
 
 	if(kappa < 1.d-6) nokappa = .true.
 	if(gamma < 1.d-6) nogamma = .true.
-
+	if(AlwaysLP) PermSym = .true.; ! XXXXX add conditions on gi=g/ei=w0 
 
 	return
 	end subroutine

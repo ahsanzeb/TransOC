@@ -1,8 +1,8 @@
 
 	module init
 	use modmain
+	use maps
 	implicit none
-
 	contains
 !-----------------------------------------
 !	initialise some global variables
@@ -10,6 +10,7 @@
 	subroutine initialise()
 	implicit none
 	! local
+	integer :: i,ina, n0,n1,n2
 
 	!-----------------------------------------
 	! initialise mapb, mapt
@@ -23,8 +24,20 @@
 	mapb%cal = (/ 1,2,3,4,5 /)
 	mapt%map = (/ 1,2,3,4,5,6,7,8,9,10,11,12,13 /)
 	mapt%cal = (/ 1,2,3,4,5,6,7,8,9,10,11,12,13 /)
+	!------------------------------------------
+	!	initialise mapt% ntb/GroupTB
+	!------------------------------------------
+	mapt%ntb = (/3,2,3,2,3 /); ! no of cases with N=[N-2,N-1,N,N+1,N+2]
+	!mapt%grouptb ==> which itypes for these 3,2,3,2,3 
+	mapt%grouptb= reshape( (/
+     .   7,8,9,0,0,0,0,0,0,0,0,0,0,
+     .   12,13,0,0,0,0,0,0,0,0,0,0,0,
+     .   1,2,3,0,0,0,0,0,0,0,0,0,0,
+     .   10,11,0,0,0,0,0,0,0,0,0,0,0,
+     .   4,5,6,0,0,0,0,0,0,0,0,0,0
+     .   /),(/5,13/), order=(/2,1/))
+  !call UpdateGroupTB();! can also do it here.
 	!-----------------------------------------
-
 
 	!-----------------------------------------
 	! calculate maphc, the map from hopping index to amplitude index,
@@ -32,6 +45,14 @@
 	! but does not cost much to make map for all 26 x 4.
 	call calmaphc()
 	!-----------------------------------------
+
+
+	!-----------------------------------------
+	! set occupations
+	
+
+
+
 
 
 
@@ -43,7 +64,7 @@
 	!tlh = tpar(3); thl = tpar(4);
 	!JhR = tpar(5); JlR = tpar(6);
 	!JhL = tpar(7); JlL = tpar(8);
-	hpar = reshape( (/
+	ts = reshape( (/
      . th, tl, tlh, thl,
      . th, tl, tlh, thl,
      . tl, th, tlh, thl,
@@ -71,13 +92,13 @@
 	!HBlock hole blocking layer; on right
 	! jump # 16,21 prob->0
 	if(EBlock) then
-		hpar(16, 1) = 0.0d0;
-		hpar(21, 1) = 0.0d0;
+		ts(16, 1) = 0.0d0;
+		ts(21, 1) = 0.0d0;
 	endif
 	! jump # 10,18 prob->0
 	if(HBlock) then
-		hpar(10, 1) = 0.0d0;
-		hpar(18, 1) = 0.0d0;
+		ts(10, 1) = 0.0d0;
+		ts(18, 1) = 0.0d0;
 	endif
 	!-----------------------------------------
 
@@ -92,12 +113,46 @@
 
 
 
+	!------------------------------------------
+	!	sys: nsites, occ; na, Asites
+	!------------------------------------------
+	sys%nsites = nsites
+	allocate(sys%occ(nsites))
+
+	n0 = 0;n1=0;n2=0;
+	do i=1,nsites
+		sys%occ(i) =  int(rand(0)*(3)) ! random 0,1,2; just to test
+		if (sys%occ(i)==0) then
+			n0 = n0 +1
+		elseif(sys%occ(i)==1)then
+			n1 = n1 +1
+		elseif(sys%occ(i)==2)then
+			n2 = n2 +1
+		else
+			write(*,*) "init: Error, sys%occ(i) != 0,1,2 "
+			stop
+		endif	
+	enddo
+	! set Asites
+	allocate(Asites(n1))
+	ina = 1;
+	do i=1,nsites
+		if (sys%occ(i)==1) then
+			Asites(ina) = i;
+			ina = ina + 1;
+		endif
+	enddo
+
+	! set global var
+	sys%n0=n0;
+	sys%n1=n1;
+	sys%n2=n2;
+
+	na = n1;
+	!------------------------------------------
 
 
-
-
-
-
+	write(*,*)"init: na = ",na
 	! only bulk processes? nh=1-8
 	!nh = 26;
 	!if(nocontacts) then
@@ -145,7 +200,6 @@
 				dqc(i,j) = dqc(i,j) - signEr(i)*Er
 			end do
 		end do
-
 	return
 	end subroutine SetDQC
 !-----------------------------------------

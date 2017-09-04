@@ -33,7 +33,7 @@
 		if (MemberQ(set,k,l)) then
 			map(1,ind) = i
 			call Drop(set,k,l,set2)
-			map(1,ind) = LexicoIndex(set2,n,k1)
+			map(2,ind) = LexicoIndex(set2,n,k1)
 			ind = ind + 1;
 		endif
 	end do
@@ -95,6 +95,9 @@
 		!	assign values to transition matrices
 		row(inda:inda+la-1) = pntr1(k+1) + map(1,:)
 		col(inda:inda+la-1) = pntr1(k) + map(2,:)
+
+		!if(k==1)write(*,*)"losses: map(2,1:5) = ",map(2,:) 
+
 		inda = inda+la;
 		deallocate(map)
 	end do
@@ -102,10 +105,13 @@
 	!-------------------------------------------------------
 	! calculate transition amplitudes
 	n3 = pntr1(m1+2);
+	!write(*,*) "gamma: n3,lat",n3,lat
+	!write(*,*) "gamma: col(1:5):",col(1:5)
 	!-------------------------------------------------------
-	call CalAmp(ih,1,is,row,lat,n3,"multiply",col) ! ic=1
+	call CalAmp0(ih,1,is,row,lat,n3,col) ! ic=1; "multiply--"
 	!---------------------------------
 
+	!write(*,*) "gamma: after callamp"
 
 
 	deallocate(pntr1,las)
@@ -121,8 +127,8 @@
 	implicit none
 	!	local
 	integer(kind=1):: ih=25, is=1, ib1=3, ib2=3 ! see dnalist5 in modmain
-	integer(kind=1)::n,m,m1,m2,i
-	integer :: ntot1, ntot2,ibl1,ibl2
+	integer(kind=1)::n,m,m1,m2
+	integer :: ntot1, ntot2,ibl1,ibl2,i
 	integer, allocatable, dimension(:):: col
 	!------------------------------------------	
 	! N,m values of itype:
@@ -149,8 +155,17 @@
 	!-------------------------------------------------------
 	! calculate transition amplitudes
 	!-------------------------------------------------------
-	call CalAmp(ih,1,is,col,ntot2,ntot1,"multiplyd") ! ic=1
+
+	!write(*,*) "kappa: calling amp"
+
+	!write(*,*) "kappa: ntot2",ntot2
+	!write(*,*) "kappa: rowc(1:5)",col(1:min(5,ntot2))
+
+	!write(*,*) "len of multiplyd- =",len("multiplyd-")
+	call CalAmp(ih,1,is,col,ntot2,ntot1,'multiplyd') ! ic=1
 	!---------------------------------
+
+	!write(*,*) "kappa: done amp"
 
 	return
 	end subroutine LossKappa

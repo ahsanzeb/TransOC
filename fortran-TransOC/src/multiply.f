@@ -17,13 +17,10 @@
 
 	! local
 	integer :: i
-
 	matf = 0
-	!write(*,*) "col : ", col
 	do i=1,nnz
 		matf(row(i),:) = mat(col(i),:)
 	end do
-
 	end subroutine multiply
 !-----------------------------------	
 	subroutine multiplyd(row,nnz,mat,n1,n2,matf,n3,n4)
@@ -47,7 +44,7 @@
 
 	matf = 0
 	do i=1,nnz ! diagonal but not full diagonal, selected rows/cols
-		j = row(i);
+		j = row(i)
 		matf(j,:) = mat(j,:)
 	end do
 

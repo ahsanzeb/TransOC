@@ -3,184 +3,159 @@
 	use modmain
 	use init, only: initialise
 	use basisstates, only: mkbasis
-	use hamiltonian, only: makeHg,MakeHgMulti
+	use hamiltonian, only: mkHamilt,DegenSectors
 	use Hoppings, only: AllHops ! 
 	use rates, only: CalRates
 	use selection, only: ihSelect, icsSelect
 	use modways, only: UpdateWays, UpdateOcc
 	use readinput, only: input
+	use maps
+	
 	implicit none
-	integer i,nnz,j,n1,n2,k,ih,is,ib,itype1,itype2,nt
-	real(kind=4), allocatable,dimension(:,:):: mat,matf
-	integer(kind=4), allocatable,dimension(:):: row,col
-	integer :: wj,wc !,itype
-	! to test make-hg-multi
-	integer(kind=4), dimension(13):: itlist
 
+	integer:: i,ic,is,ia,iter,ih,j,ntot
 
+	write(*,*) "transoc: in amplitudes: test HtUf = 1.0d0;"
 
-	crosshops = .true.;
-	detuning = .true.;
+	! start message
+	write(*,*) "transoc: started.... "
 
+	! readinput file
+	call input()
+	
 	!	initialise maps etc
+	! set no of active sites and excitations
 	call initialise()
 
-	! set no of active sites and excitations
-	na = 10; nx = 5;
+	! main loop over number of hops asked
+	do iter=1,niter
 
-	call mkbasis(na,nx)
-	write(*,*) " basis done....  "
+		write(*,*) "======================================="
+		write(*,*) "          iter = ",iter
+		write(*,*) "          N, m = ",na,nx
+		
+		! make basis states ksub
+		call mkbasis(na,nx)
+		write(*,*) " basis done....  "
 
+		! make hamiltonian
+		call mkHamilt()
 
+		!-----------------------------------
+		! diagonalise
+		! choose Psi if first iteration
+		!-----------------------------------
+		! set dummy eig for testing... 
+		do i=1,13
+		ntot = Hg(i)%ntot
+		if (ntot > 0) then
+		write(*,*)"main: itype, ntot = ",i,ntot	
+			
+		eig(i)%ntot=ntot
+		eig(i)%n1=ntot
+		eig(i)%n2=ntot
+		if (allocated(eig(i)%evec)) deallocate(eig(i)%evec)
+		if (allocated(eig(i)%eval)) deallocate(eig(i)%eval)
+		allocate(eig(i)%evec(ntot,ntot))
+		allocate(eig(i)%eval(ntot))
+		!eig(i)%evec = 0.0d0;
+		!eig(i)%eval = 0.0d0;
+		call random_number(eig(i)%evec)
+		eig(i)%eval = (/ (j*1.0d-2, j=1,ntot) /) ! ordered
 
-
-
-	call AllHops()
-
-
-	!do k=1,m1,1	
-	!	ntot = basis(i)%pntr(j+2) - basis(i)%pntr(j+1); ! for config of this type
-	!	if(allocated(sets))deallocate(sets)
-	!	allocate(sets(ntot,k))
-	!	call mksets(n,k,ntot,sets)
-	
-
-
-	wj=3; wc=4;
-	write(*,*) "--------wj,wc=3,4----------"
-	write(*,*) mapb%map
-	write(*,*) mapt%map
-	
-	! update mapb and mapt
-	call UpdateMapB(wj,wc)
-	call UpdateMapT(wj,wc)
-	call UpdateGroupTB()
-	write(*,*) "----- updated mapb,mapt--------"
-	write(*,*) mapb%map
-	write(*,*) mapt%map
-	write(*,*) "----- updated grouptb --------"
-	write(*,*) "ntb = ",mapt%ntb
-	do i=1,5
-		write(*,*) mapt%grouptb(i,:)
-	end do
-
-
-
-
-	wj=5; wc=3;
-	write(*,*) "------ wj,wc=5,4------------"
-	write(*,*) mapb%map
-	write(*,*) mapt%map
-	
-	! update mapb and mapt
-	call UpdateMapB(wj,wc)
-	call UpdateMapT(wj,wc)
-	call UpdateGroupTB()
-	write(*,*) "----- updated mapb,mapt--------"
-	write(*,*) mapb%map
-	write(*,*) mapt%map
-	write(*,*) "----- updated grouptb --------"
-	write(*,*) "ntb = ",mapt%ntb
-	do i=1,5
-		write(*,*) mapt%grouptb(i,:)
-	end do
+		! degenerate sectors
+		if(allocated(eig(i)%esec))deallocate(eig(i)%esec)
+		if(allocated(eig(i)%ind))deallocate(eig(i)%ind)
+		allocate(eig(i)%esec(ntot))
+		allocate(eig(i)%ind(ntot+1))
+		call DegenSectors(eig(i)%eval,ntot,
+     .   eig(i)%nsec,eig(i)%esec,eig(i)%ind) ! make degenerate sectors
 
 
-	! update basis
-	itype = itypes(wj,wc);
-	na = na + dna(itype);
-	nx = na + dnx(itype);
-	call mkbasis(na,nx)
-	write(*,*) " basis done....  "
+		endif ! ntot > 0
 
-	
-	
-	! update hamiltonian
-	if (1==1) then
-		write(*,*) "main: ntb = ",mapt%ntb
-		do ib=1,5
-			nt = mapt%ntb(ib);
-			if(nt > 0) then
-				itlist(1:nt) = mapt%grouptb(ib,1:nt)
-				call MakeHgMulti(itlist(1:nt),nt)
-				write(*,*) "main: done..."
-				write(*,*) " >>>> MakeHgMulti for itlist=",itlist(1:nt)
-			end if
-		end do
-	end if
+		enddo
+
+		
+		if(allocated(psi)) deallocate(psi)
+		if(iter == 1 .or. fixmap) then
+			allocate(psi(1,eig(1)%ntot))
+		else
+			write(*,*) "main: itype =",itype
+			allocate(psi(1,eig(itype)%ntot))
+		endif
+		!psi(eig(1)%ntot) = 0.0d0
+		!call random_number(psi)
+		psi = 1.0d0
+		Einit = 0.0d0
+		!-----------------------------------
+
+		write(*,*)"sys%occ = ",sys%occ
+
+
+
+		! UpdateWays and allocate qt (req maph ==> ia )
+		call UpdateWays()
+		write(*,*) "main:   UpdateWays done... "	
+		if(iter==1) then
+		do ia=1,14
+			allocate(qt(ia)%cs(4,1)) ! alloc/deallocate at every iteration...
+		enddo
+		! allocate space for rates
+		do ih=1,26 ! testing... alloc 26 all 
+			allocate(rate(ih)%rcs(4,1))! alloc/deallocate at every iteration...
+		enddo
+		endif
+		! All available hops: 
+		!	transition amplitudes and amp^2 for degenerate sectors
+		! and allocate space for rates???
+		call AllHops()
+		write(*,*) "main:   AllHops done... "	
+		
+		! rates from am2 and energetic penalties
+		call CalRates()
+		write(*,*) "main:   CalRates done... "	
+
+		! select a hop based on rates
+		ih = ihSelect() 
+		write(*,*) "main:   ihSelect: ih = ",ih
+		call icsSelect(ih,ic,is)
+		write(*,*) "main:   icsSelect: ic,is =  ",ic,is
+
+		! perform the transition... update XXXXXXX
+
+		! update na, nx
+		itype = itypes(ih,ic);
+		na = na + dna(itype);
+		nx = nx + dnx(itype);
+
+		! update occupations, sys%occ, Asites etc
+		call UpdateOcc(ih,is)
+
+		if(na .ne. sys%n1) then
+			write(*,*)"main: na .ne. sys%n1: ",na,sys%n1
+			stop
+		endif
+
+		if (fixmap) then
+			call DONTUSEmaps() ! dont reuse basis/hg
+		else
+			! update mapb and mapt
+			call UpdateMapB(ih,ic)
+			call UpdateMapT(ih,ic)
+			call UpdateGroupTB()
+			write(*,*) "----- updated mapb,mapt--------"
+		endif
+
+	enddo ! iter
+
+	write(*,*)"transoc: niter hops done.... " 
+
+	!	do postprocessing....
+
+
+	! completion message...
+	write(*,*)"transoc: everything done.... " 
 
 	stop
-
-
-
-	if (1==1) then
-		do j=1,13
-			call makeHg(j,nnz)
-			write(*,*) " itype, nnz= ",j, nnz
-		end do
-	end if
-
-
-	if (1==0) then
-		call dhops()
-		write(*,*) " dhops done....  "
-	end if
-	
-
-
-	if (1==1) then
-		call DPhiAn1()
-		write(*,*) " DPhiAn1() done.... "
-	end if
-
-	if (1==0) then
-		call DPhiAn2()	
-		write(*,*) " DPhiAn2() done.... "
-	end if
-
-
-!============================================
-! dphi annihilation: ih = 5; multiply test 
-!============================================
-	IF (1==1) then
-	ih = 5; is=1;	
-	itype1 = 1; itype2= 4 
-	
-	n1 = Hg(itype1)%ntot
-	n2 = Hg(itype2)%ntot
-	! Ht(n1 x n2) . mat( n2 x n2 ) ==> matf(n1 x n2 )
-	allocate(mat(n2,n2))
-	allocate(matf(n1,n2))
-	call random_number(mat)
-
-	!nnz = hop(ih)%ht(1,is)%nnz;
-	write(*,*) "Ht chal 1,2 nnz: ",nnz
-	allocate(row(nnz))
-	allocate(col(nnz))
-
-	row = (/ (i, i=1,n1) /)
-	!col = hop(ih)%ht(1,is)%col
-
-	write(*,*) "nnz,n1,n2 = ",nnz,n1,n2
-	!call multiply(row,col,nnz,mat,n2,n2,matf,n1,n2)
-	write(*,*) " multiply done....  "
-	endif
-!============================================
-
-
-
-	!allocate(hop(25)%ht(1,1))
-	!call LossKappa()
-
-
-	!allocate(hop(26)%ht(1,1))
-	!call LossGamma(1)
-
-	write(*,*) " kappa, gamma done .... "
-
-
-
-
-	
-	
 	end program

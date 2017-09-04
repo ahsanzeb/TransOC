@@ -29,7 +29,7 @@
 
 	! list of N for 5 cases
 	nalist5 = na + dns
-	! max nx possible in 13 cases => nx+1 or nx+2
+	! max nx among 13 cases => nx+1 or nx+2
 	nxmax = nx+1;
 	if(crosshops) nxmax = nx+2;
 	write(*,*) "nxmax, nx = ",nxmax, nx
@@ -299,16 +299,21 @@
 	end function
 !------------------------------------------
 
-
-	!subroutine Shift(set,k,l)
-	!implicit none
-	!integer, intent(in):: k,l
-	!integer, dimension(k), intent(inout) :: set
+	subroutine Shift(set,k,l)
+	! shift elements of set that are >= l by +1
+	implicit none
+	integer(kind=1), intent(in):: k,l
+	integer(kind=1), dimension(k), intent(inout) :: set
 	! local
-	!integer :: i
-	!set(l:k) = 	set(l:k) + 1;
-	!end subroutine Shift
+	integer(kind=1) :: i,il
 
-
+	do i=1,k
+		if(set(i) == l)then
+			il = i;
+			exit
+		endif
+	enddo
+	set(il:k) = 	set(il:k) + 1;
+	end subroutine Shift
 !------------------------------------------
 	end module
