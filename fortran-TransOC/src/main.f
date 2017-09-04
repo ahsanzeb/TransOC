@@ -49,8 +49,6 @@
 		do i=1,13
 		ntot = Hg(i)%ntot
 		if (ntot > 0) then
-		write(*,*)"main: itype, ntot = ",i,ntot	
-			
 		eig(i)%ntot=ntot
 		eig(i)%n1=ntot
 		eig(i)%n2=ntot
@@ -71,7 +69,8 @@
 		call DegenSectors(eig(i)%eval,ntot,
      .   eig(i)%nsec,eig(i)%esec,eig(i)%ind) ! make degenerate sectors
 
-
+		else
+				write(*,*)"main: itype, ntot = ",i,ntot	
 		endif ! ntot > 0
 
 		enddo

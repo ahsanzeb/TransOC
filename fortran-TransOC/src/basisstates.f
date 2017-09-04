@@ -309,11 +309,11 @@
 
 	do i=1,k
 		if(set(i) == l)then
-			il = i;
+			set(i:k) = 	set(i:k) + 1;
 			exit
 		endif
 	enddo
-	set(il:k) = 	set(il:k) + 1;
+	return
 	end subroutine Shift
 !------------------------------------------
 	end module

@@ -79,8 +79,6 @@
 	double precision, allocatable:: HtUf(:,:)
 	integer :: ia,n1,n2,itl
 
-	!write(*,*)"amp0: ih,ic,is = ",ih,ic,is
-
 	!-------------------------------------------------------
 	! calculate transition amplitudes
 	!-------------------------------------------------------
@@ -103,8 +101,8 @@
 		! multiply psi with HtUf to get amplitudes
 		! psi should be a row vector; shape = 1 x n3
 		HtUf = 1.0d0;
-		!write(*,*)"amp0: n3,n1,n2=",n3,n1,n2
-		!write(*,*)"amp0: shape(psi),shape(HtUf) ",shape(psi),shape(HtUf) 
+		write(*,*)"amp0: n3,n1,n2=",n3,n1,n2
+		write(*,*)"amp0: shape(psi),shape(HtUf) ",shape(psi),shape(HtUf) 
 		qt(ia)%cs(ic,is)%amp=reshape(matmul(psi,HtUf),(/n2/)); ! both input dense
 		deallocate(HtUf)
 		! calculate amp^2 for degenerate sectors

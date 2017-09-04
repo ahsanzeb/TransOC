@@ -29,6 +29,7 @@
 	!ways(p)%sites ! ???? correct this array to store something meaningful
 	!ways(ih)%active(is); ! active site 
 
+	write(*,*) "hops: ---------- 1"
 	!-------------------------------
 	! ih:1-4 DHopsR/L, PhiHopsR/L
 	! ?? L/R also same if PermSym. D/phi also same, swaped 1,2 channels?
@@ -42,6 +43,8 @@
 			if(PermSym) exit; ! only a single site/case for each hop type
 		end do
 	end do
+		write(*,*) "hops: ---------- 2"
+
 	!-------------------------------
 	! ih:5-6 (D,Phi), (Phi,D) annihilation
 	if (ways(5)%ns + ways(6)%ns > 0) then
@@ -51,6 +54,8 @@
 			call DPhiAn2() ! 1-4
  		endif
  	endif
+ 		write(*,*) "hops: ---------- 3"
+
 	!-------------------------------
 	! ih=7,8 (D,Phi), (Phi,D) created
 	ih=7;	! ih=8 has the same amplitudes,
@@ -59,15 +64,24 @@
 	do is=1,ways(ih)%ns,1
 			if (nx .ge. 1) then
 				call DPhiCreat1(is) ! 1-2
+				write(*,*) "hops: ---------creat 12"
+
 			endif
 			if (crosshops) then
 				if (nx .ge. 2) then
 				call DPhiCreat3(is) ! 3
+				write(*,*) "hops: ---------creat 3"
+				
 				endif
+
 				call DPhiCreat4(is) ! 4
+				write(*,*) "hops: ---------creat 4"
+
 			endif
 			if(PermSym) exit! only a single site/case for each hop type
 	end do
+		write(*,*) "hops: ---------- 4"
+
 	!-------------------------------
 	!-------------------------------
 	! cavity and exciton losses
@@ -86,6 +100,8 @@
 		endif
 	endif
 	!-------------------------------
+
+	write(*,*) "hops: ---------- 5"
 
 	return
 	end subroutine AllHops

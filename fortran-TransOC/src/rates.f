@@ -56,8 +56,8 @@
 			ih1=7;ih2=8;
 		endif
 		do ih=ih1,ih2
-			write(*,*)"ih, ways(ih)%ns = ",ih, ways(ih)%ns
-			write(*,'(a,i5,5x,4f10.5)')"ih, ts(ih,:) =",ih, ts(ih,:)
+			!write(*,*)"ih, ways(ih)%ns = ",ih, ways(ih)%ns
+			!write(*,'(a,i5,5x,4f10.5)')"ih, ts(ih,:) =",ih, ts(ih,:)
 			if(ways(ih)%ns>0) then
 			do is=1,ways(ih)%ns,1
 				do ic=1,nc
@@ -178,9 +178,9 @@
 
 
 
-	write(*,*) "rates:********************"
-	write(*,*) "ih,ic, dqc(ih,ic) = ",ih,ic, dqc(ih,ic)
-	write(*,'(i5,5x,f12.6)') ic, rate(ih)%rcs(ic,is) 
+	!write(*,*) "rates:********************"
+	!write(*,*) "ih,ic, dqc(ih,ic) = ",ih,ic, dqc(ih,ic)
+	!write(*,'(i5,5x,f12.6)') ic, rate(ih)%rcs(ic,is) 
 
 	!	the final degenerate sector will be slected on basis of amp2
 	!	once ih, ic,is are selected on basis of rate(ih)%rcs, and rate(ih)%r

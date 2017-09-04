@@ -6,7 +6,7 @@
 
 	public::DPhiCreat1, DPhiCreat3, DPhiCreat4
 	private::CreatMap1,CreatMap3,CreatMap4
-	private:: ActiveOrder,GetPosition
+	private:: ActiveOrder
 	
 	contains
 !------------------------------------------
@@ -26,29 +26,25 @@
 	integer(kind=1):: n2,k1
 	integer(kind=1):: ibi=1, ib ! ib1=1: dN=-2 for starting basis
 	integer(kind=1), dimension(k-1):: set
-	
 	integer:: i
 
-	ib= mapb%map(ibi);
-
-	!n2 = n+2; 
-	k1 = k-1;
-	do i=1,ntot
-		set = basis(ib)%sec(k1)%sets(i,:)
-		! add an up site at n1 position and a down at n2 position;
-		! shift n1+ and n2+ labels by 1 or 2 as they should be.
-		!	shift by +1 twice for second case means +2 total as desired
-		call Shift(set,k1,l1) ! shift all elem by +1 from l1 onwards
-		call Shift(set,k1,l2) ! shift all elem by +1 from l2 onwards
-		! Adding up/down  at l1/l2
-		call SortedInsert(set,k1,l1,set2)	
-		map(1,i) = LexicoIndex(set2,n,k)
-		! Adding down/up  at l1/l2
-		call SortedInsert(set,k1,l2,set2)
-		map(2,i) = LexicoIndex(set2,n,k)
-	end do
-	
-	return
+		ib= mapb%map(ibi);
+		k1 = k-1;
+		do i=1,ntot
+			set = basis(ib)%sec(k1)%sets(i,:)
+			! add an up site at n1 position and a down at n2 position;
+			! shift n1+ and n2+ labels by 1 or 2 as they should be.
+			!	shift by +1 twice for second case means +2 total as desired
+			call Shift(set,k1,l1) ! shift all elem by +1 from l1 onwards
+			call Shift(set,k1,l2) ! shift all elem by +1 from l2 onwards
+			! Adding up/down  at l1/l2
+			call SortedInsert(set,k1,l1,set2)	
+			map(1,i) = LexicoIndex(set2,n,k)
+			! Adding down/up  at l1/l2
+			call SortedInsert(set,k1,l2,set2)
+			map(2,i) = LexicoIndex(set2,n,k)
+		end do
+		return
 	end subroutine CreatMap1
 
 !------------------------------------------
@@ -63,7 +59,7 @@
 	integer(kind=4), intent(in) :: ntot
 	integer(kind=4), dimension(ntot), intent(out):: map
 	! local
-	integer(kind=1):: n2,k1,k2
+	integer(kind=1):: k1,k2
 	integer(kind=1):: ibi=1,ib ! ib1=1: dN=-2 for starting basis
 	integer(kind=1), dimension(k-2):: set
 	integer(kind=1), dimension(k-1) :: set2
@@ -77,17 +73,15 @@
 
 	ib = mapb%map(ibi);
 
-	!n2 = n+2; 
 	k1 = k-1; k2=k-2;
 	do i=1,ntot
-		write(*,*) "i, shape(sets(i,:))",i,shape(basis(ib)%sec(k2)%sets)
+		!write(*,*) "i, shape(sets(i,:))",i,shape(basis(ib)%sec(k2)%sets)
 		set = basis(ib)%sec(k2)%sets(i,:)
 		! add an up site at n1 position and a down at n2 position;
 		! shift n1+ and n2+ labels by 1 or 2 as they should be.
 		!	shift by +1 twice for second case means +2 total as desired
 		call Shift(set,k2,l1) ! shift all elem by +1 from l1 onwards
 		call Shift(set,k2,l2) ! shift all elem by +1 from l2 onwards
-
 		! Adding up  at l1
 		call SortedInsert(set,k2,l1,set2)
 		! Adding up  at l2
@@ -283,10 +277,10 @@
 	integer(kind=1), intent(in):: is
 	!	local
 	integer(kind=1):: ih=7, ib1i=3, ib2i=1,ib1,ib2 ! see dnalist5 in modmain
-	integer(kind=1)::k,n,m,m1,m2,i
-	integer :: ntot, ind, nnz,n1,n2,n3
+	integer(kind=1)::n,k,m,m1,m2,i
+	integer :: ntot, ind, nnz,n1,n2,n3,i1,i2
 	integer, allocatable, dimension(:) :: map,row,col
-	integer, allocatable, dimension(:):: pntr1,pntr2
+	integer, allocatable :: pntr1(:), pntr2(:)
 	integer(kind=1) :: l1,l2,l
 	logical :: order
 
@@ -308,8 +302,8 @@
 	allocate(pntr1(m1+2))
 	allocate(pntr2(m2+2)) 
 	! ib: itype ===> which of 5 N case?
-	pntr1(:) = basis(ib1)%pntr(1:m1+2) ! initial
-	pntr2(:) = basis(ib2)%pntr(1:m2+2) ! final
+	pntr1 = basis(ib1)%pntr(1:m1+2) ! initial
+	pntr2 = basis(ib2)%pntr(1:m2+2) ! final
 	!ntot1 = pntr1(m1+2); ! total number of basis states
 
 	! nnz total number fo non zero elements
@@ -319,13 +313,25 @@
 
 	allocate(row(nnz)) 
 	allocate(col(nnz)) 
-
+	!write(*,*) "pntr1 = ",pntr1
+	!write(*,*) "pntr2 = ",pntr2
 	!	2 >= k <= m1; at least two up
 	ind = 1;
 	do k=2,m1,1
-		ntot = pntr2(k)-pntr2(k-1) ! k-2 sec of final
+		!write(*,*) " ------------  k = ",k
+		!write(*,*) "shape pntr2 = ",shape(pntr2)
+		!write(*,*) "pntr2 1= ",pntr2
+		ntot = pntr2(k)-pntr2(k-1)
+		!write(*,*) "k, ntot = ",k,ntot
 		allocate(map(ntot));
+		!write(*,*) "pntr2 2= ",pntr2
+		!write(*,*) "k, i1,i2 = ",k,i1,i2
+		!map = 0
 		call CreatMap3(n,k,l1,l2,map,ntot)
+		!write(*,*) "pntr2 3= ",pntr2		
+		!write(*,*) "pntr1 ?= ",pntr1
+		!write(*,*) "map= ",map
+		!if (k==3)stop	
 		! initial basis
 		map = pntr1(k+1) + map
 		row(ind:ind+ntot-1) = map
@@ -336,17 +342,20 @@
 		deallocate(map)
 	end do
 
+	!write(*,*) "row = ",row
+
 	!-------------------------------------------------------
 	! calculate transition amplitudes
 	!-------------------------------------------------------
 	! calculate transition amplitudes
-	n3=pntr1(m1+2) ! dim of initial hilbert space
+	n3=pntr1(m1+2) ! dim of initial hilbert space	
 	call CalAmp0(ih,3,is,row,nnz,n3,col) ! ic=3
 	!---------------------------------
 
 
-	deallocate(pntr1,pntr2)
-	return
+
+	deallocate(pntr1,pntr2,row,col)
+	return	
 	end subroutine DPhiCreat3
 !------------------------------------------
 
