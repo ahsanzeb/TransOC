@@ -22,6 +22,8 @@
 	nsites = 5;
 	nx = 1;
 	niter = 20;
+	NBasisSets = 5;
+	NHilbertSpaces=13;
 	fixmap = .false.
 	g = 0.3d0;
 	th = 1.0d0; tl=1.0d0; tlh=0.005d0; thl=1.0d0;
@@ -71,6 +73,12 @@
 
 	case('Niter')
 		read(50,*,err=20) niter
+
+	case('NBasisSets')
+		read(50,*,err=20) NBasisSets
+
+	case('NHilbertSpaces')
+		read(50,*,err=20) NHilbertSpaces
 
 	case('DontReuseData')
 		read(50,*,err=20) fixmap

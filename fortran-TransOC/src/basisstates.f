@@ -7,6 +7,7 @@
 	contains
 
 	subroutine mkbasis(na,nx)
+	use lists, only: MemberQ
 	! this routine calculates the index pointers
 	! and subsets for all 5 basis defined in modmain
 
@@ -21,7 +22,7 @@
 	implicit none
 	integer(kind=1), intent (in) :: na,nx
 	integer(kind=4) :: ntot
-	integer(kind=1) :: nxmax,r,m1,i,j,n,l
+	integer(kind=1) :: nxmax,r,m1,i,j,n,l,nnu
 	integer(kind=1), dimension(5):: nalist5
 	integer  :: i1,i2, maxk,ibl,ib
 	logical :: calc
@@ -35,20 +36,26 @@
 	write(*,*) "nxmax, nx = ",nxmax, nx
 	! indexes pointers for basis set sectors with diff no of up spins
 
+	!write(*,*)"basis(:)%xst",basis(:)%xst
+
 	do i=1,5
+
+		if(mapt%ntb(i) == 0) cycle ! dont calculate
+
 		n = nalist5(i);
 		m1 = min(nalist5(i),nxmax); ! max up spin possible
-		ibl = mapb%map(i); ! localtion of this ib=i
+
+		nnu = mapb%nnu;
 		! calculate full basis or update for some extra k-subsets?
-		calc = .false.	
-		do ib=1,5
-			if (mapb%cal(ib) == i) then
-				calc = .true.
-				exit
-			endif
-		end do
+		calc=MemberQ(mapb%cal(1:nnu),nnu,i)
+
+		!write(*,*) "i, mapb%cal",i, mapb%cal(1:nnu)
+
+		ibl = mapb%map(i); ! localtion of this ib=i
 		!-------------------------------------------
 		if (calc) then
+			basis(ibl)%xst = .true.; ! exist from now onwards
+			basis(ibl)%n = n; ! n to tag 
 			! update maxk
 			basis(ibl)%maxk = m1;
 			! indexed pointers

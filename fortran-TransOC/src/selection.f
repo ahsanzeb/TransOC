@@ -15,6 +15,8 @@
 	double precision, dimension(27):: rlist ! accumulated rates
 	double precision:: eta
 
+
+	!write(*,*)"rates= ",rate(1:8)%r
 	! select ih stochastically
 	rlist(1) = 0.0d0;
 	do ih=1,26
@@ -108,6 +110,11 @@
 		is = 1 + mod((which-1),nc); ! shifted => Mathematica Mod[which,nc,1]
 		ic = which - (is-1)*nc;
 	endif
+
+
+	write(*,*)"ih,ic,is = ",ih,ic,is
+
+
 
 	return
 	end subroutine icsSelect

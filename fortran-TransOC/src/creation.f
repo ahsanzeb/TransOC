@@ -457,6 +457,7 @@
 
 !---------------------------------------
 	subroutine ActiveOrder(ASites,na,l,l1,l2,order)
+	use modmain, only: sys, periodic
 	implicit none
 	integer(kind=1), intent(in) :: na,l
 	integer(kind=1), dimension(na), intent(in):: Asites
@@ -465,7 +466,14 @@
 	! local
 	integer(kind=1) :: i,x1,x2,lp1
 
-	lp1 = l + 1;
+	if(l < sys%nsites) then
+		lp1 = l + 1;
+	elseif(l==sys%nsites .and. periodic)then
+		lp1 = 1;
+	else
+		write(*,*)"Error(ActiveOrder): ?!"
+	endif
+	
 	! order in the list of active sites
 	x1 = GetPosition(ASites,na,l);
 	x2 = GetPosition(ASites,na,lp1);

@@ -13,7 +13,7 @@
 	
 	implicit none
 
-	integer:: i,ic,is,ia,iter,ih,j,ntot
+	integer:: i,ic,is,ia,iter,ih,j,ntot,zt=0
 
 	write(*,*) "transoc: in amplitudes: test HtUf = 1.0d0;"
 
@@ -47,8 +47,8 @@
 		!-----------------------------------
 		! set dummy eig for testing... 
 		do i=1,13
+		if (Hg(i)%xst) then
 		ntot = Hg(i)%ntot
-		if (ntot > 0) then
 		eig(i)%ntot=ntot
 		eig(i)%n1=ntot
 		eig(i)%n2=ntot
@@ -59,7 +59,7 @@
 		!eig(i)%evec = 0.0d0;
 		!eig(i)%eval = 0.0d0;
 		call random_number(eig(i)%evec)
-		eig(i)%eval = (/ (j*1.0d-2, j=1,ntot) /) ! ordered
+		eig(i)%eval = (/ (j*1.0d-5, j=1,ntot) /) ! ordered
 
 		! degenerate sectors
 		if(allocated(eig(i)%esec))deallocate(eig(i)%esec)
@@ -81,7 +81,7 @@
 			allocate(psi(1,eig(1)%ntot))
 		else
 			write(*,*) "main: itype =",itype
-			allocate(psi(1,eig(itype)%ntot))
+			allocate(psi(1,eig(mapt%map(1))%ntot))
 		endif
 		!psi(eig(1)%ntot) = 0.0d0
 		!call random_number(psi)
@@ -93,17 +93,17 @@
 
 
 
-		! UpdateWays and allocate qt (req maph ==> ia )
-		call UpdateWays()
-		write(*,*) "main:   UpdateWays done... "	
+		!allocate qt (req maph ==> ia )
+
+
 		if(iter==1) then
-		do ia=1,14
-			allocate(qt(ia)%cs(4,1)) ! alloc/deallocate at every iteration...
-		enddo
-		! allocate space for rates
-		do ih=1,26 ! testing... alloc 26 all 
-			allocate(rate(ih)%rcs(4,1))! alloc/deallocate at every iteration...
-		enddo
+			do ia=1,14
+				allocate(qt(ia)%cs(4,1)) ! alloc/deallocate at every iteration...
+			enddo
+			! allocate space for rates
+			do ih=1,26 ! testing... alloc 26 all 
+				allocate(rate(ih)%rcs(4,1))! alloc/deallocate at every iteration...
+			enddo
 		endif
 		! All available hops: 
 		!	transition amplitudes and amp^2 for degenerate sectors
@@ -128,21 +128,23 @@
 		na = na + dna(itype);
 		nx = nx + dnx(itype);
 
+		if(ic==4) zt = zt+1
+
+
 		! update occupations, sys%occ, Asites etc
 		call UpdateOcc(ih,is)
 
-		if(na .ne. sys%n1) then
-			write(*,*)"main: na .ne. sys%n1: ",na,sys%n1
-			stop
-		endif
+		call UpdateWays()
+		write(*,*) "main:   UpdateWays done... "	
 
 		if (fixmap) then
 			call DONTUSEmaps() ! dont reuse basis/hg
 		else
-			! update mapb and mapt
-			call UpdateMapB(ih,ic)
-			call UpdateMapT(ih,ic)
-			call UpdateGroupTB()
+		
+			call UpdateReqType ! ReqType
+			call UpdateMapT ! mapt%map, mapt%cal
+			call UpdateGroupTB ! mapt%cal ===> ntb, grouptb
+			call UpdateMapB
 			write(*,*) "----- updated mapb,mapt--------"
 		endif
 
@@ -151,7 +153,8 @@
 	write(*,*)"transoc: niter hops done.... " 
 
 	!	do postprocessing....
-
+	write(*,*)"zt = ",zt
+	
 
 	! completion message...
 	write(*,*)"transoc: everything done.... " 

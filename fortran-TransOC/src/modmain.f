@@ -15,6 +15,9 @@
 
 	! total number of iterations/hops in the trajectory
 	integer(kind=4):: niter
+	
+	! L-H and H-L cross hops allowed? 
+	logical :: crosshops 
 
 	! reuse basis/hamiltonians (fixmap=F) or not (fixmap=T)
 	logical :: fixmap
@@ -86,25 +89,30 @@
      . 13, 13, 13, 13, 13, 13, 13,
      . 12, 12, 12, 12, 12, 12, 12,
      . 12, 2, 2, 2, 2, 2, 2, 2, 2 /),
-     . (/ 26,4 /), order=(/2,1/) );     
-	!integer(kind=1), dimension(5):: mapb 	! map for ib
-	!integer(kind=1), dimension(13):: mapt	! map for itype
+     . (/ 26,4 /), order=(/2,1/) ); 
 
-	type :: BTMaps
+
+	type :: BMaps
 		integer :: nnu
-		!integer :: ntot
-		integer(kind=1), allocatable :: map(:)	 ! map for ib or it
-		integer(kind=1), allocatable :: cal(:) ! which ib to be calculated?
+		integer(kind=1), dimension(5) :: map	 ! map for ib
+		integer(kind=1), dimension(5) :: cal ! which ib
+	end type BMaps
+
+	type :: TMaps
+		integer :: nnu
+		integer(kind=1), dimension(13) :: map ! map for ib
+		integer(kind=1), dimension(13) :: cal ! which ib
+		! 13 types: which ones are required 
+		! based on availability of relevant hops
+		logical, dimension(13):: req ! ReqType
 		! which itypes for a given ib; ntb,grouptb only for mapt
 		integer(kind=1), dimension(5) :: ntb 
 		integer(kind=1), dimension(5,13) :: grouptb 
-	end type BTMaps
+	end type TMaps
 
-	type(BTMaps) :: mapb, mapt
+	type(BMaps) :: mapb
+	type(TMaps) :: mapt
 	!	------------------------------
-
-
-	logical :: crosshops ! L-H and H-L cross hops allowed? 
 
 
 	!---------------------------------------	
@@ -118,6 +126,9 @@
 
 	type :: BasisSet
 		integer :: ntot
+		logical :: xst
+		! number of active sites
+		integer :: n
 		integer :: maxk ! max k of k-sub it has.
 		integer(kind=4), allocatable :: pntr(:)
 		type(BSectors), allocatable :: sec(:)
@@ -127,6 +138,7 @@
 	! for 13 different (N,m)
 	!---------------------------------------	
 	type :: Eigensystems
+		!integer :: n,m ! same as Ham n,m
 		integer :: ntot, n1,n2 ! size of hilbert space, =nrows, ncols=nevecs
 		double precision, allocatable :: eval(:)
 		double precision, allocatable :: evec(:,:)
@@ -138,14 +150,30 @@
 	! hamiltonian for 13 diff (N,m)
 	!---------------------------------------	
 	type :: Ham
+		logical :: xst
+		integer :: n,m 
 		integer(kind=4) :: ntot ! HilbertSpace dimension
 		integer(kind=4) :: nnz  ! no of non-zero elements
 		integer(kind=4), allocatable :: col(:)
 		integer(kind=4), allocatable :: rowpntr(:)
 		double precision, allocatable :: dat(:)
 		integer(kind=4), allocatable :: row(:)
-
 	end type Ham
+
+		! Number of Hilbert spaces and basis (same N)
+	!	use extra to save repeated computations but 
+	!	dont use too many to keep smaller memory usage
+	! NBasisSets = 5, NHilbertSpaces=13
+	integer :: NBasisSets, NHilbertSpaces
+
+	! 5 BasisSet
+	type(BasisSet), allocatable:: basis(:)
+	! change name of HilbertSpace to something like eigensystem ??
+	!	13 hamiltonians and eigensystems
+	type(Eigensystems), allocatable:: eig(:)
+	type(Ham), allocatable:: Hg(:)
+
+
 	!---------------------------------------
 	! hoppings: transition matrices
 	!---------------------------------------	
@@ -224,12 +252,6 @@
 	end type HoppingWays
 	type(HoppingWays), dimension(26) :: ways ! 8 bulk, others contact
 
-	! 5 BasisSet
-	type(BasisSet), dimension(5) :: basis
-	! change name of HilbertSpace to something like eigensystem ??
-	!	13 hamiltonians and eigensystems
-	type(Eigensystems), dimension(13) :: eig
-	type(Ham), dimension(13) :: Hg
 
 	!	26 hopping processes
 	!type(HoppingProcesses), dimension(26) :: hop

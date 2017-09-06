@@ -16,6 +16,8 @@
 	! calculate transition amplitudes
 	!-------------------------------------------------------
 		itl = mapt%map(itypes(ih,ic)) !???????! location of final hilber space
+		!write(*,*)"ih,ic,it,itl= ",ih,ic,itypes(ih,ic),itl
+		
 		n1=eig(itl)%n1 ! dim of final hilbert space
 		n2=eig(itl)%n2
 
@@ -83,6 +85,9 @@
 	! calculate transition amplitudes
 	!-------------------------------------------------------
 		itl = mapt%map(itypes(ih,ic)) !???????! location of final hilber space
+		!write(*,*)"itypes(ih,ic), itl = ",itypes(ih,ic),itl
+
+		
 		n1=eig(itl)%n1 ! dim of final hilbert space
 		n2=eig(itl)%n2
 		allocate(HtUf(n3,n2))

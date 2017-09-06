@@ -38,7 +38,7 @@
 		endif
 	
 		call WhichBulkHop(is,is1,p,la,lo)
-		!write(*,*) "is, p, la,lo =",is, p, la,lo 
+		!write(*,*) "=======>>> is, p, la,lo =",is, p, la,lo 
 		if (p .gt. 0 ) then
 			nps(p) = nps(p) + 1;
 			act(p,nps(p)) = la
@@ -154,6 +154,7 @@
 		! right must be a D, since all other options crossed above.
 		la=is1;lo=is; ! la=D
 		p = 6 ! phi,d annihilated
+		!write(*,*) "=============== la,lo = ",la,lo		
 
 	else
 		p = -1; la=-1;lo=-1;
@@ -187,19 +188,38 @@
 	n0 = sys%n0; ! no of phi site
 	n1 = sys%n1; ! no of active site
 	n2 = sys%n2; ! no of d site
-	
+
+	!write(*,*)"la,lo=",la,lo
+	!write(*,*)"n0,n1,n2=",n0,n1,n2
+	!write(*,*) "sys%occ 1=",sys%occ
+		
 	select case(ih)	
 		case(1,2)
-			sys%occ(la) = 2
-			sys%occ(lo) = 1
+			if(sys%occ(la)==1 .and. sys%occ(lo)==2)then
+				sys%occ(la) = 2
+				sys%occ(lo) = 1
+			else
+				write(*,*)"Error(UpdateOcc): case 1,2"
+				stop
+			endif
 			call Substitute(Asites,n1,la,lo)
 		case(3,4)
-			sys%occ(la) = 0
-			sys%occ(lo) = 1
+			if(sys%occ(la)==1 .and. sys%occ(lo)==0)then
+				sys%occ(la) = 0
+				sys%occ(lo) = 1
+			else
+				write(*,*)"Error(UpdateOcc): case 3,4"
+				stop
+			endif
 			call Substitute(Asites,n1,la,lo)
-		case(5,6) 
-			sys%occ(la) = 1
-			sys%occ(lo) = 1
+		case(5,6)
+			if(sys%occ(la)==2 .and. sys%occ(lo)==0)then
+				sys%occ(la) = 1
+				sys%occ(lo) = 1
+			else
+				write(*,*)"Error(UpdateOcc): case 5,6"
+				stop
+			endif
 			! append first D then Phi; la=D for ih=5,6
 			call Join(Asites,n1,(/la,lo/),two,Asites)
 			sys%n0 = n0-1
@@ -214,7 +234,12 @@
 			sys%n1 = n1-2
 			sys%n2 = n2+1
 	end select		
-	
+
+	if(sys%n0+sys%n1+sys%n2 .ne. sys%nsites)then
+		write(*,*)"modways: nsites != n0+n1+n2 "
+		stop
+	endif
+
 	return
 	end subroutine UpdateOcc
 !**********************************************

@@ -2,6 +2,7 @@
 	module init
 	use modmain
 	use maps
+	use modways
 	implicit none
 	contains
 !-----------------------------------------
@@ -12,32 +13,75 @@
 	! local
 	integer :: i,ina, n0,n1,n2
 
+
+
+
 	!-----------------------------------------
-	! initialise mapb, mapt
-	!-----------------------------------------
-	allocate(mapb%map(5))
-	allocate(mapb%cal(5))
-	allocate(mapt%map(13))
-	allocate(mapt%cal(13))
-	mapb%nnu = 5; mapt%nnu = 13 ! calc all 
-	mapb%map = (/ 1,2,3,4,5 /)
-	mapb%cal = (/ 1,2,3,4,5 /)
-	mapt%map = (/ 1,2,3,4,5,6,7,8,9,10,11,12,13 /)
-	mapt%cal = (/ 1,2,3,4,5,6,7,8,9,10,11,12,13 /)
+	allocate(basis(NBasisSets))
+	allocate(eig(NHilbertSpaces))
+	allocate(Hg(NHilbertSpaces))
 	!------------------------------------------
-	!	initialise mapt% ntb/GroupTB
+
+
+
+
+
 	!------------------------------------------
-	mapt%ntb = (/3,2,3,2,3 /); ! no of cases with N=[N-2,N-1,N,N+1,N+2]
-	!mapt%grouptb ==> which itypes for these 3,2,3,2,3 
-	mapt%grouptb= reshape( (/
-     .   7,8,9,0,0,0,0,0,0,0,0,0,0,
-     .   12,13,0,0,0,0,0,0,0,0,0,0,0,
-     .   1,2,3,0,0,0,0,0,0,0,0,0,0,
-     .   10,11,0,0,0,0,0,0,0,0,0,0,0,
-     .   4,5,6,0,0,0,0,0,0,0,0,0,0
-     .   /),(/5,13/), order=(/2,1/))
-  !call UpdateGroupTB();! can also do it here.
+	!	sys: nsites, occ; na, Asites
+	!------------------------------------------
+	sys%nsites = nsites
+	allocate(sys%occ(nsites))
+
+	n0 = 0;n1=0;n2=0;
+	do i=1,nsites
+		sys%occ(i) =  int(rand(0)*(3)) ! random 0,1,2; just to test
+		if (sys%occ(i)==0) then
+			n0 = n0 +1
+		elseif(sys%occ(i)==1)then
+			n1 = n1 +1
+		elseif(sys%occ(i)==2)then
+			n2 = n2 +1
+		else
+			write(*,*) "init: Error, sys%occ(i) != 0,1,2 "
+			stop
+		endif	
+	enddo
+	! set Asites
+	allocate(Asites(n1))
+	ina = 1;
+	do i=1,nsites
+		if (sys%occ(i)==1) then
+			Asites(ina) = i;
+			ina = ina + 1;
+		endif
+	enddo
+
+	! set global var
+	sys%n0=n0;
+	sys%n1=n1;
+	sys%n2=n2;
+
+	na = n1;
+	write(*,*)"init: na = ",na
 	!-----------------------------------------
+	! initialise ways, mapb, mapt
+	!-----------------------------------------
+	call UpdateWays()
+	call UpdateReqType ! ReqType
+
+	!write(*,*) "ReqType = ",mapt%req
+
+	! does not exist, set to false, for use in mapt/mapb
+	Hg(:)%xst = .false.
+	basis(:)%xst = .false.
+	
+	call UpdateMapT ! mapt%map, mapt%cal
+
+	!write(*,*) "mapt = ",mapt%map
+
+
+	call UpdateGroupTB ! mapt%cal ===> ntb, grouptb
+	call UpdateMapB
 
 	!-----------------------------------------
 	! calculate maphc, the map from hopping index to amplitude index,
@@ -113,46 +157,6 @@
 
 
 
-	!------------------------------------------
-	!	sys: nsites, occ; na, Asites
-	!------------------------------------------
-	sys%nsites = nsites
-	allocate(sys%occ(nsites))
-
-	n0 = 0;n1=0;n2=0;
-	do i=1,nsites
-		sys%occ(i) =  int(rand(0)*(3)) ! random 0,1,2; just to test
-		if (sys%occ(i)==0) then
-			n0 = n0 +1
-		elseif(sys%occ(i)==1)then
-			n1 = n1 +1
-		elseif(sys%occ(i)==2)then
-			n2 = n2 +1
-		else
-			write(*,*) "init: Error, sys%occ(i) != 0,1,2 "
-			stop
-		endif	
-	enddo
-	! set Asites
-	allocate(Asites(n1))
-	ina = 1;
-	do i=1,nsites
-		if (sys%occ(i)==1) then
-			Asites(ina) = i;
-			ina = ina + 1;
-		endif
-	enddo
-
-	! set global var
-	sys%n0=n0;
-	sys%n1=n1;
-	sys%n2=n2;
-
-	na = n1;
-	!------------------------------------------
-
-
-	write(*,*)"init: na = ",na
 	! only bulk processes? nh=1-8
 	!nh = 26;
 	!if(nocontacts) then

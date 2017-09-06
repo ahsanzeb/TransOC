@@ -1,159 +1,169 @@
 
 
+! call in the following order
+!-1. update ways
+! 0. update na, nx
+!	1. call UpdateReqType ! ReqType
+! 2. call UpdateMapT ! mapt%map, mapt%cal
+! 3. call UpdateGroupTB ! mapt%cal ===> ntb, grouptb
+!		grouptb has itypes that would be calculated in mkHamilt()
+! 4. call UpdateMapB
+
 	module maps
 	implicit none
 
 	contains
 !-------------------------------------------
+! REQUIRED ITYPES
+! updated na,nx needed. so update na,nx before calling this.
+	subroutine UpdateReqType()
+	use modmain, only: nx,mapt,crosshops,nogamma,nokappa,
+     .    ways !dna,dnx,ibs,dns,itypes
+	implicit none
+	integer :: it
+	logical :: ch,exst,logNmm1,logkg,ldpa,lap,lcda,lcAp
 
-	subroutine UpdateMapB(wj,wc)
-	!	map for ib: ==> 5 basis
-	use modmain, only : dna,dnx,ibs,dns,itypes,mapb
-	integer, intent(in):: wj,wc
-	! local
-	integer(kind=1), dimension(5):: temp,map,notused
-	integer :: itype, ib,d,jb,jb2,i,inu
-	logical :: used
+	ch = crosshops;
+	logNmm1= (sum(ways(1:4)%ns) > 0 .and. ch);
+	logkg= ((.not. nokappa) .or. (.not. nogamma));
+	ldpa = sum(ways(5:6)%ns) > 0;
+	lap = ways(7)%ns > 0;
+	lcda=sum(ways(9:16)%ns) > 0;
+	lcAp=sum(ways(17:24)%ns) > 0;
 
-		map = mapb%map;
-		
-		itype = itypes(wj,wc);
-		ib = ibs(itype);
-		d = dns(ib);
-		temp = map;
-		map = -1 ;! set for error checking
-		notused = -1;
-		inu=1;
-		do jb=1,5
-			used=.false.
-			do jb2=1,5
-				if (jb2==jb-d) then
-					map(jb2) = temp(jb);
-					used=.true.
-					exit
-				endif
-			enddo			
-			if(.not. used) then
-				notused(inu) = jb
-				inu = inu + 1;
-			endif			
-		end do
-		inu = inu - 1
-		
-		!write(*,*) map
-		! where to put to be calculated results?
+	!write(*,*)"ch",ch
+	!write(*,*)"logNmm1",logNmm1,ways(1:4)%ns
+	!write(*,*)"logkg",logkg
+	!write(*,*)"ldpa",ldpa,ways(5:6)%ns
+	!write(*,*)"lap",lap
+	!write(*,*)"lcda",lcda
+	!write(*,*)"lcAp",lcap
+	!write(*,*)
 
-		do i = 1,inu,1		
-			do jb=1,5
-				if (map(jb)==-1) then
-						map(jb) = temp(notused(i))
-						exit ! exit jb loop
-				endif
-			end do
-		end do
+	do it=1,13
+		exst = .false.
+		select case(it)
+		case(1)
+			exst = .true. ! always
+		case(2)
+			if((logNmm1 .or. logkg) .and. nx>0)exst=.true.
+		case(3)
+			if(logNmm1) exst = .true.
+		case(4)
+			if(ldpa)exst = .true.
+		case(5,6)
+			if(ldpa .and. ch)exst = .true.
+		case(7)
+			if(lap .and. nx>0)exst = .true.
+		case(8)
+			if(lap .and. ch .and. nx>1)exst = .true.
+		case(9)
+			if(lap .and. ch)exst = .true.
+		case(10,11)
+			if(lcda) exst = .true.
+		case(12)
+			if(lcAp .and. nx>0) exst = .true.
+		case(13)
+			if(lcAp) exst = .true.
+		end select
 
-
-
-
-
-	! notused: calc only if allowed by positive N,m values
+		mapt%req(it) = exst
 	
+	end do
 
-
-
-
-
-
-
-
-
-
-
-
-
-	! set global variables
-	mapb%map = map;
-	mapb%cal = notused;
-	mapb%nnu = inu;
-	
 	return
-	end subroutine UpdateMapB
-
-
+	end subroutine UpdateReqType
 !-------------------------------------------
-
-
-	subroutine UpdateMapT(wj,wc)
+	subroutine UpdateMapT()
 	!	map for itype: ==> ib, 13 Hilbert spaces
-	use modmain, only : dna,dnx,ibs,dns,itypes,mapt
-	integer, intent(in):: wj,wc
+	use modmain, only : dna,dnx,ibs,dns,mapt,
+     .  Hg,NHilbertSpaces, na,nx
+	use lists, only: FreeQ
 	! local
-	integer(kind=1), dimension(13):: temp,map,notused
-	integer :: itype, it1,it2,dn,dm,d,dnsel,dmsel
-	integer :: i,inu
-	logical :: used
+	integer(kind=1), dimension(13):: map,notexist
+	integer :: it,n,m,i,inxt
+	integer(kind=1):: j,thrt=13
+	logical :: found,exst
 
-		map = mapt%map;	
-				
-		itype = itypes(wj,wc);
-		dnsel = dna(itype)
-		dmsel = dnx(itype)
 
-		! copy current map
-		temp = map;
-		! set to -1 etc for error check
-		map = -1; notused = -1;
-		inu = 1
-		! calc new map
-		do it1=1,13
-			! next iteration n,m
-			dn = dna(it1) - dnsel ! dnselected
-			dm = dnx(it1) - dmsel;
-			used=.false.
-			do it2=1,13
-				if ( dn==dna(it2) .and. dm==dnx(it2)) then
-					map(it2) = temp(it1);
-					used=.true.
-					exit ! exit it2 loop
+	!write(*,*)"ReqType=",mapt%req
+	map = -1;
+	notexist = -1;
+	inxt = 0;
+	do it=1,13
+			if (.not. mapt%req(it)) cycle
+			n = na + dna(it); ! n,m values for itype=it
+			m = nx + dnx(it);
+			! search for these n,m locations among NHilbertSpaces
+			exst = .false.
+			do i=1,NHilbertSpaces
+				if (Hg(i)%xst) then
+					if (Hg(i)%n == n .and. Hg(i)%m == m)then
+						!il = i;
+						map(it) = i;
+						exst = .true.
+						exit
+					endif
 				endif
-			end do
-			if(.not. used) then
-				notused(inu) = it1
-				inu = inu + 1;
+			enddo
+			if (.not. exst) then
+				inxt=inxt+1;
+				notexist(inxt) = it
+			endif	
+	enddo ! it
+
+	!write(*,*)"mapt  1 = ",map
+	!write(*,*)"notfound",notexist
+
+
+	!---------------------------------------
+	! where to put to be calculated results?
+	do i = 1,inxt
+		it = notexist(i); ! finding slot/space for this itype
+		found = .false.
+		do j=1,NHilbertSpaces ! search for free slot
+			if(.not. Hg(j)%xst .and. FreeQ(map,thrt,j)) then
+				!Hg(j)%xst = .true.
+				map(it) = j;
+				found = .true.
+				exit
 			endif
 		end do
-		inu = inu-1
+
+		!write(*,*)"mapt 2 = ",map
+
 		
-		!write(*,*) map
-		! where to put to be calculated results?
-		do i = 1,inu,1		
-			do it1=1,13
-				if (map(it1)==-1) then
-						map(it1) =  temp(notused(i));
-						!write(*,*) "Calc new Hg etc for itype ",it1
-						exit
+		! if not found, search for existing
+		!			 slots that are not required
+		if (.not. found) then
+			do j=1,NHilbertSpaces ! search for free slot
+				if(FreeQ(map,thrt,j)) then ! slot j not used for another itype
+					map(it) = j;	
+					found = .true.
+					exit
 				endif
 			end do
-		end do
+		endif
+		! still not found? Error!
+		if (.not. found) then
+			write(*,*)"Error(maps): slot not found for itype=",it
+			stop
+		endif
+	end do ! it
 
-!		do it1=1,13
-!			if (map(it1)==-1) then
-!				write(*,*) "Calc new Hg etc for itype ",it1
-!			end if
-!		end do
-		
+	!write(*,*)"mapt 3 = ",map
+
+	!---------------------------------------
 	! set global variables
 	mapt%map = map;
-	mapt%cal = notused;
-	mapt%nnu = inu;
+	mapt%cal = notexist;
+	mapt%nnu = inxt;
 
+	!write(*,*)"mapt%map",mapt%map
+	!write(*,*)"mapt%req",mapt%req
 	return
 	end subroutine UpdateMapT
-
-
-!-------------------------------------------
-
-
+!------------------------------------
 	subroutine UpdateGroupTB()
 	!	group itypes with the same ib
 	use modmain, only : mapt,ibs
@@ -164,10 +174,9 @@
 	
 	integer :: ib,i,nnu,itype
 
-
 	cal = mapt%cal
 	nnu = mapt%nnu
-
+	
 	ntb=0; grouptb=0
 	do i=1,nnu
 		itype = cal(i);
@@ -182,11 +191,96 @@
 	
 	return
 	end subroutine UpdateGroupTB
-
-
-
-
 !-------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+	subroutine UpdateMapB()
+	!	map for ib: ==> 5 basis
+	use modmain, only : dns,mapb,NBasisSets,basis,na
+	use lists, only: FreeQ
+	! local
+	integer(kind=1), dimension(5):: map,notused
+	integer :: jb,jb2,i,inu
+	integer(kind=1):: j,n,five=5
+	logical :: used, found
+
+	map = -1 ;! set for error checking
+	notused = -1; inu=0;		
+	do jb=1,5	
+		n = na + dns(jb);
+		! search in exisiting record
+		used=.false.
+		do jb2=1,NBasisSets 
+			if (n == basis(jb2)%n) then
+				map(jb) = jb2;
+				used=.true.
+				exit
+			endif
+		enddo	
+		! add to the list that is to be calcualted
+		if(.not. used) then
+			inu = inu + 1;
+			notused(inu) = jb
+		endif			
+	end do
+
+	!write(*,*)"mapb 1= ",map
+
+	! where to put to be calculated results?
+	do i=1,inu
+		jb = notused(i);
+		! try to find a free slot
+		found = .false.
+		do j=1,NBasisSets
+			if(.not. basis(j)%xst.and.FreeQ(map,five,j)) then
+				map(jb) = j;
+				found =.true.
+				exit
+			endif
+		end do
+
+	!write(*,*)"mapb 2= ",map
+
+		! overwrite basis in an exisiting slot
+		if (.not. found) then
+			do j=1,NBasisSets
+				if(FreeQ(map,five,j)) then ! slot j not used for another itype
+					map(jb) = j;	
+					found = .true.
+					exit
+				endif
+			end do
+		endif
+		! still not found? Error!
+		if (.not. found) then
+			write(*,*)"Error(maps): slot not found for ib=",jb
+			stop
+		endif
+	end do
+
+	!write(*,*)"mapb 3 = ",map
+
+	! set global variables
+	mapb%map = map;
+	mapb%cal = notused;
+	mapb%nnu = inu;
+
+	!write(*,*)"mapb%map",mapb%map
+
+	
+	return
+	end subroutine UpdateMapB
+!--------------------------------------------
+
 	subroutine calmaphc()
 	use modmain, only: maph,mapc
 	implicit none
@@ -248,20 +342,10 @@
 
 	end subroutine calmaphc
 !-------------------------------------------
-
 	subroutine DONTUSEmaps()
+	! this would also ask to calculated basis and Hg/eig that are not even required! very bad! just use for testing.
 	use modmain, only: mapt,mapb
 	implicit none
-
-	if (allocated(mapb%map)) deallocate(mapb%map)
-	if (allocated(mapb%cal)) deallocate(mapb%cal)
-	if (allocated(mapt%map)) deallocate(mapt%map)
-	if (allocated(mapt%cal)) deallocate(mapt%cal)
-	allocate(mapb%map(5))
-	allocate(mapb%cal(5))
-	allocate(mapt%map(13))
-	allocate(mapt%cal(13))
-
 	
  	mapb%nnu = 5; mapt%nnu = 13 ! calc all 
 	mapb%map = (/ 1,2,3,4,5 /)

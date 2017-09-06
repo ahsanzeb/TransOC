@@ -5,7 +5,6 @@ objects = basisstates.o main.o hamiltonian.o lists.o modmain.o memory.o \
 
 include make.inc
 
-### execname= $(HOME)/xphotonon
 execname= transoc
 
 switch= -O3 -fbounds-check -fbacktrace -ffpe-trap=zero,overflow,underflow
@@ -29,7 +28,7 @@ modmain.mod:	modmain.o modmain.f
 readinput.mod: modmain.mod readinput.o readinput.f
 	$(FC) -c $(switch) readinput.f
 
-maps.mod: modmain.mod maps.f
+maps.mod: modmain.mod lists.mod maps.f
 	$(FC) -c $(switch) maps.f
 
 
@@ -39,7 +38,7 @@ lists.mod: lists.o lists.f
 kinds.mod: kinds.o kinds.f
 	$(FC) -c $(switch) kinds.f
 
-basisstates.mod: modmain.mod basisstates.o basisstates.f
+basisstates.mod: modmain.mod lists.mod basisstates.o basisstates.f
 	$(FC) -c $(switch) basisstates.f
 
 hamiltonian.mod: modmain.mod lists.mod basisstates.mod hamiltonian.o hamiltonian.f
@@ -48,7 +47,7 @@ hamiltonian.mod: modmain.mod lists.mod basisstates.mod hamiltonian.o hamiltonian
 dhops.mod: modmain.mod dhops.o dhops.f
 	$(FC) -c $(switch) dhops.f
 
-init.mod: modmain.mod maps.mod init.o init.f
+init.mod: modmain.mod maps.mod modways.mod init.o init.f
 	$(FC) -c $(switch) init.f
 
 
@@ -97,16 +96,16 @@ multiply.o: multiply.f
 	$(FC) -c $(switch) multiply.f
 
 
-init.o: modmain.mod init.f
+init.o: modmain.mod maps.mod modways.mod init.f
 	$(FC) -c $(switch) init.f
 
-basisstates.o: modmain.mod basisstates.f
+basisstates.o: modmain.mod lists.mod basisstates.f
 	$(FC) -c $(switch) basisstates.f
 
 selection.o: modmain.mod selection.f
 	$(FC) -c $(switch) selection.f
 
-maps.o:	modmain.mod maps.f
+maps.o:	modmain.mod lists.mod maps.f
 	$(FC) -c $(switch) maps.f
 
 dhops.o: modmain.mod basisstates.mod lists.mod amplitudes.o dhops.f

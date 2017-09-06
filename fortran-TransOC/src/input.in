@@ -10,8 +10,13 @@ Nexcitations
 3
 
 DontReuseData
-T
+F
 
+Kappa
+0.0
+
+Gamma
+0.0
 
 Niter
 100

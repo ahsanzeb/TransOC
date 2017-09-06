@@ -110,6 +110,7 @@
 	logical:: inb
 
 	!write(*,*) "a=",a
+	!write(*,*) "b=",b
 	!write(*,*) "la-lb, b=", la-lb, b
 
 	lc=0;
