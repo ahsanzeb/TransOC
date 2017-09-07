@@ -1,13 +1,16 @@
 
 objects = basisstates.o main.o hamiltonian.o lists.o modmain.o memory.o \
  hoppings.o dhops.o kinds.o multiply.o annihilation.o losses.o \
- maps.o init.o amplitudes.o creation.o selection.o rates.o modways.o readinput.o
+ maps.o init.o amplitudes.o creation.o selection.o rates.o modways.o readinput.o diag.o
+
+
 
 include make.inc
 
 execname= transoc
 
-switch= -O3 -fbounds-check -fbacktrace -ffpe-trap=zero,overflow,underflow
+#switch= -O3 -fbounds-check -fbacktrace -ffpe-trap=zero,overflow,underflow
+switch= -O3
 # -O -Wall -fcheck=all -g -fbacktrace
 # -g -fbounds-check
 # -g 
@@ -18,6 +21,8 @@ switch= -O3 -fbounds-check -fbacktrace -ffpe-trap=zero,overflow,underflow
 
 transoc: $(objects)
 	$(FC) -o $(execname) $(switch) $(objects) $(LIB)
+
+LIB = libarpack_mac.a
 
 #-----------------------------------------------------
 # modules
@@ -31,6 +36,8 @@ readinput.mod: modmain.mod readinput.o readinput.f
 maps.mod: modmain.mod lists.mod maps.f
 	$(FC) -c $(switch) maps.f
 
+diag.mod: modmain.mod diag.f
+	$(FC) -c $(switch) diag.f
 
 lists.mod: lists.o lists.f
 	$(FC) -c $(switch) lists.f
@@ -123,7 +130,7 @@ losses.o: modmain.mod basisstates.mod lists.mod amplitudes.o losses.f
 
 main.o:	modmain.mod basisstates.mod hamiltonian.mod lists.mod \
 hoppings.mod init.mod selection.mod rates.mod modways.mod\
- readinput.mod maps.mod main.f 
+ readinput.mod maps.mod diag.mod main.f 
 	$(FC) -c $(switch) main.f 
 
 hamiltonian.o: modmain.mod basisstates.mod hamiltonian.f
@@ -141,6 +148,9 @@ rates.o: modmain.mod rates.f
 
 modways.o: modmain.mod lists.mod modways.f
 	$(FC) -c $(switch) modways.f
+
+diag.o: modmain.mod diag.f
+	$(FC) -c $(switch) diag.f
 
 #-----------------------------------------------------
 

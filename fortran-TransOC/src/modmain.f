@@ -154,6 +154,7 @@
 		integer :: n,m 
 		integer(kind=4) :: ntot ! HilbertSpace dimension
 		integer(kind=4) :: nnz  ! no of non-zero elements
+		integer(kind=4) :: srptr ! size of row pointers, not eq to ntot
 		integer(kind=4), allocatable :: col(:)
 		integer(kind=4), allocatable :: rowpntr(:)
 		double precision, allocatable :: dat(:)

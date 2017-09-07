@@ -9,7 +9,7 @@
 
 !------------------------------------------
 	subroutine mkHamilt()
-	use modmain, only: mapt
+	use modmain, only: mapt,Hg
 	implicit none
 	! local
 	integer(kind=1):: nt,ib
@@ -20,6 +20,13 @@
 			call MakeHgMulti(mapt%grouptb(ib,1:nt),nt)
 		endif
 	end do
+
+
+	!write(*,*)"hamilt: Hg(:)%xst ============="
+	!write(*,*)	Hg(:)%xst
+	!write(*,*)	Hg(1)%rowpntr
+
+
 	
 	return
 	end	subroutine mkHamilt
@@ -89,7 +96,7 @@
 	!integer(kind=4), intent(out) :: nnz ! no of nonzero elements
 	! local
 	integer(kind=4):: indf,i,j,ind,ntot,itype,indi
-	integer(kind=1):: ib,k,m,m1,n,ibl,i2
+	integer(kind=1):: ib,k,m,m1,n,ibl,i2,it2
 	double precision:: val,kdw
 	integer(kind=4), allocatable, dimension(:):: pntr
 	integer(kind=4), allocatable, dimension(:):: ind1
@@ -137,7 +144,7 @@
 	do k=0,m1-1
 		ntot = pntr(k+2) - pntr(k+1)
 		do i=1,nt
-			if(k<m1s(i)) nnzg(i) = nnzg(i) + ntot*(n-k);
+			if(k < m1s(i)) nnzg(i) = nnzg(i) + ntot*(n-k);
 		end do
 	end do
 
@@ -174,45 +181,67 @@
 			deallocate(Hg(itl(i))%rowpntr)
 		endif
 		!allocate(Hg(itl(i))%row(nnz(i)))
-		allocate(Hg(itl(i))%col(nnz(i)))
-		allocate(Hg(itl(i))%dat(nnz(i)))
-		if(detuning) then
-			allocate(Hg(itl(i))%rowpntr(2*pntr(m1s(i)+2))) ! 2*hilbert space dim
-		else
-			allocate(Hg(itl(i))%rowpntr(pntr(m1s(i)+2))) ! hilbert space dim
-		endif
-	end do
+		allocate(Hg(itl(i))%col(nnz(i))); 
+		allocate(Hg(itl(i))%dat(nnz(i)));
+		! rowpntr size = pntr(m1s(i)+1), one less sectors 
+		! k=m1 sector has no higher ksub sector to couple to.
+		! +1 for last value =nnz+1
+		Hg(itl(i))%srptr= pntr(m1s(i)+1) + 1; ! size of row pntr
+		allocate(Hg(itl(i))%rowpntr(pntr(m1s(i)+1) +1))
 
+		Hg(itl(i))%col=-10;
+		Hg(itl(i))%dat=0.0d0;
+		Hg(itl(i))%rowpntr = -10;
+
+		! set last value of rowptr
+		Hg(itl(i))%rowpntr(pntr(m1s(i)+1) +1) = nnz(i) + 1;
+		
+		!write(*,*)"itl(i),shape(Hg(itl(i))%col)"
+		!write(*,*)itl(i),shape(Hg(itl(i))%col)
+		!write(*,*)itl(i),shape(Hg(itl(i))%rowpntr)
+		!if(detuning) then
+		!	allocate(Hg(itl(i))%rowpntr(2*pntr(m1s(i)+2))) ! 2*hilbert space dim???
+		!else
+		!	allocate(Hg(itl(i))%rowpntr(pntr(m1s(i)+2))) ! hilbert space dim
+		!endif
+	end do
 			
 	ind = 1; ptr=1; ptr0=0;
 	! calc maps for diff k and combine to get full matrix
-	do k=0,m1-1,1
+	do k=0,m1 ! =m1 for detuning case, to include diag elem
 		ntot = pntr(k+2) - pntr(k+1);
-		if(allocated(ind1))deallocate(ind1)
-		allocate(ind1(ntot));
-		ind1(:) = pntr(k+1) + (/ (i, i=1,ntot,1) /);
-		! calc map from k to k+1 up spin sector
-		if(allocated(map))deallocate(map)
-		allocate(map(ntot,n-k));
-		call HgMap(ibl,n,k,ntot,map)
+		if (k<m1) then
+			if(allocated(ind1))deallocate(ind1)
+			allocate(ind1(ntot));
+			ind1(:) = pntr(k+1) + (/ (i, i=1,ntot,1) /);
+			! calc map from k to k+1 up spin sector
+			if(allocated(map))deallocate(map)
+			allocate(map(ntot,n-k));
+			call HgMap(ibl,n,k,ntot,map)
 		
-		! assign values to final matrix			
-		indf=ind+ntot*(n-k)-1;
-		indi = ind; 
-		ptrf = ptr + ntot -1
-		do i2=1,nt
-			ind = indi; ! save the index for i2 loop
-			if(k < m1s(i2)) then
-				val = dsqrt((ms(i2)-k)*1.d0)*g;
-				Hg(itl(i2))%dat(ind:indf) = val;
-				! transpose map to get col first for reshape
-				Hg(itl(i2))%col(ind:indf) = 
-     .   reshape(transpose(map), (/ntot*(n-k)/)) 
-				Hg(itl(i2))%rowpntr(ptr:ptrf) =
-     .    (/(ptr0 + (i-1)*(n-k)+1, i=1,ntot)/)
-			endif
-		end do
-		ind = indf+1; ! advance the index
+			! assign values to final matrix			
+			indf=ind+ntot*(n-k)-1;
+			indi = ind; 
+			ptrf = ptr + ntot -1
+			do i2=1,nt
+				ind = indi; ! save the index for i2 loop
+				if(k < m1s(i2)) then
+					val = dsqrt((ms(i2)-k)*1.d0)*g;
+					it2 = itl(i2);
+					Hg(it2)%dat(ind:indf) = val;
+					! transpose map to get col first for reshape
+					Hg(it2)%col(ind:indf) = 
+     .     reshape(transpose(map), (/ntot*(n-k)/))
+					Hg(it2)%rowpntr(ptr:ptrf) =
+     .    (/ (ptr0 + (i-1)*(n-k)+1, i=1,ntot) /)
+     			!if(it2==1) then
+					!	write(*,*)"Hg(it2)%rowpntr(ptr:ptrf), m1, k=",m1s(it2),k
+					!	write(*,*)Hg(it2)%rowpntr(ptr:ptrf)
+					!endif
+				endif
+			end do
+			ind = indf+1; ! advance the index
+		endif ! k < m1
 		
 		! diagonal elements 
 		if (detuning) then
@@ -220,8 +249,14 @@
 			indi = ind; ! save the index for i2 loop
 			do i2=1,nt
 				ind = indi;
-				kdw = (ms(i2) - k)*dw;
-				if(k < m1s(i2)) then
+				!-----------------------------------------
+				! store half of actual values to avoid double counting
+				! in mat vec multiplication in module diag, subroutine matvec()
+				! ===> put a switch to control this behaviour in case
+				! a direct eigensolver is to be used instead of arpack
+				!-----------------------------------------
+				kdw = (ms(i2) - k)*dw/2.0d0;
+				if(k <= m1s(i2)) then
 					Hg(itl(i2))%dat(ind:indf) = kdw;
 					!Hg(itl(i2))%row(ind:indf) = ind1(:);
 					Hg(itl(i2))%col(ind:indf) = ind1(:);
@@ -239,12 +274,7 @@
 			ptr0 = ptr0 + ntot*(n-k); ! shift for nxt k-blocks		
 		end if ! detuning
 
-
-
-
 	end do ! k
-
-
 
 	return
 	end subroutine MakeHgMulti

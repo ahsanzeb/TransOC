@@ -10,10 +10,12 @@
 	use modways, only: UpdateWays, UpdateOcc
 	use readinput, only: input
 	use maps
+	use diag, only: diagonalise
 	
 	implicit none
 
 	integer:: i,ic,is,ia,iter,ih,j,ntot,zt=0
+	integer:: nev,ncv
 
 	write(*,*) "transoc: in amplitudes: test HtUf = 1.0d0;"
 
@@ -41,6 +43,17 @@
 		! make hamiltonian
 		call mkHamilt()
 
+
+		ntot = Hg(1)%ntot
+		write(*,*) "ntot = ",ntot ! 176?
+
+		nev = 10;
+		ncv = 25; ! make it bigger??? not bigger than ntot?!!!
+		call diagonalise(1, ntot, nev, ncv)
+
+		stop
+
+		
 		!-----------------------------------
 		! diagonalise
 		! choose Psi if first iteration
