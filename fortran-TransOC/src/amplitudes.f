@@ -21,10 +21,7 @@
 		n1=eig(itl)%n1 ! dim of final hilbert space
 		n2=eig(itl)%n2
 
-		if(n1 .ne. n2) then
-			write(*,*)" n1 .ne. n2 ????"
-			stop
-		endif
+		write(*,*) "n1,n2 = ", n1,n2
 		
 		allocate(HtUf(n3,n2))
 		ia = maph(ih,ic); ! location of amplitudes
@@ -50,7 +47,7 @@
 		! multiply psi with HtUf to get amplitudes
 		! psi should be a row vector; shape = 1 x n3
 
-		HtUf = 1.0d0;
+		!HtUf = 1.0d0;
 		!write(*,*)"amp: n3,n1,n2=",n3,n1,n2
 		!write(*,*)"amp: shape(psi),shape(HtUf) ",shape(psi),shape(HtUf) 
 
@@ -105,7 +102,7 @@
 		qt(ia)%cs(ic,is)%namp = n2
 		! multiply psi with HtUf to get amplitudes
 		! psi should be a row vector; shape = 1 x n3
-		HtUf = 1.0d0;
+		!HtUf = 1.0d0;
 		!write(*,*)"amp0: n3,n1,n2=",n3,n1,n2
 		!write(*,*)"amp0: shape(psi),shape(HtUf) ",shape(psi),shape(HtUf) 
 		qt(ia)%cs(ic,is)%amp=reshape(matmul(psi,HtUf),(/n2/)); ! both input dense
@@ -146,6 +143,9 @@
 		!end do 
 		amp2(i) = sum( amp(i1:i2)**2 )	
 	end do
+
+	write(*,*) "amp: amp2 = ",amp2
+	
 	return
 	end subroutine GetAmp2
 !---------------------------------------

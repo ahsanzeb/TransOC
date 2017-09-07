@@ -3,19 +3,19 @@
 	use modmain
 	use init, only: initialise
 	use basisstates, only: mkbasis
-	use hamiltonian, only: mkHamilt,DegenSectors
+	use hamiltonian, only: mkHamilt
 	use Hoppings, only: AllHops ! 
 	use rates, only: CalRates
 	use selection, only: ihSelect, icsSelect
 	use modways, only: UpdateWays, UpdateOcc
 	use readinput, only: input
 	use maps
-	use diag, only: iterdiag, ddiag
+	use diag, only: diagonalise
 	
 	implicit none
 
 	integer:: i,ic,is,ia,iter,ih,j,ntot,zt=0
-	integer:: nev,ncv
+	integer:: nev,ncv,it
 
 	write(*,*) "transoc: in amplitudes: test HtUf = 1.0d0;"
 
@@ -42,81 +42,28 @@
 
 		! make hamiltonian
 		call mkHamilt()
+		write(*,*) "main: Hamiltonians done....  "
 
+		call diagonalise()
+		write(*,*) "main: diagonalisation done.... "
 
-		ntot = Hg(1)%ntot
-		write(*,*) "ntot = ",ntot ! 176?
-
-		if(Hg(1)%dense) then
-			! if dense, upper triangular H stored in evec
-			call ddiag(eig(1)%evec,eig(1)%eval,ntot) 
-		else
-			nev = 10;
-			ncv = 25; ! make it bigger??? not bigger than ntot?!!!
-			call iterdiag(1, ntot, nev, ncv)
-		endif
-
-		stop
-
-		
-		!-----------------------------------
-		! diagonalise
-		! choose Psi if first iteration
-		!-----------------------------------
-		! set dummy eig for testing... 
-
-		! eig ====> alloc/dealloc properly, 
-		!		considering that dense H might be stored 
-		do i=1,13
-		if (Hg(i)%xst) then
-		ntot = Hg(i)%ntot
-		eig(i)%ntot=ntot
-		eig(i)%n1=ntot
-		eig(i)%n2=ntot
-		if (allocated(eig(i)%evec)) deallocate(eig(i)%evec)
-		if (allocated(eig(i)%eval)) deallocate(eig(i)%eval)
-		allocate(eig(i)%evec(ntot,ntot))
-		allocate(eig(i)%eval(ntot))
-		!eig(i)%evec = 0.0d0;
-		!eig(i)%eval = 0.0d0;
-		call random_number(eig(i)%evec)
-		eig(i)%eval = (/ (j*1.0d-5, j=1,ntot) /) ! ordered
-
-		! degenerate sectors
-		if(allocated(eig(i)%esec))deallocate(eig(i)%esec)
-		if(allocated(eig(i)%ind))deallocate(eig(i)%ind)
-		allocate(eig(i)%esec(ntot))
-		allocate(eig(i)%ind(ntot+1))
-		call DegenSectors(eig(i)%eval,ntot,
-     .   eig(i)%nsec,eig(i)%esec,eig(i)%ind) ! make degenerate sectors
-
-		else
-				write(*,*)"main: itype, ntot = ",i,ntot	
-		endif ! ntot > 0
-
-		enddo
-
+		!stop
 		
 		if(allocated(psi)) deallocate(psi)
-		if(iter == 1 .or. fixmap) then
-			allocate(psi(1,eig(1)%ntot))
-		else
-			write(*,*) "main: itype =",itype
-			allocate(psi(1,eig(mapt%map(1))%ntot))
-		endif
-		!psi(eig(1)%ntot) = 0.0d0
-		!call random_number(psi)
-		psi = 1.0d0
-		Einit = 0.0d0
-		!-----------------------------------
+		it = mapt%map(1);
+		write(*,*)"main: psi;  it= ",it, eig(it)%n1
+				
+		allocate(psi(1,eig(it)%n1))
+		psi(1,:) = eig(it)%evec(:,1)
+		Einit = eig(it)%eval(1)
+
 
 		write(*,*)"sys%occ = ",sys%occ
 
 
-
-		!allocate qt (req maph ==> ia )
-
-
+		!====== if PermSym then only a single site cases ====== 
+		!	check if anything to do about it related to qt/rate allocation etc
+		
 		if(iter==1) then
 			do ia=1,14
 				allocate(qt(ia)%cs(4,1)) ! alloc/deallocate at every iteration...
@@ -126,6 +73,8 @@
 				allocate(rate(ih)%rcs(4,1))! alloc/deallocate at every iteration...
 			enddo
 		endif
+
+
 		! All available hops: 
 		!	transition amplitudes and amp^2 for degenerate sectors
 		! and allocate space for rates???

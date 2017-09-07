@@ -19,6 +19,9 @@
 	! L-H and H-L cross hops allowed? 
 	logical :: crosshops 
 
+	! all molecules-light couplings same?
+	logical :: sameg
+	
 	! reuse basis/hamiltonians (fixmap=F) or not (fixmap=T)
 	logical :: fixmap
 	! list of active sites in order they appear in the basis 
@@ -150,16 +153,18 @@
 	! hamiltonian for 13 diff (N,m)
 	!---------------------------------------	
 	type :: Ham
-		logical :: xst
-		logical :: dense
-		integer :: n,m 
+		logical :: xst,dense
+		integer :: n,m,m1
+		integer :: nev, ncv
 		integer(kind=4) :: ntot ! HilbertSpace dimension
 		integer(kind=4) :: nnz  ! no of non-zero elements
 		integer(kind=4) :: srptr ! size of row pointers, not eq to ntot
 		integer(kind=4), allocatable :: col(:)
 		integer(kind=4), allocatable :: rowpntr(:)
 		double precision, allocatable :: dat(:)
-		integer(kind=4), allocatable :: row(:)
+		!integer(kind=4), allocatable :: row(:)
+		 ! pointers to ksub sectors in rowpntr
+		integer(kind=4), allocatable :: spntr(:) 
 	end type Ham
 
 		! Number of Hilbert spaces and basis (same N)
@@ -280,6 +285,9 @@
 	! max iterations for iterative solver
 	integer :: diagmaxitr ! key to set it in input: DirectSolverSize
 
+	integer :: ndsec ! number of degenerate sectors in the spectrum to calculate
+	! ~ 3 seems fine, energetic penalty is not going to
+	! allow much higher transitions anyway.
 
 
 

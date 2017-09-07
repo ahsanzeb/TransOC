@@ -64,8 +64,8 @@
 	na = n1;
 	write(*,*)"init: na = ",na
 
-	na = 10; nx = 3;
-	write(*,*)"init: TESTING DIAG: LARGER na = ",na
+	!na = 10; nx = 3;
+	!write(*,*)"init: TESTING DIAG: LARGER na = ",na
 	
 	!-----------------------------------------
 	! initialise ways, mapb, mapt

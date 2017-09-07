@@ -9,8 +9,12 @@ Nsites
 Nexcitations
 3
 
-DontReuseData
-F
+!DontReuseData
+!F
+
+Detuning
+0
+
 
 ! above this size, iterative arpack solver will be used
 !	to diagonalise Hamiltonians
@@ -27,10 +31,10 @@ Gamma
 0.0
 
 Niter
-100
+10
 
 Beta
-0.1
+0.0
 
 !++++++++++++++++++++++
 !	TO DO

@@ -26,7 +26,9 @@
 	NHilbertSpaces=13;
 	smalln = 50;
 	diagmaxitr = 150;
+	sameg = .true.
 	fixmap = .false.
+	ndsec = 4;
 	g = 0.3d0;
 	th = 1.0d0; tl=1.0d0; tlh=0.005d0; thl=1.0d0;
 	JhR=10*th; JlR=10*th; JhL=10*th; JlL=10*th;
@@ -36,6 +38,7 @@
 	Er = 1.0d0
 	w0 = 2.0d0
 	dw = 0.0d0
+	detuning = .false.
 	kappa = 0.005d0
 	gamma = 0.005d0
 	beta = 40.0d0
@@ -76,6 +79,9 @@
 	case('Niter')
 		read(50,*,err=20) niter
 
+	!case('SameLightMoleculeCoupling') !set always to true as diff g not implemented yet
+	!	read(50,*,err=20) sameg
+
 	case('DirectSolverSize')
 		read(50,*,err=20) smalln
 
@@ -87,6 +93,12 @@
 
 	case('NHilbertSpaces')
 		read(50,*,err=20) NHilbertSpaces
+
+	case('NLowDegSectors') 
+		read(50,*,err=20) ndsec
+		! dynamics will be restricted to low lying degenerate
+		! sectors only by energetic penalty, so no need to
+		! calculate amplitudes for higher sectors
 
 	case('DontReuseData')
 		read(50,*,err=20) fixmap
@@ -167,6 +179,7 @@
 	close(50)
 
 
+	if(abs(dw) > 1.d-6) detuning=.true.
 
 	if(kappa < 1.d-6) nokappa = .true.
 	if(gamma < 1.d-6) nogamma = .true.
