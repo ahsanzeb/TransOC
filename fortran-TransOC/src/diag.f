@@ -2,11 +2,13 @@
 	module diag
 	implicit none
 
-	public :: diagonalise
+	public :: iterdiag, ddiag
+	private:: matvec
 
 	contains
 	!-----------------------------------
-	subroutine diagonalise(it,n,nev,ncv)
+	subroutine iterdiag(it,n,nev,ncv)
+	use modmain, only: diagmaxitr
 	implicit none
 	integer, intent(in) :: it ! which hamiltonian
 	integer, intent(in) :: n ! n x n dimension of Hg
@@ -83,7 +85,7 @@ c          matrix-vector product OP*x. (See remark 4 there).
 	ido = 0
 
 	iparam(1) = 1 ! ishfts 
-	iparam(3) = 10 ! maxitr 
+	iparam(3) = diagmaxitr ! max iterations 
 	iparam(7) = 1 ! mode, standard eigenvalue problem
 
 	!write(*,*)" ---- started ------- "
@@ -157,7 +159,7 @@ c          matrix-vector product OP*x. (See remark 4 there).
 	deallocate(v,workl,workd,d,resid,selectt)
 	
 	return
-	end subroutine diagonalise
+	end subroutine iterdiag
 
 	!-----------------------------------
 	subroutine matvec(it,n,x,y)
@@ -192,5 +194,44 @@ c          matrix-vector product OP*x. (See remark 4 there).
  	
 	return
 	end subroutine matvec
-	!-----------------------------------
+!-----------------------------------
+
+	subroutine ddiag(H,W,ntot)
+	use modmain, only: clock !
+	implicit none
+	integer, intent(in) :: ntot
+	double precision, dimension(ntot,ntot), intent(inout):: H	
+	double precision, dimension(ntot), intent(inout):: W
+	! local
+	integer :: lwork != 3*ntot ! LWORK >= max(1,3*N-1)
+	double precision, dimension(3*ntot):: WORK
+	integer :: info
+	double precision ::starttime, endtime,starttime1, endtime1
+	EXTERNAL	 DSYEV ! LAPACK/BLAS
+
+	write(*,'(/,a)') " diagonal: diagonalising H ... "
+	starttime1 = clock()
+
+	lwork = 3*ntot ! LWORK >= max(1,3*N-1)
+	
+	CALL DSYEV('Vectors','Upper',ntot,H,ntot,W,WORK,LWORK,INFO)
+	! Check for convergence.
+	IF( INFO.GT.0 ) THEN
+		WRITE(*,'(/,a)')
+     .   'diagonal: The algorithm failed to compute eigenvalues.'
+		STOP
+	END IF
+
+	! ******** set global variable eig *********
+
+
+	endtime1 = clock()
+	write(*,'(/,a,E8.2)')" diagonal: total time taken	= ",
+     . 			endtime1-starttime1
+
+	return
+	END subroutine ddiag
+!-----------------------------------------------
+
+	
 	end 	module diag

@@ -24,6 +24,8 @@
 	niter = 20;
 	NBasisSets = 5;
 	NHilbertSpaces=13;
+	smalln = 50;
+	diagmaxitr = 150;
 	fixmap = .false.
 	g = 0.3d0;
 	th = 1.0d0; tl=1.0d0; tlh=0.005d0; thl=1.0d0;
@@ -73,6 +75,12 @@
 
 	case('Niter')
 		read(50,*,err=20) niter
+
+	case('DirectSolverSize')
+		read(50,*,err=20) smalln
+
+	case('IterSolverMaxIter')
+		read(50,*,err=20) diagmaxitr
 
 	case('NBasisSets')
 		read(50,*,err=20) NBasisSets

@@ -10,7 +10,7 @@
 	use modways, only: UpdateWays, UpdateOcc
 	use readinput, only: input
 	use maps
-	use diag, only: diagonalise
+	use diag, only: iterdiag, ddiag
 	
 	implicit none
 
@@ -47,9 +47,14 @@
 		ntot = Hg(1)%ntot
 		write(*,*) "ntot = ",ntot ! 176?
 
-		nev = 10;
-		ncv = 25; ! make it bigger??? not bigger than ntot?!!!
-		call diagonalise(1, ntot, nev, ncv)
+		if(Hg(1)%dense) then
+			! if dense, upper triangular H stored in evec
+			call ddiag(eig(1)%evec,eig(1)%eval,ntot) 
+		else
+			nev = 10;
+			ncv = 25; ! make it bigger??? not bigger than ntot?!!!
+			call iterdiag(1, ntot, nev, ncv)
+		endif
 
 		stop
 
@@ -59,6 +64,9 @@
 		! choose Psi if first iteration
 		!-----------------------------------
 		! set dummy eig for testing... 
+
+		! eig ====> alloc/dealloc properly, 
+		!		considering that dense H might be stored 
 		do i=1,13
 		if (Hg(i)%xst) then
 		ntot = Hg(i)%ntot

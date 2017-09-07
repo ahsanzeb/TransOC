@@ -12,6 +12,14 @@ Nexcitations
 DontReuseData
 F
 
+! above this size, iterative arpack solver will be used
+!	to diagonalise Hamiltonians
+DirectSolverSize
+20
+
+IterSolverMaxIter
+100
+
 Kappa
 0.0
 

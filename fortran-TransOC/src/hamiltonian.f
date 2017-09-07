@@ -89,13 +89,13 @@
 	! makes Hg of types in itlist; all for same n, diff m.
 	! saves the Hamiltonians in CSR format
 	use modmain, only: basis,na,nx,ibs,dna,dnx,
-     .								g,dw,detuning,Hg,mapb,mapt
+     .			g,dw,detuning,Hg,eig,mapb,mapt,smalln
 	implicit none
 	integer(kind=1), intent(in) :: nt
 	integer(kind=1), dimension(nt), intent(in) :: itlist
 	!integer(kind=4), intent(out) :: nnz ! no of nonzero elements
 	! local
-	integer(kind=4):: indf,i,j,ind,ntot,itype,indi
+	integer(kind=4):: indf,i,j,ind,ntot,itype,indi,irow,icol
 	integer(kind=1):: ib,k,m,m1,n,ibl,i2,it2
 	double precision:: val,kdw
 	integer(kind=4), allocatable, dimension(:):: pntr
@@ -166,6 +166,13 @@
 		Hg(itl(i))%m = ms(i);
 		Hg(itl(i))%ntot = pntr(m1s(i)+2);
 		Hg(itl(i))%nnz = nnz(i);
+		if (pntr(m1s(i)+2) .le. smalln) then
+			Hg(itl(i))%dense = .true.
+			! if true, save hamiltonian in eig(itl(i))%evec
+		else
+			! set this in case it is true from a prev run
+			Hg(itl(i))%dense = .false. 
+		endif		
 		!write(*,*) "ham: it, itl = ",i, itl(i)
 		!write(*,*) "ham: n, m, m1 = ",n, ms(i),m1s(i)
 		!write(*,*) "ham: nnz, ntot = ",nnz(i),pntr(m1s(i)+2)
@@ -180,30 +187,27 @@
 			deallocate(Hg(itl(i))%dat)
 			deallocate(Hg(itl(i))%rowpntr)
 		endif
-		!allocate(Hg(itl(i))%row(nnz(i)))
-		allocate(Hg(itl(i))%col(nnz(i))); 
-		allocate(Hg(itl(i))%dat(nnz(i)));
-		! rowpntr size = pntr(m1s(i)+1), one less sectors 
-		! k=m1 sector has no higher ksub sector to couple to.
-		! +1 for last value =nnz+1
-		Hg(itl(i))%srptr= pntr(m1s(i)+1) + 1; ! size of row pntr
-		allocate(Hg(itl(i))%rowpntr(pntr(m1s(i)+1) +1))
 
-		Hg(itl(i))%col=-10;
-		Hg(itl(i))%dat=0.0d0;
-		Hg(itl(i))%rowpntr = -10;
-
-		! set last value of rowptr
-		Hg(itl(i))%rowpntr(pntr(m1s(i)+1) +1) = nnz(i) + 1;
-		
-		!write(*,*)"itl(i),shape(Hg(itl(i))%col)"
-		!write(*,*)itl(i),shape(Hg(itl(i))%col)
-		!write(*,*)itl(i),shape(Hg(itl(i))%rowpntr)
-		!if(detuning) then
-		!	allocate(Hg(itl(i))%rowpntr(2*pntr(m1s(i)+2))) ! 2*hilbert space dim???
-		!else
-		!	allocate(Hg(itl(i))%rowpntr(pntr(m1s(i)+2))) ! hilbert space dim
-		!endif
+		if (Hg(itl(i))%dense) then ! dense
+			ntot = pntr(m1s(i)+2)
+			allocate(eig(itl(i))%evec(ntot,ntot))
+			eig(itl(i))%evec(:,:) = 0.0d0 ! initialise = 0
+			allocate(eig(itl(i))%eval(ntot))
+		else	 ! sparse
+			!allocate(Hg(itl(i))%row(nnz(i)))
+			allocate(Hg(itl(i))%col(nnz(i))); 
+			allocate(Hg(itl(i))%dat(nnz(i)));
+			! rowpntr size = pntr(m1s(i)+1), one less sectors 
+			! k=m1 sector has no higher ksub sector to couple to.
+			! +1 for last value =nnz+1
+			Hg(itl(i))%srptr= pntr(m1s(i)+1) + 1; ! size of row pntr
+			allocate(Hg(itl(i))%rowpntr(pntr(m1s(i)+1) +1))
+			!Hg(itl(i))%col=-10; ! to get error in case col is not set.
+			!Hg(itl(i))%dat=0.0d0;
+			!Hg(itl(i))%rowpntr = -10;
+			! set last value of rowptr
+			Hg(itl(i))%rowpntr(pntr(m1s(i)+1) +1) = nnz(i) + 1;
+		endif
 	end do
 			
 	ind = 1; ptr=1; ptr0=0;
@@ -228,12 +232,22 @@
 				if(k < m1s(i2)) then
 					val = dsqrt((ms(i2)-k)*1.d0)*g;
 					it2 = itl(i2);
-					Hg(it2)%dat(ind:indf) = val;
-					! transpose map to get col first for reshape
-					Hg(it2)%col(ind:indf) = 
-     .     reshape(transpose(map), (/ntot*(n-k)/))
-					Hg(it2)%rowpntr(ptr:ptrf) =
-     .    (/ (ptr0 + (i-1)*(n-k)+1, i=1,ntot) /)
+					if (Hg(it2)%dense) then
+						do i=1,ntot
+							do j=1,n-k
+								irow = pntr(k+1) + i - 1;
+								icol = map(i,j)! col indx
+								eig(it2)%evec(irow,icol) = val
+							enddo
+						enddo
+					else
+						Hg(it2)%dat(ind:indf) = val;
+						! transpose map to get col first for reshape
+						Hg(it2)%col(ind:indf) = 
+     .    			reshape(transpose(map), (/ntot*(n-k)/))
+						Hg(it2)%rowpntr(ptr:ptrf) =
+     .       	(/ (ptr0 + (i-1)*(n-k)+1, i=1,ntot) /)
+					endif
      			!if(it2==1) then
 					!	write(*,*)"Hg(it2)%rowpntr(ptr:ptrf), m1, k=",m1s(it2),k
 					!	write(*,*)Hg(it2)%rowpntr(ptr:ptrf)
@@ -255,16 +269,24 @@
 				! ===> put a switch to control this behaviour in case
 				! a direct eigensolver is to be used instead of arpack
 				!-----------------------------------------
-				kdw = (ms(i2) - k)*dw/2.0d0;
 				if(k <= m1s(i2)) then
-					Hg(itl(i2))%dat(ind:indf) = kdw;
-					!Hg(itl(i2))%row(ind:indf) = ind1(:);
-					Hg(itl(i2))%col(ind:indf) = ind1(:);
-					ind = indf + 1;
-					! shift pntrs, by one for each prev row
-					Hg(itl(i2))%rowpntr(ptr:ptrf) = 
+					if (Hg(itl(i2))%dense)then
+						kdw = (ms(i2) - k)*dw; ! full value
+						do i=1,ntot
+							irow = ind1(i)
+							eig(it2)%evec(irow,irow) = kdw
+						enddo
+					else
+						kdw = (ms(i2) - k)*dw/2.0d0; ! half value
+						Hg(itl(i2))%dat(ind:indf) = kdw;
+						!Hg(itl(i2))%row(ind:indf) = ind1(:);
+						Hg(itl(i2))%col(ind:indf) = ind1(:);
+						ind = indf + 1;
+						! shift pntrs, by one for each prev row
+						Hg(itl(i2))%rowpntr(ptr:ptrf) = 
      .   		Hg(itl(i2))%rowpntr(ptr:ptrf) + 
      .   			(/(i,i=0,ntot-1)/)
+     			endif
 				endif
 			end do
 			ptr = ptrf+1	

@@ -151,6 +151,7 @@
 	!---------------------------------------	
 	type :: Ham
 		logical :: xst
+		logical :: dense
 		integer :: n,m 
 		integer(kind=4) :: ntot ! HilbertSpace dimension
 		integer(kind=4) :: nnz  ! no of non-zero elements
@@ -271,11 +272,25 @@
 	double precision :: dw,g
 	logical :: detuning
 
-
-
-
-
 	!integer :: EvecKind
 
+	! above this size, iterative arpack solver will be used
+	!	to diagonalise Hamiltonians
+	integer :: smalln ! key to set it in input: DirectSolverSize
+	! max iterations for iterative solver
+	integer :: diagmaxitr ! key to set it in input: DirectSolverSize
+
+
+
+
+	contains
+
+!--------------- timer -----------------
+	double precision function clock()
+		real(kind=4):: etime, tm(2)
+		clock = etime( tm )
+	return
+	end function clock
+!---------------------------------------
 
 	end module

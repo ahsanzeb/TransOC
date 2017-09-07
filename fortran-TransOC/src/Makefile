@@ -1,7 +1,8 @@
 
 objects = basisstates.o main.o hamiltonian.o lists.o modmain.o memory.o \
  hoppings.o dhops.o kinds.o multiply.o annihilation.o losses.o \
- maps.o init.o amplitudes.o creation.o selection.o rates.o modways.o readinput.o diag.o
+ maps.o init.o amplitudes.o creation.o selection.o \
+ rates.o modways.o readinput.o diag.o timestamp.o
 
 
 
@@ -22,7 +23,7 @@ switch= -O3
 transoc: $(objects)
 	$(FC) -o $(execname) $(switch) $(objects) $(LIB)
 
-LIB = libarpack_mac.a
+LIB = libarpack_mac.a -llapack 
 
 #-----------------------------------------------------
 # modules
@@ -79,6 +80,9 @@ selection.mod: modmain.mod selection.f
 
 modways.mod: modmain.mod lists.mod modways.o modways.f
 	$(FC) -c $(switch) modways.f
+
+timestamp.o: timestamp.f
+	$(FC) -c $(switch) timestamp.f
 
 #-----------------------------------------------------
 # objects
