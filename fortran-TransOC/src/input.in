@@ -25,16 +25,16 @@ IterSolverMaxIter
 100
 
 Kappa
-0.0
+0.1
 
 Gamma
-0.0
+0.1
 
 Niter
-10
+500
 
 Beta
-0.0
+40.0
 
 !++++++++++++++++++++++
 !	TO DO

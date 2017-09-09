@@ -16,6 +16,10 @@
 
 	integer:: i,ic,is,ia,iter,ih,j,ntot,zt=0
 	integer:: nev,ncv,it
+	integer :: stath(26),statc(4)
+
+
+	stath = 0; statc = 0; zt = 0;
 
 	write(*,*) "transoc: in amplitudes: test HtUf = 1.0d0;"
 
@@ -32,32 +36,36 @@
 	! main loop over number of hops asked
 	do iter=1,niter
 
-		write(*,*) "======================================="
-		write(*,*) "          iter = ",iter
-		write(*,*) "          N, m = ",na,nx
+		write(*,'(a)') ". . . . . . . . . . . . "
+		write(*,'(a,i10,a,2i10)') " iter = ",iter,"  N, m = ",na,nx
+		write(*,*)          
 		
 		! make basis states ksub
 		call mkbasis(na,nx)
-		write(*,*) " basis done....  "
+		!write(*,*) " basis done....  "
 
 		! make hamiltonian
 		call mkHamilt()
-		write(*,*) "main: Hamiltonians done....  "
+		!write(*,*) "main: Hamiltonians done....  "
 
 		call diagonalise()
-		write(*,*) "main: diagonalisation done.... "
+		!write(*,*) "main: diagonalisation done.... "
 
 		!stop
 		
 		if(allocated(psi)) deallocate(psi)
 		it = mapt%map(1);
-		write(*,*)"main: psi;  it= ",it, eig(it)%n1
 				
 		allocate(psi(1,eig(it)%n1))
 		psi(1,:) = eig(it)%evec(:,1)
 		Einit = eig(it)%eval(1)
 
+		write(*,'(a,i5,x,i10,x,f10.5)')
+     .      "main: it,ntot, Ei = ",it,eig(it)%n1,Einit
 
+		!write(*,*)"main: psi="	,psi
+		!write(*,*)"main: eval 1="	,eig(it)%eval
+		
 		write(*,*)"sys%occ = ",sys%occ
 
 
@@ -79,17 +87,17 @@
 		!	transition amplitudes and amp^2 for degenerate sectors
 		! and allocate space for rates???
 		call AllHops()
-		write(*,*) "main:   AllHops done... "	
+		!write(*,*) "main:   AllHops done... "	
 		
 		! rates from am2 and energetic penalties
 		call CalRates()
-		write(*,*) "main:   CalRates done... "	
+		!write(*,*) "main:   CalRates done... "	
 
 		! select a hop based on rates
 		ih = ihSelect() 
-		write(*,*) "main:   ihSelect: ih = ",ih
+		!write(*,*) "main:   ihSelect: ih = ",ih
 		call icsSelect(ih,ic,is)
-		write(*,*) "main:   icsSelect: ic,is =  ",ic,is
+		!write(*,*) "main:   icsSelect: ic,is =  ",ic,is
 
 		! perform the transition... update XXXXXXX
 
@@ -101,11 +109,18 @@
 		if(ic==4) zt = zt+1
 
 
+		stath(ih) = stath(ih) + 1;
+		statc(ic) = statc(ic) + 1;
+
+		write(*,'(a,10i3)')"stath = ",stath(1:8),stath(25:26)
+		write(*,'(a,4i5)')"statc = ",statc
+		!write(*,'(a,i5)')"zt = ",zt
+
 		! update occupations, sys%occ, Asites etc
 		call UpdateOcc(ih,is)
 
 		call UpdateWays()
-		write(*,*) "main:   UpdateWays done... "	
+		!write(*,*) "main:   UpdateWays done... "	
 
 		if (fixmap) then
 			call DONTUSEmaps() ! dont reuse basis/hg
@@ -115,7 +130,7 @@
 			call UpdateMapT ! mapt%map, mapt%cal
 			call UpdateGroupTB ! mapt%cal ===> ntb, grouptb
 			call UpdateMapB
-			write(*,*) "----- updated mapb,mapt--------"
+			!write(*,*) "----- updated mapb,mapt--------"
 		endif
 
 	enddo ! iter
@@ -129,5 +144,4 @@
 	! completion message...
 	write(*,*)"transoc: everything done.... " 
 
-	stop
 	end program

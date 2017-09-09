@@ -39,8 +39,8 @@
 	w0 = 2.0d0
 	dw = 0.0d0
 	detuning = .false.
-	kappa = 0.005d0
-	gamma = 0.005d0
+	kappa = 0.1 !0.005d0 ! ref to th=1.0d0; scale times proportionally tp th.
+	gamma = 0.1 !0.005d0
 	beta = 40.0d0
 	crosshops = .true.
 	AlwaysLP = .true.

@@ -42,7 +42,7 @@
 
 	j = 1;
 	do i=1,la
-		if (a(i) .lt. x) then
+		if (x > a(i)) then
 			b(j)=a(i); j = j + 1;
 		else
 			b(j) = x; ix = i;
@@ -55,7 +55,9 @@
 	else
 		b(j+1:la+1) = a(ix:la) ! x was inserted, the rest of a here
 	endif
-	
+		!write(*,*)"a, x=",a,x
+		!write(*,*)"b=",b
+			
 	return
 	end subroutine
 !-------------------------------------

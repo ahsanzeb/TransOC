@@ -1,15 +1,21 @@
 
+	module amplitudes
+	use modmultiply
+	
+	implicit none
+
+	contains
 ! transition matrices and amplitudes
 	subroutine CalAmp(ih,ic,is,rowc,nnz,n3,routine)
 	use modmain, only: qt,mapt,maph,eig,itypes,psi
 	implicit none
 	integer(kind=1), intent(in) :: ih,is,ic
-	integer(kind=4), intent(in) :: nnz,n3
+	integer, intent(in) :: nnz,n3
 	integer, dimension(nnz), intent(in)  :: rowc
 	character(len=*), intent(in) :: routine
 	! local
 	double precision, allocatable:: HtUf(:,:)
-	integer :: ia,n1,n2,itl
+	integer :: ia,n1,n2,itl,i
 
 	!write(*,*)"amp: ih,ic,is = ",ih,ic,is
 	!-------------------------------------------------------
@@ -21,7 +27,7 @@
 		n1=eig(itl)%n1 ! dim of final hilbert space
 		n2=eig(itl)%n2
 
-		write(*,*) "n1,n2 = ", n1,n2
+		!write(*,*) "n1,n2 = ", n1,n2
 		
 		allocate(HtUf(n3,n2))
 		ia = maph(ih,ic); ! location of amplitudes
@@ -50,7 +56,11 @@
 		!HtUf = 1.0d0;
 		!write(*,*)"amp: n3,n1,n2=",n3,n1,n2
 		!write(*,*)"amp: shape(psi),shape(HtUf) ",shape(psi),shape(HtUf) 
-
+		!if(ih==0) then
+		!	write(*,*)"==================="
+		!	write(*,*)"HtUf=",HtUf
+		!	write(*,*)"==================="
+		!endif
 		! testing HtUf(1,:);!
 		qt(ia)%cs(ic,is)%amp=reshape(matmul(psi,HtUf),(/n2/)); ! both input dense
 		deallocate(HtUf)
@@ -59,9 +69,17 @@
      .					deallocate(qt(ia)%cs(ic,is)%amp2)
 		allocate(qt(ia)%cs(ic,is)%amp2(eig(itl)%nsec))
 		!	DELETE THIS nsec VARIABLE IF NOT NEEDED/USED.
-		qt(ia)%cs(ic,is)%nsec = eig(itl)%nsec ! 
+		qt(ia)%cs(ic,is)%nsec = eig(itl)%nsec !
+
+		!write(*,*) "amp: ih,ic, ia: ic,is,itl=",ih,ic, ia, ic,is,itl
+		!write(*,*)"eig(itl)%nsec,eig(itl)%ind",eig(itl)%nsec,eig(itl)%ind
+		!write(*,*)"eval=",eig(itl)%eval
+		!write(*,*)"............................"
+		!write(*,*)"amp =",	qt(ia)%cs(ic,is)%amp
 		call GetAmp2(qt(ia)%cs(ic,is)%amp, n2,
      .		qt(ia)%cs(ic,is)%amp2, eig(itl)%nsec, eig(itl)%ind)
+
+
 	return
 	end subroutine CalAmp
 !---------------------------------------------
@@ -71,7 +89,7 @@
 	use modmain, only: qt,mapt,maph,eig,itypes,psi
 	implicit none
 	integer(kind=1), intent(in) :: ih,is,ic
-	integer(kind=4), intent(in) :: nnz,n3
+	integer, intent(in) :: nnz,n3
 	integer, dimension(nnz), intent(in)  :: rowc
 	integer, dimension(nnz), intent(in) :: col
 	! local
@@ -113,9 +131,15 @@
 		allocate(qt(ia)%cs(ic,is)%amp2(eig(itl)%nsec))
 		!	DELETE THIS nsec VARIABLE IF NOT NEEDED/USED.
 		qt(ia)%cs(ic,is)%nsec = eig(itl)%nsec ! 
+
+
+		!write(*,*) "amp: ih,ic, ia: ic,is,itl=",ih,ic, ia, ic,is,itl
+
 		call GetAmp2(qt(ia)%cs(ic,is)%amp, n2,
      .		qt(ia)%cs(ic,is)%amp2,
      .		eig(itl)%nsec, eig(itl)%ind)
+
+
 	return
 	end subroutine CalAmp0
 
@@ -135,18 +159,27 @@
 	integer:: i,i1,i2,j
 
 	amp2 = 0.0d0;
-	do i=1,nsec-1
+	do i=1,nsec !-1
 		i1 = ind(i); i2=ind(i+1)-1
-		!write(*,*) "i,i1,i2 = ",i,i1,i2
+		!write(*,*) "ne, i,i1,i2 = ",ne, i,i1,i2
 		!do j = i1,i2
 		!	amp2(i) = amp2(i) + amp(j)
 		!end do 
 		amp2(i) = sum( amp(i1:i2)**2 )	
 	end do
 
-	write(*,*) "amp: amp2 = ",amp2
+	if(sum(amp2)> 10000) then
+		write(*,*) "amp:   ne, nsec,shape(ind),shape(amp) = "
+		write(*,*) ne,nsec, shape(ind),shape(amp)
+		write(*,*) "amp:   ind = ",ind
+		write(*,*) "amp:   amp = ",amp
+		write(*,*) "....................."
+		write(*,*) "amp:   amp2 = ",amp2
+		stop
+	endif
 	
 	return
 	end subroutine GetAmp2
 !---------------------------------------
 
+	end 	module amplitudes

@@ -51,6 +51,9 @@
 		if (.not. crosshops) then
 			call DPhiAn1() ! 1-2
 		else
+
+		 	!write(*,*) "hops: ---------- inside"
+
 			call DPhiAn2() ! 1-4
  		endif
  	endif
@@ -94,6 +97,9 @@
 				if(PermSym) exit; ! only a single site/case for each hop type
 			end do
 		endif
+
+		!write(*,*) "hops: ---------- kappa"
+	
 		! Cavity photon losses
 		if( .not. nokappa) then
 			call LossKappa() ! kappa

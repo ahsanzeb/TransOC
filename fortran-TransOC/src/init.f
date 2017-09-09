@@ -20,6 +20,10 @@
 	allocate(basis(NBasisSets))
 	allocate(eig(NHilbertSpaces))
 	allocate(Hg(NHilbertSpaces))
+	! will need to compare n,m with 
+	!req n,m in an iteration, so dont start with 0
+	basis(:)%n = -1;
+	Hg(:)%n = -1; Hg(:)%m = -1; Hg(:)%m1 = -1;
 	!------------------------------------------
 
 

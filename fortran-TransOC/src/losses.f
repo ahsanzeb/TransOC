@@ -1,6 +1,8 @@
 
 	module losses
+	use amplitudes
 	implicit none
+	integer(kind=1)::one=1
 
 	public:: LossGamma,LossKappa
 	private:: GammaMap
@@ -96,19 +98,20 @@
 		row(inda:inda+la-1) = pntr1(k+1) + map(1,:)
 		col(inda:inda+la-1) = pntr1(k) + map(2,:)
 
-		!if(k==1)write(*,*)"losses: map(2,1:5) = ",map(2,:) 
+		!write(*,*)"losses: map(2,:) = ",map(2,:) 
 
 		inda = inda+la;
 		deallocate(map)
 	end do
 
+	!write(*,*)"----===---===--=="
 	!-------------------------------------------------------
 	! calculate transition amplitudes
 	n3 = pntr1(m1+2);
 	!write(*,*) "gamma: n3,lat",n3,lat
 	!write(*,*) "gamma: col(1:5):",col(1:5)
 	!-------------------------------------------------------
-	call CalAmp0(ih,1,is,row,lat,n3,col) ! ic=1; "multiply--"
+	call CalAmp0(ih,one,is,row,lat,n3,col) ! ic=1; "multiply--"
 	!---------------------------------
 
 	!write(*,*) "gamma: after callamp"
@@ -142,7 +145,7 @@
 
 
 	! ib: itype ===> which of 5 N case?
-	ntot1 = basis(mapb%map(ibl1))%pntr(m1+2) ! initial
+	ntot1 = basis(ibl1)%pntr(m1+2) ! initial
 	ntot2 = basis(ibl2)%pntr(m2+2) ! final
 
 	! allocate transition matrix: diag format
@@ -162,7 +165,7 @@
 	!write(*,*) "kappa: rowc(1:5)",col(1:min(5,ntot2))
 
 	!write(*,*) "len of multiplyd- =",len("multiplyd-")
-	call CalAmp(ih,1,is,col,ntot2,ntot1,'multiplyd') ! ic=1
+	call CalAmp(ih,one,is,col,ntot2,ntot1,'multiplyd') ! ic=1
 	!---------------------------------
 
 	!write(*,*) "kappa: done amp"

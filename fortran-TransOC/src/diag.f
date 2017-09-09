@@ -32,20 +32,21 @@
 					eig(it)%n1 = ntot ! dim of hilbert space
 					eig(it)%n2 = ntot; ! number of vectors
 					nev = ntot;
-					write(*,*)"diag: direct: it, Hg(it)%dense",it,Hg(it)%dense
+					!write(*,*)"diag: direct: it, Hg(it)%dense",it,Hg(it)%dense
 
 					! upper triangular H stored in evec, & eval allocated
 					call ddiag(eig(it)%evec,eig(it)%eval,ntot)
 				else
-					write(*,*)"diag: iter: it, Hg(it)%dense",it, Hg(it)%dense
+					!write(*,*)"diag: iter: it, Hg(it)%dense",it, Hg(it)%dense
 
 					! iterdiag will find the storage format of H
 					!	and use appropriate matvec routines
 					! it will set the global variables 
 					!	eig(it)%evec and eig(it)%eval
 					nev = Hg(it)%nev;
-					ncv = Hg(it)%ncv;
+					ncv = Hg(it)%ncv;					
 					call iterdiag(it, ntot, nev, ncv)
+					!write(*,*) "diag: iter done.... "
 				endif
 
 				!write(*,*)"============ it = ",it
@@ -54,7 +55,10 @@
 				if(allocated(eig(it)%ind))deallocate(eig(it)%ind)
 				allocate(eig(it)%esec(nev)) ! max nev sec if no degeneracy
 				allocate(eig(it)%ind(nev+1)) ! indexed for sectors
-				call DegenSectors(eig(it)%eval,ntot,
+
+				eig(it)%ind = -10
+				!write(*,*)"diag: nev",nev
+				call DegenSectors(eig(it)%eval,nev,
      .   eig(it)%nsec,eig(it)%esec,eig(it)%ind) ! make degenerate sectors
 				
 			enddo
@@ -119,20 +123,8 @@ c          matrix-vector product OP*x. (See remark 4 there).
 	allocate(resid(maxn))
 	allocate(selectt(maxncv))
 
-	! irrelevant messages 	
-	if ( n .gt. maxn ) then
-		print *, ' ERROR with _SDRV1: N is greater than MAXN '
-		go to 9000
-	else if ( nev .gt. maxnev ) then
-		print *, ' ERROR with _SDRV1: NEV is greater than MAXNEV '
-		go to 9000
-	else if ( ncv .gt. maxncv ) then
-		print *, ' ERROR with _SDRV1: NCV is greater than MAXNCV '
-		go to 9000
-	end if
-
 	! requirements:
-	!	NEV + 1 <= NCV <= MAXNCV	 
+	!	NEV + 1 <= NCV	 <= n 
 
 	which = 'SA'; ! lowest eigenvalues?
 
@@ -145,7 +137,7 @@ c          matrix-vector product OP*x. (See remark 4 there).
 	iparam(3) = diagmaxitr ! max iterations 
 	iparam(7) = 1 ! mode, standard eigenvalue problem
 
-	!write(*,*)" ---- started ------- "
+	!write(*,*)" ---- started ---- n,nev,ncv ",n,nev,ncv
 
 		!-------------------------------------
 		!Beginning of reverse communication
@@ -160,7 +152,7 @@ c          matrix-vector product OP*x. (See remark 4 there).
 
 
 		if (ido .eq. -1 .or. ido .eq. 1) then
-		
+			!write(*,*)" -------- 1 ------ "
 			!write(*,*)"shape(workd(ipntr(1))),shape(workd(ipntr(2)))"			
 			!write(*,*)shape(workd(ipntr(1):ipntr(1)+n-1))
 			!write(*,*)shape(workd(ipntr(2):ipntr(2)+n-1))	
@@ -168,6 +160,8 @@ c          matrix-vector product OP*x. (See remark 4 there).
 				call matvec1(it, n, workd(ipntr(1):ipntr(1)+n-1),
      .                    workd(ipntr(2):ipntr(2)+n-1))
 			else
+				!write(*,*)" -------- 2 ------ "
+
 				call matvec(it, n, workd(ipntr(1):ipntr(1)+n-1),
      .                    workd(ipntr(2):ipntr(2)+n-1))
      	endif
@@ -215,13 +209,14 @@ c        %----------------------------------------------%
 	endif
 
 
-	write(*,*)" diag : -------------- done--------------------"
+	!write(*,*)" diag : -------------- done--------------------"
 	
 	! set eig
 	eig(it)%ntot = n
 	eig(it)%n1 = n
 	eig(it)%n2 = nev
 	if(allocated(eig(it)%evec))deallocate(eig(it)%evec)
+	if(allocated(eig(it)%eval))deallocate(eig(it)%eval)
 	allocate(eig(it)%evec(n,nev))
 	allocate(eig(it)%eval(nev))
 	eig(it)%evec = v(:,1:nev)
@@ -361,7 +356,7 @@ c        %----------------------------------------------%
 	integer, intent(out) :: nsec
 	integer,dimension(ne),intent(out):: ind !start index of sectors; 1:nsec
 	! local
-	double precision:: tol = 1.0d-6 ! tolerance
+	double precision:: tol = 1.0d-3 ! tolerance
 	integer:: i,j
 
 	!write(*,*)"diag: e = ",es
@@ -377,7 +372,7 @@ c        %----------------------------------------------%
 	end do
 
 	nsec = j; ! total number of sectors
-	
+	ind(j+1) = ne+1; ! set last element of ind
 	return
 	end subroutine DegenSectors
 !---------------------------------------

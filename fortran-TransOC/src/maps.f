@@ -205,22 +205,31 @@
 
 	subroutine UpdateMapB()
 	!	map for ib: ==> 5 basis
-	use modmain, only : dns,mapb,NBasisSets,basis,na
+	use modmain, only : dns,mapb,NBasisSets,basis,na,mapt,ibs
 	use lists, only: FreeQ
 	! local
 	integer(kind=1), dimension(5):: map,notused
 	integer :: jb,jb2,i,inu
-	integer(kind=1):: j,n,five=5
+	integer(kind=1):: j,n,five=5,it
 	logical :: used, found
+
+	! which basis types are required
+	mapb%req(:) = .false.;
+	do it=1,13
+			if(mapt%req(it)) mapb%req(ibs(it)) = .true.;
+	enddo
 
 	map = -1 ;! set for error checking
 	notused = -1; inu=0;		
-	do jb=1,5	
+	do jb=1,5
+		if (.not. mapb%req(jb)) cycle; ! skip if not required
+		! if req basis exist, find their locations
 		n = na + dns(jb);
 		! search in exisiting record
 		used=.false.
 		do jb2=1,NBasisSets 
 			if (n == basis(jb2)%n) then
+				!	maxk might need an increase? dealt in basis module
 				map(jb) = jb2;
 				used=.true.
 				exit
@@ -241,7 +250,7 @@
 		! try to find a free slot
 		found = .false.
 		do j=1,NBasisSets
-			if(.not. basis(j)%xst.and.FreeQ(map,five,j)) then
+			if((.not. basis(j)%xst).and.FreeQ(map,five,j)) then
 				map(jb) = j;
 				found =.true.
 				exit

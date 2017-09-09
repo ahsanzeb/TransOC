@@ -1,8 +1,9 @@
 
 	module Dhops
+	use amplitudes
 	use lists, only: MemberQ,Drop,SortedInsert,GetPosition
-
 	implicit none
+	integer(kind=1)::one=1,two=2,three=3,four=4
 
 	public :: dhops1, dhops2
 	private :: dhopsmap1, dhopsmap2
@@ -45,18 +46,17 @@
 	!	local
 	integer :: itype=1
 	!	itype? n,m, etc....?
-	integer(kind=1)::ib,ibi,k,n,m,m1,ia,l
+	integer(kind=1)::ib,ibi,k,n,m,m1,ia,l,ic
 	integer :: ntot, lat,lbt,inda,indb,la,lb
 	integer, allocatable, dimension(:) :: las, lbs
 	integer, allocatable, dimension(:) :: mapa, mapbb
 	integer, allocatable, dimension(:):: pntr,row1,row2
 	double precision, allocatable:: HtUf(:,:)
 	integer:: n1,n2,n3
-	integer:: ic,itl
+	integer:: itl
 
 	l = ways(ih)%active(is); ! localtion of active site in lattice
 	l = GetPosition(Asites,na,l); ! localtion of active site in Asites
-
 	!------------------------------------------	
 	! N,m values of itype:
 	n = na + dna(itype); ! no of active sites
@@ -70,8 +70,12 @@
 		! m1=0: empty chan 1 matrix ==> 0 transition matrix,
 		! handle it when calc amplitudes??????????
 		row2(1) = 1;
-		return
-	endif
+		n3=1;
+				write(*,*)" bf4"
+		call CalAmp(ih,two,is,row2,lbt,n3,'multiplyd') ! ic=2
+		! set rates for ic=1 to 0 ????
+		write(*,*)" after"
+	else
 	!------------------------------------------
 	! m1 > 0 case
 	!------------------------------------------
@@ -116,12 +120,16 @@
 		deallocate(mapa,mapbb)
 	end do
 
-	! calculate transition amplitudes
-	n3=pntr(m1+2) ! dim of initial hilbert space
-	call CalAmp(ih,1,is,row1,lat,n3,'multiplyd') ! ic=1
-	call CalAmp(ih,2,is,row2,lbt,n3,'multiplyd') ! ic=2
+	
 
+	n3=pntr(m1+2) ! dim of initial hilbert space
 	deallocate(pntr,las,lbs)
+
+	! calculate transition amplitudes
+	call CalAmp(ih,one,is,row1,lat,n3,'multiplyd') ! ic=1
+	call CalAmp(ih,two,is,row2,lbt,n3,'multiplyd') ! ic=2
+
+	endif
 	
 	return
 	end subroutine dhops1
@@ -194,14 +202,14 @@
 	!	local
 	integer :: itype=1
 	!	itype? n,m, etc....?
-	integer(kind=1)::ib,ibi,k,n,m,m1,m3,l !,k1,m2
+	integer(kind=1)::ib,ibi,k,n,m,m1,m3,l,ic !,k1,m2
 	integer :: ntot, lat,lbt,inda,indb,la,lb,ia,n1,n2,n3
 	integer, allocatable, dimension(:) :: las, lbs
 	integer, allocatable, dimension(:,:) :: mapa, mapbb
 	integer, allocatable, dimension(:):: pntr
 	integer, allocatable, dimension(:):: row1,row2,col3,col4
 	double precision, allocatable:: HtUf(:,:)
-	integer :: ic,itl
+	integer :: itl
 
 	l = ways(ih)%active(is); ! localtion of active site in lattice
 	l = GetPosition(Asites,na,l); ! localtion of active site in Asites
@@ -221,10 +229,16 @@
 	if (m1==0) then
 		allocate(row2(1))
 		allocate(col4(1))
-		! m1=0: empty chan 1 matrix ==> 0 transition matrix,
+		! m1=0: empty chan 1,3 matrix ==> 0 transition matrix,
 		! handle it when calc amplitudes??????????
 		row2(1) = 1;
 		col4(1) = is; ! LexicoIndex((/ is /),n,1)
+		n3=1;
+		lbt=1;
+		! calculate transition amplitudes
+		call CalAmp(ih,two,is,row2,lbt,n3,'multiplyd') ! ic=2
+		call CalAmp0(ih,four,is,row2,lbt,n3,col4) ! ic=4
+		! set rates for ic=1 to 0 ????
 	else
 	!------------------------------------------
 	! m1 > 0 case
@@ -276,20 +290,18 @@
 		deallocate(mapa,mapbb)
 	end do
 
+
+	n3=pntr(m1+2) ! dim of initial hilbert space
+	deallocate(pntr,las,lbs)
+
+	! calculate transition amplitudes
+	call CalAmp(ih,one,is,row1,lat,n3,'multiplyd') ! ic=1
+	call CalAmp(ih,two,is,row2,lbt,n3,'multiplyd') ! ic=2
+	call CalAmp0(ih,three,is,row1,lat,n3,col3) ! ic=3
+	call CalAmp0(ih,four,is,row2,lbt,n3,col4) ! ic=4
+
 	endif ! m==0
 
-	!-------------------------------------------------------
-	! calculate transition amplitudes
-	!-------------------------------------------------------
-	! calculate transition amplitudes
-	n3=pntr(m1+2) ! dim of initial hilbert space
-	call CalAmp(ih,1,is,row1,lat,n3,'multiplyd') ! ic=1
-	call CalAmp(ih,2,is,row2,lbt,n3,'multiplyd') ! ic=2
-	call CalAmp0(ih,3,is,row1,lat,n3,col3) ! ic=3
-	call CalAmp0(ih,4,is,row2,lbt,n3,col4) ! ic=4
-	!---------------------------------
-
-	deallocate(pntr,las,lbs)
 	return
 	end subroutine dhops2
 !------------------------------------------

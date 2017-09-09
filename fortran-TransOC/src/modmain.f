@@ -97,6 +97,7 @@
 
 	type :: BMaps
 		integer :: nnu
+		logical, dimension(5):: req ! required in an iteration or not?
 		integer(kind=1), dimension(5) :: map	 ! map for ib
 		integer(kind=1), dimension(5) :: cal ! which ib
 	end type BMaps

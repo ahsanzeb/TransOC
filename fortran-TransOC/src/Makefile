@@ -1,6 +1,6 @@
 
 objects = basisstates.o main.o hamiltonian.o lists.o modmain.o memory.o \
- hoppings.o dhops.o kinds.o multiply.o annihilation.o losses.o \
+ hoppings.o dhops.o kinds.o modmultiply.o annihilation.o losses.o \
  maps.o init.o amplitudes.o creation.o selection.o \
  rates.o modways.o readinput.o diag.o timestamp.o
 
@@ -81,8 +81,12 @@ selection.mod: modmain.mod selection.f
 modways.mod: modmain.mod lists.mod modways.o modways.f
 	$(FC) -c $(switch) modways.f
 
-timestamp.o: timestamp.f
-	$(FC) -c $(switch) timestamp.f
+amplitudes.mod: modmain.mod basisstates.mod modmultiply.mod amplitudes.f
+	$(FC) -c $(switch) amplitudes.f
+
+modmultiply.mod: modmain.mod modmultiply.o modmultiply.f
+	$(FC) -c $(switch) modmultiply.f
+
 
 #-----------------------------------------------------
 # objects
@@ -103,9 +107,8 @@ memory.o: memory.f
 kinds.o: kinds.f
 	$(FC) -c $(switch) kinds.f
 
-multiply.o: multiply.f
-	$(FC) -c $(switch) multiply.f
-
+modmultiply.o: modmultiply.f
+	$(FC) -c $(switch) modmultiply.f
 
 init.o: modmain.mod maps.mod modways.mod init.f
 	$(FC) -c $(switch) init.f
@@ -140,7 +143,7 @@ hoppings.mod init.mod selection.mod rates.mod modways.mod\
 hamiltonian.o: modmain.mod basisstates.mod hamiltonian.f
 	$(FC) -c $(switch) hamiltonian.f
 
-amplitudes.o: modmain.mod amplitudes.f
+amplitudes.o: modmain.mod modmultiply.mod amplitudes.f
 	$(FC) -c $(switch) amplitudes.f
 
 hoppings.o: modmain.mod dhops.mod annihilation.mod creation.mod\
@@ -155,6 +158,9 @@ modways.o: modmain.mod lists.mod modways.f
 
 diag.o: modmain.mod diag.f
 	$(FC) -c $(switch) diag.f
+
+timestamp.o: timestamp.f
+	$(FC) -c $(switch) timestamp.f
 
 #-----------------------------------------------------
 

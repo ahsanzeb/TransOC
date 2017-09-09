@@ -1,8 +1,9 @@
 	module Creation
+	use amplitudes
 	use lists, only: SortedInsert,GetPosition
 	use basisstates, only: LexicoIndex,Shift
-
 	implicit none
+	integer(kind=1)::one=1,two=2,three=3,four=4
 
 	public::DPhiCreat1, DPhiCreat3, DPhiCreat4
 	private::CreatMap1,CreatMap3,CreatMap4
@@ -257,13 +258,13 @@
 		!write(*,*)"creat: order=T"
 		!write(*,*) "nnz,n3 = ",nnz,n3
 		!write(*,*) row(:,1)
-		call CalAmp0(ih,1,is,row(:,1),nnz,n3,col) ! ic=1
-		call CalAmp0(ih,2,is,row(:,2),nnz,n3,col) ! ic=2
+		call CalAmp0(ih,one,is,row(:,1),nnz,n3,col) ! ic=1
+		call CalAmp0(ih,two,is,row(:,2),nnz,n3,col) ! ic=2
 	else
 		!write(*,*)"creat: order=F"
 		!write(*,*) "nnz,n3 = ",nnz,n3
-		call CalAmp0(ih,1,is,row(:,2),nnz,n3,col) ! ic=1
-		call CalAmp0(ih,2,is,row(:,1),nnz,n3,col) ! ic=2
+		call CalAmp0(ih,one,is,row(:,2),nnz,n3,col) ! ic=1
+		call CalAmp0(ih,two,is,row(:,1),nnz,n3,col) ! ic=2
 	endif
 	!---------------------------------
 
@@ -363,7 +364,7 @@
 	!-------------------------------------------------------
 	! calculate transition amplitudes
 	n3=pntr1(m1+2) ! dim of initial hilbert space	
-	call CalAmp0(ih,3,is,row,nnz,n3,col) ! ic=3
+	call CalAmp0(ih,three,is,row,nnz,n3,col) ! ic=3
 	!---------------------------------
 
 
@@ -447,7 +448,7 @@
 	!-------------------------------------------------------
 	! calculate transition amplitudes
 	n3=pntr1(m1+2) ! dim of initial hilbert space
-	call CalAmp0(ih,4,is,row,nnz,n3,col) ! ic=4
+	call CalAmp0(ih,four,is,row,nnz,n3,col) ! ic=4
 	!---------------------------------
 
 	deallocate(pntr1,pntr2)

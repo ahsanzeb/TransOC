@@ -58,9 +58,23 @@
 		do ih=ih1,ih2
 			!write(*,*)"ih, ways(ih)%ns = ",ih, ways(ih)%ns
 			!write(*,'(a,i5,5x,4f10.5)')"ih, ts(ih,:) =",ih, ts(ih,:)
+
 			if(ways(ih)%ns>0) then
 			do is=1,ways(ih)%ns,1
 				do ic=1,nc
+					if(nx==0) then
+						! Dhops Homo-Homo channel (ic=1) blocked, 
+						! Lumo-homo (ic=3) not available because
+						! all spin down: homo filled on all active sites
+						! similarly, D,Phi creation only ic=4 possible
+						! amplitudes for these ic's and ih's not calculated
+						if((ih <=2 .and. mod(ic,2)==1) .or. 
+     .                   (ih > 2 .and. ic<4)) then
+							rate(ih)%rcs(ic,is) = 0.0d0 
+							cycle
+						endif
+					endif
+
 					call ratehcs(ih,ic,is)
 					if(PermSym) then ! total rate = (rates for one site) * ns
 						rate(ih)%rcs(ic,is)=ts(ih,ic)*rate(ih)%rcs(ic,is)*ways(ih)%ns
@@ -68,6 +82,7 @@
 				end do
 				if(PermSym) exit; ! only a single site/case for each hop type
 			end do
+			
 			rate(ih)%r = sum(rate(ih)%rcs); ! total rate for ih hop
 			else
 				rate(ih)%r = 0.0d0;

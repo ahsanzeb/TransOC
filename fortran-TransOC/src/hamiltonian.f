@@ -18,10 +18,10 @@
 			if (nt > 0) then ! something to calculate or not?
 				if ((.not. detuning) .and. sameg) then
 					! use better storage format (and matvec routines for iter diag)
-					write(*,*) "hamilt: better = T"
+					!write(*,*) "hamilt: better = T"
 					call MakeHgMulti1(mapt%grouptb(ib,1:nt),nt)
 				else
-					write(*,*) "hamilt: better = F"
+					!write(*,*) "hamilt: better = F"
 					! simple CSR format to store sparse
 					call MakeHgMulti(mapt%grouptb(ib,1:nt),nt)
 				endif
@@ -82,8 +82,12 @@
 				k1 = k+1;
 				!set2(1:k) = set1; set2(k1) = flip;
 				!call Sort(set2,k1);
-				call SortedInsert(set1,k1,flip,set2)
+				!write(*,*)"ham: flip=",flip
+
+				call SortedInsert(set1,k,flip,set2)
+				!write(*,*)"ham: set2=",set2
 				map(i,j) = LexicoIndex(set2,n,k1)
+				!write(*,*)"ham:k,n, i,j,map(i,j)",k,n,i,j,map(i,j)
 			end do
 		end do
 	endif
@@ -165,6 +169,7 @@
 	! hilbert space dimension
 	itl = 0;		
 	do i=1,nt
+		ntot = pntr(m1s(i)+2)
 		itl(i) = mapt%map(itlist(i));! map for the location of itype
 		Hg(itl(i))%xst = .true.
 		Hg(itl(i))%n = n;
@@ -349,7 +354,7 @@
 	! saves the Hamiltonians in a format similar to CSR,
 	!	pointers to k-sub sectors in rowpntr, 
 	!	and single val per sector in %dat
-	use modmain, only: basis,na,nx,ibs,dna,dnx,
+	use modmain, only: basis,na,nx,ibs,dna,dnx,ndsec,
      .	 g,dw,detuning,Hg,eig,mapb,mapt,smalln,sameg
 	implicit none
 	integer(kind=1), intent(in) :: nt
@@ -363,7 +368,7 @@
 	integer(kind=4), allocatable, dimension(:):: ind1
 	integer(kind=4), allocatable, dimension(:,:):: map
 	integer, dimension(nt) :: ms,m1s,nnz,itl
-	integer :: ptr,ptrf,ptr0
+	integer :: ptr,ptrf,ptr0, sr,nev
 	!character*1000:: fmt
 
 	!write(*,*)"itlist ",itlist
@@ -412,6 +417,7 @@
 	! hilbert space dimension
 	itl = 0;		
 	do i=1,nt
+		ntot = pntr(m1s(i)+2)
 		itl(i) = mapt%map(itlist(i));! map for the location of itype
 		Hg(itl(i))%xst = .true.
 		Hg(itl(i))%n = n;
@@ -425,9 +431,21 @@
 		else
 			! set this in case it is true from a prev run
 			Hg(itl(i))%dense = .false. 
+			nev = pntr(min(ndsec,m1s(i))+2); ! ~ nsnev degen sectors
+			if(nev > int(ntot/2)) nev = int(ntot/2)
+			Hg(itl(i))%nev = nev;
+			Hg(itl(i))%ncv = min(2*nev, ntot);
+
+			!write(*,*) "	ham:	 n, nev,ncv = ",ntot,nev,min(2*nev, ntot)
+
 		endif		
 		!write(*,*)"it, Hg(itl(i))%dense",itl(i),Hg(itl(i))%dense
 	end do
+
+
+	!write(*,*) "	ham: itl(:)=",		itl
+
+
 
 	! allocate memory to Hg(itype)
 	do i=1,nt
@@ -445,6 +463,7 @@
 			eig(itl(i))%evec(:,:) = 0.0d0 ! initialise = 0
 			allocate(eig(itl(i))%eval(ntot))
 		else	 ! sparse
+
 			allocate(Hg(itl(i))%spntr(m1s(i)+1));
 			allocate(Hg(itl(i))%dat(m1s(i)));			
 			allocate(Hg(itl(i))%col(nnz(i))); 
@@ -452,7 +471,9 @@
 			! k=m1 sector has no higher ksub sector to couple to.
 			! +1 for last value =nnz+1
 			Hg(itl(i))%srptr= pntr(m1s(i)+1) + 1; ! size of row pntr
-			allocate(Hg(itl(i))%rowpntr(pntr(m1s(i)+1) +1))
+			sr = pntr(m1s(i)+1) +1;
+			!write(*,*)"ham: sr = ",sr
+			allocate(Hg(itl(i))%rowpntr(sr))
 			! set last value of rowptr
 			Hg(itl(i))%rowpntr(pntr(m1s(i)+1) +1) = nnz(i) + 1;
 			! set last value of pointer to (k-sub) sectors in rowpntr
@@ -487,8 +508,15 @@
 					if (Hg(it2)%dense) then
 						do i=1,ntot
 							do j=1,n-k
-								irow = pntr(k+1) + i - 1;
+								irow = pntr(k+1) + i;
 								icol = map(i,j)! col indx
+								!if(irow<=0)write(*,*)"**************row*************"
+								!if(icol<=0)then
+								!	write(*,*)"**************col*************"
+								!	write(*,*)map
+								!	write(*,*)"ibl,n,k,ntot",ibl,n,k,ntot,map
+								!	stop			
+								!endif
 								eig(it2)%evec(irow,icol) = val
 							enddo
 						enddo

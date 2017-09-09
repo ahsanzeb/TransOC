@@ -1,6 +1,8 @@
 
 	module Annihilation
+	use amplitudes
 	implicit none
+	integer(kind=1)::one=1,two=2,three=3,four=4
 
 	public::DPhiAn1,DPhiAn2
 	private::AnMap1,AnMap2
@@ -107,6 +109,7 @@
 		col1(1) = 1 + 1 ! n+1 = 1 ==> ind=1 in k=1 sec
 		!col2(1) = 1 + 2 ! n+2 = 2 ==> ind=2 in k=1 sec
 														! 1 added for k=0 sector
+		n3=1;! dim of initial hilbert space
 	else
 
 	m1 = min(m,n); ! max no of up spins possible
@@ -121,7 +124,7 @@
 	pntr2(:) = basis(ib2)%pntr(1:m2+2) 
 	ntot1 = pntr1(m1+2); ! total number of basis states
 	!ntot2 = pntr2(m2+2);
-	write(*,*) "=======>>>>>> pntr2(m2+2)=",pntr2(m2+2)
+	!write(*,*) "=======>>>>>> pntr2(m2+2)=",pntr2(m2+2)
 !	write(*,*) "DPhiAn1: pntr done .... "
 
 	! allocate transition matrix: diagonal format
@@ -148,18 +151,18 @@
 		deallocate(map)
 	end do
 
-	endif
+	n3=pntr1(m1+2) ! dim of initial hilbert space
+	deallocate(pntr1,pntr2)
+	endif !n=0
 
 	!-------------------------------------------------------
 	! calculate transition amplitudes
 	!-------------------------------------------------------
 	! calculate transition amplitudes
-	n3=pntr1(m1+2) ! dim of initial hilbert space
-	call CalAmp(ih,1,is,col1,n3,n3,"multiplydc") ! ic=1
-	call CalAmp(ih,2,is,col1+1,n3,n3,"multiplydc") ! ic=2
+	call CalAmp(ih,one,is,col1,n3,n3,"multiplydc") ! ic=1
+	call CalAmp(ih,two,is,col1+1,n3,n3,"multiplydc") ! ic=2
 	!---------------------------------
 
-	deallocate(pntr1,pntr2)
 	return
 	end subroutine DPhiAn1
 !------------------------------------------
@@ -201,6 +204,7 @@
 		! 1 added for k=0 sector
 		col(1,3) = 1 			! no up ==> ind=1 in k=0 sec
 		col(1,4) = 1 + 2 ! 1,2 ==> ind=1 in k=2 sec (both up)
+		n3=1;
 	else
 	!----------------- n>0 -----------------	
 	m1 = min(m,n); ! max no of up spins possible
@@ -239,28 +243,29 @@
 		col(ind:ind2,3) = pntr2(k+1) + map(2,:) ! final k
 		col(ind:ind2,4) = pntr2(k+3) + map(3,:) ! final k+2
 		ind = ind2+1
+
+		!write(*,*)"......................."
+		!write(*,*)"map=",map		
+
 		deallocate(map,map2)
 	end do
-
+	n3=pntr1(m1+2) ! dim of initial hilbert space
+	deallocate(pntr1,pntr2)
 	endif ! n==0
 	!--------------------------------------	
 
 
+	!write(*,*)"==================="
+	!write(*,*)"col(:,ic)=",col(:,:)
+	!write(*,*)"==================="
 	!-------------------------------------------------------
 	! calculate transition amplitudes
 	!-------------------------------------------------------
 	! calculate transition amplitudes
-	n3=pntr1(m1+2) ! dim of initial hilbert space
 	do ic=1,4
 		call CalAmp(ih,ic,is,col(:,ic),n3,n3,"multiplydc") ! ic=1
 	end do
-	!call CalAmp(ih,1,is,col(:,1),n3,n3,"multiplydc") ! ic=1
-	!call CalAmp(ih,2,is,col(:,2),n3,n3,"multiplydc") ! ic=2
-	!call CalAmp(ih,3,is,col(:,3),n3,n3,"multiplydc") ! ic=2
-	!call CalAmp(ih,4,is,col(:,4),n3,n3,"multiplydc") ! ic=2
-	!---------------------------------
 
-	deallocate(pntr1,pntr2)
 	return
 	end subroutine DPhiAn2
 !------------------------------------------

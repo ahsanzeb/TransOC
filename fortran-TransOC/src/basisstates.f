@@ -33,24 +33,30 @@
 	! max nx among 13 cases => nx+1 or nx+2
 	nxmax = nx+1;
 	if(crosshops) nxmax = nx+2;
-	write(*,*) "nxmax, nx = ",nxmax, nx
+	!write(*,*) "nxmax, nx = ",nxmax, nx
 	! indexes pointers for basis set sectors with diff no of up spins
 
 	!write(*,*)"basis(:)%xst",basis(:)%xst
 
+	!write(*,*)"basis: mapt%ntb = ",mapt%ntb
+	!write(*,*)"basis: mapb%cal = ",mapb%cal(1:nnu)
+
 	do i=1,5
 
-		if(mapt%ntb(i) == 0) cycle ! dont calculate
+		! required?
+		if(.not. mapb%req(i)) cycle;
+
+		!write(*,*)"i = " ,i 
 
 		n = nalist5(i);
 		m1 = min(nalist5(i),nxmax); ! max up spin possible
-
 		nnu = mapb%nnu;
+
+
 		! calculate full basis or update for some extra k-subsets?
 		calc=MemberQ(mapb%cal(1:nnu),nnu,i)
 
 		!write(*,*) "i, mapb%cal",i, mapb%cal(1:nnu)
-
 		ibl = mapb%map(i); ! localtion of this ib=i
 		!-------------------------------------------
 		if (calc) then
