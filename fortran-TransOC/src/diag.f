@@ -46,7 +46,8 @@
 					nev = Hg(it)%nev;
 					ncv = Hg(it)%ncv;					
 					call iterdiag(it, ntot, nev, ncv)
-					!write(*,*) "diag: iter done.... "
+					write(*,*) "diag: iter done.... "
+					write(*,*) "=====> it, ntot, nev,ncv =",it,ntot, nev,ncv
 				endif
 
 				!write(*,*)"============ it = ",it
@@ -354,7 +355,7 @@ c        %----------------------------------------------%
 	double precision,dimension(ne),intent(in):: es
 	double precision,dimension(ne),intent(out):: esec ! 1:nsec contains esec
 	integer, intent(out) :: nsec
-	integer,dimension(ne),intent(out):: ind !start index of sectors; 1:nsec
+	integer,dimension(ne+1),intent(out):: ind !start index of sectors; 1:nsec
 	! local
 	double precision:: tol = 1.0d-3 ! tolerance
 	integer:: i,j
@@ -372,6 +373,7 @@ c        %----------------------------------------------%
 	end do
 
 	nsec = j; ! total number of sectors
+	!if(j<ne)
 	ind(j+1) = ne+1; ! set last element of ind
 	return
 	end subroutine DegenSectors

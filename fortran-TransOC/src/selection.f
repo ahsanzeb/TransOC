@@ -3,9 +3,10 @@
 	module selection
 	implicit none
 
-	public ::ihSelect, icsSelect 
+	public ::ihSelect, icsSelect,getpsi2
 
 	contains
+
 !***************************************************
 	integer function ihSelect()
 	use modmain, only: rate
@@ -14,7 +15,6 @@
 	integer:: ih
 	double precision, dimension(27):: rlist ! accumulated rates
 	double precision:: eta
-
 
 	!write(*,*)"rates= ",rate(1:8)%r
 	! select ih stochastically
@@ -118,6 +118,67 @@
 
 	return
 	end subroutine icsSelect
+!***************************************************
+!	superposition of states in the
+! first excited degen sector above the lowest state
+	subroutine getpsi2(ih,ic,is)
+	use modmain, only: itypes,mapt,maph,eig,qt,
+     .       psi2,Einit2,PermSym
+	implicit none
+	integer, intent(in):: ih,ic,is
+	! local
+	integer :: i,ia,it,itp,nsec,s,iss
+
+	if(PermSym) then
+		iss=1;
+	else
+		iss=is
+	endif
+
+	itp = itypes(ih,ic)
+	it = mapt%map(itp);
+	ia = maph(ih,ic);
+	nsec = eig(it)%nsec;
+
+	if (allocated(Einit2)) deallocate(Einit2)
+	allocate(Einit2(nsec))
+	Einit2 = eig(it)%esec; ! second deg sector
+
+	if (allocated(psi2)) deallocate(psi2)
+	allocate(psi2(nsec,eig(it)%n1))
+	psi2 = 0.0d0
+
+	!write(*,*)"=====> sel: itp,it,ia,nsec=", itp,it,ia,nsec
+	!write(*,*)shape(eig(it)%ind)
+	!write(*,*)shape(eig(it)%evec)
+	!write(*,*)shape(qt(ia)%cs(ic,is)%amp)
+	!write(*,*)eig(it)%ind
+	!write(*,*)eig(it)%eval
+
+	if(.false.) then
+		write(*,*)eig(it)%ind
+		write(*,*)eig(it)%evec
+		write(*,*)qt(ia)%cs(ic,iss)%amp
+		write(*,*) "selection: it, eig(it)%nsec=", it, nsec
+		write(*,*)"sel: eig(it)%evec ",shape(eig(it)%evec)
+		write(*,*)"sel: qt(ia)%cs ",shape(qt(ia)%cs)
+		write(*,*)"sel: qt(ia)%cs(ic,is)%amp ",
+     .				shape(qt(ia)%cs(ic,iss)%amp)
+		write(*,*)"sel: is = is"
+	endif
+	
+	do s=1,nsec
+		!write(*,*)"i1, i2 = ",eig(it)%ind(s),eig(it)%ind(s+1)-1
+		!write(*,*)"............  s = ",s
+		do i=eig(it)%ind(s),eig(it)%ind(s+1)-1 ! second degenerate sector
+			psi2(s,:) = psi2(s,:)  +
+     .  eig(it)%evec(:,i) * qt(ia)%cs(ic,iss)%amp(i)
+		enddo
+	enddo
+
+
+	return
+	end subroutine getpsi2
 !***************************************************
 
 	end module selection

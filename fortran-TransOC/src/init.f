@@ -211,7 +211,10 @@
 				endif
 				dqc(i,j) = dqc(i,j) - signEr(i)*Er
 			end do
+			write(*,'(a,i5,a,4f15.10)')"ih = ",i,"  dqc = ",dqc(i,:)
 		end do
+
+		
 	return
 	end subroutine SetDQC
 !-----------------------------------------

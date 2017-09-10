@@ -28,7 +28,7 @@
 	diagmaxitr = 150;
 	sameg = .true.
 	fixmap = .false.
-	ndsec = 4;
+	ndsec = 2;
 	g = 0.3d0;
 	th = 1.0d0; tl=1.0d0; tlh=0.005d0; thl=1.0d0;
 	JhR=10*th; JlR=10*th; JhL=10*th; JlL=10*th;

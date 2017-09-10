@@ -68,7 +68,8 @@
 	logical :: onlybulk ! no contacts?
 	logical :: nolosses ! kappa=0=gamma ?
 	logical :: AlwaysLP ! quickly relax to Lower Polariton after a hop
-	double precision:: Einit ! intial energy in every iteration
+	double precision:: Einit! intial energy in every iteration
+	double precision, allocatable:: Einit2(:)
 	!	--------------- maps ---------------
 	integer(kind=1), dimension(13)::
      . dna	= (/ 0,0,0,2,2,2,-2,-2,-2,1,1,-1,-1 /);
@@ -268,6 +269,7 @@
 	! maph would give location for a given hopping process, ih ---> ihl
 	type(QuantumTransitions), dimension(14) :: qt 
 	double precision, allocatable :: psi(:,:) ! to store quantum state
+	double precision, allocatable :: psi2(:,:) ! to store quantum state
 
 	type(TransitionRates), dimension(26):: rate
 	! set the format for sparse matrix
@@ -291,6 +293,10 @@
 	! allow much higher transitions anyway.
 
 
+	! total hop rates of 26 hopping processes vs time (iterations)
+	! write to file?!
+	!double precision, allocatable :: HopRates(:,:)
+
 
 	contains
 
@@ -300,6 +306,24 @@
 		clock = etime( tm )
 	return
 	end function clock
+!---------------------------------------
+!	write rates in file 'rates.out'
+!	order: hop type bulk hops(1-8), kappa(25),gamma(26),contacts(9:24)
+	subroutine writeout()
+	implicit none
+
+	open(100,file='rates.out',action='write',position='append')
+	if(periodic .or. onlybulk) then
+		write(100,'(f15.8,5x,10f15.8)')
+     .    sum(rate(:)%r),rate(1:8)%r,rate(25:26)%r
+	else
+		write(100,'(f15.8,5x,26f15.8)')
+     .  sum(rate(:)%r),rate(1:8)%r,rate(25:26)%r,rate(9:24)%r
+	endif
+	close(100)
+
+	return
+	end 	subroutine writeout
 !---------------------------------------
 
 	end module

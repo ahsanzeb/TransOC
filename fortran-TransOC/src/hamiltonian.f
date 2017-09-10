@@ -12,18 +12,20 @@
 	implicit none
 	! local
 	integer(kind=1):: nt,ib
-
+	integer(kind=1):: grouptb(5,13)
+	
+		grouptb = mapt%grouptb;
 		do ib=1,5
 			nt = mapt%ntb(ib)
 			if (nt > 0) then ! something to calculate or not?
 				if ((.not. detuning) .and. sameg) then
 					! use better storage format (and matvec routines for iter diag)
 					!write(*,*) "hamilt: better = T"
-					call MakeHgMulti1(mapt%grouptb(ib,1:nt),nt)
+					call MakeHgMulti1(grouptb(ib,1:nt),nt)
 				else
 					!write(*,*) "hamilt: better = F"
 					! simple CSR format to store sparse
-					call MakeHgMulti(mapt%grouptb(ib,1:nt),nt)
+					call MakeHgMulti(grouptb(ib,1:nt),nt)
 				endif
 			endif
 		end do

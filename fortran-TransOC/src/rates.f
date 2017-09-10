@@ -58,6 +58,7 @@
 		do ih=ih1,ih2
 			!write(*,*)"ih, ways(ih)%ns = ",ih, ways(ih)%ns
 			!write(*,'(a,i5,5x,4f10.5)')"ih, ts(ih,:) =",ih, ts(ih,:)
+			rate(ih)%rcs(:,:) = 0.0d0
 
 			if(ways(ih)%ns>0) then
 			do is=1,ways(ih)%ns,1
@@ -94,6 +95,7 @@
 	!-------------------------------------------------
 
 		do ih=5,6
+			rate(ih)%rcs(:,:) = 0.0d0
 			if (ways(ih)%ns>0) then
 				do ic=1,nc
 					call ratehcs(ih,ic,1)
@@ -111,6 +113,7 @@
 	!-------------------------------------------------
 		! caivty losses
 		ih=25; ic=1; is=1
+		rate(ih)%rcs(:,:) = 0.0d0
 		if (.not. nokappa .and. nx > 0) then
 			call ratehcs(ih,ic,is)
 			rate(ih)%r = rate(ih)%rcs(ic,is); ! total rate for ih hop
@@ -119,6 +122,7 @@
 		endif
 		! exciton losses
 		ih=25; ic=1;
+		rate(ih)%rcs(:,:) = 0.0d0
 		if (.not. nogamma .and. nx*na > 0 ) then ! both na, nx >0
 			do is=1,na
 				call ratehcs(ih,ic,is)
@@ -138,6 +142,7 @@
 	!-------------------------------------------------
 		ic=1; is=1
 		do ih=9,24
+			rate(ih)%rcs(:,:) = 0.0d0
 			!call ratehcs(ih,ic,1)
 			rate(ih)%r = 0.0d0 !rate(ih)%rcs(ic,is); ! total rate for ih hop
 		end do
@@ -191,6 +196,16 @@
 	rate(ih)%rcs(ic,is) =
      .   sum(PenaltyArray(de,nsec) * qt(ia)%cs(icl,is)%amp2)
 
+	if (rate(ih)%rcs(ic,is) < 1.d-20 .and. ih==80) then
+		write(*,*)"rates: ih,ic,is = ",ih,ic,is
+		write(*,*)"rates: Einit=",Einit
+		!write(*,*)"rates: eig(itl)%esec(1)=",eig(itl)%esec(:)
+		!write(*,*)"rates: dqc(ih,ic)=",dqc(ih,ic)
+		write(*,*)"rates: de=",de(1)			
+		!write(*,*)"PenaltyArray(de,nsec)=",PenaltyArray(de,nsec)
+		!write(*,*)"qt(ia)%cs(icl,is)%amp2=",qt(ia)%cs(icl,is)%amp2
+	endif
+
 
 
 	!write(*,*) "rates:********************"
@@ -212,7 +227,7 @@
 		double precision, dimension(ne):: PenaltyArray
 		! local
 		integer:: i
-		double precision:: x, fac=10.0d0
+		double precision:: x, fac=20.0d0
 		
 		PenaltyArray = 1.0d0;
 		tmp = de*beta;

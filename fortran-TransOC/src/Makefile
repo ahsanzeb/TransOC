@@ -10,8 +10,8 @@ include make.inc
 
 execname= transoc
 
-#switch= -O3 -fbounds-check -fbacktrace -ffpe-trap=zero,overflow,underflow
-switch= -O3
+switch= -O3 -g -fcheck=all -fbounds-check -fbacktrace 
+#switch= -O3 -ffpe-trap=invalid,zero,overflow,underflow,denormal
 # -O -Wall -fcheck=all -g -fbacktrace
 # -g -fbounds-check
 # -g 
