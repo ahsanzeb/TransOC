@@ -3,7 +3,7 @@
 	use amplitudes
 	use lists, only: MemberQ,Drop,SortedInsert,GetPosition
 	implicit none
-	integer(kind=1)::one=1,two=2,three=3,four=4
+	integer::one=1,two=2,three=3,four=4
 
 	public :: dhops1, dhops2
 	private :: dhopsmap1, dhopsmap2
@@ -11,14 +11,15 @@
 	contains
 !-----------------------------------
 	subroutine dhopsmap1(ib,k,l,mapa,la,mapb,lb)
-	use modmain, only: basis
+	use modmain, only: basis,isk
 	implicit none
-	integer(kind=1), intent(in) :: ib,k,l
-	integer(kind=4), intent(in) :: la,lb
-	integer(kind=4), dimension(la), intent(out):: mapa
-	integer(kind=4), dimension(lb), intent(out):: mapb
+	integer, intent(in) :: ib,k
+	integer, intent(in) :: l
+	integer, intent(in) :: la,lb
+	integer, dimension(la), intent(out):: mapa
+	integer, dimension(lb), intent(out):: mapb
 	! local
-	integer(kind=1), dimension(k) :: set
+	integer(kind=isk), dimension(k) :: set
 	integer:: ntot,i,inda,indb
 
 	ntot = la+lb;
@@ -39,14 +40,15 @@
 !-----------------------------------
 	subroutine dhops1(ih,is)
 	! chan 1,2 only
-	use modmain,only: basis,na,nx,dna,dnx,ibs,mapb,ways,Asites
+	use modmain,only: basis,na,nx,dna,dnx,ibs,mapb,ways,Asites,isk
 	implicit none
 
-	integer(kind=1), intent(in) :: ih, is
+	integer, intent(in) :: ih
+	integer, intent(in) :: is
 	!	local
 	integer :: itype=1
-	!	itype? n,m, etc....?
-	integer(kind=1)::ib,ibi,k,n,m,m1,ia,l,ic
+	integer :: l
+	integer::ib,ibi,k,n,m,m1,ia,ic
 	integer :: ntot, lat,lbt,inda,indb,la,lb
 	integer, allocatable, dimension(:) :: las, lbs
 	integer, allocatable, dimension(:) :: mapa, mapbb
@@ -146,21 +148,21 @@
 
 !-----------------------------------
 	subroutine dhopsmap2(ib,n,k,l,mapa,la,mapb,lb)
-	use modmain, only: basis
+	use modmain, only: basis,isk
 	use basisstates, only: LexicoIndex
 	
 	implicit none
-	integer(kind=1), intent(in) :: ib,n,k,l
-	integer(kind=4), intent(in) :: la,lb
-	integer(kind=4), dimension(la,2), intent(out):: mapa
-	integer(kind=4), dimension(lb,2), intent(out):: mapb
+	integer, intent(in) ::l
+	integer, intent(in) :: ib,n,k
+	integer, intent(in) :: la,lb
+	integer, dimension(la,2), intent(out):: mapa
+	integer, dimension(lb,2), intent(out):: mapb
 
 	! local
-	integer(kind=1), dimension(k) :: set
-	integer(kind=1), dimension(k-1) :: seta
-	integer(kind=1), dimension(k+1) :: setb
-	integer:: ntot,i,inda,indb
-	integer(kind=1) :: k1
+	integer(kind=isk), dimension(k) :: set
+	integer(kind=isk), dimension(k-1) :: seta
+	integer(kind=isk), dimension(k+1) :: setb
+	integer:: ntot,i,inda,indb,k1
 
 	
 	ntot = la+lb;
@@ -196,13 +198,14 @@
 	subroutine dhops2(ih,is)
 	!	channel 1,2 have diagonal Ht, save row only
 	!	channel 3,4 have the same row as 1,2, save col only
-	use modmain,only: basis,na,nx,dna,dnx,ibs,mapb,ways,Asites
+	use modmain,only: basis,na,nx,dna,dnx,ibs,mapb,ways,Asites,isk
 	implicit none
-	integer(kind=1), intent(in) :: ih, is
+	integer, intent(in) :: is
+	integer, intent(in) :: ih
 	!	local
 	integer :: itype=1
-	!	itype? n,m, etc....?
-	integer(kind=1)::ib,ibi,k,n,m,m1,m3,l,ic !,k1,m2
+	integer:: l
+	integer::ib,ibi,k,n,m,m1,m3,ic
 	integer :: ntot, lat,lbt,inda,indb,la,lb,ia,n1,n2,n3
 	integer, allocatable, dimension(:) :: las, lbs
 	integer, allocatable, dimension(:,:) :: mapa, mapbb

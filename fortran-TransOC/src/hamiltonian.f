@@ -8,11 +8,11 @@
 
 !------------------------------------------
 	subroutine mkHamilt()
-	use modmain, only: mapt,Hg,detuning,sameg
+	use modmain, only: mapt,Hg,detuning,sameg,debug
 	implicit none
 	! local
-	integer(kind=1):: nt,ib
-	integer(kind=1):: grouptb(5,13)
+	integer:: nt,ib
+	integer:: grouptb(5,13)
 	
 		grouptb = mapt%grouptb;
 		do ib=1,5
@@ -20,20 +20,23 @@
 			if (nt > 0) then ! something to calculate or not?
 				if ((.not. detuning) .and. sameg) then
 					! use better storage format (and matvec routines for iter diag)
-					!write(*,*) "hamilt: better = T"
+					!if(debug) write(*,*) "hamilt: better = T"
 					call MakeHgMulti1(grouptb(ib,1:nt),nt)
-				else
-					!write(*,*) "hamilt: better = F"
+				elseif (detuning) then
+					!if(debug) write(*,*) "hamilt: better = F"
+					write(*,*) nt, grouptb(ib,1:nt)					
 					! simple CSR format to store sparse
 					call MakeHgMulti(grouptb(ib,1:nt),nt)
+					! CSR format, no detuning.
+					!	call MakeHgMulti0(grouptb(ib,1:nt),nt)
+					!write(*,*) 'done... '	
 				endif
 			endif
 		end do
 
-
-	!write(*,*)"hamilt: Hg(:)%xst ============="
-	!write(*,*)	Hg(:)%xst
-	!write(*,*)	Hg(1)%rowpntr
+	!if(debug) write(*,*)"hamilt: Hg(:)%xst ============="
+	!if(debug) write(*,*)	Hg(:)%xst
+	!if(debug) write(*,*)	Hg(1)%rowpntr
 	
 	return
 	end	subroutine mkHamilt
@@ -41,20 +44,21 @@
 
 !------------------------------------------
 	subroutine HgMap(ibl,n,k,ntot,map)
-	use modmain, only: basis
+	use modmain, only: basis,isk
 	use lists, only: Complement,SortedInsert !SortedInsert=Append+Sort
 	use basisstates, only: LexicoIndex
 	implicit none
-	integer(kind=1), intent(in) :: ibl,n,k
-	integer(kind=4), intent(in) :: ntot
-	integer(kind=4), dimension(ntot,n-k), intent(out):: map
+	integer, intent(in) ::n,k
+	integer, intent(in) :: ibl
+	integer, intent(in) :: ntot
+	integer, dimension(ntot,n-k), intent(out):: map
 	! local
 	integer:: nk,i,j
-	integer(kind=1), dimension(k):: set1
-	integer(kind=1), dimension(k+1):: set2
-	integer(kind=1), dimension(n-k):: flipsites
-	integer(kind=1) k1,flip
-	integer(kind=1), allocatable :: sites(:)
+	integer(kind=isk), dimension(k):: set1
+	integer(kind=isk), dimension(k+1):: set2
+	integer(kind=isk), dimension(n-k):: flipsites
+	integer:: flip,k1
+	integer(kind=isk), allocatable :: sites(:)
 	
 	if (k==0) then
 		map(1,:) = (/ (i,i=1,n,1)/)
@@ -99,25 +103,294 @@
 	subroutine MakeHgMulti(itlist,nt)
 	! makes Hg of types in itlist; all for same n, diff m.
 	! saves the Hamiltonians in CSR format
-	use modmain, only: basis,na,nx,ibs,dna,dnx,
-     .	 g,dw,detuning,Hg,eig,mapb,mapt,smalln,sameg,ndsec
+	use modmain, only: basis,na,nx,ibs,dna,dnx,isk,debug,
+     .	 g,dw,Hg,eig,mapb,mapt,smalln,sameg,ndsec
 	implicit none
-	integer(kind=1), intent(in) :: nt
-	integer(kind=1), dimension(nt), intent(in) :: itlist
+	integer, intent(in) :: nt
+	integer, dimension(nt), intent(in) :: itlist
 	!integer(kind=4), intent(out) :: nnz ! no of nonzero elements
 	! local
-	integer(kind=4):: indf,i,j,ind,ntot,itype,indi,irow,icol
-	integer(kind=1):: ib,k,m,m1,n,ibl,i2,it2
+	integer:: n,k
+
+	integer:: indf,i,j,ind,ntot,itype,indi,irow,icol
+	integer:: ib,m,m1,ibl,i2,it2
 	double precision:: val,kdw
-	integer(kind=4), allocatable, dimension(:):: pntr
-	integer(kind=4), allocatable, dimension(:):: ind1
-	integer(kind=4), allocatable, dimension(:,:):: map
+	integer, allocatable, dimension(:):: pntr
+	integer, allocatable, dimension(:):: ind1
+	integer, allocatable, dimension(:,:):: map
+	integer, dimension(nt) :: ms,m1s,nnz,nnzg,nnzd,itl
+	integer :: ptr,ptrf,ptr0,nev,indx1,indx2
+	!character*1000:: fmt
+
+	! JUST A CHECK: if all types have the same n
+	n = dna(itlist(1))
+	do i=2,nt,1
+		itype = itlist(i)
+		if (n .ne. dna(itlist(i))) then
+			write(*,*) "makeHg: different N in itlist, aborting."
+			stop
+		endif
+	end do
+
+	! N,m values
+	n = na + dna(itlist(1)); ! no of active sites
+
+	write(*,*) " n = ",n
+	
+	do i=1,nt,1
+		m	=	 nx + dnx(itlist(i)); ! no of excitations
+		ms(i) = m;
+		m1s(i)=min(m,n); ! max no of up spins possible
+	end do
+	m1 = maxval(m1s) ! max m1
+
+	! ib: itype ===> which of 5 N case?
+	ib = ibs(itlist(1)); ! same for all cases in itlist
+	ibl = mapb%map(ib); ! get the location of data for this ib
+
+	! pointers for start index
+	if(allocated(pntr))deallocate(pntr)
+	allocate(pntr(m1+2));
+	pntr(:) = basis(ibl)%pntr(1:m1+2) ! is this already calculated?
+
+	!if(debug) write(*,*)"ham: pntr=",pntr
+
+	nnzg=0; nnzd=0;
+	do k=0,m1-1 ! exclude the last k-sub sector
+		ntot = pntr(k+2) - pntr(k+1)
+		do i=1,nt
+			if(k < m1s(i)) nnzg(i) = nnzg(i) + ntot*(n-k);
+		end do
+	end do
+
+	!	number of diagonal elements
+	do i=1,nt
+		if(m1s(i) < ms(i)) then
+			nnzd(i) = pntr(m1s(i)+2); ! total no of basis states
+		else ! m1s(i)=ms(i)
+			nnzd(i) = pntr(m1s(i)+1); ! last ksub sector dig elem = (m-k)*dw=0
+		endif
+	end do
+	! total number of non zero elements
+	nnz = nnzg + nnzd;
+
+	! hilbert space dimension
+	itl = 0;		
+	do i=1,nt
+		ntot = pntr(m1s(i)+2)
+		it2 = mapt%map(itlist(i));! map for the location of itype
+		itl(i) = it2;	
+		Hg(it2)%xst = .true.
+		Hg(it2)%n = n;
+		Hg(it2)%m = ms(i);
+		Hg(it2)%m1 = m1s(i);
+		Hg(it2)%ntot = pntr(m1s(i)+2);
+		Hg(it2)%nnz = nnz(i);
+		if (pntr(m1s(i)+2) .le. smalln) then
+			Hg(it2)%dense = .true.
+			Hg(it2)%nev = ntot; ! ncv irrelevant for direct
+			! if true, save hamiltonian in eig(itl(i))%evec
+		else
+			! set this in case it is true from a prev run
+			Hg(it2)%dense = .false.
+			nev = pntr(min(ndsec,m1s(i))+2); ! ~ nsnev degen sectors
+			Hg(it2)%nev = nev;
+			Hg(it2)%ncv = min(2*nev, ntot);
+		endif		
+	end do
+
+	! allocate memory to Hg(itype)
+	do i=1,nt
+		it2 = itl(i);
+		if(allocated(Hg(it2)%col)) then
+			deallocate(Hg(it2)%col)
+			deallocate(Hg(it2)%rowpntr)
+			deallocate(Hg(it2)%dat)
+		endif
+		if (Hg(it2)%dense) then ! dense
+			ntot = pntr(m1s(i)+2)
+			eig(it2)%ntot = ntot;
+			eig(it2)%n1 = ntot;
+			if(allocated(eig(it2)%evec))deallocate(eig(it2)%evec)
+			if(allocated(eig(it2)%eval))deallocate(eig(it2)%eval)
+			allocate(eig(it2)%evec(ntot,ntot))
+			eig(it2)%evec(:,:) = 0.0d0 ! initialise = 0
+			allocate(eig(it2)%eval(ntot))
+		else	 ! sparse
+			allocate(Hg(it2)%dat(nnz(i)));
+			allocate(Hg(it2)%col(nnz(i))); 
+			! rowpntr size = pntr(m1s(i)+2), all ksub sectors 
+			Hg(it2)%srptr= nnzd(i) + 1; ! size of row pntr
+			allocate(Hg(it2)%rowpntr(nnzd(i) +1))
+			! set last value of rowptr
+			Hg(it2)%rowpntr(nnzd(i) +1) = nnz(i) + 1;
+			!write(*,*) "i2, ntot, shape(Hg(it2)%rowpntr) = "
+			!write(*,*) i, Hg(it2)%ntot, shape(Hg(it2)%rowpntr)
+			!write(*,*) "nnz = ",nnz(i)
+			!write(*,*) "shape(Hg(it2)%col)",shape(Hg(it2)%col)
+
+		endif
+	end do
+
+
+
+			
+	ind = 1; ptr=1; ptr0=0;
+	! calc maps for diff k and combine to get full matrix
+	do k=0,m1 ! =m1 for detuning case, to include diag elem
+		ntot = pntr(k+2) - pntr(k+1);
+		if(allocated(ind1))deallocate(ind1)
+		allocate(ind1(ntot));
+		ind1(:) = pntr(k+1) + (/ (i, i=1,ntot,1) /);
+
+		if (k<m1) then
+			!write(*,*)" =====> k = ",k
+			! calc map from k to k+1 up spin sector
+			if(allocated(map))deallocate(map)
+			allocate(map(ntot,n-k));
+			call HgMap(ibl,n,k,ntot,map)
+		endif
+
+		!****************************************		
+			! assign values to final matrix
+			! to use if k < m1s()		
+			indf=ind+ntot*(n-k+1)-1;
+			ptrf = ptr + ntot -1
+			do i2=1,nt
+				it2 = itl(i2);
+				!==================================
+				if(k < m1s(i2)) then ! diagonal + off-diagonal
+					!write(*,*)" =====> i2, k<m1s(i2)",i2, k,m1s(i2)
+					!if(debug)write(*,*)"ham: k < m1s(i2)",k, m1s(i2)
+					val = dsqrt((ms(i2)-k)*1.d0)*g;
+					if (Hg(it2)%dense) then
+						!---------------------------------
+						!if(debug)write(*,*)"ham: dense"
+						do i=1,ntot
+							do j=1,n-k
+								irow = pntr(k+1) + i;
+								icol = pntr(k+2) + map(i,j)! col indx
+								eig(it2)%evec(irow,icol) = val
+							enddo
+						enddo					
+						kdw = (ms(i2) - k)*dw; ! full value
+						do i=1,ntot
+							irow = ind1(i)
+							eig(it2)%evec(irow,irow) = kdw
+						enddo
+						!---------------------------------
+					else ! sparse
+						kdw = (ms(i2) - k)*dw/2.0d0; ! half value
+						indx1 = ind;
+						!write(*,*)"=====> col ========="
+						!write(*,*)	map	
+						!write(*,*)"=====> ind ========="
+						!write(*,*)ind1		
+						do i=1,ntot
+							indx2 = indx1 + n-k - 1;
+							Hg(it2)%dat(indx1:indx2) = val;
+							Hg(it2)%col(indx1:indx2) = pntr(k+2) + map(i,:)
+							indx2 = indx2 + 1; ! for diagonal element
+							Hg(it2)%dat(indx2) = kdw;
+							Hg(it2)%col(indx2) = ind1(i)
+							!write(*,*)"indx2, ind1(i) = ",indx2, ind1(i)
+							indx1 = indx2 + 1;
+						enddo
+						Hg(it2)%rowpntr(ptr:ptrf) =
+     .         (/ (ptr0 + (i-1)*(n-k+1) + 1, i=1,ntot) /)
+						!-----------------------------------     	
+					endif
+				! k==m1s(i2) .and. k < ms(i2), otherwise: (ms(i2) - k)*dw = 0
+				elseif(k==m1s(i2) .and. k < ms(i2)) then ! only diagonal
+					!write(*,*)" =====> i2, k==m1s(i2)",i2, k,m1s(i2)
+				!-----------------------------------------
+				! store half of actual values to avoid double counting
+				! in mat vec multiplication in module diag, subroutine matvec()
+				! ===> put a switch to control this behaviour in case
+				! a direct eigensolver is to be used instead of arpack
+				!-----------------------------------------
+				! this might apply to only some i2 cases,
+				! so dont affect ptr0 etc.
+					if (Hg(it2)%dense)then
+						kdw = (ms(i2) - k)*dw; ! full value
+						do i=1,ntot
+							irow = ind1(i)
+							eig(it2)%evec(irow,irow) = kdw
+						enddo
+					else ! sparse
+						!write(*,*) " ind1 = ",ind1
+						!write(*,*) " ptr0+ntot = ",ptr0+ntot
+						kdw = (ms(i2) - k)*dw/2.0d0; ! half value
+						Hg(it2)%dat(ind:ind+ntot-1) = kdw;
+						Hg(it2)%col(ind:ind+ntot-1) = ind1(:);
+						Hg(it2)%rowpntr(ptr:ptr+ntot-1) = 
+     .      (/(i,i=ptr0+1, ptr0+ntot)/)
+     			endif
+				endif ! k < m1s()
+				!==================================			
+			end do ! i2
+			!****************************************		
+		
+			! advance the indexes
+			ind = indf+1; 
+			ptr = ptrf+1	;
+			ptr0 = ptr0 + ntot*(n-k+1); ! shift for nxt k-blocks					
+		
+	end do ! k
+
+	!write(*,*)"ham: ccccc  666666666666666"
+
+	return
+	end subroutine MakeHgMulti
+!------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+!------------------------------------------
+	! if no detuning
+	subroutine MakeHgMulti0(itlist,nt)
+	! makes Hg of types in itlist; all for same n, diff m.
+	! saves the Hamiltonians in CSR format
+	use modmain, only: basis,na,nx,ibs,dna,dnx,isk,debug,
+     .	 g,dw,Hg,eig,mapb,mapt,smalln,sameg,ndsec
+	implicit none
+	integer, intent(in) :: nt
+	integer, dimension(nt), intent(in) :: itlist
+	!integer(kind=4), intent(out) :: nnz ! no of nonzero elements
+	! local
+	integer:: n,k
+
+	integer:: indf,i,j,ind,ntot,itype,indi,irow,icol
+	integer:: ib,m,m1,ibl,i2,it2
+	double precision:: val,kdw
+	integer, allocatable, dimension(:):: pntr
+	integer, allocatable, dimension(:):: ind1
+	integer, allocatable, dimension(:,:):: map
 	integer, dimension(nt) :: ms,m1s,nnz,nnzg,nnzd,itl
 	integer :: ptr,ptrf,ptr0,nev
 	!character*1000:: fmt
-
-	!write(*,*)"itlist ",itlist
-
 
 	! JUST A CHECK: if all types have the same n
 	n = dna(itlist(1))
@@ -142,31 +415,20 @@
 	ib = ibs(itlist(1)); ! same for all cases in itlist
 	ibl = mapb%map(ib); ! get the location of data for this ib
 
-	!write(*,*)"n, ib,ibl",n,ib,ibl
-
-
-
 	! pointers for start index
 	if(allocated(pntr))deallocate(pntr)
 	allocate(pntr(m1+2));
 	pntr(:) = basis(ibl)%pntr(1:m1+2) ! is this already calculated?
 
-	nnzg=0; nnzd=0;
+	!if(debug) write(*,*)"ham: pntr=",pntr
+
+	nnz = 0
 	do k=0,m1-1
 		ntot = pntr(k+2) - pntr(k+1)
 		do i=1,nt
-			if(k < m1s(i)) nnzg(i) = nnzg(i) + ntot*(n-k);
+			if(k < m1s(i)) nnz(i) = nnz(i) + ntot*(n-k);
 		end do
 	end do
-
-	!	number of diagonal elements
-	if (detuning) then
-		do i=1,nt
-			nnzd(i) = pntr(m1s(i)+2); ! total no of basis states
-		end do
-	endif
-	! total number of non zero elements
-	nnz = nnzg + nnzd;
 
 	! hilbert space dimension
 	itl = 0;		
@@ -224,105 +486,54 @@
 			
 	ind = 1; ptr=1; ptr0=0;
 	! calc maps for diff k and combine to get full matrix
-	do k=0,m1 ! =m1 for detuning case, to include diag elem
+	do k=0,m1-1
 		ntot = pntr(k+2) - pntr(k+1);
-		if (k<m1) then
-			if(allocated(ind1))deallocate(ind1)
-			allocate(ind1(ntot));
-			ind1(:) = pntr(k+1) + (/ (i, i=1,ntot,1) /);
-			! calc map from k to k+1 up spin sector
-			if(allocated(map))deallocate(map)
-			allocate(map(ntot,n-k));
-			call HgMap(ibl,n,k,ntot,map)
-		
-			! assign values to final matrix			
-			indf=ind+ntot*(n-k)-1;
-			indi = ind; 
+		if(allocated(ind1))deallocate(ind1)
+		allocate(ind1(ntot));
+		ind1(:) = pntr(k+1) + (/ (i, i=1,ntot,1) /);
+		! calc map from k to k+1 up spin sector
+		if(allocated(map))deallocate(map)
+		allocate(map(ntot,n-k));
+		call HgMap(ibl,n,k,ntot,map)
+		!****************************************		
+			! assign values to final matrix
+			! to use if k < m1s()		
+			indf=ind+ntot*(n-k)-1; 
 			ptrf = ptr + ntot -1
 			do i2=1,nt
-				ind = indi; ! save the index for i2 loop
+				it2 = itl(i2);
+				!==================================
 				if(k < m1s(i2)) then
-					val = dsqrt((ms(i2)-k)*1.d0)*g;
-					it2 = itl(i2);
 					if (Hg(it2)%dense) then
 						do i=1,ntot
 							do j=1,n-k
-								irow = pntr(k+1) + i - 1;
-								icol = map(i,j)! col indx
+								irow = pntr(k+1) + i;
+								icol = pntr(k+2) + map(i,j)! col indx
 								eig(it2)%evec(irow,icol) = val
 							enddo
-						enddo
-					else
+						enddo					
+					else ! sparse
 						Hg(it2)%dat(ind:indf) = val;
 						! transpose map to get col first for reshape
-						Hg(it2)%col(ind:indf) = 
+						Hg(it2)%col(ind:indf) = pntr(k+2) + 
      .    			reshape(transpose(map), (/ntot*(n-k)/))
 						Hg(it2)%rowpntr(ptr:ptrf) =
      .       	(/ (ptr0 + (i-1)*(n-k)+1, i=1,ntot) /)
-					endif
-     			!if(it2==1) then
-					!	write(*,*)"Hg(it2)%rowpntr(ptr:ptrf), m1, k=",m1s(it2),k
-					!	write(*,*)Hg(it2)%rowpntr(ptr:ptrf)
-					!endif
-				endif
-			end do
-			ind = indf+1; ! advance the index
-		endif ! k < m1
+					endif						
+				endif ! k < m1s()
+				!==================================			
+			end do ! i2
+			!****************************************		
+	
+			! advance the indexes
+			ind = indf+1; 
+			ptr = ptrf+1	;
+			ptr0 = ptr0 + ntot*(n-k); ! shift for nxt k-blocks					
 		
-		! diagonal elements 
-		if (detuning) then
-			indf=ind+ntot-1;
-			indi = ind; ! save the index for i2 loop
-			do i2=1,nt
-				ind = indi;
-				!-----------------------------------------
-				! store half of actual values to avoid double counting
-				! in mat vec multiplication in module diag, subroutine matvec()
-				! ===> put a switch to control this behaviour in case
-				! a direct eigensolver is to be used instead of arpack
-				!-----------------------------------------
-				if(k <= m1s(i2)) then
-					if (Hg(itl(i2))%dense)then
-						kdw = (ms(i2) - k)*dw; ! full value
-						do i=1,ntot
-							irow = ind1(i)
-							eig(it2)%evec(irow,irow) = kdw
-						enddo
-					else
-						kdw = (ms(i2) - k)*dw/2.0d0; ! half value
-						Hg(itl(i2))%dat(ind:indf) = kdw;
-						!Hg(itl(i2))%row(ind:indf) = ind1(:);
-						Hg(itl(i2))%col(ind:indf) = ind1(:);
-						ind = indf + 1;
-						! shift pntrs, by one for each prev row
-						Hg(itl(i2))%rowpntr(ptr:ptrf) = 
-     .   		Hg(itl(i2))%rowpntr(ptr:ptrf) + 
-     .   			(/(i,i=0,ntot-1)/)
-     			endif
-				endif
-			end do
-			ptr = ptrf+1	
-			ptr0 = ptr0 + ntot*(n-k+1); ! shift for nxt k-blocks		
-		else
-			ptr = ptrf+1		
-			ptr0 = ptr0 + ntot*(n-k); ! shift for nxt k-blocks		
-		end if ! detuning
-
-	write(*,*)	"--- 1 "		
-
 	end do ! k
 
-	write(*,*)	"--- 2 "		
-
-
 	return
-	end subroutine MakeHgMulti
-!------------------------------------------
-
-
-
-
-
+	end subroutine MakeHgMulti0
 
 
 
@@ -356,19 +567,20 @@
 	! saves the Hamiltonians in a format similar to CSR,
 	!	pointers to k-sub sectors in rowpntr, 
 	!	and single val per sector in %dat
-	use modmain, only: basis,na,nx,ibs,dna,dnx,ndsec,
+	use modmain, only: basis,na,nx,ibs,dna,dnx,ndsec,isk,
      .	 g,dw,detuning,Hg,eig,mapb,mapt,smalln,sameg
 	implicit none
-	integer(kind=1), intent(in) :: nt
-	integer(kind=1), dimension(nt), intent(in) :: itlist
+	integer, intent(in) :: nt
+	integer, dimension(nt), intent(in) :: itlist
 	!integer(kind=4), intent(out) :: nnz ! no of nonzero elements
 	! local
-	integer(kind=4):: indf,i,j,ind,ntot,itype,indi,irow,icol
-	integer(kind=1):: ib,k,m,m1,n,ibl,i2,it2
+	integer:: n,k
+	integer:: indf,i,j,ind,ntot,itype,indi,irow,icol
+	integer:: ib,m,m1,ibl,i2,it2
 	double precision:: val,kdw
-	integer(kind=4), allocatable, dimension(:):: pntr
-	integer(kind=4), allocatable, dimension(:):: ind1
-	integer(kind=4), allocatable, dimension(:,:):: map
+	integer, allocatable, dimension(:):: pntr
+	integer, allocatable, dimension(:):: ind1
+	integer, allocatable, dimension(:,:):: map
 	integer, dimension(nt) :: ms,m1s,nnz,itl
 	integer :: ptr,ptrf,ptr0, sr,nev
 	!character*1000:: fmt
@@ -489,10 +701,10 @@
 	! calc maps for diff k and combine to get full matrix
 	do k=0,m1 ! =m1 for detuning case, to include diag elem
 		ntot = pntr(k+2) - pntr(k+1);
+		if(allocated(ind1))deallocate(ind1)
+		allocate(ind1(ntot));
+		ind1(:) = pntr(k+1) + (/ (i, i=1,ntot,1) /);
 		if (k<m1) then
-			if(allocated(ind1))deallocate(ind1)
-			allocate(ind1(ntot));
-			ind1(:) = pntr(k+1) + (/ (i, i=1,ntot,1) /);
 			! calc map from k to k+1 up spin sector
 			if(allocated(map))deallocate(map)
 			allocate(map(ntot,n-k));
@@ -504,14 +716,14 @@
 			ptrf = ptr + ntot -1
 			do i2=1,nt
 				ind = indi; ! save the index for i2 loop
+				it2 = itl(i2);
 				if(k < m1s(i2)) then
 					val = dsqrt((ms(i2)-k)*1.d0)*g;
-					it2 = itl(i2);
 					if (Hg(it2)%dense) then
 						do i=1,ntot
 							do j=1,n-k
 								irow = pntr(k+1) + i;
-								icol = map(i,j)! col indx
+								icol = pntr(k+2) + map(i,j)! col indx
 								!if(irow<=0)write(*,*)"**************row*************"
 								!if(icol<=0)then
 								!	write(*,*)"**************col*************"
@@ -525,7 +737,7 @@
 					else
 						Hg(it2)%dat(k+1) = val;
 						! transpose map to get col first for reshape
-						Hg(it2)%col(ind:indf) = 
+						Hg(it2)%col(ind:indf) = pntr(k+2) + 
      .    			reshape(transpose(map), (/ntot*(n-k)/))
 						Hg(it2)%rowpntr(ptr:ptrf) =
      .       	(/ (ptr0 + (i-1)*(n-k)+1, i=1,ntot) /)
@@ -539,8 +751,6 @@
 		ptr0 = ptr0 + ntot*(n-k); ! shift for nxt k-blocks		
 
 	end do ! k
-
-	
 
 	return
 	end subroutine MakeHgMulti1

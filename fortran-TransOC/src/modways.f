@@ -11,7 +11,7 @@
 	subroutine UpdateWays()
 	implicit none
 	! local
-	integer(kind=1):: ntot, p,la,lo,is,is1
+	integer:: ntot, p,la,lo,is,is1
 	integer, dimension(26) :: nps
 	integer, allocatable, dimension(:,:) :: act,oth
 
@@ -103,8 +103,8 @@
 ! 8, Phi,D created
 	subroutine WhichBulkHop(is,is1,p,la,lo)
 	implicit none
-	integer(kind=1), intent(in) :: is,is1
-	integer(kind=1), intent(out) :: p,la,lo 
+	integer, intent(in) :: is,is1
+	integer, intent(out) :: p,la,lo 
 	! process ind, active site, other site (or phi if D,Phi annihilation)
 	! local
 	integer:: l,r ! occupation on left, right sites
@@ -170,12 +170,15 @@
 	subroutine UpdateOcc(ih,is)
 	! only for bulk hoppings at the moment
 	use modmain, only: sys,Asites,ways
-	use lists, only: Drop, Join, Substitute
+	use lists, only: Drop4, Join, Substitute
 	implicit none
 	integer, intent(in):: ih,is
 	! local
-	integer(kind=1) :: la,lo,n0,n1,n2,two=2
+	integer :: la,lo,n0,n1,n2,two=2
+	integer, dimension(sys%n1+2) :: Asitesx
 
+	Asitesx = 0
+	
 	if (ih > 8 .and. ih < 25 ) then
 		write(*,*) "UpdateOcc: ERROR!!!"
 		write(*,*) "contact processes not done yet"
@@ -220,16 +223,24 @@
 				write(*,*)"Error(UpdateOcc): case 5,6"
 				stop
 			endif
+						
+			Asitesx(1:n1) = Asites;
 			! append first D then Phi; la=D for ih=5,6
-			call Join(Asites,n1,(/la,lo/),two,Asites)
+			call Join(Asitesx(1:n1),n1,(/la,lo/),two,Asitesx(1:n1+2))
+			deallocate(Asites); allocate(Asites(n1+2))
+			Asites = Asitesx;
+
 			sys%n0 = n0-1
 			sys%n1 = n1+2
 			sys%n2 = n2-1
 		case(7,8)
 			sys%occ(la) = 2 ! la=D,lo=phi for ih=7,8
 			sys%occ(lo) = 0
-			call Drop(Asites,n1,la,Asites)
-			call Drop(Asites,n1,lo,Asites)
+			Asitesx(1:n1) = Asites;
+			call Drop4(Asitesx(1:n1),n1,la,Asitesx(1:n1-1))
+			call Drop4(Asitesx(1:n1-1),n1,lo,Asitesx(1:n1-2))
+			deallocate(Asites); allocate(Asites(n1-2))
+			Asites = Asitesx(1:n1-2);		
 			sys%n0 = n0+1
 			sys%n1 = n1-2
 			sys%n2 = n2+1

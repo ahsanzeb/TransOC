@@ -249,12 +249,17 @@ c        %----------------------------------------------%
 	!write(*,*)"matvec: Hg(it)%nnz = ",Hg(it)%nnz
 	!write(*,*)" maxval col: "	, maxval(Hg(it)%col)
 	!write(*,*)" maxval rowptr: "	, maxval(Hg(it)%rowpntr)
+	!write(*,*)"-----dat------"
+	!write(*,*)Hg(it)%dat
+	!write(*,*)"-----col------"
+	!write(*,*)Hg(it)%col
+	!write(*,*)"-----rowptr------"
 	!write(*,*)Hg(it)%rowpntr
-
 	! Hg only upper triangular
 	! below the diagonal elements are double counted
 	! to fix this we store half of the diagonal elements in Hg(it)%dat
 	! instead of using an if statement here in the loop.
+
 	y = 0.0d0
  	do i=1,Hg(it)%srptr-1
 		do j=Hg(it)%rowpntr(i), Hg(it)%rowpntr(i+1)-1

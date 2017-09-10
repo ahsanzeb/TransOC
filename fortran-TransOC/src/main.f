@@ -28,9 +28,11 @@
 	trapiter=0
 	write(*,*) "transoc: in amplitudes: test HtUf = 1.0d0;"
 
+
 	! start message
 	write(*,*) "transoc: started.... "
 
+	if(debug) write(*,*)"main: "
 	! readinput file
 	call input()
 	
@@ -47,15 +49,15 @@
 		
 		! make basis states ksub
 		call mkbasis(na,nx)
-		!write(*,*) " basis done....  "
-
+		if(debug) write(*,*) " basis done....  "
+		
 		! make hamiltonian
 		call mkHamilt()
-		!write(*,*) "main: Hamiltonians done....  "
+		if(debug) write(*,*) "main: Hamiltonians done....  "
 
 		call diagonalise()
-		!write(*,*) "main: diagonalisation done.... "
-
+		if(debug) write(*,*) "main: diagonalisation done.... "
+		
 		!stop
 		
 		if(allocated(psi)) deallocate(psi)
@@ -72,7 +74,6 @@
 		
 		write(*,*)"sys%occ = ",sys%occ
 
-
 		!====== if PermSym then only a single site cases ====== 
 		!	check if anything to do about it related to qt/rate allocation etc
 		
@@ -86,17 +87,15 @@
 			enddo
 		endif
 
-
 		! All available hops: 
 		!	transition amplitudes and amp^2 for degenerate sectors
 		! and allocate space for rates???
 10		call AllHops()
-		!write(*,*) "main:   AllHops done... "	
+		if(debug) write(*,*) "main:   AllHops done... "	
 		
 		! rates from am2 and energetic penalties
 		call CalRates()
-		!write(*,*) "main:   CalRates done... "	
-
+		if(debug) write(*,*) "main:   CalRates done... "	
 
 		if ( sum(rate(:)%r) < 1.0d-10) then
 			!write(*,*)"main:sum(rate(:)%r) < 1.0d-10 "
@@ -106,7 +105,7 @@
 				write(*,*) "main: s, eig(it)%nsec=",s, eig(it)%nsec
 				if (s > eig(it)%nsec) then
 					write(*,*)"main: no more sectors! Aborting!"
-					stop
+					goto 99
 				endif
 			else
 				write(*,*) "main: trap encountered! , iter = ",iter
@@ -141,10 +140,9 @@
 		ih = ihSelect() 
 
 		!write(*,*) "main: ===2==> ",rate(:)%r
-
-		!write(*,*) "main:   ihSelect: ih = ",ih
+		if(debug) write(*,*) "main:   ihSelect: ih = ",ih
 		call icsSelect(ih,ic,is)
-		!write(*,*) "main:   icsSelect: ic,is =  ",ic,is
+		if(debug) write(*,*) "main:   icsSelect: ic,is =  ",ic,is
 
 		!write(*,*) "main: ===3==> "!,rate(:)%r
 
@@ -153,15 +151,15 @@
 		!	in case the lowest state psi sees a trap,
 		! we will use this state to get us out
 		call getpsi2(ih,ic,is);
-
+		if(debug) write(*,*) "main: getpsi2 done...."
 		!write(*,*) "main: ---3--"
 		!write(*,*) "main: =====> ",rate(:)%r
 		!write(*,*) "main: =====> "
 		! write grand total and total rates for all hop types
 		call writeout()
+		if(debug) write(*,*) "main: writeout done...."
 		! perform the transition... update XXXXXXX
 		!write(*,*) "main: ---4--"
-
 
 		!----------------------------------------------
 		!	wirte current file: delta charge, delta t
@@ -204,10 +202,11 @@
 
 		! update occupations, sys%occ, Asites etc
 		call UpdateOcc(ih,is)
+		if(debug) write(*,*) "main: UpdateOcc done...."
 
 		call UpdateWays()
-		!write(*,*) "main:   UpdateWays done... "	
-
+		if(debug) write(*,*) "main:   UpdateWays done... "	
+		
 		if (fixmap) then
 			call DONTUSEmaps() ! dont reuse basis/hg
 		else
@@ -216,20 +215,19 @@
 			call UpdateMapT ! mapt%map, mapt%cal
 			call UpdateGroupTB ! mapt%cal ===> ntb, grouptb
 			call UpdateMapB
-			!write(*,*) "----- updated mapb,mapt--------"
+			if(debug) write(*,*) "----- updated mapb,mapt--------"
 		endif
 
 	enddo ! iter
 
 	write(*,*)"transoc: niter hops done.... " 
 
+99		continue
 
 	! hops statistics
 	do i=1,8
 		write(*,'(a,i5,5x,4i10)')'ih = ',i,stathc(i,:)
 	enddo
-
-
 
 	!	do postprocessing....
 	write(*,*)"zt = ",zt

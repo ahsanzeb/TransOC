@@ -3,7 +3,7 @@
 	use lists, only: SortedInsert,GetPosition
 	use basisstates, only: LexicoIndex,Shift
 	implicit none
-	integer(kind=1)::one=1,two=2,three=3,four=4
+	integer::one=1,two=2,three=3,four=4
 
 	public::DPhiCreat1, DPhiCreat3, DPhiCreat4
 	private::CreatMap1,CreatMap3,CreatMap4
@@ -17,17 +17,17 @@
 ! or dn/up to make (N, k) 
 	subroutine CreatMap1(n,k,l1,l2,map,ntot)
 	! only k > 0
-	use modmain, only: basis,mapb
+	use modmain, only: basis,mapb,isk
 	implicit none
-	integer(kind=1), intent(in) :: n,k,l1,l2
-	integer(kind=4), intent(in) :: ntot
-	integer(kind=4), dimension(2,ntot), intent(out):: map
+	integer, intent(in) :: n,k,l1,l2
+	integer, intent(in) :: ntot
+	integer, dimension(2,ntot), intent(out):: map
 	! local
-	integer(kind=1), dimension(k) :: set2
-	integer(kind=1):: n2,k1
-	integer(kind=1):: ibi=1, ib ! ib1=1: dN=-2 for starting basis
-	integer(kind=1), dimension(k-1):: set
-	integer:: i
+	integer(kind=isk), dimension(k) :: set2
+	integer:: n2
+	integer:: ibi=1, ib ! ib1=1: dN=-2 for starting basis
+	integer(kind=isk), dimension(k-1):: set
+	integer:: i,k1
 
 		ib= mapb%map(ibi);
 		k1 = k-1;
@@ -54,17 +54,17 @@
 ! starting with (N-2, k-2), add up,up at l1,l2 to make (N, k) 
 	subroutine CreatMap3(n,k,l1,l2,map,ntot)
 	! only k > 0
-	use modmain, only: basis,mapb
+	use modmain, only: basis,mapb,isk
 	implicit none
-	integer(kind=1), intent(in) :: n,k,l1,l2
-	integer(kind=4), intent(in) :: ntot
-	integer(kind=4), dimension(ntot), intent(out):: map
+	integer, intent(in) :: n,k,l1,l2
+	integer, intent(in) :: ntot
+	integer, dimension(ntot), intent(out):: map
 	! local
-	integer(kind=1):: k1,k2
-	integer(kind=1):: ibi=1,ib ! ib1=1: dN=-2 for starting basis
-	integer(kind=1), dimension(k-2):: set
-	integer(kind=1), dimension(k-1) :: set2
-	integer(kind=1), dimension(k):: set3	
+	integer:: k1,k2
+	integer:: ibi=1,ib ! ib1=1: dN=-2 for starting basis
+	integer(kind=isk), dimension(k-2):: set
+	integer(kind=isk), dimension(k-1) :: set2
+	integer(kind=isk), dimension(k):: set3	
 	integer:: i
 
 	if (k==2) then ! only a single final state, k'=k-2=0;
@@ -97,16 +97,16 @@
 ! starting with (N-2, k), add dn,dn at l1,l2 to make (N, k) 
 	subroutine CreatMap4(n,k,l1,l2,map,ntot)
 	! only k > 0
-	use modmain, only: basis,mapb
+	use modmain, only: basis,mapb,isk
 	implicit none
-	integer(kind=1), intent(in) :: n,k,l1,l2
-	integer(kind=4), intent(in) :: ntot
-	integer(kind=4), dimension(ntot), intent(out):: map
+	integer, intent(in) :: n,k,l1,l2
+	integer, intent(in) :: ntot
+	integer, dimension(ntot), intent(out):: map
 	! local
-	integer(kind=1):: n2,k1
-	integer(kind=1):: ibi=1, ib ! ib1=1: dN=-2 for starting basis
-	integer(kind=1), dimension(k):: set	
-	integer:: i
+	integer:: n2
+	integer:: ibi=1, ib ! ib1=1: dN=-2 for starting basis
+	integer(kind=isk), dimension(k):: set	
+	integer:: i,k1
 
 	ib = mapb%map(ibi);
 	
@@ -166,14 +166,14 @@
 	use modmain, only: basis,na,nx,Asites,ways,mapb
 	
 	implicit none
-	integer(kind=1), intent(in):: is
+	integer, intent(in):: is
 	!	local
-	integer(kind=1):: ih=7, ib1i=3, ib2i=1,ib1,ib2 ! see dnalist5 in modmain
-	integer(kind=1)::k,n,m,m1,m2,m3
+	integer:: ih=7, ib1i=3, ib2i=1,ib1,ib2 ! see dnalist5 in modmain
+	integer::k,n,m,m1,m2,m3
 	integer :: ntot, ind, ntot1,nnz,n1,n2,n3,i
 	integer, allocatable, dimension(:,:) :: map,row
 	integer, allocatable, dimension(:):: pntr1,pntr2,col
-	integer(kind=1) :: l1,l2,l
+	integer :: l1,l2,l
 	logical :: order
 
 	ib1= mapb%map(ib1i);
@@ -289,14 +289,14 @@
 	subroutine DPhiCreat3(is)
 	use modmain, only: basis,na,nx,Asites,ways,mapb
 	implicit none
-	integer(kind=1), intent(in):: is
+	integer, intent(in):: is
 	!	local
-	integer(kind=1):: ih=7, ib1i=3, ib2i=1,ib1,ib2 ! see dnalist5 in modmain
-	integer(kind=1)::n,k,m,m1,m2
+	integer:: ih=7, ib1i=3, ib2i=1,ib1,ib2 ! see dnalist5 in modmain
+	integer::n,k,m,m1,m2
 	integer :: ntot, ind, nnz,n1,n2,n3,i1,i2,i
 	integer, allocatable, dimension(:) :: map,row,col
 	integer, allocatable :: pntr1(:), pntr2(:)
-	integer(kind=1) :: l1,l2,l
+	integer:: l1,l2,l
 	logical :: order
 
 	ib1= mapb%map(ib1i);
@@ -383,14 +383,14 @@
 	subroutine DPhiCreat4(is)
 	use modmain, only: basis,na,nx,Asites,ways,mapb
 	implicit none
-	integer(kind=1), intent(in):: is
+	integer, intent(in):: is
 	!	local
-	integer(kind=1):: ih=7, ib1i=3, ib2i=1,ib1,ib2! see dnalist5 in modmain
-	integer(kind=1)::k,n,m,m1,m2
+	integer:: ih=7, ib1i=3, ib2i=1,ib1,ib2! see dnalist5 in modmain
+	integer::k,n,m,m1,m2
 	integer :: ntot, ind, nnz,n1,n2,n3,i
 	integer, allocatable, dimension(:) :: map,row,col
 	integer, allocatable, dimension(:):: pntr1,pntr2
-	integer(kind=1) :: l1,l2,l
+	integer :: l1,l2,l
 	logical :: order
 
 	ib1= mapb%map(ib1i);
@@ -458,14 +458,14 @@
 
 !---------------------------------------
 	subroutine ActiveOrder(ASites,na,l,l1,l2,order)
-	use modmain, only: sys, periodic
+	use modmain, only: sys, periodic,isk
 	implicit none
-	integer(kind=1), intent(in) :: na,l
-	integer(kind=1), dimension(na), intent(in):: Asites
-	integer(kind=1), intent(out) :: l1,l2
+	integer, intent(in) :: na,l
+	integer, dimension(na), intent(in):: Asites
+	integer, intent(out) :: l1,l2
 	logical, intent(out) :: order
 	! local
-	integer(kind=1) :: i,x1,x2,lp1
+	integer:: x1,x2,lp1
 
 	if(l < sys%nsites) then
 		lp1 = l + 1;

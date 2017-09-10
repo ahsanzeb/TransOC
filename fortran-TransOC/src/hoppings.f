@@ -22,7 +22,8 @@
 
 	implicit none
 	! local
-	integer(kind=1) :: ih,is,l
+	integer:: ih
+	integer:: is,l
 
 	!p=1,8 bulk processes
 	!ways(p)%ns

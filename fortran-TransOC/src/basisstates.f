@@ -7,7 +7,7 @@
 	contains
 
 	subroutine mkbasis(na,nx)
-	use lists, only: MemberQ
+	use lists, only: MemberQ4
 	! this routine calculates the index pointers
 	! and subsets for all 5 basis defined in modmain
 
@@ -20,10 +20,11 @@
 	
 	!use modmain, only mapb
 	implicit none
-	integer(kind=1), intent (in) :: na,nx
-	integer(kind=4) :: ntot
-	integer(kind=1) :: nxmax,r,m1,i,j,n,l,nnu
-	integer(kind=1), dimension(5):: nalist5
+	integer, intent (in) :: na,nx
+	integer :: ntot
+	integer:: n,j
+	integer:: nxmax,r,m1,i,l,nnu 
+	integer, dimension(5):: nalist5
 	integer  :: i1,i2, maxk,ibl,ib
 	logical :: calc
 	type(BSectors), allocatable :: sec(:)
@@ -54,7 +55,7 @@
 
 
 		! calculate full basis or update for some extra k-subsets?
-		calc=MemberQ(mapb%cal(1:nnu),nnu,i)
+		calc=MemberQ4(mapb%cal(1:nnu),nnu,i)
 
 		!write(*,*) "i, mapb%cal",i, mapb%cal(1:nnu)
 		ibl = mapb%map(i); ! localtion of this ib=i
@@ -119,13 +120,13 @@
 	subroutine mksets(n,k,ntot,comb)
 	! genrates subsets
 	implicit none
-	integer(kind=1), intent (in) :: n,k
-	integer(kind=4), intent (in) :: ntot
-	integer(kind=1), dimension(ntot,k),intent(out):: comb
-	integer :: ind,i
-	integer(kind=1) :: m, m2
+	integer, intent (in) :: n,k
+	integer, intent (in) :: ntot
+	integer(kind=isk), dimension(ntot,k),intent(out):: comb
+	integer :: ind,i,m
+	integer :: m2
 	logical mtc
-	integer(kind=1), dimension(k):: a
+	integer(kind=isk), dimension(k):: a
 	
 	comb(:,:)=0;
 	!----------- k=n ------------
@@ -201,14 +202,10 @@
 !
 	implicit none
 
-	integer ( kind = 1 ) k
-
-	integer ( kind = 1 ) a(k)
-	integer ( kind = 1 ) j
-	integer ( kind = 1 ) m
-	integer ( kind = 1 ) m2
-	logical more
-	integer ( kind = 1 ) n
+	integer :: n, k
+	integer :: j, m,m2
+	integer ( kind = isk ) :: a(k)
+	logical :: more
 
 	if ( k < 0 .or. n < k ) then
 		write ( *, '(a)' ) ''
@@ -243,14 +240,15 @@
 	subroutine pointerslist(n,k,pntr)
 	! pointer indexed to the subsets with different number of up spins
 	! pntr = Insert[Table[Sum[Bimonial[n, j], {j, 0, i}], {i, 0, k}], 0, 1];
-	integer(kind=1), intent(in) :: n,k
-	integer(kind=4), intent(out) :: pntr(k+2)
-	integer(kind=1):: i,r
-	
+	integer, intent(in) :: n,k
+	integer, intent(out) :: pntr(k+2)
+	integer:: i,r,n1
+
+	n1=n;
 	pntr(1) = 0; pntr(2) = 1;
 	do i=3,k+2,1
 		r = i-2;
-		pntr(i)=pntr(i-1)+ nCr(n,r)
+		pntr(i)=pntr(i-1)+ nCr(n1,r)
 		!write(*,*) "k,i, pntr(i) = ",k,i, pntr(i)
 	end do
 
@@ -259,8 +257,9 @@
 !------------------------------------------
 	integer function nCr(n,r)
 	! ^nC_r
-	integer(kind=1) n,r,i,large,small
-	integer(kind=8) Numer,Denom 
+	integer:: n,r
+	integer :: i,large,small
+	integer(kind=8) :: Numer,Denom 
 
 	 !define =0 for n<r ??? only needed in LexicoIndex
 	 !or just dont call it when n<r ????
@@ -296,11 +295,11 @@
 	end function
 
 !------------------------------------------
-	integer(kind=4) function LexicoIndex(list,n,k)
+	integer function LexicoIndex(list,n,k)
 	implicit none
-	integer(kind=1), intent(in) :: n,k
-	integer(kind=1), dimension(k), intent(in)::list
-	integer(kind=1) :: p,np,kp
+	integer, intent(in) :: n,k
+	integer(kind=isk), dimension(k), intent(in)::list
+	integer :: p,np,kp
 	!x1 = c[N, k] - Sum[c[N - listf[[p + 1]], k - p], {p, 0, k - 1}];
 	LexicoIndex = nCr(n,k);
 	do p=0,k-1,1
@@ -315,10 +314,11 @@
 	subroutine Shift(set,k,l)
 	! shift elements of set that are >= l by +1
 	implicit none
-	integer(kind=1), intent(in):: k,l
-	integer(kind=1), dimension(k), intent(inout) :: set
+	integer, intent(in):: k
+	integer, intent(in):: l
+	integer(kind=isk), dimension(k), intent(inout) :: set
 	! local
-	integer(kind=1) :: i,il
+	integer :: i,il
 
 	do i=1,k
 		if(set(i) == l)then

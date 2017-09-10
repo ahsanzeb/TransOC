@@ -19,6 +19,7 @@
 	!     default values       !
 	!--------------------------!
 
+	debug = .false.
 	nsites = 5;
 	nx = 1;
 	niter = 20;
@@ -69,6 +70,9 @@
      .  (scan(trim(block),'#').eq.1)) goto 10
 
 	select case(trim(block))
+
+	case('debug')
+		read(50,*,err=20) debug
 
 	case('Nsites')
 		read(50,*,err=20) nsites
@@ -153,7 +157,7 @@
 	case('Beta')
 		read(50,*,err=20) beta
 
-	case('CrossHops')
+	case('CrossHops','Crosshops','crosshops')
 		read(50,*,err=20) crosshops
 
 	case('AlwaysLP')
@@ -184,6 +188,11 @@
 	if(kappa < 1.d-6) nokappa = .true.
 	if(gamma < 1.d-6) nogamma = .true.
 	if(AlwaysLP) PermSym = .true.; ! XXXXX add conditions on gi=g/ei=w0 
+
+	if(thl < 1.d-6 .and. tlh < 1.d-6) crosshops = .false.
+	write(*,*) "main: tlh and thl are too small so no crosshops"
+
+
 
 	return
 	end subroutine

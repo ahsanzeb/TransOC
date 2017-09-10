@@ -1,6 +1,6 @@
 
 objects = basisstates.o main.o hamiltonian.o lists.o modmain.o memory.o \
- hoppings.o dhops.o kinds.o modmultiply.o annihilation.o losses.o \
+ hoppings.o dhops.o modmultiply.o annihilation.o losses.o \
  maps.o init.o amplitudes.o creation.o selection.o \
  rates.o modways.o readinput.o diag.o timestamp.o
 
@@ -34,17 +34,14 @@ modmain.mod:	modmain.o modmain.f
 readinput.mod: modmain.mod readinput.o readinput.f
 	$(FC) -c $(switch) readinput.f
 
-maps.mod: modmain.mod lists.mod maps.f
+maps.mod: modmain.mod lists.mod maps.o maps.f
 	$(FC) -c $(switch) maps.f
 
 diag.mod: modmain.mod diag.f
 	$(FC) -c $(switch) diag.f
 
-lists.mod: lists.o lists.f
+lists.mod: modmain.mod lists.o lists.f
 	$(FC) -c $(switch) lists.f
-
-kinds.mod: kinds.o kinds.f
-	$(FC) -c $(switch) kinds.f
 
 basisstates.mod: modmain.mod lists.mod basisstates.o basisstates.f
 	$(FC) -c $(switch) basisstates.f
@@ -95,7 +92,7 @@ modmultiply.mod: modmain.mod modmultiply.o modmultiply.f
 modmain.o:	modmain.f
 	$(FC) -c $(switch) modmain.f
 
-lists.o: lists.f
+lists.o: modmain.mod lists.f
 	$(FC) -c $(switch) lists.f
 
 readinput.o: modmain.mod readinput.f
@@ -103,9 +100,6 @@ readinput.o: modmain.mod readinput.f
 
 memory.o: memory.f
 	$(FC) -c $(switch) memory.f
-
-kinds.o: kinds.f
-	$(FC) -c $(switch) kinds.f
 
 modmultiply.o: modmultiply.f
 	$(FC) -c $(switch) modmultiply.f

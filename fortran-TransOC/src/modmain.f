@@ -5,16 +5,25 @@
 
 	module modmain
 	implicit none
-	
+
+	! to set kind of integers in ksub
+	! kind 1 (8bits) can go upto 127, which should be enough 
+	! for us if nsites <= 127.
+	!	kind 2 (16 bits) max is 32,767
+	! selected_int_kind(R) ==> smallest kind, to 10^R exclusive 
+	integer, parameter :: isk=selected_int_kind(2);
+
+	logical :: debug
+
 	! total number of sites in the system
-	integer(kind=1):: nsites
+	integer:: nsites
 	! active sites
-	integer(kind=1):: na
+	integer:: na
 	! number of excitatons
-	integer(kind=1):: nx
+	integer:: nx
 
 	! total number of iterations/hops in the trajectory
-	integer(kind=4):: niter
+	integer:: niter
 	
 	! L-H and H-L cross hops allowed? 
 	logical :: crosshops 
@@ -25,7 +34,7 @@
 	! reuse basis/hamiltonians (fixmap=F) or not (fixmap=T)
 	logical :: fixmap
 	! list of active sites in order they appear in the basis 
-	integer(kind=1), allocatable :: ASites(:)
+	integer, allocatable :: ASites(:)
 
 	! PermSym: if all sites have same w0 and g, and AlwaysLP=True, i.e,
 	!	 	a quick relaxation to Lower polariton state after every hop,
@@ -35,7 +44,7 @@
 	logical:: PermSym
 
 	!	na, nx lists for 13 Hilbert spaces
-	integer(kind=1), dimension(13):: nalist,nxlist !CHECK  not used????
+	integer, dimension(13):: nalist,nxlist !CHECK  not used????
 
 	! index for jump, channel, site
 	integer:: itype
@@ -71,15 +80,15 @@
 	double precision:: Einit! intial energy in every iteration
 	double precision, allocatable:: Einit2(:)
 	!	--------------- maps ---------------
-	integer(kind=1), dimension(13)::
+	integer, dimension(13)::
      . dna	= (/ 0,0,0,2,2,2,-2,-2,-2,1,1,-1,-1 /);
-	integer(kind=1), dimension(13)::
+	integer, dimension(13)::
      . dnx = (/ 0,-1,1,1,0,2,-1,-2,0,1,0,-1,0 /);
-	integer(kind=1), dimension(13)::
+	integer, dimension(13)::
      . ibs = (/ 3,3,3,5,5,5,1,1,1,4,4,2,2 /);
-	integer(kind=1), dimension(5)::
+	integer, dimension(5)::
      . dns = (/ -2,-1,0,1,2 /); 
-	integer(kind=1), dimension(26,4)::
+	integer, dimension(26,4)::
      . itypes = reshape( ( / 1, 1, 2, 3, 1, 1, 2, 3, 1, 1,
      . 2, 3, 1, 1, 2, 3, 4, 4, 5, 6,
      . 4, 4, 5, 6, 7, 7, 8, 9, 7, 7,
@@ -99,20 +108,20 @@
 	type :: BMaps
 		integer :: nnu
 		logical, dimension(5):: req ! required in an iteration or not?
-		integer(kind=1), dimension(5) :: map	 ! map for ib
-		integer(kind=1), dimension(5) :: cal ! which ib
+		integer, dimension(5) :: map	 ! map for ib
+		integer, dimension(5) :: cal ! which ib
 	end type BMaps
 
 	type :: TMaps
 		integer :: nnu
-		integer(kind=1), dimension(13) :: map ! map for ib
-		integer(kind=1), dimension(13) :: cal ! which ib
+		integer, dimension(13) :: map ! map for ib
+		integer, dimension(13) :: cal ! which ib
 		! 13 types: which ones are required 
 		! based on availability of relevant hops
 		logical, dimension(13):: req ! ReqType
 		! which itypes for a given ib; ntb,grouptb only for mapt
-		integer(kind=1), dimension(5) :: ntb 
-		integer(kind=1), dimension(5,13) :: grouptb 
+		integer, dimension(5) :: ntb 
+		integer, dimension(5,13) :: grouptb 
 	end type TMaps
 
 	type(BMaps) :: mapb
@@ -126,7 +135,7 @@
 	!---------------------------------------
 	type :: BSectors
 		integer :: ntot ! will see later if these ntot are needed?
-		integer(kind=1), allocatable :: sets(:,:)
+		integer(kind=isk), allocatable :: sets(:,:)
 	end type BSectors
 
 	type :: BasisSet
@@ -135,7 +144,7 @@
 		! number of active sites
 		integer :: n
 		integer :: maxk ! max k of k-sub it has.
-		integer(kind=4), allocatable :: pntr(:)
+		integer, allocatable :: pntr(:)
 		type(BSectors), allocatable :: sec(:)
 	end type BasisSet
 
@@ -158,15 +167,15 @@
 		logical :: xst,dense
 		integer :: n,m,m1
 		integer :: nev, ncv
-		integer(kind=4) :: ntot ! HilbertSpace dimension
-		integer(kind=4) :: nnz  ! no of non-zero elements
-		integer(kind=4) :: srptr ! size of row pointers, not eq to ntot
-		integer(kind=4), allocatable :: col(:)
-		integer(kind=4), allocatable :: rowpntr(:)
+		integer :: ntot ! HilbertSpace dimension
+		integer :: nnz  ! no of non-zero elements
+		integer :: srptr ! size of row pointers, not eq to ntot
+		integer, allocatable :: col(:)
+		integer, allocatable :: rowpntr(:)
 		double precision, allocatable :: dat(:)
-		!integer(kind=4), allocatable :: row(:)
+		!integer, allocatable :: row(:)
 		 ! pointers to ksub sectors in rowpntr
-		integer(kind=4), allocatable :: spntr(:) 
+		integer, allocatable :: spntr(:) 
 	end type Ham
 
 		! Number of Hilbert spaces and basis (same N)
@@ -189,9 +198,9 @@
 	!---------------------------------------	
 	type :: TransitionMatrix
 		! transition matrix data
-		integer(kind=4) :: nnz
-		integer(kind=4), allocatable :: row(:)
-		integer(kind=4), allocatable :: col(:)
+		integer :: nnz
+		integer, allocatable :: row(:)
+		integer, allocatable :: col(:)
 	end type TransitionMatrix
 	!---------------------------------------	
 	type :: HoppingProcesses
@@ -207,7 +216,7 @@
 	! hoppings: transition amplitudes
 	!---------------------------------------	
 	type :: TransitionAmplitudes
-		integer(kind=4) :: namp ! size of amp array
+		integer :: namp ! size of amp array
 		double precision, allocatable :: amp(:) ! amplitudes
 		! amplitudes squared of degen sectors
 		integer :: nsec ! number of degenerate sectors
@@ -216,14 +225,14 @@
 	end type TransitionAmplitudes
 
 	type :: QuantumTransitions
-		integer(kind=4) :: nc,ns ! number of channels, sites
+		integer :: nc,ns ! number of channels, sites
 		type(TransitionAmplitudes), allocatable:: cs(:,:) ! channels and sites
 	end type QuantumTransitions
 	!---------------------------------------	
 	! map from ih,ic to ia,icl
 	!---------------------------------------	
-	integer(kind=4), dimension(26,4) :: maph ! ih  to ia
-	integer(kind=4), dimension(26,4) :: mapc ! ic to icl
+	integer, dimension(26,4) :: maph ! ih  to ia
+	integer, dimension(26,4) :: mapc ! ic to icl
 	!	mapc only needed for channel 8,
 	!	channel 8: swap channel 1 and 2 for amplitudes
 	!---------------------------------------	
@@ -233,7 +242,7 @@
 	! hoppings: transition rates
 	!---------------------------------------	
 	type :: TransitionRates
-		integer(kind=4) :: nc,ns ! number of channels, sites		
+		integer :: nc,ns ! number of channels, sites		
 		double precision :: r ! total
 		double precision, allocatable :: rcs(:,:) !channel,site resolved
 	end type TransitionRates
@@ -302,7 +311,7 @@
 
 !--------------- timer -----------------
 	double precision function clock()
-		real(kind=4):: etime, tm(2)
+		real*4:: etime, tm(2)
 		clock = etime( tm )
 	return
 	end function clock

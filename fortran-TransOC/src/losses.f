@@ -2,7 +2,6 @@
 	module losses
 	use amplitudes
 	implicit none
-	integer(kind=1)::one=1
 
 	public:: LossGamma,LossKappa
 	private:: GammaMap
@@ -11,18 +10,18 @@
 	
 
 	subroutine GammaMap(ib,n,k,l,ntot1,map,ntot)
-	use modmain, only: basis, mapb
+	use modmain, only: basis, mapb,isk
 	use basisstates, only: LexicoIndex
 	use lists, only: Drop, MemberQ
 	implicit none
-	integer(kind=1), intent(in) :: ib,n,k,l
-	integer(kind=4), intent(in) :: ntot, ntot1
-	integer(kind=4), dimension(2,ntot), intent(out):: map
+	integer, intent(in) :: ib,n,k,l
+	integer, intent(in) :: ntot, ntot1
+	integer, dimension(2,ntot), intent(out):: map
 	! local
-	integer(kind=1):: k1
+	integer:: k1
 	!integer(kind=1):: ibi=3, ib
-	integer(kind=1), dimension(k):: set
-	integer(kind=1), dimension(k-1) :: set2
+	integer(kind=isk), dimension(k):: set
+	integer(kind=isk), dimension(k-1) :: set2
 	
 	integer:: i, ind
 
@@ -49,10 +48,10 @@
 	subroutine LossGamma(is)
 	use modmain, only: basis,na,nx,mapb
 	implicit none
-	integer(kind=1), intent(in):: is 
+	integer, intent(in):: is 
 	!	local
-	integer(kind=1):: ih=26, ib1i=3 !, ib2i=3 ! see dnalist5 in modmain
-	integer(kind=1)::k,n,m,m1,n1,n2,m2,i, ib1 !,ib2
+	integer:: ih=26, ib1i=3 !, ib2i=3 ! see dnalist5 in modmain
+	integer::k,n,m,m1,n1,n2,m2,i, ib1 !,ib2
 	integer :: ntot, ind, ntot1,nnz,inda,la,lat,n3
 	integer, allocatable, dimension(:,:) :: map
 	integer, allocatable, dimension(:)::pntr1,las,row,col
@@ -111,7 +110,7 @@
 	!write(*,*) "gamma: n3,lat",n3,lat
 	!write(*,*) "gamma: col(1:5):",col(1:5)
 	!-------------------------------------------------------
-	call CalAmp0(ih,one,is,row,lat,n3,col) ! ic=1; "multiply--"
+	call CalAmp0(ih,1,is,row,lat,n3,col) ! ic=1; "multiply--"
 	!---------------------------------
 
 	!write(*,*) "gamma: after callamp"
@@ -129,8 +128,8 @@
 	use modmain, only: basis,na,nx,mapb
 	implicit none
 	!	local
-	integer(kind=1):: ih=25, is=1, ib1=3, ib2=3 ! see dnalist5 in modmain
-	integer(kind=1)::n,m,m1,m2
+	integer:: ih=25, is=1, ib1=3, ib2=3 ! see dnalist5 in modmain
+	integer::n,m,m1,m2
 	integer :: ntot1, ntot2,ibl1,ibl2,i
 	integer, allocatable, dimension(:):: col
 	!------------------------------------------	
@@ -165,7 +164,7 @@
 	!write(*,*) "kappa: rowc(1:5)",col(1:min(5,ntot2))
 
 	!write(*,*) "len of multiplyd- =",len("multiplyd-")
-	call CalAmp(ih,one,is,col,ntot2,ntot1,'multiplyd') ! ic=1
+	call CalAmp(ih,1,is,col,ntot2,ntot1,'multiplyd') ! ic=1
 	!---------------------------------
 
 	!write(*,*) "kappa: done amp"

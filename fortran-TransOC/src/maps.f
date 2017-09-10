@@ -80,9 +80,9 @@
      .  Hg,NHilbertSpaces, na,nx
 	use lists, only: FreeQ
 	! local
-	integer(kind=1), dimension(13):: map,notexist
+	integer, dimension(13):: map,notexist
 	integer :: it,n,m,i,inxt
-	integer(kind=1):: j,thrt=13
+	integer:: j,thrt=13
 	logical :: found,exst
 
 
@@ -168,9 +168,9 @@
 	!	group itypes with the same ib
 	use modmain, only : mapt,ibs
 	! local
-	integer(kind=1), dimension(13):: cal
-	integer(kind=1), dimension(5,13):: grouptb
-	integer(kind=1), dimension(5):: ntb
+	integer, dimension(13):: cal
+	integer, dimension(5,13):: grouptb
+	integer, dimension(5):: ntb
 	
 	integer :: ib,i,nnu,itype
 
@@ -208,9 +208,9 @@
 	use modmain, only : dns,mapb,NBasisSets,basis,na,mapt,ibs
 	use lists, only: FreeQ
 	! local
-	integer(kind=1), dimension(5):: map,notused
+	integer, dimension(5):: map,notused
 	integer :: jb,jb2,i,inu
-	integer(kind=1):: j,n,five=5,it
+	integer:: j,n,five=5,it
 	logical :: used, found
 
 	! which basis types are required
@@ -295,7 +295,7 @@
 	implicit none
 
 	!integer(kind=4), dimension(26,4,2) :: maphc
-	integer(kind=4) :: ic,ih
+	integer :: ic,ih
 
 	! input: ih,ic
 	!	output: ia,icl

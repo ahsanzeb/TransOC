@@ -2,7 +2,7 @@
 	module Annihilation
 	use amplitudes
 	implicit none
-	integer(kind=1)::one=1,two=2,three=3,four=4
+	integer::one=1,two=2,three=3,four=4
 
 	public::DPhiAn1,DPhiAn2
 	private::AnMap1,AnMap2
@@ -18,16 +18,16 @@
 	!	add 1 to get index for ==> dn,up OR
 	!	???use the same index but switch which
 	!	???of D/Phi site is going to be added at N+1 as up.
-	use modmain, only: basis
+	use modmain, only: basis,isk
 	use basisstates, only: LexicoIndex
 	implicit none
-	integer(kind=1), intent(in) :: ibl,n,k
-	integer(kind=4), intent(in) :: la
-	integer(kind=4), dimension(la), intent(out):: mapa
+	integer, intent(in) :: ibl,n,k
+	integer, intent(in) :: la
+	integer, dimension(la), intent(out):: mapa
 	! local
-	integer(kind=1), dimension(k+1) :: set2
-	integer(kind=1):: n1,n2,k1
-	integer:: i
+	integer(kind=isk), dimension(k+1) :: set2
+	integer:: n1,n2
+	integer:: i,k1
 
 	n1 = n+1;	n2 = n+2;
 	k1 = k+1;
@@ -46,17 +46,17 @@
 	! D&Phi sites appended to active list.
 	! out: index for D,Phi ==> up,dn
 	!	add 1 to get index for ==> dn,up OR
-	use modmain, only: basis
+	use modmain, only: basis,isk
 	use basisstates, only: LexicoIndex
 	!use lists, only: MemberQ
 	implicit none
-	integer(kind=1), intent(in) :: ibl,n,k
-	integer(kind=4), intent(in) :: la
-	integer(kind=4), dimension(3,la), intent(out):: map
+	integer, intent(in) :: ibl,n,k
+	integer, intent(in) :: la
+	integer, dimension(3,la), intent(out):: map
 	! local
-	integer(kind=1), dimension(k+2) :: set2
-	integer(kind=1):: n1,n2,k1,k2
-	integer:: i
+	integer(kind=isk), dimension(k+2) :: set2
+	integer:: n1,n2
+	integer:: i,k1,k2
 
 	n1 = n+1;	n2 = n+2;
 	k1 = k+1; k2 = k+2;
@@ -85,9 +85,9 @@
 	use modmain, only: basis,na,nx,mapb
 	implicit none
 	!	local
-	integer(kind=1):: ih=5, is=1, ib1i=3, ib2i=5 ! see dnalist5 in modmain
-	integer(kind=1):: ib1,ib2
-	integer(kind=1)::k,n,m,m1,m2,i
+	integer:: ih=5, is=1, ib1i=3, ib2i=5 ! see dnalist5 in modmain
+	integer:: ib1,ib2
+	integer::k,n,m,m1,m2,i
 	integer :: ntot, ind, ntot1,n1,n2,n3
 	integer, allocatable, dimension(:) :: map,col1,col2
 	integer, allocatable, dimension(:):: pntr1,pntr2
@@ -129,12 +129,12 @@
 
 	! allocate transition matrix: diagonal format
 	allocate(col1(ntot1)) 
-	allocate(col2(ntot1)) 
+	!allocate(col2(ntot1)) 
 
 	!	calc the matrix
 
 	! k==0
-	col2(1) = n1;
+	col1(1) = n1;
 	!col2(1) = n2;
 
 !	write(*,*) "DPhiAn1: hop k=0 done .... "
@@ -154,6 +154,11 @@
 	n3=pntr1(m1+2) ! dim of initial hilbert space
 	deallocate(pntr1,pntr2)
 	endif !n=0
+
+	!write(*,*)" --------=======888888888"
+	!write(*,*)" n3 = ", n3
+	!write(*,*)"col = ", col1
+
 
 	!-------------------------------------------------------
 	! calculate transition amplitudes
@@ -179,10 +184,10 @@
 	use modmain, only: basis,na,nx,mapb
 	implicit none
 	!	local
-	integer(kind=1):: ih=5, is=1, ib1i=3, ib2i=5 ! see dnalist5 in modmain
+	integer:: ih=5, is=1, ib1i=3, ib2i=5 ! see dnalist5 in modmain
 	!	itype? n,m, etc....?
-	integer(kind=1):: ib1,ib2
-	integer(kind=1)::k,n,m,m1,m2,m3,m4,i,ic
+	integer:: ib1,ib2
+	integer::k,n,m,m1,m2,m3,m4,i,ic
 	integer :: ntot, ind, ind2, ntot1,n1,n2,n3 !, ntot2, ntot3, ntot4
 	integer, allocatable, dimension(:,:) :: map,col
 	integer, allocatable, dimension(:):: pntr1,pntr2,map2

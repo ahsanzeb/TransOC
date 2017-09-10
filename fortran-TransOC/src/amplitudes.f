@@ -9,7 +9,8 @@
 	subroutine CalAmp(ih,ic,is,rowc,nnz,n3,routine)
 	use modmain, only: qt,mapt,maph,eig,itypes,psi
 	implicit none
-	integer(kind=1), intent(in) :: ih,is,ic
+	integer, intent(in) :: is
+	integer, intent(in) :: ih,ic
 	integer, intent(in) :: nnz,n3
 	integer, dimension(nnz), intent(in)  :: rowc
 	character(len=*), intent(in) :: routine
@@ -88,7 +89,8 @@
 	subroutine CalAmp0(ih,ic,is,rowc,nnz,n3,col)
 	use modmain, only: qt,mapt,maph,eig,itypes,psi
 	implicit none
-	integer(kind=1), intent(in) :: ih,is,ic
+	integer, intent(in) :: is
+	integer, intent(in) :: ih,ic
 	integer, intent(in) :: nnz,n3
 	integer, dimension(nnz), intent(in)  :: rowc
 	integer, dimension(nnz), intent(in) :: col

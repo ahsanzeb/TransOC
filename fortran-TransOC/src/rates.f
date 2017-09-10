@@ -41,7 +41,7 @@
 	character(len=*), intent(in):: process
 	integer, intent(in) :: nc
 	! local
-	integer:: ih, is, ic, ih1, ih2
+	integer:: ih, ic, ih1, ih2,is
 
 	select case(process)
 	case('dphihops','creation')
