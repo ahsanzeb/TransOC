@@ -10,6 +10,7 @@
 ! 4. call UpdateMapB
 
 	module maps
+	use lists, only: Drop4
 	implicit none
 
 	contains
@@ -81,10 +82,11 @@
 	use lists, only: FreeQ
 	! local
 	integer, dimension(13):: map,notexist
-	integer :: it,n,m,i,inxt
-	integer:: j,thrt=13
+	integer :: it,n,m,i,inxt,j
 	logical :: found,exst
-
+	integer, dimension(NHilbertSpaces):: slots
+	integer :: dnmaxi,ndrop,k
+	double precision :: dnmax
 
 	!write(*,*)"ReqType=",mapt%req
 	map = -1;
@@ -112,46 +114,75 @@
 			endif	
 	enddo ! it
 
-	!write(*,*)"mapt  1 = ",map
-	!write(*,*)"notfound",notexist
+	!---------------------------------------
+	! where to put to be calculated results?
+	!---------------------------------------
+
 
 
 	!---------------------------------------
-	! where to put to be calculated results?
+	! 1. search for a free slot
+	!---------------------------------------
 	do i = 1,inxt
 		it = notexist(i); ! finding slot/space for this itype
-		found = .false.
 		do j=1,NHilbertSpaces ! search for free slot
-			if(.not. Hg(j)%xst .and. FreeQ(map,thrt,j)) then
-				!Hg(j)%xst = .true.
+			if((.not. Hg(j)%xst) .and. FreeQ(map,13,j)) then
 				map(it) = j;
-				found = .true.
 				exit
 			endif
 		end do
+	enddo 
 
-		!write(*,*)"mapt 2 = ",map
-
-		
-		! if not found, search for existing
-		!			 slots that are not required
-		if (.not. found) then
-			do j=1,NHilbertSpaces ! search for free slot
-				if(FreeQ(map,thrt,j)) then ! slot j not used for another itype
-					map(it) = j;	
-					found = .true.
-					exit
-				endif
-			end do
+	!----------------------------------------------------
+	! 2. search for a filled slot farthest to current N
+	!----------------------------------------------------
+	! find slots with data stored, have not been added to map yet.
+	slots = -10;
+	j = 0;
+	do i=1,NHilbertSpaces
+		if (Hg(i)%xst .and. FreeQ(map,13,i)) then
+			j = j + 1;
+			slots(j) = i ! save slots locations
+			!slotsn(j) = Hg(i)%n ! n for stored data
 		endif
-		! still not found? Error!
-		if (.not. found) then
-			write(*,*)"Error(maps): slot not found for itype=",it
+	enddo				
+	
+	! assign locations on basis of 'distance' to na
+	ndrop = 0;
+	do k = 1,inxt
+		it = notexist(k); ! finding slot/space for this itype
+	!do it=1,13
+		! not required	 or	already taken?
+		!if ((.not. mapt%req(it)) .or. (map(it) .ne. -1)) cycle 		
+		if (map(it) .ne. -1) cycle 		
+
+		! order these slots w.r.t n,m; farthest to nearest
+		!slotsx = slots;
+		dnmaxi = slots(1);
+		dnmax = abs((Hg(dnmaxi)%n-na)*1.0);
+		do i=1,j-ndrop
+			if( abs((Hg(slots(i))%n-na)*1.0) > dnmax )then
+				dnmaxi = slots(i)
+				dnmax = abs((Hg(dnmaxi)%n-na)*1.0);
+			endif
+		enddo
+
+		! assign this location
+		map(it) = dnmaxi
+		write(*,*)"map: Found, na vs N(it) = ",na, Hg(dnmaxi)%n
+		write(*,*)"map: ndrop, j-ndrop = ",ndrop, j-ndrop
+		call Drop4(slots(1:j-ndrop), j-ndrop, dnmaxi,slots(1:j-ndrop-1))
+		ndrop = ndrop + 1
+		
+	enddo
+
+	! check if all req types are assigned slots?
+	do it=1,13
+		if (mapt%req(it) .and. map(it)==-1) then
+			write(*,*) "Error(map): mapt, slot not found for itype=",it
 			stop
 		endif
-	end do ! it
-
-	!write(*,*)"mapt 3 = ",map
+	enddo
 
 	!---------------------------------------
 	! set global variables
@@ -159,8 +190,10 @@
 	mapt%cal = notexist;
 	mapt%nnu = inxt;
 
-	!write(*,*)"mapt%map",mapt%map
 	!write(*,*)"mapt%req",mapt%req
+	!write(*,*)"mapt%map",mapt%map
+	!write(*,*)"mapt%cal",notexist(1:inxt)
+
 	return
 	end subroutine UpdateMapT
 !------------------------------------
