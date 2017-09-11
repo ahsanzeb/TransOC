@@ -7,7 +7,7 @@
 	contains
 ! transition matrices and amplitudes
 	subroutine CalAmp(ih,ic,is,rowc,nnz,n3,routine)
-	use modmain, only: qt,mapt,maph,eig,itypes,psi
+	use modmain, only: qt,mapt,maph,eig,itypes,psi,ipsi,nog
 	implicit none
 	integer, intent(in) :: is
 	integer, intent(in) :: ih,ic
@@ -22,16 +22,45 @@
 	!-------------------------------------------------------
 	! calculate transition amplitudes
 	!-------------------------------------------------------
-		itl = mapt%map(itypes(ih,ic)) !???????! location of final hilber space
-		!write(*,*)"ih,ic,it,itl= ",ih,ic,itypes(ih,ic),itl
+	itl = mapt%map(itypes(ih,ic)) !???????! location of final hilber space
+	!write(*,*)"ih,ic,it,itl= ",ih,ic,itypes(ih,ic),itl
+	ia = maph(ih,ic); ! location of amplitudes
 		
-		n1=eig(itl)%n1 ! dim of final hilbert space
-		n2=eig(itl)%n2
+	n1=eig(itl)%n1 ! dim of final hilbert space
+	n2=eig(itl)%n2
 
-		!write(*,*) "n1,n2 = ", n1,n2
-		
+	if(allocated(qt(ia)%cs(ic,is)%amp))
+     .						deallocate(qt(ia)%cs(ic,is)%amp)
+	allocate(qt(ia)%cs(ic,is)%amp(n2))
+	qt(ia)%cs(ic,is)%namp = n2
+	! calculate amp^2 for degenerate sectors
+	if(allocated(qt(ia)%cs(ic,is)%amp2))
+     .					deallocate(qt(ia)%cs(ic,is)%amp2)
+	allocate(qt(ia)%cs(ic,is)%amp2(eig(itl)%nsec))
+	qt(ia)%cs(ic,is)%nsec = eig(itl)%nsec !
+
+
+	if(nog) then
+		! use efficient mat vec multiplications for diagonal Uf
+		qt(ia)%cs(ic,is)%amp= 0.0d0; ! psi.Ht.Uf
+		! just index: psi = ipsi; Uf = Identity
+		if(routine=='multiplyd') then
+			do i=1,nnz ! diagonal but not full diagonal, selected rows/cols
+				if (rowc(i) == ipsi) then
+					qt(ia)%cs(ic,is)%amp(rowc(i)) = 1.0d0
+					exit
+				endif
+			end do
+		elseif(routine=='multiplydc') then
+			!write(*,*)"amp: shape(rowc), ipsi = ",shape(rowc), ipsi
+			qt(ia)%cs(ic,is)%amp(rowc(ipsi)) = 1.0d0
+		else
+			write(*,*) "amplitudes: something wrong....!"
+			stop
+		endif
+		qt(ia)%cs(ic,is)%amp2 = qt(ia)%cs(ic,is)%amp; ! 0.0, or +1.0 
+	else
 		allocate(HtUf(n3,n2))
-		ia = maph(ih,ic); ! location of amplitudes
 		! NOTE: allocate qt(ih)%cs(:,:) in calling routine
 		! sizes: Ht(n3 x n1) . Uf(n1 x n2) = HtUf(n3 x n2)
 		! out: HtUf
@@ -45,41 +74,15 @@
 			write(*,*) "amplitudes: something wrong....!"
 			stop
 		endif
-		if(allocated(qt(ia)%cs(ic,is)%amp))
-     .						deallocate(qt(ia)%cs(ic,is)%amp)
-		allocate(qt(ia)%cs(ic,is)%amp(n2))
-		! set the size for possible future use
-		!	DELETE THIS namp VARIABLE IF NOT NEEDED/USED.
-		qt(ia)%cs(ic,is)%namp = n2
 		! multiply psi with HtUf to get amplitudes
 		! psi should be a row vector; shape = 1 x n3
-
-		!HtUf = 1.0d0;
-		!write(*,*)"amp: n3,n1,n2=",n3,n1,n2
-		!write(*,*)"amp: shape(psi),shape(HtUf) ",shape(psi),shape(HtUf) 
-		!if(ih==0) then
-		!	write(*,*)"==================="
-		!	write(*,*)"HtUf=",HtUf
-		!	write(*,*)"==================="
-		!endif
 		! testing HtUf(1,:);!
 		qt(ia)%cs(ic,is)%amp=reshape(matmul(psi,HtUf),(/n2/)); ! both input dense
 		deallocate(HtUf)
-		! calculate amp^2 for degenerate sectors
-		if(allocated(qt(ia)%cs(ic,is)%amp2))
-     .					deallocate(qt(ia)%cs(ic,is)%amp2)
-		allocate(qt(ia)%cs(ic,is)%amp2(eig(itl)%nsec))
-		!	DELETE THIS nsec VARIABLE IF NOT NEEDED/USED.
-		qt(ia)%cs(ic,is)%nsec = eig(itl)%nsec !
-
-		!write(*,*) "amp: ih,ic, ia: ic,is,itl=",ih,ic, ia, ic,is,itl
-		!write(*,*)"eig(itl)%nsec,eig(itl)%ind",eig(itl)%nsec,eig(itl)%ind
-		!write(*,*)"eval=",eig(itl)%eval
-		!write(*,*)"............................"
-		!write(*,*)"amp =",	qt(ia)%cs(ic,is)%amp
+		
 		call GetAmp2(qt(ia)%cs(ic,is)%amp, n2,
      .		qt(ia)%cs(ic,is)%amp2, eig(itl)%nsec, eig(itl)%ind)
-
+	endif
 
 	return
 	end subroutine CalAmp
@@ -87,7 +90,7 @@
 
 
 	subroutine CalAmp0(ih,ic,is,rowc,nnz,n3,col)
-	use modmain, only: qt,mapt,maph,eig,itypes,psi
+	use modmain, only: qt,mapt,maph,eig,itypes,psi,ipsi,nog
 	implicit none
 	integer, intent(in) :: is
 	integer, intent(in) :: ih,ic
@@ -96,30 +99,50 @@
 	integer, dimension(nnz), intent(in) :: col
 	! local
 	double precision, allocatable:: HtUf(:,:)
-	integer :: ia,n1,n2,itl
+	integer :: ia,n1,n2,itl,i
 
 	!-------------------------------------------------------
 	! calculate transition amplitudes
 	!-------------------------------------------------------
-		itl = mapt%map(itypes(ih,ic)) !???????! location of final hilber space
-		!write(*,*)"itypes(ih,ic), itl = ",itypes(ih,ic),itl
+	itl = mapt%map(itypes(ih,ic)) !???????! location of final hilber space
+	!write(*,*)"itypes(ih,ic), itl = ",itypes(ih,ic),itl
+	ia = maph(ih,ic); ! location of amplitudes
 
 		
-		n1=eig(itl)%n1 ! dim of final hilbert space
-		n2=eig(itl)%n2
+	n1=eig(itl)%n1 ! dim of final hilbert space
+	n2=eig(itl)%n2
+
+	if(allocated(qt(ia)%cs(ic,is)%amp))
+     .						deallocate(qt(ia)%cs(ic,is)%amp)
+	allocate(qt(ia)%cs(ic,is)%amp(n2))
+	! set the size for possible future use
+	!	DELETE THIS namp VARIABLE IF NOT NEEDED/USED.
+	qt(ia)%cs(ic,is)%namp = n2
+	! calculate amp^2 for degenerate sectors
+	if(allocated(qt(ia)%cs(ic,is)%amp2))
+     .					deallocate(qt(ia)%cs(ic,is)%amp2)
+	allocate(qt(ia)%cs(ic,is)%amp2(eig(itl)%nsec))
+	!	DELETE THIS nsec VARIABLE IF NOT NEEDED/USED.
+	qt(ia)%cs(ic,is)%nsec = eig(itl)%nsec ! 
+
+
+	if(nog) then
+		qt(ia)%cs(ic,is)%amp = 0.0d0
+		do i=1,nnz
+			if (rowc(i) == ipsi) then
+				qt(ia)%cs(ic,is)%amp(col(i)) = 1.0d0
+				exit ! just a single entry
+			endif
+		end do
+		qt(ia)%cs(ic,is)%amp2 = qt(ia)%cs(ic,is)%amp; ! 0.0, +1.0
+	else
 		allocate(HtUf(n3,n2))
-		ia = maph(ih,ic); ! location of amplitudes
 		! NOTE: allocate qt(ih)%cs(:,:) in calling routine
 		! sizes: Ht(n3 x n1) . Uf(n1 x n2) = HtUf(n3 x n2)
 		! out: HtUf
 		call multiply(rowc,col,nnz,eig(itl)%evec,n1,n2,
      .							HtUf,n3,n2)
-		if(allocated(qt(ia)%cs(ic,is)%amp))
-     .						deallocate(qt(ia)%cs(ic,is)%amp)
-		allocate(qt(ia)%cs(ic,is)%amp(n2))
-		! set the size for possible future use
-		!	DELETE THIS namp VARIABLE IF NOT NEEDED/USED.
-		qt(ia)%cs(ic,is)%namp = n2
+
 		! multiply psi with HtUf to get amplitudes
 		! psi should be a row vector; shape = 1 x n3
 		!HtUf = 1.0d0;
@@ -127,21 +150,12 @@
 		!write(*,*)"amp0: shape(psi),shape(HtUf) ",shape(psi),shape(HtUf) 
 		qt(ia)%cs(ic,is)%amp=reshape(matmul(psi,HtUf),(/n2/)); ! both input dense
 		deallocate(HtUf)
-		! calculate amp^2 for degenerate sectors
-		if(allocated(qt(ia)%cs(ic,is)%amp2))
-     .					deallocate(qt(ia)%cs(ic,is)%amp2)
-		allocate(qt(ia)%cs(ic,is)%amp2(eig(itl)%nsec))
-		!	DELETE THIS nsec VARIABLE IF NOT NEEDED/USED.
-		qt(ia)%cs(ic,is)%nsec = eig(itl)%nsec ! 
-
-
 		!write(*,*) "amp: ih,ic, ia: ic,is,itl=",ih,ic, ia, ic,is,itl
-
 		call GetAmp2(qt(ia)%cs(ic,is)%amp, n2,
      .		qt(ia)%cs(ic,is)%amp2,
      .		eig(itl)%nsec, eig(itl)%ind)
-
-
+	endif
+	
 	return
 	end subroutine CalAmp0
 

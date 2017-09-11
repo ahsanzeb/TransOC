@@ -28,6 +28,10 @@
 	! L-H and H-L cross hops allowed? 
 	logical :: crosshops 
 
+	! no matter-light coupling?
+	logical :: nog
+	integer :: ipsi ! to store index of state when nog=T
+
 	! all molecules-light couplings same?
 	logical :: sameg
 	

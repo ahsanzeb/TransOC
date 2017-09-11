@@ -26,6 +26,7 @@
 	NBasisSets = 5;
 	NHilbertSpaces=13;
 	smalln = 50;
+	nog = .false.
 	diagmaxitr = 150;
 	sameg = .true.
 	fixmap = .false.
@@ -45,8 +46,7 @@
 	beta = 40.0d0
 	crosshops = .true.
 	AlwaysLP = .true.
-
-
+	PermSym = .false.
 	nokappa = .false.
 	nogamma = .false.	
 
@@ -110,6 +110,9 @@
 
 	case('CavityMoleculeCoupling')
 		read(50,*,err=20) g
+
+	case('NoCoupling')
+		read(50,*,err=20) nog
 
 	case('BulkHoppingParameters')
 		read(50,*,err=20) th, tl, tlh, thl
@@ -182,6 +185,10 @@
 30			continue
 	close(50)
 
+	if (nog) then
+		AlwaysLP = .false.
+		sameg = .true.
+	endif
 
 	if(abs(dw) > 1.d-6) detuning=.true.
 
@@ -189,11 +196,11 @@
 	if(gamma < 1.d-6) nogamma = .true.
 	if(AlwaysLP) PermSym = .true.; ! XXXXX add conditions on gi=g/ei=w0 
 
-	if(thl < 1.d-6 .and. tlh < 1.d-6) crosshops = .false.
-	write(*,*) "main: tlh and thl are too small so no crosshops"
-
-
-
+	if(thl < 1.d-6 .and. tlh < 1.d-6) then
+		crosshops = .false.
+		write(*,*) "main: tlh and thl are too small so no crosshops"
+	endif
+	
 	return
 	end subroutine
 !************************************************

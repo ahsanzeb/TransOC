@@ -14,13 +14,14 @@
 	
 	implicit none
 
-	integer:: i,ic,is,ia,iter,ih,j,ntot,zt
+	integer:: i,ic,is,ia,iter,ih,j,ntot,zt,icl
 	integer:: nev,ncv,it
 	integer :: stath(26),statc(4),ntrap,stathc(26,4)
 	integer :: totcharge,charge
 	double precision:: tottime, dt
-	integer:: trapiter,s
-
+	integer:: trapiter,s,iss,nc,ns
+	logical :: found
+	
 	stath = 0; statc = 0; zt = 0; ntrap = 0;
 	stathc = 0;
 	
@@ -40,6 +41,13 @@
 	! set no of active sites and excitations
 	call initialise()
 
+
+	! put this in init?
+	if(nog) then
+		ipsi = 1;
+		Einit = nx*dw;
+	endif
+	
 	! main loop over number of hops asked
 	do iter=1,niter
 
@@ -59,37 +67,46 @@
 		if(debug) write(*,*) "main: diagonalisation done.... "
 		
 		!stop
-		
-		if(allocated(psi)) deallocate(psi)
-		it = mapt%map(1);
-		allocate(psi(1,eig(it)%n1))
-		psi(1,:) = eig(it)%evec(:,1)
-		Einit = eig(it)%eval(1)
 
-		write(*,'(a,i5,x,i10,x,f10.5)')
-     .      "main: it,ntot, Ei = ",it,eig(it)%n1,Einit
+		if (.not. nog) then
+			if(allocated(psi)) deallocate(psi)
+			it = mapt%map(1);
+			allocate(psi(1,eig(it)%n1))
+			psi(1,:) = eig(it)%evec(:,1)
+			Einit = eig(it)%eval(1)
+		endif
+
+		!write(*,'(a,i5,x,i10,x,f10.5)')
+    ! .      "main: it,ntot, Ei = ",it,eig(it)%n1,Einit
 
 		!write(*,*)"main: psi="	,psi
 		!write(*,*)"main: eval 1="	,eig(it)%eval
 		
 		write(*,*)"sys%occ = ",sys%occ
 
-		!====== if PermSym then only a single site cases ====== 
-		!	check if anything to do about it related to qt/rate allocation etc
-		
 		if(iter==1) then
+			write(*,*) "sys%nsites = ",sys%nsites
+			! at most nsites ways for any hop???
 			do ia=1,14
-				allocate(qt(ia)%cs(4,1)) ! alloc/deallocate at every iteration...
+				allocate(qt(ia)%cs(4,sys%nsites)) ! alloc/deallocate at every iteration...
 			enddo
 			! allocate space for rates
 			do ih=1,26 ! testing... alloc 26 all 
-				allocate(rate(ih)%rcs(4,1))! alloc/deallocate at every iteration...
+				allocate(rate(ih)%rcs(4,sys%nsites))! alloc/deallocate at every iteration...
 			enddo
 		endif
+		
+		do ih=1,26
+			rate(ih)%rcs(:,:) = 0.0d0
+		enddo
+
+	write(*,*) "main: nog=T; ipsi =  ",ipsi
+
 
 		! All available hops: 
 		!	transition amplitudes and amp^2 for degenerate sectors
 		! and allocate space for rates???
+		s = 1;
 10		call AllHops()
 		if(debug) write(*,*) "main:   AllHops done... "	
 		
@@ -97,7 +114,7 @@
 		call CalRates()
 		if(debug) write(*,*) "main:   CalRates done... "	
 
-		if ( sum(rate(:)%r) < 1.0d-10) then
+		if ( sum(rate(:)%r) < 1.0d-10 ) then
 			!write(*,*)"main:sum(rate(:)%r) < 1.0d-10 "
 			if (trapiter == iter) then
 				s = s + 1;
@@ -113,6 +130,7 @@
 				ntrap = 	ntrap +1;
 				trapiter = iter;
 			endif		
+			if (nog) stop
 			! psi2, Einit2, 
 			!	in case the lowest state psi sees a trap,
 			! we will use this state to get us out
@@ -128,7 +146,7 @@
 			! if needed, can we keep repeating this
 			! for higher and higher degen sectors
 			! until we are out of trap?
-		elseif(s>1)then
+		elseif(s>1 .and. (.not. nog))then
 				write(*,*) "main: got out of trap, s=",s	
 				s = 0;	
 		endif
@@ -144,13 +162,52 @@
 		call icsSelect(ih,ic,is)
 		if(debug) write(*,*) "main:   icsSelect: ic,is =  ",ic,is
 
+		! if nog, the final state index from selected ih,ic
+		if (nog) then
+			if(PermSym) then
+				iss = 1;
+			else
+				iss = is
+			endif
+			
+			itype = itypes(ih,ic); ! type for ih,ic selected
+			it =mapt%map(itype); ! location of types
+			ia = maph(ih,ic); ! location of amplitudes
+			icl=mapc(ih,ic);
+			!write(*,*)"main: amp",qt(ia)%cs(ic,iss)%amp2
+			found=.false.
+			do i=1,Hg(it)%ntot
+				!if(allocated(qt(ia)%cs(ic,iss)%amp))then
+				!else
+				!	write(*,*)"main: amp not allc: ",itype,it,ia
+				!endif
+				if(qt(ia)%cs(icl,iss)%amp2(i) > 0.5d0) then ! amp = 0.0 or 1.0
+					ipsi = i;
+					Einit = eig(it)%eval(i)
+					found=.true.
+					exit
+				endif
+			enddo
+
+			if(.not. found) then
+				write(*,*)"main: ipsi not found!!!"
+				write(*,*)	"main: sum(amp2)=", sum(qt(ia)%cs(icl,iss)%amp2)
+				stop
+			endif
+			
+		endif
+
+
+
+
+
 		!write(*,*) "main: ===3==> "!,rate(:)%r
 
 		! to get out of traps, keep excited states.
 		! psi2, Einit2, 
 		!	in case the lowest state psi sees a trap,
 		! we will use this state to get us out
-		call getpsi2(ih,ic,is);
+		if (.not. nog) call getpsi2(ih,ic,is);
 		if(debug) write(*,*) "main: getpsi2 done...."
 		!write(*,*) "main: ---3--"
 		!write(*,*) "main: =====> ",rate(:)%r

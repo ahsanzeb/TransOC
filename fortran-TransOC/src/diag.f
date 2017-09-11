@@ -11,10 +11,10 @@
 !	call to diagonalise() will diagonalise
 ! all newly calculated Hamiltonians
 	subroutine diagonalise()
-	use modmain, only: mapt,Hg,eig
+	use modmain, only: mapt,Hg,eig,nog
 	implicit none
 	! local
-	integer:: i,ntot,ib, nt,it,itype,nev,ncv
+	integer:: i,ntot,ib, nt,it,itype,nev,ncv,j
 
 		! use better storage format (and matvec routines for iter diag)
 		do ib=1,5
@@ -33,18 +33,17 @@
 					eig(it)%n2 = ntot; ! number of vectors
 					nev = ntot;
 					!write(*,*)"diag: direct: it, Hg(it)%dense",it,Hg(it)%dense
-
-					! upper triangular H stored in evec, & eval allocated
-					call ddiag(eig(it)%evec,eig(it)%eval,ntot)
+					if (.not. nog) then
+						! upper triangular H stored in evec, & eval allocated
+						call ddiag(eig(it)%evec,eig(it)%eval,ntot)
+					endif
 				else
-					!write(*,*)"diag: iter: it, Hg(it)%dense",it, Hg(it)%dense
-
 					! iterdiag will find the storage format of H
 					!	and use appropriate matvec routines
 					! it will set the global variables 
 					!	eig(it)%evec and eig(it)%eval
 					nev = Hg(it)%nev;
-					ncv = Hg(it)%ncv;					
+					ncv = Hg(it)%ncv;
 					call iterdiag(it, ntot, nev, ncv)
 					write(*,*) "diag: iter done.... "
 					write(*,*) "=====> it, ntot, nev,ncv =",it,ntot, nev,ncv
@@ -57,11 +56,15 @@
 				allocate(eig(it)%esec(nev)) ! max nev sec if no degeneracy
 				allocate(eig(it)%ind(nev+1)) ! indexed for sectors
 
-				eig(it)%ind = -10
-				!write(*,*)"diag: nev",nev
-				call DegenSectors(eig(it)%eval,nev,
-     .   eig(it)%nsec,eig(it)%esec,eig(it)%ind) ! make degenerate sectors
-				
+				if (.not. nog) then
+					eig(it)%ind = -10
+					!write(*,*)"diag: nev",nev
+					call DegenSectors(eig(it)%eval,nev,
+     .   	eig(it)%nsec,eig(it)%esec,eig(it)%ind) ! make degenerate sectors
+				else ! nog
+					eig(it)%ind = (/ (j,j=1,ntot+1) /)
+					eig(it)%esec = eig(it)%eval
+				endif
 			enddo
 		end do
 
@@ -382,8 +385,5 @@ c        %----------------------------------------------%
 	ind(j+1) = ne+1; ! set last element of ind
 	return
 	end subroutine DegenSectors
-!---------------------------------------
-
-
-	
+!---------------------------------------	
 	end 	module diag

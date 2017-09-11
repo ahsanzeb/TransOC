@@ -16,7 +16,7 @@
 	double precision, dimension(27):: rlist ! accumulated rates
 	double precision:: eta
 
-	!write(*,*)"rates= ",rate(1:8)%r
+	!write(*,*)"rates= ",rate(:)%r
 	! select ih stochastically
 	rlist(1) = 0.0d0;
 	do ih=1,26
@@ -44,7 +44,7 @@
 	end function ihSelect
 !***************************************************
 	subroutine icsSelect(ih,ic,is)
-	use modmain, only: rate, ways,PermSym,crosshops
+	use modmain, only: rate, ways,PermSym,crosshops,nog,sys
 	implicit none
 	integer, intent(in) :: ih
 	integer, intent(out) :: ic,is
@@ -65,6 +65,10 @@
      . ih==7 .or. ih==8 .or. ih==26) ns = ways(ih)%ns
 	endif
 	
+	if(nog)then
+		nc = 4; ns = sys%nsites;
+	endif
+
 	ntot = ns * nc + 1;
 	allocate(rlist(ntot))
 
@@ -76,6 +80,9 @@
 			i = i + 1;
 		enddo
 	enddo
+
+
+	!write(*,*) "icsSel: rlist=",rlist
 			
 	! eta, random real in range 0-rlist(27)
 	eta = rand(0)* rlist(ntot);
@@ -107,12 +114,10 @@
 			ic = 1;
 			is = which;
 	else
-		is = 1 + mod((which-1),nc); ! shifted => Mathematica Mod[which,nc,1]
-		ic = which - (is-1)*nc;
+			ic = 1 + mod((which-1),nc); ! shifted => Mathematica Mod[which,nc,1]
+			is = (nc-1+which)/nc; !floor((nc-1+which)/nc)
 	endif
-
-
-	write(*,*)"ih,ic,is = ",ih,ic,is
+	!write(*,*)"ih,ic,is = ",ih,ic,is
 
 
 
@@ -123,7 +128,7 @@
 ! first excited degen sector above the lowest state
 	subroutine getpsi2(ih,ic,is)
 	use modmain, only: itypes,mapt,maph,eig,qt,
-     .       psi2,Einit2,PermSym
+     .       psi2,Einit2,PermSym,debug
 	implicit none
 	integer, intent(in):: ih,ic,is
 	! local
@@ -155,7 +160,8 @@
 	!write(*,*)eig(it)%ind
 	!write(*,*)eig(it)%eval
 
-	if(.false.) then
+	! debugging, remove later
+	if(debug) then
 		write(*,*)eig(it)%ind
 		write(*,*)eig(it)%evec
 		write(*,*)qt(ia)%cs(ic,iss)%amp
@@ -166,7 +172,7 @@
      .				shape(qt(ia)%cs(ic,iss)%amp)
 		write(*,*)"sel: is = is"
 	endif
-	
+
 	do s=1,nsec
 		!write(*,*)"i1, i2 = ",eig(it)%ind(s),eig(it)%ind(s+1)-1
 		!write(*,*)"............  s = ",s
@@ -175,7 +181,6 @@
      .  eig(it)%evec(:,i) * qt(ia)%cs(ic,iss)%amp(i)
 		enddo
 	enddo
-
 
 	return
 	end subroutine getpsi2

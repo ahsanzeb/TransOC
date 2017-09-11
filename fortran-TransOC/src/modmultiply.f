@@ -43,6 +43,7 @@
 	!			I will multiply t's later to get amplitudes, so they are 1 for Ht's
 	! (3 - matrix mati is dense)
 	!			Eigenvectors matrix Uf is dense
+	! in: row contains row(=col) indexes for nonzero elements
 	implicit none
 	integer, intent(in) :: nnz,n1,n2,n3,n4
 	integer, dimension(nnz), intent(in) :: row ! Ht map
@@ -73,6 +74,7 @@
 	!			I will multiply t's later to get amplitudes, so they are 1 for Ht's
 	! (3 - matrix mat is dense)
 	!			Eigenvectors matrix Uf is dense
+	! in: col contains col indexes for rows=1,nnz; (nnz=n1)
 	implicit none
 	integer, intent(in) :: nnz,n1,n2,n3,n4
 	integer, dimension(nnz), intent(in) :: col ! Ht map

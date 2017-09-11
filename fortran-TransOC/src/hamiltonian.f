@@ -8,7 +8,7 @@
 
 !------------------------------------------
 	subroutine mkHamilt()
-	use modmain, only: mapt,Hg,detuning,sameg,debug
+	use modmain, only: mapt,Hg,detuning,sameg,debug,nog
 	implicit none
 	! local
 	integer:: nt,ib
@@ -18,7 +18,10 @@
 		do ib=1,5
 			nt = mapt%ntb(ib)
 			if (nt > 0) then ! something to calculate or not?
-				if ((.not. detuning) .and. sameg) then
+				if(  nog    ) then 
+					! H is diagonal, store evec sparse, later Ht.Uf sparse
+					call DiagHgMulti(grouptb(ib,1:nt),nt)
+				elseif ((.not. detuning) .and. sameg) then
 					! use better storage format (and matvec routines for iter diag)
 					!if(debug) write(*,*) "hamilt: better = T"
 					call MakeHgMulti1(grouptb(ib,1:nt),nt)
@@ -441,7 +444,7 @@
 		Hg(itl(i))%m1 = m1s(i);
 		Hg(itl(i))%ntot = pntr(m1s(i)+2);
 		Hg(itl(i))%nnz = nnz(i);
-		if (pntr(m1s(i)+2) .le. smalln) then
+		if (pntr(m1s(i)+2) .le. smalln ) then
 			Hg(itl(i))%dense = .true.
 			Hg(itl(i))%nev = ntot; ! ncv irrelevant for direct
 			! if true, save hamiltonian in eig(itl(i))%evec
@@ -756,6 +759,105 @@
 	end subroutine MakeHgMulti1
 !------------------------------------------
 
+
+
+
+
+
+!------------------------------------------
+	subroutine DiagHgMulti(itlist,nt)
+	! makes Hg of types in itlist; all for same n, diff m.
+	! Hamiltonians are diagonal (nog=T)
+	!	save evec sparse, just numbers.
+	! eval =  diag elem of H
+	use modmain, only: basis,na,nx,ibs,dna,dnx,
+     .	 dw,Hg,eig,mapb,mapt
+	implicit none
+	integer, intent(in) :: nt
+	integer, dimension(nt), intent(in) :: itlist
+	! local
+	integer:: n,k
+
+	integer:: indf,i,j,ind,ntot,itype
+	integer:: ib,m,m1,ibl,i2,it2
+	double precision:: kdw
+	integer, allocatable, dimension(:):: pntr
+	integer, dimension(nt) :: ms,m1s,nnz,itl
+
+	! N,m values
+	n = na + dna(itlist(1)); ! no of active sites
+	do i=1,nt,1
+		m	=	 nx + dnx(itlist(i)); ! no of excitations
+		ms(i) = m;
+		m1s(i)=min(m,n); ! max no of up spins possible
+	end do
+	m1 = maxval(m1s) ! max m1
+
+	! ib: itype ===> which of 5 N case?
+	ib = ibs(itlist(1)); ! same for all cases in itlist
+	ibl = mapb%map(ib); ! get the location of data for this ib
+
+	! pointers for start index
+	if(allocated(pntr))deallocate(pntr)
+	allocate(pntr(m1+2));
+	pntr(:) = basis(ibl)%pntr(1:m1+2) ! is this already calculated?
+
+	nnz=0;
+	!	total number of (diagonal) elements
+	do i=1,nt
+		if(m1s(i) < ms(i)) then
+			nnz(i) = pntr(m1s(i)+2); ! total no of basis states
+		else ! m1s(i)=ms(i)
+			nnz(i) = pntr(m1s(i)+1); ! last ksub sector dig elem = (m-k)*dw=0
+		endif
+	end do
+
+	! hilbert space dimension
+	itl = 0;		
+	do i=1,nt
+		ntot = pntr(m1s(i)+2)
+		it2 = mapt%map(itlist(i));! map for the location of itype
+		itl(i) = it2;	
+		Hg(it2)%xst = .true.
+		Hg(it2)%n = n;
+		Hg(it2)%m = ms(i);
+		Hg(it2)%m1 = m1s(i);
+		Hg(it2)%ntot = pntr(m1s(i)+2);
+		Hg(it2)%nnz = nnz(i);
+		Hg(it2)%dense = .true.
+		Hg(it2)%nev = ntot;
+	end do
+
+	! allocate memory
+	do i=1,nt
+		it2 = itl(i);
+		ntot = pntr(m1s(i)+2)
+		eig(it2)%ntot = ntot;
+		eig(it2)%n1 = ntot;
+		eig(it2)%nsec = ntot;
+		eig(it2)%n2 = ntot;
+		if(allocated(eig(it2)%eval))deallocate(eig(it2)%eval)
+		allocate(eig(it2)%eval(ntot))
+		eig(it2)%eval = 0.0d0 
+	end do
+
+	ind = 1;
+	! calc maps for diff k and combine to get full matrix
+	do k=0,m1 ! =m1 for detuning case, to include diag elem
+			ntot = pntr(k+2) - pntr(k+1);
+			do i2=1,nt
+				it2 = itl(i2);
+				if(k <= m1s(i2) .and. k < ms(i2)) then ! only diagonal
+					kdw = (ms(i2) - k)*dw;! full value
+					eig(it2)%eval(ind:ind+ntot-1) = kdw;
+				endif
+			end do ! i2
+			ind = ind+ntot; 		
+	end do ! k
+
+	return
+	end subroutine DiagHgMulti
+!------------------------------------------
 
 
 	
