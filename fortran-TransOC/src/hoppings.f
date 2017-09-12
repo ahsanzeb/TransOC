@@ -94,6 +94,7 @@
 		! Exciton non-radiative decay
 		if( .not. nogamma) then
 			do is=1,na
+				!write(*,*)"hop: gamma; is=",is
 				call LossGamma(is);
 				if(PermSym) exit; ! only a single site/case for each hop type
 			end do

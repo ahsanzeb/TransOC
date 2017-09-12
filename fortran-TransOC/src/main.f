@@ -19,9 +19,12 @@
 	integer :: stath(26),statc(4),ntrap,stathc(26,4)
 	integer :: totcharge,charge
 	double precision:: tottime, dt
-	integer:: trapiter,s,iss,nc,ns
+	integer:: trapiter,s,iss,nc,ns,seed
 	logical :: found
-	
+
+	! time stamp & random seed 
+	call timestamp
+
 	stath = 0; statc = 0; zt = 0; ntrap = 0;
 	stathc = 0;
 	
@@ -100,7 +103,7 @@
 			rate(ih)%rcs(:,:) = 0.0d0
 		enddo
 
-	write(*,*) "main: nog=T; ipsi =  ",ipsi
+	!if(nog)write(*,*) "main: nog=T; ipsi =  ",ipsi
 
 
 		! All available hops: 
@@ -130,7 +133,10 @@
 				ntrap = 	ntrap +1;
 				trapiter = iter;
 			endif		
-			if (nog) stop
+			if (nog) then
+				write(*,*) "main: trap encountered! , iter = ",iter
+				goto 99
+			endif
 			! psi2, Einit2, 
 			!	in case the lowest state psi sees a trap,
 			! we will use this state to get us out

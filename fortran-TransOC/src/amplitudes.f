@@ -155,6 +155,7 @@
      .		qt(ia)%cs(ic,is)%amp2,
      .		eig(itl)%nsec, eig(itl)%ind)
 	endif
+
 	
 	return
 	end subroutine CalAmp0

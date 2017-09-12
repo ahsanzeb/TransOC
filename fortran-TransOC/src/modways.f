@@ -177,17 +177,24 @@
 	integer :: la,lo,n0,n1,n2,two=2
 	integer, dimension(sys%n1+2) :: Asitesx
 
-	Asitesx = 0
-	
 	if (ih > 8 .and. ih < 25 ) then
 		write(*,*) "UpdateOcc: ERROR!!!"
 		write(*,*) "contact processes not done yet"
 		stop
 	endif
 
-	la = ways(ih)%active(is)
-	lo = ways(ih)%sites(is)
+	if(ih <= 8) then
+		la = ways(ih)%active(is)
+		lo = ways(ih)%sites(is)
+	elseif(ih >= 9 .and. ih <= 24) then
+			! contacts case, write later
+	else
+		! kappa/gamma, no change in occ
+		return
+	endif
 
+	Asitesx = 0
+	
 	n0 = sys%n0; ! no of phi site
 	n1 = sys%n1; ! no of active site
 	n2 = sys%n2; ! no of d site

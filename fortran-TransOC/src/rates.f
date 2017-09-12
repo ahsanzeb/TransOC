@@ -32,7 +32,6 @@
 	!write(*,*) "rates  3"
 	if (.not. nolosses) call totr('losses',1)
 	if (.not. onlybulk) call totr('contacts',1)
-	!write(*,*) "rates  4"
 	return
 	end subroutine CalRates
 
@@ -108,31 +107,38 @@
 		! caivty losses
 		ih=25; ic=1; is=1
 		rate(ih)%rcs(:,:) = 0.0d0
-		if (.not. nokappa .and. nx > 0) then
+		if ((.not. nokappa) .and. nx > 0) then
 			call ratehcs(ih,ic,is)
-			rate(ih)%r = rate(ih)%rcs(ic,is); ! total rate for ih hop
+			rate(ih)%r = ts(ih,ic)*rate(ih)%rcs(ic,is); ! total rate for ih hop
+			!write(*,*) "rate:  kappa ==> ",rate(ih)%r
 		else
 			rate(ih)%r = 0.0d0
 		endif
+		!write(*,*) "rate:  kappa ==> ",rate(ih)%r
+
 		! exciton losses
-		ih=25; ic=1;
+		ih=26; ic=1;
 		rate(ih)%rcs(:,:) = 0.0d0
-		if (.not. nogamma .and. nx*na > 0 ) then ! both na, nx >0
+		if ((.not. nogamma) .and. nx*na > 0 ) then ! both na, nx >0
 			do is=1,na
 				call ratehcs(ih,ic,is)
 				if(PermSym) then ! total rate = (rates for one site) * ns
 					rate(ih)%rcs(ic,is)=
-     .       ts(ih,ic)*rate(ih)%rcs(ic,is)*ways(ih)%ns
+     .       ts(ih,ic)*rate(ih)%rcs(ic,is)*na
 				else
 					rate(ih)%rcs(ic,is)=ts(ih,ic)*rate(ih)%rcs(ic,is)
 				endif
+
 				if(PermSym) exit; ! only a single site/case for each hop type
+
 			end do
 			rate(ih)%r = sum(rate(ih)%rcs(:,:)); ! total rate for ih hop
+			!write(*,*) "rate:  gamma ==> ",rate(ih)%r
 		else
 			rate(ih)%r = 0.0d0
 		endif
-		
+		!write(*,*) "rate:  gamma ==> ",rate(ih)%r
+
 	case('contacts')
 	!-------------------------------------------------
 	! ih:9-24; R/L contacts injection/extraction of e/h
@@ -161,12 +167,12 @@
 	integer :: nsec, ia,icl,itl,i
 	double precision:: x,y
 
+
 	! if no available hops, set rate = 0
-	if (ways(ih)%ns == 0) then
+	if (ih <= 8 .and. ways(ih)%ns == 0) then
 		rate(ih)%rcs(ic,is) = 0.d0
 		return
 	endif
-
 
 	! conditions on nx for ih=1-4
 	if(nx==0) then
@@ -183,7 +189,6 @@
 		endif
 	endif
 
-
 	! conditions on nx for ih=7,8
 	if (ih==7 .or. ih==8) then
 		if ( (ic < 3 .and. nx .lt. 1) .or. 
@@ -193,11 +198,17 @@
 			return 
 		endif
 	endif
-	
+
 	! locations of data
 	itl = mapt%map(itypes(ih,ic)) ! location of final hilber space
 	ia = maph(ih,ic); ! location of amplitudes
 	icl = mapc(ih,ic); ! localtion of ic; icl=ic except ih=8, ic 1,2 swapped
+
+	!write(*,*)"rate -------------"
+	!if(ih==26) then
+	!	write(*,*)"amp2 alloc:",allocated(qt(ia)%cs(icl,is)%amp)
+	!	write(*,*)"amp2 alloc:",allocated(qt(ia)%cs(icl,is)%amp2)
+	!endif
 
 	! no of degenerate sectors
 	nsec = eig(itl)%nsec 
@@ -209,7 +220,7 @@
 
 	! rates; total for this hop/hchannel/site
 
-	!if(nog .and. sum(qt(ia)%cs(icl,is)%amp2)<1.d-6 )
+
 	rate(ih)%rcs(ic,is) =
      .   sum(PenaltyArray(de,nsec) * qt(ia)%cs(icl,is)%amp2)
 
@@ -236,8 +247,6 @@
 		write(*,*)"qt(ia)%cs(icl,is)%amp2=",qt(ia)%cs(icl,is)%amp2
 		stop
 	endif
-
-
 
 	!write(*,*) "rates:********************"
 	!write(*,*) "ih,ic, dqc(ih,ic) = ",ih,ic, dqc(ih,ic)

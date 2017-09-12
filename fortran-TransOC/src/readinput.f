@@ -49,7 +49,7 @@
 	PermSym = .false.
 	nokappa = .false.
 	nogamma = .false.	
-
+	nolosses = .false.
 	!--------------------------!
 	!     read from input.in   !
 	!--------------------------!
@@ -86,10 +86,10 @@
 	!case('SameLightMoleculeCoupling') !set always to true as diff g not implemented yet
 	!	read(50,*,err=20) sameg
 
-	case('DirectSolverSize')
+	case('DirectSolverSize','smalln')
 		read(50,*,err=20) smalln
 
-	case('IterSolverMaxIter')
+	case('IterSolverMaxIter','diagmaxitr')
 		read(50,*,err=20) diagmaxitr
 
 	case('NBasisSets')
@@ -98,7 +98,7 @@
 	case('NHilbertSpaces')
 		read(50,*,err=20) NHilbertSpaces
 
-	case('NLowDegSectors') 
+	case('NLowDegSectors','ndsec') 
 		read(50,*,err=20) ndsec
 		! dynamics will be restricted to low lying degenerate
 		! sectors only by energetic penalty, so no need to
@@ -108,10 +108,10 @@
 		read(50,*,err=20) fixmap
 		write(*,*) "DontReuseData = ",fixmap
 
-	case('CavityMoleculeCoupling')
+	case('CavityMoleculeCoupling','g')
 		read(50,*,err=20) g
 
-	case('NoCoupling')
+	case('NoCoupling','nog')
 		read(50,*,err=20) nog
 
 	case('BulkHoppingParameters')
@@ -123,7 +123,7 @@
 	case('BlockInjection')
 		read(50,*,err=20) EBlock, HBlock
 
-	case('Geometry')
+	case('Geometry','geometry')
 		read(50,*,err=20) Geometry
 		if (trim(Geometry) == 'periodic') then
 			periodic = .true.
@@ -139,25 +139,28 @@
 			stop
 		endif
 
-	case('ContactsBarriers')
+	case('ContactsBarriers','Barriers','barriers')
 		read(50,*,err=20) Ebr,Ebl
 
-	case('EFieldNNSEnergy')
+	case('EFieldNNSEnergy','Er')
 		read(50,*,err=20) Er
 
-	case('ExcitonEnergy')
+	case('ExcitonEnergy','w0')
 		read(50,*,err=20) w0
 
-	case('Detuning')
+	case('Detuning','detuning','dw')
 		read(50,*,err=20) dw
 
-	case('Kappa')
+	case('Kappa','kappa')
 		read(50,*,err=20) kappa
 
-	case('Gamma')
+	case('Gamma','gamma')
 		read(50,*,err=20) gamma
 
-	case('Beta')
+	case('NoLosses','Nolosses','nolosses')
+		read(50,*,err=20) nolosses
+
+	case('Beta','beta')
 		read(50,*,err=20) beta
 
 	case('CrossHops','Crosshops','crosshops')
@@ -185,22 +188,63 @@
 30			continue
 	close(50)
 
+	!write(*,*)"1. kappa,gamma; nokappa,nogamma",
+  !   . kappa,gamma, nokappa,nogamma
+
+	!write(*,*)"1. nolosses = ",nolosses
+
+	!--------------------------
+	! keep the order 
+	!--------------------------
+	if(abs(g)<1.0d-2) nog = .true.
 	if (nog) then
-		AlwaysLP = .false.
-		sameg = .true.
+		AlwaysLP = .false. ! stay in the state (= ksub set) after a transition
+		sameg = .true. ! g=0 for all molecules
 	endif
+	!--------------------------
+
+
+	!--------------------------
+	! keep the order 
+	!--------------------------
+	! if asked in input
+	if(nolosses) then 
+		nokappa = .true.;
+		nogamma = .true.;
+	endif
+	! if kappa/gamma rates are too small
+	if(kappa < 1.d-6) nokappa = .true.
+	if(gamma < 1.d-6) nogamma = .true.
+	if(nokappa .and. nogamma) then 
+		nolosses = .true.
+	else ! 
+		nolosses = .false.
+	endif
+	!--------------------------
+
+	
 
 	if(abs(dw) > 1.d-6) detuning=.true.
 
-	if(kappa < 1.d-6) nokappa = .true.
-	if(gamma < 1.d-6) nogamma = .true.
-	if(AlwaysLP) PermSym = .true.; ! XXXXX add conditions on gi=g/ei=w0 
-
+	
+	if(AlwaysLP)then
+		PermSym = .true.; ! XXXXX add conditions on gi=g/ei=w0 
+	else
+		PermSym = .false.; 
+	endif
+	
 	if(thl < 1.d-6 .and. tlh < 1.d-6) then
 		crosshops = .false.
 		write(*,*) "main: tlh and thl are too small so no crosshops"
 	endif
-	
+
+
+	!write(*,*)"2. nolosses = ",nolosses
+
+	!write(*,*)"2. kappa,gamma; nokappa,nogamma",
+  !   . kappa,gamma, nokappa,nogamma
+
+
 	return
 	end subroutine
 !************************************************

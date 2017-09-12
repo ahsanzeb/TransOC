@@ -13,9 +13,6 @@
 	! local
 	integer :: i,ina, n0,n1,n2
 
-
-
-
 	!-----------------------------------------
 	allocate(basis(NBasisSets))
 	allocate(eig(NHilbertSpaces))
@@ -160,10 +157,6 @@
 	!-----------------------------------------
 	call SetDQC()
 	!-----------------------------------------
-
-
-
-
 
 	! only bulk processes? nh=1-8
 	!nh = 26;
