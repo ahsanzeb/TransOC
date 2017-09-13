@@ -169,8 +169,8 @@
 
 		! assign this location
 		map(it) = dnmaxi
-		write(*,*)"map: Found, na vs N(it) = ",na, Hg(dnmaxi)%n
-		write(*,*)"map: ndrop, j-ndrop = ",ndrop, j-ndrop
+		!write(*,*)"map: Found, na vs N(it) = ",na, Hg(dnmaxi)%n
+		!write(*,*)"map: ndrop, j-ndrop = ",ndrop, j-ndrop
 		call Drop4(slots(1:j-ndrop), j-ndrop, dnmaxi,slots(1:j-ndrop-1))
 		ndrop = ndrop + 1
 		

@@ -8,12 +8,24 @@
 !-----------------------------------------
 !	initialise some global variables
 !-----------------------------------------
-	subroutine initialise()
+	subroutine initialise(nelec)
 	implicit none
+	integer, intent(in) :: nelec ! number of electrons
 	! local
-	integer :: i,ina, n0,n1,n2
+	integer :: i,ina, n0,n1,n2,coun
+
+
+	if(nelec==0 .or. nelec >= 2*nsites) then
+		write(*,*)"Error(init): Nelectron = 0 or >= Nsites !"
+		write(*,*)"Charge transport cannot occur!"
+		stop
+	endif
+
 
 	!-----------------------------------------
+	if (allocated(basis)) deallocate(basis)
+	if (allocated(eig)) deallocate(eig)
+	if (allocated(Hg)) deallocate(Hg)
 	allocate(basis(NBasisSets))
 	allocate(eig(NHilbertSpaces))
 	allocate(Hg(NHilbertSpaces))
@@ -23,31 +35,44 @@
 	Hg(:)%n = -1; Hg(:)%m = -1; Hg(:)%m1 = -1;
 	!------------------------------------------
 
-
-
-
-
 	!------------------------------------------
 	!	sys: nsites, occ; na, Asites
 	!------------------------------------------
 	sys%nsites = nsites
+	if (allocated(sys%occ)) deallocate(sys%occ)
 	allocate(sys%occ(nsites))
+
+	write(*,*)" init: Nsites = ",nsites
+
+
+	ina = 0; coun = 0;
+	sys%occ(:) = 0;
+	do while (ina < nelec)
+		i = int(1+nsites*rand(0));
+		write(*,*)"i  = ",i
+		if (	sys%occ(i) < 2 ) then
+			sys%occ(i) = sys%occ(i) + 1;
+			ina = ina + 1;
+		endif	
+		!if(ina == nelec) exit
+	enddo
 
 	n0 = 0;n1=0;n2=0;
 	do i=1,nsites
-		sys%occ(i) =  int(rand(0)*(3)) ! random 0,1,2; just to test
-		if (sys%occ(i)==0) then
+		if(sys%occ(i)==0) then
 			n0 = n0 +1
-		elseif(sys%occ(i)==1)then
-			n1 = n1 +1
-		elseif(sys%occ(i)==2)then
+		elseif(sys%occ(i)==1) then
+			n1 = n1 + 1
+		elseif(sys%occ(i)==2) then
 			n2 = n2 +1
 		else
-			write(*,*) "init: Error, sys%occ(i) != 0,1,2 "
-			stop
-		endif	
+			write(*,*) "Error(init): sys%occ(i)>2 ? "
+			stop 
+		endif
 	enddo
+
 	! set Asites
+	if (allocated(Asites)) deallocate(Asites)
 	allocate(Asites(n1))
 	ina = 1;
 	do i=1,nsites
@@ -64,9 +89,6 @@
 
 	na = n1;
 	write(*,*)"init: na = ",na
-
-	!na = 10; nx = 3;
-	!write(*,*)"init: TESTING DIAG: LARGER na = ",na
 	
 	!-----------------------------------------
 	! initialise ways, mapb, mapt

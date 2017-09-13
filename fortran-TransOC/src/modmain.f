@@ -17,6 +17,10 @@
 
 	! total number of sites in the system
 	integer:: nsites
+
+	! number of electrons 
+	integer :: nel,nelmin,nelmax,dnelec ! nel will stay fixed if no contacts
+	
 	! active sites
 	integer:: na
 	! number of excitatons
@@ -24,6 +28,9 @@
 
 	! total number of iterations/hops in the trajectory
 	integer:: niter
+
+	! number of trajectories
+	integer :: ntraj
 	
 	! L-H and H-L cross hops allowed? 
 	logical :: crosshops 

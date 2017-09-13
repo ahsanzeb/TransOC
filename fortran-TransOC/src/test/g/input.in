@@ -1,0 +1,67 @@
+
+nolosses
+T
+
+debug
+F
+
+NoCoupling
+F
+
+! number of sites in the system
+
+Nsites
+ 10
+
+NElectronsRange
+1 19 2
+
+
+Nexcitations
+5
+
+!DontReuseData
+!F
+
+Detuning
+0.0
+
+
+! above this size, iterative arpack solver will be used
+!	to diagonalise Hamiltonians
+DirectSolverSize
+50
+
+IterSolverMaxIter
+500
+
+Kappa
+0.1
+
+Gamma
+0.1
+
+crosshops
+T
+
+BulkHoppingParameters
+1.0 1.0 0.0 1.0
+
+
+
+Niter
+500
+
+Ntraj
+20
+
+
+Beta
+40.0
+
+!iter =       9997  N, m =         10         7
+! grep '  N, m =' out | cut -c28-60 > nm-out
+
+!grep 'iter =          1  N, m =' out | cut -c28-60 > initNm-out
+
+

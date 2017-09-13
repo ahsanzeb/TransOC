@@ -19,43 +19,47 @@
 	integer :: stath(26),statc(4),ntrap,stathc(26,4)
 	integer :: totcharge,charge
 	double precision:: tottime, dt
-	integer:: trapiter,s,iss,nc,ns,seed
-	logical :: found
+	integer:: trapiter,s,iss,nc,ns,itraj,nex,nelec
+	logical :: found,alloc
 
 	! time stamp & random seed 
 	call timestamp
 
-	stath = 0; statc = 0; zt = 0; ntrap = 0;
+	stath = 0; statc = 0; 
 	stathc = 0;
+	alloc = .false.
 	
-	totcharge=0; tottime=0.0d0
-	trapiter=0
-	write(*,*) "transoc: in amplitudes: test HtUf = 1.0d0;"
-
-
-	! start message
-	write(*,*) "transoc: started.... "
-
-	if(debug) write(*,*)"main: "
 	! readinput file
 	call input()
-	
+
+
+	nex = nx; ! copy for each trajectory
+	do nelec = nelmin,nelmax,dnelec
+		do itraj=1,ntraj
+	!********************** trajectories *************
+
+		zt = 0; ntrap = 0;
+		totcharge=0; tottime=0.0d0
+		trapiter=0
+
 	!	initialise maps etc
 	! set no of active sites and excitations
-	call initialise()
-
+	nx = nex;
+	call initialise(nelec)
 
 	! put this in init?
 	if(nog) then
 		ipsi = 1;
 		Einit = nx*dw;
 	endif
-	
+
+	!========== iterations over number of hops
 	! main loop over number of hops asked
 	do iter=1,niter
 
 		write(*,'(a)') ". . . . . . . . . . . . "
-		write(*,'(a,i10,a,2i10)') " iter = ",iter,"  N, m = ",na,nx
+		write(*,'(a,i10,a,i10,a,2i10)') " itraj = ",itraj,
+     .               " iter = ",iter,"  N, m = ",na,nx
 		write(*,*)          
 		
 		! make basis states ksub
@@ -87,18 +91,18 @@
 		
 		write(*,*)"sys%occ = ",sys%occ
 
-		if(iter==1) then
-			write(*,*) "sys%nsites = ",sys%nsites
+		if(.not. alloc) then
 			! at most nsites ways for any hop???
-			do ia=1,14
-				allocate(qt(ia)%cs(4,sys%nsites)) ! alloc/deallocate at every iteration...
-			enddo
-			! allocate space for rates
-			do ih=1,26 ! testing... alloc 26 all 
-				allocate(rate(ih)%rcs(4,sys%nsites))! alloc/deallocate at every iteration...
-			enddo
+				do ia=1,14
+					allocate(qt(ia)%cs(4,sys%nsites)) ! alloc/deallocate at every iteration...
+				enddo
+				! allocate space for rates
+				do ih=1,26 ! testing... alloc 26 all 
+					allocate(rate(ih)%rcs(4,sys%nsites))! alloc/deallocate at every iteration...
+				enddo
+				alloc = .true.
 		endif
-		
+
 		do ih=1,26
 			rate(ih)%rcs(:,:) = 0.0d0
 		enddo
@@ -238,11 +242,6 @@
 			dt=1.0d0/sum(rate(:)%r)
 			totcharge = totcharge + charge
 			tottime = tottime + dt
-			open(200,file='current.out',action='write',position='append')
-			write(200,*) !'(i5,5x,2f15.10)')
-     .    charge, dt, totcharge*1.0d0/tottime ! so far
-			close(200)
-			!else ! will see it later
 		endif
 		!-------------------------------
 
@@ -282,18 +281,35 @@
 		endif
 
 	enddo ! iter
-
 	write(*,*)"transoc: niter hops done.... " 
+	!===================================================== 
 
 99		continue
+
+	open(200,file='current.out',action='write',position='append')
+	write(200,*) !'(i5,5x,2f15.10)')
+     .    totcharge, tottime, totcharge*1.0d0/tottime, zt, ntrap, nelec
+	if(itraj == ntraj) then
+		write(200,*)
+		write(200,*)
+	endif
+	close(200)
+	!else ! will see it later
+
+	enddo ! itraj
+	!********************** trajectories *************
 
 	! hops statistics
 	do i=1,8
 		write(*,'(a,i5,5x,4i10)')'ih = ',i,stathc(i,:)
 	enddo
+	write(*,'(a,i5,5x,4i10)')'ih = ',25,stathc(25,:)
+	write(*,'(a,i5,5x,4i10)')'ih = ',26,stathc(26,:)
+
+	enddo ! ielectron
 
 	!	do postprocessing....
-	write(*,*)"zt = ",zt
+	!write(*,*)"zt = ",zt
 	
 
 	! completion message...

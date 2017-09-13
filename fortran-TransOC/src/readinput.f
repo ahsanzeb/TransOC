@@ -14,6 +14,9 @@
 	character(40) :: block
 	character(20):: Geometry
 	integer :: iostat
+	logical :: givenNel,givenNelrange
+
+	givenNel = .false.; givenNelrange=.false.
 
 	!--------------------------!
 	!     default values       !
@@ -21,8 +24,11 @@
 
 	debug = .false.
 	nsites = 5;
+	nel = nsites;
+	nelmin=nsites; nelmax=nsites;
 	nx = 1;
-	niter = 20;
+	niter = 500;
+	ntraj = 10;
 	NBasisSets = 5;
 	NHilbertSpaces=13;
 	smalln = 50;
@@ -77,11 +83,22 @@
 	case('Nsites')
 		read(50,*,err=20) nsites
 
+	case('NElectrons','nelectrons','Nelectrons')
+		read(50,*,err=20) nel
+		givenNel = .true.
+
+	case('NElectronsRange','nelectronsrange','Nelectronsrange')
+		read(50,*,err=20) nelmin, nelmax,dnelec
+		givenNelrange = .true.;
+		
 	case('Nexcitations')
 		read(50,*,err=20) nx
 
 	case('Niter')
 		read(50,*,err=20) niter
+
+	case('Ntraj','ntraj')
+		read(50,*,err=20) ntraj
 
 	!case('SameLightMoleculeCoupling') !set always to true as diff g not implemented yet
 	!	read(50,*,err=20) sameg
@@ -238,12 +255,16 @@
 		write(*,*) "main: tlh and thl are too small so no crosshops"
 	endif
 
+	if (.not. givenNel) nel = nsites
+	if (.not. givenNelrange) then
+		nelmin=nel; nelmax=nel; dnelec=1;
+	endif
 
-	!write(*,*)"2. nolosses = ",nolosses
-
-	!write(*,*)"2. kappa,gamma; nokappa,nogamma",
-  !   . kappa,gamma, nokappa,nogamma
-
+	if(nelmin <= 0 .or. nelmax >= 2*nsites) then
+		nelmin = 1; nelmax = 2*nsites-1; dnelec=1;
+		write(*,*)"Warning(readinput): NElectronsRange invalid!"
+		write(*,*)" changed to sensible min, max values."
+	endif
 
 	return
 	end subroutine
