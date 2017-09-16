@@ -13,8 +13,12 @@ F
 Nsites
  10
 
+
+DetuningRange
+-2.0 2.0 0.2
+
 NElectronsRange
-1 19 2
+5 14 1
 
 
 Nexcitations
@@ -50,7 +54,7 @@ BulkHoppingParameters
 
 
 Niter
-500
+300
 
 Ntraj
 20
@@ -58,6 +62,14 @@ Ntraj
 
 Beta
 40.0
+
+
+NBasisSets
+10
+
+NHilbertSpaces
+20
+
 
 !iter =       9997  N, m =         10         7
 ! grep '  N, m =' out | cut -c28-60 > nm-out

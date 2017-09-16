@@ -61,9 +61,6 @@
 
 	end subroutine multiplyd
 !-----------------------------------	
-
-
-
 	subroutine multiplydc(col,nnz,mat,n1,n2,matf,n3,n4)
 	!use kinds, only: EvecKind
 	! use only when:			
@@ -100,5 +97,91 @@
 
 	end subroutine multiplydc
 !-----------------------------------	
+!  	for rho_init to rho_final:
+! 		multiply2, multiplyd2, multiplydc2
+! 		two steps:
+! 			1. ir-th row of rho_init to ic-th row of aux
+!			2. ic-th col of aux to ir-th col of rho_final;
+!		ir,ic are row and col indices of 
+!		non-zero (=1) elements of Ht
+!-----------------------------------	
+	subroutine multiply2(row,col,nnz,mat,n1,n2,matf)
+	! Ht's in the format of multiply, row and col indices
+	implicit none
+	integer, intent(in) :: nnz,n1,n2
+	integer, dimension(nnz), intent(in) :: row ! Ht map, row indices
+	integer, dimension(nnz), intent(in) :: col ! Ht map, col indices
+	double precision, dimension(n1,n1), intent(in) :: mat ! rho_init
+	double precision, dimension(n2,n2), intent(out) :: matf ! Ht^T.rho_init.Ht
+
+	! local
+	double precision, dimension(n2,n1):: aux! Ht.Uf
+	integer :: i
+	matf = 0.d0;
+	aux = 0.0d0;
+	! aux = HtT.rho; HtT = Transpose(Ht)
+	! ir-th row to ic-th row
+	do i=1,nnz
+		aux(col(i),:) = mat(row(i),:)
+	end do
+	!	aux.Ht; 
+	! ic-th col to ir-th col; (ic,ir map of Ht)
+	do i=1,nnz
+		matf(:,row(i)) = aux(:,col(i))
+	end do
+	
+	end subroutine multiply
+!-----------------------------------	
+	subroutine multiplyd2(row,nnz,mat,n1,n2,matf)
+	! Ht format given in multiplyd()
+	implicit none
+	integer, intent(in) :: nnz,n1,n2,n3,n4
+	integer, dimension(nnz), intent(in) :: row ! Ht map
+	double precision, dimension(n1,n1), intent(in) :: mat  !
+	double precision, dimension(n2,n2), intent(out) :: matf! 
+
+	! local
+	integer :: i,j
+	double precision, dimension(n2,n1):: aux
+
+	aux = 0.0d0
+	do i=1,nnz
+		j = row(i)
+		aux(j,:) = mat(j,:)
+	end do
+
+	matf = 0.0d0
+	do i=1,nnz 
+		j = row(i)
+		matf(:,j) = aux(:,j)
+	end do
+	
+	end subroutine multiplyd
+!-----------------------------------	
+	subroutine multiplydc(col,nnz,mat,n1,n2,matf,n3,n4)
+	! Ht format given in multiplydc()
+	implicit none
+	integer, intent(in) :: nnz,n1,n2
+	integer, dimension(nnz), intent(in) :: col ! Ht map
+	double precision, dimension(n1,n1), intent(in) :: mat 
+	double precision, dimension(n2,n2), intent(out) :: matf
+	! local
+	integer :: i
+	double precision, dimension(n2,n1):: aux
+
+	aux = 0.0d0
+	do i=1,nnz
+		aux(col(i),:) = mat(i,:)
+	end do
+	
+	matf = 0.0d0
+	do i=1,nnz
+		matf(:,i) = aux(:,col(i))
+	end do
+
+	end subroutine multiplydc
+!-----------------------------------	
+
+
 
 	end module modmultiply

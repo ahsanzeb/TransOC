@@ -19,7 +19,7 @@
 	integer :: stath(26),statc(4),ntrap,stathc(26,4)
 	integer :: totcharge,charge
 	double precision:: tottime, dt
-	integer:: trapiter,s,iss,nc,ns,itraj,nex,nelec
+	integer:: trapiter,s,iss,nc,ns,itraj,nex,nelec,idw,ielec
 	logical :: found,alloc
 
 	! time stamp & random seed 
@@ -33,8 +33,19 @@
 	call input()
 
 
+	!nelecmax = 1+int((nelmax-nelmin)/dnelec)
+
+	open(200,file='current.out',action='write')
+	write(200,*) ndw, 1+int((nelmax-nelmin)/dnelec),ntraj
+	close(200)
+
 	nex = nx; ! copy for each trajectory
+	! detuning
+	do idw=1,ndw
+	dw = dwmin + (idw-1)*ddw;
+	ielec=0
 	do nelec = nelmin,nelmax,dnelec
+		ielec=	ielec+1;
 		do itraj=1,ntraj
 	!********************** trajectories *************
 
@@ -287,12 +298,9 @@
 99		continue
 
 	open(200,file='current.out',action='write',position='append')
+	if(itraj == 1) write(200,*) "# idw, ielec",idw,ielec
 	write(200,*) !'(i5,5x,2f15.10)')
-     .    totcharge, tottime, totcharge*1.0d0/tottime, zt, ntrap, nelec
-	if(itraj == ntraj) then
-		write(200,*)
-		write(200,*)
-	endif
+     . totcharge, tottime, totcharge*1.0d0/tottime,zt,ntrap,nelec
 	close(200)
 	!else ! will see it later
 
@@ -307,7 +315,7 @@
 	write(*,'(a,i5,5x,4i10)')'ih = ',26,stathc(26,:)
 
 	enddo ! ielectron
-
+	enddo ! idw
 	!	do postprocessing....
 	!write(*,*)"zt = ",zt
 	

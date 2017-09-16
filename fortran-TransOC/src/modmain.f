@@ -20,7 +20,10 @@
 
 	! number of electrons 
 	integer :: nel,nelmin,nelmax,dnelec ! nel will stay fixed if no contacts
-	
+
+	! DetuningRange
+	double precision :: dwmin, dwmax, ddw
+	integer :: ndw
 	! active sites
 	integer:: na
 	! number of excitatons

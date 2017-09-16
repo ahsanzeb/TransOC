@@ -378,9 +378,43 @@ classical hop $\alpha$ with quantum transition to degenerate sector $\beta$,
  then
 the final state is
 \begin{gather}
-\ket{\psi_{N_{\alpha},m_{\alpha}}}= \sum_{i\in\beta} C_{\alpha,i} \ket{\phi_{N_{\alpha},m_{\alpha}}^i}.
+\ket{\psi^{\beta}_{N_{\alpha},m_{\alpha}}}= \sum_{i\in\beta} C_{\alpha,i} \ket{\phi_{N_{\alpha},m_{\alpha}}^i}.
 \end{gather}
-Once we update the overall state, i.e., the set of $D$ and $\phi$, $(N,m)$ and the quantum state, the cycle starts again.
+The overall state, i.e., the set of $D$ and $\phi$, $(N,m)$ and the quantum state, is updated. 
+It is assumed that due to the interaction with the environment (low energy vibrations etc), 
+the quantum state quickly relaxes to the lowest eigenstate of new sub-Hilbert space.
+
+The cycle starts again,
+unless this lowest energy state becomes a deep trap that cannot be escaped with the allowed transitions on the next iteration.
+
+The density matrix for the final quantum state 
+(superposition of eigenstates in the final degenerate sector)
+is assumed to be pure just after the hop occurs. 
+
+
+\begin{gather}
+\rho(t=0) = \sum_{\beta}
+f(\Delta E_{\alpha,\beta})
+\ket{\psi^{\beta}_{N_{\alpha},m_{\alpha}}}
+\bra{\psi^{\beta}_{N_{\alpha},m_{\alpha}}}
+\end{gather}
+
+--- solve master equation in eigenstates space, including decay to lower energy states
+and pure dephasing destroying the superposition of states in degenerate sectors.
+
+
+
+
+
+
+
+
+
+
+
+
+
+%Once we update the overall state, i.e., the set of $D$ and $\phi$, $(N,m)$ and the quantum state, the cycle starts again.
 %We calculate transition matrices for all such possible ways of all hops for all channels, then compute the probabilities of all possible quantum transitions and weigh them with a penalty function for the classical hops that depends on the energetic difference between the initial and final electron state, applied electric field and intermolecular distance, etc.
 
 The details of how the transition matrices are calculated and the Monte Carlo dynamics is performed

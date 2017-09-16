@@ -14,9 +14,10 @@
 	character(40) :: block
 	character(20):: Geometry
 	integer :: iostat
-	logical :: givenNel,givenNelrange
+	logical :: givenNel,givenNelrange,givenDwRange
 
 	givenNel = .false.; givenNelrange=.false.
+	givenDwRange=.false.
 
 	!--------------------------!
 	!     default values       !
@@ -46,6 +47,7 @@
 	Er = 1.0d0
 	w0 = 2.0d0
 	dw = 0.0d0
+	dwmin=0.0; dwmax=0.0; ddw=0.0
 	detuning = .false.
 	kappa = 0.1 !0.005d0 ! ref to th=1.0d0; scale times proportionally tp th.
 	gamma = 0.1 !0.005d0
@@ -90,6 +92,10 @@
 	case('NElectronsRange','nelectronsrange','Nelectronsrange')
 		read(50,*,err=20) nelmin, nelmax,dnelec
 		givenNelrange = .true.;
+
+	case('DetuningRange','Detuningrange','detuningrange')
+		read(50,*,err=20) dwmin,dwmax,ddw
+		givenDwRange = .true.;
 		
 	case('Nexcitations')
 		read(50,*,err=20) nx
@@ -239,9 +245,31 @@
 	endif
 	!--------------------------
 
-	
 
-	if(abs(dw) > 1.d-6) detuning=.true.
+	!--------------------------
+	! detuning?
+	!--------------------------
+	if(abs(dw) > 1.d-6 .and. (.not. givenDwRange)) then
+		detuning=.true.
+		dwmin=dw
+		dwmax=dw
+		ddw=dw
+		ndw=1
+	elseif(givenDwRange) then
+		detuning=.true.
+		if(abs(dwmax-dwmin) < 1.d-6)then
+			write(*,*)"Warning(readinput): dwmax-dwmin too small!"
+		endif
+		ndw=int((dwmax-dwmin)/ddw) + 1;
+	else ! abs(dw) < 1.d-6, range not given
+		detuning=.false.
+		dwmin=dw !dw=0
+		dwmax=dw
+		ddw=dw
+		ndw=1
+	endif
+	!--------------------------
+
 
 	
 	if(AlwaysLP)then
