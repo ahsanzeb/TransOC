@@ -32,6 +32,7 @@
 	! readinput file
 	call input()
 
+	if(nog) write(*,*)" **** No Coupling! **** "
 
 	!nelecmax = 1+int((nelmax-nelmin)/dnelec)
 

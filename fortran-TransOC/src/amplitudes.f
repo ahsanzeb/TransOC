@@ -130,6 +130,8 @@
 		qt(ia)%cs(ic,is)%amp = 0.0d0
 		do i=1,nnz
 			if (rowc(i) == ipsi) then
+				write(*,*)"ih, ic,is = ",ih, ic,is
+				write(*,*)"ipsi, i, ir, ic = ",ipsi,i,rowc(i),col(i)
 				qt(ia)%cs(ic,is)%amp(col(i)) = 1.0d0
 				exit ! just a single entry
 			endif

@@ -197,6 +197,7 @@
 			! set this in case it is true from a prev run
 			Hg(it2)%dense = .false.
 			nev = pntr(min(ndsec,m1s(i))+2); ! ~ nsnev degen sectors
+			if(nev == ntot) nev = ntot - min(10,smalln); ! req: nev < ncv <= ntot
 			Hg(it2)%nev = nev;
 			Hg(it2)%ncv = min(2*nev, ntot);
 		endif		
@@ -452,6 +453,7 @@
 			! set this in case it is true from a prev run
 			Hg(itl(i))%dense = .false.
 			nev = pntr(min(ndsec,m1s(i))+2); ! ~ nsnev degen sectors
+			if(nev == ntot) nev = ntot - min(10,smalln); ! req: nev < ncv <= ntot
 			Hg(itl(i))%nev = nev;
 			Hg(itl(i))%ncv = min(2*nev, ntot);
 		endif		
@@ -649,7 +651,8 @@
 			! set this in case it is true from a prev run
 			Hg(itl(i))%dense = .false. 
 			nev = pntr(min(ndsec,m1s(i))+2); ! ~ nsnev degen sectors
-			if(nev > int(ntot/2)) nev = int(ntot/2)
+			!if(nev > int(ntot/2)) nev = int(ntot/2)
+			if(nev == ntot) nev = ntot - min(10,smalln); ! req: nev < ncv <= ntot
 			Hg(itl(i))%nev = nev;
 			Hg(itl(i))%ncv = min(2*nev, ntot);
 

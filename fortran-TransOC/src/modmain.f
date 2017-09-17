@@ -42,6 +42,10 @@
 	logical :: nog
 	integer :: ipsi ! to store index of state when nog=T
 
+
+	! minimum D, Phi carriers at start of a trajectory?
+	logical :: mincarriers
+	
 	! all molecules-light couplings same?
 	logical :: sameg
 	

@@ -130,12 +130,12 @@
 		matf(:,row(i)) = aux(:,col(i))
 	end do
 	
-	end subroutine multiply
+	end subroutine multiply2
 !-----------------------------------	
 	subroutine multiplyd2(row,nnz,mat,n1,n2,matf)
 	! Ht format given in multiplyd()
 	implicit none
-	integer, intent(in) :: nnz,n1,n2,n3,n4
+	integer, intent(in) :: nnz,n1,n2
 	integer, dimension(nnz), intent(in) :: row ! Ht map
 	double precision, dimension(n1,n1), intent(in) :: mat  !
 	double precision, dimension(n2,n2), intent(out) :: matf! 
@@ -156,9 +156,9 @@
 		matf(:,j) = aux(:,j)
 	end do
 	
-	end subroutine multiplyd
+	end subroutine multiplyd2
 !-----------------------------------	
-	subroutine multiplydc(col,nnz,mat,n1,n2,matf,n3,n4)
+	subroutine multiplydc2(col,nnz,mat,n1,n2,matf)
 	! Ht format given in multiplydc()
 	implicit none
 	integer, intent(in) :: nnz,n1,n2
@@ -179,7 +179,7 @@
 		matf(:,i) = aux(:,col(i))
 	end do
 
-	end subroutine multiplydc
+	end subroutine multiplydc2
 !-----------------------------------	
 
 

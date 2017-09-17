@@ -116,8 +116,8 @@
 		!	calc maps
 		call dhopsmap1(ib,k,l,mapa,la,mapbb,lb)
 		!	assign values to transition matrices
-		row1(inda:inda+la-1) = pntr(k) + mapa
-		row2(indb:indb+lb-1) = pntr(k) + mapbb
+		row1(inda:inda+la-1) = pntr(k+1) + mapa
+		row2(indb:indb+lb-1) = pntr(k+1) + mapbb
 		inda = inda+la; indb = indb+lb
 		deallocate(mapa,mapbb)
 	end do
@@ -235,7 +235,7 @@
 		! m1=0: empty chan 1,3 matrix ==> 0 transition matrix,
 		! handle it when calc amplitudes??????????
 		row2(1) = 1;
-		col4(1) = is; ! LexicoIndex((/ is /),n,1)
+		col4(1) = 1 + is; ! added 1 for k=0 sec; LexicoIndex((/ is /),n,1)
 		n3=1;
 		lbt=1;
 		! calculate transition amplitudes

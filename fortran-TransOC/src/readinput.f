@@ -58,6 +58,7 @@
 	nokappa = .false.
 	nogamma = .false.	
 	nolosses = .false.
+	mincarriers = .false.
 	!--------------------------!
 	!     read from input.in   !
 	!--------------------------!
@@ -136,6 +137,9 @@
 
 	case('NoCoupling','nog')
 		read(50,*,err=20) nog
+
+	case('MinCarriers','Mincarriers','mincarriers')
+		read(50,*,err=20) mincarriers
 
 	case('BulkHoppingParameters')
 		read(50,*,err=20) th, tl, tlh, thl

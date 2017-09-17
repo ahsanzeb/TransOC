@@ -16,7 +16,7 @@
 	double precision, dimension(27):: rlist ! accumulated rates
 	double precision:: eta
 
-	!write(*,*)"rates= ",rate(:)%r
+	write(*,*)"rates= ",rate(:)%r
 	! select ih stochastically
 	rlist(1) = 0.0d0;
 	do ih=1,26
@@ -52,6 +52,9 @@
 	double precision, allocatable:: rlist(:) ! accumulated rates
 	integer :: ntot,nc,ns,which,i
 	double precision:: eta
+
+	
+	write(*,*)"rate%rcs= ",rate(ih)%rcs(:,:)
 
 	nc = 1;
 	if (ih .le. 8) then

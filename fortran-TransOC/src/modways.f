@@ -69,11 +69,9 @@
 			allocate(ways(p)%sites(nps(p)))
 			ways(p)%active = act(p,1:nps(p))
 			ways(p)%sites = oth(p,1:nps(p))
-			!write(*,*) 'ways(p)%active = ',ways(p)%active
-			!write(*,*) 'ways(p)%sites = ',ways(p)%sites
 		endif
 	end do
-	
+
 	deallocate(act,oth)
 
 	!-----------------------------------

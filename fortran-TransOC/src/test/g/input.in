@@ -2,6 +2,9 @@
 nolosses
 T
 
+MinCarriers
+T
+
 debug
 F
 
@@ -18,7 +21,7 @@ DetuningRange
 -2.0 2.0 0.2
 
 NElectronsRange
-5 14 1
+8 12 1
 
 
 Nexcitations
@@ -49,7 +52,7 @@ crosshops
 T
 
 BulkHoppingParameters
-1.0 1.0 0.0 1.0
+1.0 1.0 1.0 1.0
 
 
 
@@ -57,7 +60,7 @@ Niter
 300
 
 Ntraj
-20
+10
 
 
 Beta

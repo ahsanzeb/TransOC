@@ -38,23 +38,28 @@ dat1 = a
 n = 10 - a[:,0,5];
 print(n)
 
-ax.plot(n, a[:,0,2], ls='', marker='^',ms=7, color='red',label='No Coupling');
-ax.plot(n, b[:,0,2], ls='', marker='<',ms=7, color='yellow',label='g = 0.3 eV');
-ax.plot(n, a[:,:,2], ls='', marker='^',ms=7, color='red');
-ax.plot(n, b[:,:,2], ls='', marker='<',ms=7, color='yellow');
+ax.plot(n, a[:,:,2], ls='', marker='x',ms=7, color='red');
+ax.plot(n, b[:,:,2], ls='', marker='x',ms=7, color='blue');
+ax.plot(n, np.sum(a[:,:,2],axis=1)/30, ls='', marker='o',ms=10, color='red',label='No Coupling');
+ax.plot(n, np.sum(b[:,:,2],axis=1)/30, ls='', marker='s',ms=10, color='blue',label='g = 0.3 eV');
+#ax.plot(n, a[:,:,2], ls='', marker='^',ms=10, color='red');
+#ax.plot(n, b[:,:,2], ls='', marker='<',ms=10, color='yellow');
+
 
 ax.set_xlabel("Net charge ($e$)",fontsize=20)
 ax.set_ylabel("Average Current ($e*t_h$)",fontsize=20)
 
+ax.set_title("Organic microcavity with 10 molecules",fontsize=20)
 ax.set_xlim(-10,10)
-ax.set_ylim(0,3.1)
+ax.set_ylim(0,3.2)
 
+ax.text(-4,3.05,"$\omega=\omega_0=2eV$, $E.r_{nns}=1eV$, PBC",fontsize=20)
 
 ax.legend(loc=2,frameon=False)
 
 plt.tight_layout();
 
-plt.savefig('plot-g.pdf', format='pdf');
+plt.savefig('current-average.pdf', format='pdf');
 
 plt.show()
 

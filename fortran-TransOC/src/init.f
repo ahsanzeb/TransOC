@@ -12,7 +12,7 @@
 	implicit none
 	integer, intent(in) :: nelec ! number of electrons
 	! local
-	integer :: i,ina, n0,n1,n2,coun
+	integer :: i,ina, n0,n1,n2
 
 
 	if(nelec==0 .or. nelec >= 2*nsites) then
@@ -38,58 +38,7 @@
 	!------------------------------------------
 	!	sys: nsites, occ; na, Asites
 	!------------------------------------------
-	sys%nsites = nsites
-	if (allocated(sys%occ)) deallocate(sys%occ)
-	allocate(sys%occ(nsites))
-
-	write(*,*)" init: Nsites = ",nsites
-
-
-	ina = 0; coun = 0;
-	sys%occ(:) = 0;
-	do while (ina < nelec)
-		i = int(1+nsites*rand(0));
-		write(*,*)"i  = ",i
-		if (	sys%occ(i) < 2 ) then
-			sys%occ(i) = sys%occ(i) + 1;
-			ina = ina + 1;
-		endif	
-		!if(ina == nelec) exit
-	enddo
-
-	n0 = 0;n1=0;n2=0;
-	do i=1,nsites
-		if(sys%occ(i)==0) then
-			n0 = n0 +1
-		elseif(sys%occ(i)==1) then
-			n1 = n1 + 1
-		elseif(sys%occ(i)==2) then
-			n2 = n2 +1
-		else
-			write(*,*) "Error(init): sys%occ(i)>2 ? "
-			stop 
-		endif
-	enddo
-
-	! set Asites
-	if (allocated(Asites)) deallocate(Asites)
-	allocate(Asites(n1))
-	ina = 1;
-	do i=1,nsites
-		if (sys%occ(i)==1) then
-			Asites(ina) = i;
-			ina = ina + 1;
-		endif
-	enddo
-
-	! set global var
-	sys%n0=n0;
-	sys%n1=n1;
-	sys%n2=n2;
-
-	na = n1;
-	write(*,*)"init: na = ",na
-	
+	call initOcc(nelec)
 	!-----------------------------------------
 	! initialise ways, mapb, mapt
 	!-----------------------------------------
@@ -233,5 +182,76 @@
 	return
 	end subroutine SetDQC
 !-----------------------------------------
+!------------------------------------------
+!	sys: nsites, occ; na, Asites
+!------------------------------------------
+	subroutine initOcc(nelec)
+	implicit none
+	integer, intent(in) :: nelec ! number of electrons
+	! local
+	integer :: i,ina, n0,n1,n2,maxocc
+
+	sys%nsites = nsites
+	if (allocated(sys%occ)) deallocate(sys%occ)
+	allocate(sys%occ(nsites))
+
+	write(*,*)" init: Nsites = ",nsites
+
+	ina = 0;
+	sys%occ(:) = 0;
+	maxocc = 2;
+	if(mincarriers) then
+		if(nelec < nsites) then
+			maxocc = 1;
+		else ! nelec >= nsites
+			sys%occ(:) = 1;
+			ina = nsites
+		endif
+	endif
+	
+	do while (ina < nelec)
+			i = int(1+nsites*rand(0));
+			write(*,*)"i  = ",i
+			if (	sys%occ(i) < maxocc ) then
+				sys%occ(i) = sys%occ(i) + 1;
+				ina = ina + 1;
+			endif	
+	enddo
+	
+	n0 = 0;n1=0;n2=0;
+	do i=1,nsites
+			if(sys%occ(i)==0) then
+				n0 = n0 +1
+			elseif(sys%occ(i)==1) then
+				n1 = n1 + 1
+			elseif(sys%occ(i)==2) then
+				n2 = n2 +1
+			else
+				write(*,*) "Error(init): sys%occ(i)>2 ? "
+				stop 
+			endif
+	enddo
+
+	! set Asites
+	if (allocated(Asites)) deallocate(Asites)
+	allocate(Asites(n1))
+	ina = 1;
+	do i=1,nsites
+		if (sys%occ(i)==1) then
+			Asites(ina) = i;
+			ina = ina + 1;
+		endif
+	enddo
+
+	! set global var
+	sys%n0=n0;
+	sys%n1=n1;
+	sys%n2=n2;
+
+	na = n1;
+	write(*,*)"init: na = ",na
+
+	return
+	end subroutine initOcc
 
 	end module init

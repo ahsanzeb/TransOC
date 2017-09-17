@@ -105,7 +105,6 @@
 !		write(*,*) "DPhiAn1: n = 0"
 	! allocate transition matrix: diagonal format
 		allocate(col1(1)) 
-		!allocate(col2(1)) 
 		col1(1) = 1 + 1 ! n+1 = 1 ==> ind=1 in k=1 sec
 		!col2(1) = 1 + 2 ! n+2 = 2 ==> ind=2 in k=1 sec
 														! 1 added for k=0 sector
@@ -125,17 +124,15 @@
 	ntot1 = pntr1(m1+2); ! total number of basis states
 	!ntot2 = pntr2(m2+2);
 	!write(*,*) "=======>>>>>> pntr2(m2+2)=",pntr2(m2+2)
-!	write(*,*) "DPhiAn1: pntr done .... "
+	!	write(*,*) "DPhiAn1: pntr done .... "
 
 	! allocate transition matrix: diagonal format
 	allocate(col1(ntot1)) 
-	!allocate(col2(ntot1)) 
 
 	!	calc the matrix
 
 	! k==0
-	col1(1) = n1;
-	!col2(1) = n2;
+	col1(1) = 1 + n1; ! pntr2(k+2) =1 
 
 !	write(*,*) "DPhiAn1: hop k=0 done .... "
 

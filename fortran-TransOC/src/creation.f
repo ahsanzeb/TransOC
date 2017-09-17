@@ -214,8 +214,8 @@
 	!	calc the matrix
 	!	init k=1 ===> final k'=1-1=0
 	ind = 1; ntot=1
-	row(1,1) = l1 ! l1 up in k=1 sec
-	row(1,2) = l2 ! l2 up in k=1 sec
+	row(1,1) = 1 + l1 ! l1 up in k=1 sec; pntr2(2) ==> 1
+	row(1,2) = 1 + l2 ! l2 up in k=1 sec
 	! final basis
 	col(1) = 1;! k=0 sec of final
 
@@ -424,8 +424,8 @@
 
 	! final | initial k=0 case: by hand for efficiency !
 	! no actual need to seperate from the k loop below
-	row(1) = 1 !(/1/)
-	col(1) = 1 !(/1/)
+	row(1) = 1 
+	col(1) = 1 
 
 	!	1 >= k <= m3=m2 cases; at least two dn req
 	ind = 2;

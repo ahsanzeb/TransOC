@@ -44,9 +44,9 @@
 					!	eig(it)%evec and eig(it)%eval
 					nev = Hg(it)%nev;
 					ncv = Hg(it)%ncv;
+					write(*,*) "=====> it, ntot, nev,ncv =",it,ntot,nev,ncv					
 					call iterdiag(it, ntot, nev, ncv)
 					write(*,*) "diag: iter done.... "
-					write(*,*) "=====> it, ntot, nev,ncv =",it,ntot, nev,ncv
 				endif
 
 				!write(*,*)"============ it = ",it
