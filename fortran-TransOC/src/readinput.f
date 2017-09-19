@@ -13,8 +13,8 @@
 	! local
 	character(40) :: block
 	character(20):: Geometry
-	integer :: iostat
-	logical :: givenNel,givenNelrange,givenDwRange
+	integer :: iostat,i,j
+	logical :: givenNel,givenNelrange,givenDwRange,givenNexcit
 
 	givenNel = .false.; givenNelrange=.false.
 	givenDwRange=.false.
@@ -37,7 +37,7 @@
 	diagmaxitr = 150;
 	sameg = .true.
 	fixmap = .false.
-	ndsec = 2;
+	ndsec = 3;
 	g = 0.3d0;
 	th = 1.0d0; tl=1.0d0; tlh=0.005d0; thl=1.0d0;
 	JhR=10*th; JlR=10*th; JhL=10*th; JlL=10*th;
@@ -59,6 +59,11 @@
 	nogamma = .false.	
 	nolosses = .false.
 	mincarriers = .false.
+	givenNexcit = .false.;
+	ztout= .false.;
+	ntrapout= .false.;
+	ratesout= .false.;
+	stdout= .true.;
 	!--------------------------!
 	!     read from input.in   !
 	!--------------------------!
@@ -83,16 +88,33 @@
 	case('debug')
 		read(50,*,err=20) debug
 
+	case('ztout')
+		read(50,*,err=20) ztout
+
+	case('ntrapout')
+		read(50,*,err=20)ntrapout
+
+	case('ratesout')
+		read(50,*,err=20) ratesout
+
+	case('stdout')
+		read(50,*,err=20) stdout
+
 	case('Nsites')
 		read(50,*,err=20) nsites
 
-	case('NElectrons','nelectrons','Nelectrons')
+	case('Doping','doping')
 		read(50,*,err=20) nel
 		givenNel = .true.
 
-	case('NElectronsRange','nelectronsrange','Nelectronsrange')
+	case('DopingRange','Dopingrange','dopingrange')
 		read(50,*,err=20) nelmin, nelmax,dnelec
 		givenNelrange = .true.;
+
+	case('NExcitationsRange','NexcitationsRange','nexcitationsrange')
+		read(50,*,err=20) mexmin,mexmax,dmex
+		givenNexcit = .true.;
+
 
 	case('DetuningRange','Detuningrange','detuningrange')
 		read(50,*,err=20) dwmin,dwmax,ddw
@@ -220,6 +242,14 @@
 
 	!write(*,*)"1. nolosses = ",nolosses
 
+
+	if(.not. givenNexcit) then
+		mexmin=nx;
+		mexmax=nx;
+		dmex=1;
+	endif
+
+
 	!--------------------------
 	! keep the order 
 	!--------------------------
@@ -292,11 +322,31 @@
 		nelmin=nel; nelmax=nel; dnelec=1;
 	endif
 
-	if(nelmin <= 0 .or. nelmax >= 2*nsites) then
-		nelmin = 1; nelmax = 2*nsites-1; dnelec=1;
-		write(*,*)"Warning(readinput): NElectronsRange invalid!"
+	if(nelmin <= -nsites .or. nelmax >= nsites) then
+		nelmin = max(nelmin, -(nsites-1) );
+		nelmax = min(nelmax, nsites-1);
+		!dnelec=1;
+		write(*,*)"Warning(readinput): DopingRange invalid!"
 		write(*,*)" changed to sensible min, max values."
 	endif
+
+
+
+
+	!---------------------------------------------
+	! write various parameters
+	i = 1+int((mexmax-mexmin)/dmex);
+	j	=	1+int((nelmax-nelmin)/dnelec)
+	if (onlydoped) j=1+int((nelmax-nelmin-1)/dnelec);
+	open(200,file='parameters.out',action='write')
+		write(200,*) i,ndw,j,ntraj,niter
+		write(200,*) mexmin,mexmax,dmex
+		write(200,*) dwmin,dwmax, ddw
+		write(200,*) nelmin,nelmax,dnelec
+		write(200,*) ntraj, niter
+	close(200)
+	!---------------------------------------------
+
 
 	return
 	end subroutine

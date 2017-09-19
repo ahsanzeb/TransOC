@@ -16,7 +16,7 @@
 	double precision, dimension(27):: rlist ! accumulated rates
 	double precision:: eta
 
-	write(*,*)"rates= ",rate(:)%r
+	!write(*,*)"rates= ",rate(:)%r
 	! select ih stochastically
 	rlist(1) = 0.0d0;
 	do ih=1,26
@@ -27,7 +27,7 @@
 	! location of eta on accumulated rates
 	ihSelect = -1;
 	do ih=1,26
-		if (eta > rlist(ih) .and. eta .le. rlist(ih+1) ) then
+		if (eta .ge. rlist(ih) .and. eta .lt. rlist(ih+1) ) then
 			ihSelect = ih;
 			exit
 		endif
@@ -54,7 +54,7 @@
 	double precision:: eta
 
 	
-	write(*,*)"rate%rcs= ",rate(ih)%rcs(:,:)
+	!write(*,*)"rate%rcs= ",rate(ih)%rcs(:,:)
 
 	nc = 1;
 	if (ih .le. 8) then
@@ -92,7 +92,7 @@
 	! location of eta on accumulated rates
 	which = -1;
 	do i=1,ntot-1
-		if (eta > rlist(i) .and. eta .le. rlist(i+1) ) then
+		if (eta .ge. rlist(i) .and. eta .lt. rlist(i+1) ) then
 			which = i;
 			exit
 		endif
@@ -150,7 +150,7 @@
 
 	if (allocated(Einit2)) deallocate(Einit2)
 	allocate(Einit2(nsec))
-	Einit2 = eig(it)%esec; ! second deg sector
+	Einit2 = eig(it)%esec(1:nsec); ! second deg sector
 
 	if (allocated(psi2)) deallocate(psi2)
 	allocate(psi2(nsec,eig(it)%n1))

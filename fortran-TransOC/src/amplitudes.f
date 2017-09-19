@@ -41,12 +41,14 @@
 
 
 	if(nog) then
+		!write(*,*)"========> ih,ic,is = ",ih,ic,is 
 		! use efficient mat vec multiplications for diagonal Uf
 		qt(ia)%cs(ic,is)%amp= 0.0d0; ! psi.Ht.Uf
 		! just index: psi = ipsi; Uf = Identity
 		if(routine=='multiplyd') then
 			do i=1,nnz ! diagonal but not full diagonal, selected rows/cols
 				if (rowc(i) == ipsi) then
+					!write(*,*)"========> amp: i, rowc(i)=psi=",i,ipsi
 					qt(ia)%cs(ic,is)%amp(rowc(i)) = 1.0d0
 					exit
 				endif

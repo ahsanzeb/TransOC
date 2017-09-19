@@ -13,11 +13,16 @@
 	! local
 	integer:: nt,ib
 	integer:: grouptb(5,13)
+
+		!write(*,*)'mapt%req ',mapt%req
+
 	
 		grouptb = mapt%grouptb;
 		do ib=1,5
 			nt = mapt%ntb(ib)
 			if (nt > 0) then ! something to calculate or not?
+				!write(*,*) ' nt = ',nt
+			
 				if(  nog    ) then 
 					! H is diagonal, store evec sparse, later Ht.Uf sparse
 					call DiagHgMulti(grouptb(ib,1:nt),nt)
@@ -27,7 +32,7 @@
 					call MakeHgMulti1(grouptb(ib,1:nt),nt)
 				elseif (detuning) then
 					!if(debug) write(*,*) "hamilt: better = F"
-					write(*,*) nt, grouptb(ib,1:nt)					
+					!write(*,*) nt, grouptb(ib,1:nt)					
 					! simple CSR format to store sparse
 					call MakeHgMulti(grouptb(ib,1:nt),nt)
 					! CSR format, no detuning.

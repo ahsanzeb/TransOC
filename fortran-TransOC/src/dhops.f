@@ -59,6 +59,7 @@
 
 	l = ways(ih)%active(is); ! localtion of active site in lattice
 	l = GetPosition(Asites,na,l); ! localtion of active site in Asites
+	
 	!------------------------------------------	
 	! N,m values of itype:
 	n = na + dna(itype); ! no of active sites
@@ -68,15 +69,13 @@
 	!	m1==0 case: no excitations: matrices are [[]] and [[1]];
 	!------------------------------------------
 	if (m1==0) then
-		allocate(row2(1))
+		!allocate(row2(1))
 		! m1=0: empty chan 1 matrix ==> 0 transition matrix,
 		! handle it when calc amplitudes??????????
-		row2(1) = 1;
-		n3=1;
-				write(*,*)" bf4"
-		call CalAmp(ih,two,is,row2,lbt,n3,'multiplyd') ! ic=2
+		!row2(1) = 1;
+		!n3=1;
+		call CalAmp(ih,2,is,(/1/),1,1,'multiplyd') ! ic=2
 		! set rates for ic=1 to 0 ????
-		write(*,*)" after"
 	else
 	!------------------------------------------
 	! m1 > 0 case
@@ -98,16 +97,16 @@
 	end do
 	! dimensions of full transition matrices
 	lat = sum(las)
-	lbt = sum(lbs)
+	lbt = sum(lbs) + 1; ! +1 for k=0 term
 	allocate(row1(lat)) 
 	allocate(row2(lbt))
 
 	!	calc the matrix
 	inda = 1; indb=1;
-	if (k==0) then
-		row2(indb) = 1;
-		indb = indb+1
-	endif
+
+	!k==0
+	row2(indb) = 1;
+	indb = indb+1
 
 	do k=1,m1,1
 		la = las(k); lb = lbs(k); 
@@ -127,6 +126,8 @@
 	n3=pntr(m1+2) ! dim of initial hilbert space
 	deallocate(pntr,las,lbs)
 
+	!write(*,*) "dhops: row1 = ",row1
+	!write(*,*) "dhops: row2 = ",row2
 	! calculate transition amplitudes
 	call CalAmp(ih,one,is,row1,lat,n3,'multiplyd') ! ic=1
 	call CalAmp(ih,two,is,row2,lbt,n3,'multiplyd') ! ic=2

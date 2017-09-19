@@ -63,6 +63,8 @@
 			!write(*,'(a,i5,5x,4f10.5)')"ih, ts(ih,:) =",ih, ts(ih,:)
 			rate(ih)%rcs(:,:) = 0.0d0
 
+			!write(*,*) ways(ih)%active	
+
 			do is=1,ways(ih)%ns,1
 				do ic=1,nc
 					call ratehcs(ih,ic,is)
@@ -215,7 +217,7 @@
 	allocate(de(nsec))
 	
 	! change in energy for all transitions
-	de = eig(itl)%esec(:) + dqc(ih,ic); ! changes due to efield, barries, etc.
+	de = eig(itl)%esec(1:nsec) + dqc(ih,ic); ! changes due to efield, barries, etc.
 	de = de - Einit; ! total change in energy
 
 	! rates; total for this hop/hchannel/site
@@ -225,7 +227,7 @@
      .   sum(PenaltyArray(de,nsec) * qt(ia)%cs(icl,is)%amp2)
 
 	! for debugging, remove later
-	if (isnan(rate(ih)%rcs(ic,is)) ) then
+	if (isnan(rate(ih)%rcs(ic,is))) then
 		write(*,*)"rates: rcs =",rate(ih)%rcs(ic,is)
 		x = 0.0d0
 		do i=1,nsec
@@ -267,7 +269,7 @@
 		double precision, dimension(ne):: PenaltyArray
 		! local
 		integer:: i
-		double precision:: x, fac=20.0d0
+		double precision:: x, fac=30.0d0
 		
 		PenaltyArray = 1.0d0;
 		tmp = de*beta;

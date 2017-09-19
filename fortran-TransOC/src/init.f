@@ -8,12 +8,14 @@
 !-----------------------------------------
 !	initialise some global variables
 !-----------------------------------------
-	subroutine initialise(nelec)
+	subroutine initialise(doping)
 	implicit none
-	integer, intent(in) :: nelec ! number of electrons
+	integer, intent(in) :: doping ! +ve for holes, -ve for electrons
 	! local
 	integer :: i,ina, n0,n1,n2
+	integer :: nelec ! number of electrons
 
+	nelec = nsites - doping;
 
 	if(nelec==0 .or. nelec >= 2*nsites) then
 		write(*,*)"Error(init): Nelectron = 0 or >= Nsites !"

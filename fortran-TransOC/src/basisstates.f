@@ -234,7 +234,7 @@
 	more = ( a(1) /= (n-k+1) )
 
 	return
-	end
+	end subroutine ksub_next
 
 !------------------------------------------
 	subroutine pointerslist(n,k,pntr)

@@ -2,6 +2,9 @@
 nolosses
 T
 
+crosshops
+F
+
 MinCarriers
 T
 
@@ -16,16 +19,14 @@ F
 Nsites
  10
 
-
 DetuningRange
--2.0 2.0 0.2
+-2.0 2.0 0.05
 
-NElectronsRange
-8 12 1
+DopingRange
+-10 10 1
 
-
-Nexcitations
-5
+!NExcitationsRange
+!0 20 1
 
 !DontReuseData
 !F
@@ -39,6 +40,9 @@ Detuning
 DirectSolverSize
 50
 
+NLowDegSectors
+5
+
 IterSolverMaxIter
 500
 
@@ -48,11 +52,8 @@ Kappa
 Gamma
 0.1
 
-crosshops
-T
-
 BulkHoppingParameters
-1.0 1.0 1.0 1.0
+1.0 1.0 0.0 1.0
 
 
 
@@ -60,7 +61,7 @@ Niter
 300
 
 Ntraj
-10
+20
 
 
 Beta
@@ -79,4 +80,6 @@ NHilbertSpaces
 
 !grep 'iter =          1  N, m =' out | cut -c28-60 > initNm-out
 
+!Nexcitations
+!5
 

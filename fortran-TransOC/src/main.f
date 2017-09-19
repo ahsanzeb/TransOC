@@ -21,35 +21,34 @@
 	double precision:: tottime, dt
 	integer:: trapiter,s,iss,nc,ns,itraj,nex,nelec,idw,ielec
 	logical :: found,alloc
-
+	
 	! time stamp & random seed 
 	call timestamp
 
-	stath = 0; statc = 0; 
-	stathc = 0;
+	!stath = 0; statc = 0; 
 	alloc = .false.
 	
 	! readinput file
 	call input()
 
-	if(nog) write(*,*)" **** No Coupling! **** "
+	!if(nog) write(*,*)" **** No Coupling! **** "
 
-	!nelecmax = 1+int((nelmax-nelmin)/dnelec)
+	!------------------------------------------------------
 
-	open(200,file='current.out',action='write')
-	write(200,*) ndw, 1+int((nelmax-nelmin)/dnelec),ntraj
-	close(200)
+	do nex=mexmin,mexmax,dmex
+	!nex = nx; ! copy for each trajectory
 
-	nex = nx; ! copy for each trajectory
 	! detuning
 	do idw=1,ndw
 	dw = dwmin + (idw-1)*ddw;
 	ielec=0
 	do nelec = nelmin,nelmax,dnelec
+		if (nelec == 0 .and. onlydoped) cycle
 		ielec=	ielec+1;
+
+		stathc = 0;
 		do itraj=1,ntraj
 	!********************** trajectories *************
-
 		zt = 0; ntrap = 0;
 		totcharge=0; tottime=0.0d0
 		trapiter=0
@@ -133,8 +132,12 @@
 		call CalRates()
 		if(debug) write(*,*) "main:   CalRates done... "	
 
-		if ( sum(rate(:)%r) < 1.0d-10 ) then
-			!write(*,*)"main:sum(rate(:)%r) < 1.0d-10 "
+		if ( sum(rate(:)%r) < 1.0d-14 ) then
+			write(*,*)"main: sum(rate(:)%r) = ",sum(rate(:)%r)
+			
+			! to avoid mem error if trap on first iteration
+			!if(iter==1 .and. (.not. nog)) call getpsi2(1,1,1); 
+			
 			if (trapiter == iter) then
 				s = s + 1;
 				write(*,*) "main: trap for sector excited sector",s-1," too"
@@ -157,8 +160,19 @@
 			!	in case the lowest state psi sees a trap,
 			! we will use this state to get us out
 			if(s <= eig(it)%nsec) then
-				psi(1,:) = psi2(s,:);
-				Einit = Einit2(s);
+				if(iter==1) then
+					Einit = eig(mapt%map(1))%eval(s);
+					psi(1,:) = 0.0d0;
+					!random superposition 
+					do i=eig(it)%ind(s),eig(it)%ind(s+1)-1 ! second degenerate sector
+						psi(1,:) = psi(1,:) + eig(it)%evec(:,i) * rand()
+					enddo
+					! normalise ?
+					psi(1,:) = psi(1,:)/sum(psi(1,:)**2);			
+				else
+					psi(1,:) = psi2(s,:);
+					Einit = Einit2(s);
+				endif
 			else
 				write(*,*)"main: s <= eig(it)%nsec ! Aborting..."
 				stop
@@ -234,8 +248,6 @@
 		!write(*,*) "main: ---3--"
 		!write(*,*) "main: =====> ",rate(:)%r
 		!write(*,*) "main: =====> "
-		! write grand total and total rates for all hop types
-		call writeout()
 		if(debug) write(*,*) "main: writeout done...."
 		! perform the transition... update XXXXXXX
 		!write(*,*) "main: ---4--"
@@ -265,14 +277,25 @@
 		if(ic==4) zt = zt+1
 
 
-		stath(ih) = stath(ih) + 1;
-		statc(ic) = statc(ic) + 1;
+		!stath(ih) = stath(ih) + 1;
+		!statc(ic) = statc(ic) + 1;
 		stathc(ih,ic) = stathc(ih,ic) + 1
 
-		write(*,'(a,10i10)')"stath = ",stath(1:8),stath(25:26)
-		write(*,'(a,4i10)')"statc = ",statc
-		write(*,'(a,i10)')"traps = ",ntrap
+		!write(*,'(a,10i10)')"stath = ",stath(1:8),stath(25:26)
+		!write(*,'(a,4i10)')"statc = ",statc
+		!write(*,'(a,i10)')"traps = ",ntrap
 		!write(*,'(a,i5)')"zt = ",zt
+
+
+		! write grand total and total rates for all hop types
+		! and zt, ntraps
+		if(iter==niter) then
+			call writeout(.true.,zt,ntrap)
+		else
+			call writeout(.false.,0,0)
+		endif
+
+
 
 		! update occupations, sys%occ, Asites etc
 		call UpdateOcc(ih,is)
@@ -300,23 +323,32 @@
 
 	open(200,file='current.out',action='write',position='append')
 	if(itraj == 1) write(200,*) "# idw, ielec",idw,ielec
-	write(200,*) !'(i5,5x,2f15.10)')
-     . totcharge, tottime, totcharge*1.0d0/tottime,zt,ntrap,nelec
+	!write(200,*) !'(i5,5x,2f15.10)')
+  !   . totcharge, tottime, totcharge*1.0d0/tottime,zt,ntrap ,nelec
+	write(200,*) totcharge, tottime
 	close(200)
 	!else ! will see it later
+
+
+
+
 
 	enddo ! itraj
 	!********************** trajectories *************
 
 	! hops statistics
+	open(10,file='stat.out',action='write',position='append')
 	do i=1,8
-		write(*,'(a,i5,5x,4i10)')'ih = ',i,stathc(i,:)
+		write(10,*)stathc(i,:)
 	enddo
-	write(*,'(a,i5,5x,4i10)')'ih = ',25,stathc(25,:)
-	write(*,'(a,i5,5x,4i10)')'ih = ',26,stathc(26,:)
+	write(10,*)stathc(25,:)
+	write(10,*)stathc(26,:)
+	close(10)
 
+	
 	enddo ! ielectron
 	enddo ! idw
+	enddo ! nex
 	!	do postprocessing....
 	!write(*,*)"zt = ",zt
 	

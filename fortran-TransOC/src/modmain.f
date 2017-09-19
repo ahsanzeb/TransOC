@@ -19,7 +19,18 @@
 	integer:: nsites
 
 	! number of electrons 
+	! DopingRange
 	integer :: nel,nelmin,nelmax,dnelec ! nel will stay fixed if no contacts
+
+	! undoped case can get into traps,
+	! and until no clear release mechanism is decided,
+	!	e.g., full dissipative dynamics between hops,
+	! I will use onlydoped = T.
+	logical, parameter :: onlydoped = .true. 
+
+
+	! excitations:
+	integer :: mexmin,mexmax,dmex
 
 	! DetuningRange
 	double precision :: dwmin, dwmax, ddw
@@ -37,6 +48,9 @@
 	
 	! L-H and H-L cross hops allowed? 
 	logical :: crosshops 
+
+	! output options:
+	logical:: ztout, ntrapout, ratesout, stdout
 
 	! no matter-light coupling?
 	logical :: nog
@@ -336,19 +350,76 @@
 !---------------------------------------
 !	write rates in file 'rates.out'
 !	order: hop type bulk hops(1-8), kappa(25),gamma(26),contacts(9:24)
-	subroutine writeout()
+	subroutine writeout(trajend,zt,ntrap)
 	implicit none
+	logical,intent(in) :: trajend
+	integer,intent(in) :: zt,ntrap
+	! local
+	integer :: i
+	logical, save :: first = .true.;
 
-	open(100,file='rates.out',action='write',position='append')
-	if(periodic .or. onlybulk) then
-		write(100,'(f15.8,5x,10f15.8)')
-     .    sum(rate(:)%r),rate(1:8)%r,rate(25:26)%r
-	else
-		write(100,'(f15.8,5x,26f15.8)')
-     .  sum(rate(:)%r),rate(1:8)%r,rate(25:26)%r,rate(9:24)%r
+	if (first) then
+	first = .false.
+	i = 1+int((mexmax-mexmin)/dmex);
+
+	if(ratesout)then
+		open(100,file='rates.out',action='write')
+		if (onlydoped) then
+			write(100,*) i,ndw, 1+int((nelmax-nelmin-1)/dnelec),ntraj
+		else
+			write(100,*) i,ndw, 1+int((nelmax-nelmin)/dnelec),ntraj
+		endif
 	endif
-	close(100)
+		
+	if(ztout)then
+		open(100,file='zt.out',action='write')
+		if (onlydoped) then
+			write(100,*) i,ndw, 1+int((nelmax-nelmin-1)/dnelec),ntraj
+		else
+			write(100,*) i,ndw, 1+int((nelmax-nelmin)/dnelec),ntraj
+		endif
+		close(100)
+	endif
 
+	if(ntrapout)then
+		open(3,file='traps.out',action='write')
+		if (onlydoped) then
+			write(100,*) i,ndw, 1+int((nelmax-nelmin-1)/dnelec),ntraj
+		else
+			write(100,*) i,ndw, 1+int((nelmax-nelmin)/dnelec),ntraj
+		endif
+		close(100)
+	endif
+	
+	endif
+	!------------------------------------------------------
+
+
+	if(ratesout) then
+		open(100,file='rates.out',action='write',position='append')
+		if(periodic .or. onlybulk) then
+			write(100,'(f15.8,5x,10f15.8)')
+     . sum(rate(:)%r),rate(1:8)%r,rate(25:26)%r
+		else
+			write(100,'(f15.8,5x,26f15.8)')
+     . sum(rate(:)%r),rate(1:8)%r,rate(25:26)%r,rate(9:24)%r
+		endif
+		close(100)
+	endif
+
+	if(trajend .and. ztout)then
+		open(100,file='zt.out',action='write',position='append')
+		write(100,*) zt
+		close(100)
+	endif
+
+	if(trajend .and. ntrapout)then
+		open(100,file='traps.out',action='write',position='append')
+		write(100,*) ntrap
+		close(100)
+	endif
+
+	
 	return
 	end 	subroutine writeout
 !---------------------------------------
