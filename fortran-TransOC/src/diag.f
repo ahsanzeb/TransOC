@@ -1,5 +1,6 @@
 
 	module diag
+	
 	implicit none
 
 	public :: diagonalise
@@ -342,7 +343,7 @@ c        %----------------------------------------------%
 	CALL DSYEV('Vectors','Upper',ntot,H,ntot,W,WORK,LWORK,INFO)
 	! Check for convergence.
 	IF( INFO.GT.0 ) THEN
-		WRITE(*,'(/,a)')
+		write(*,'(/,a)')
      .   'diagonal: The algorithm failed to compute eigenvalues.'
 		STOP
 	END IF

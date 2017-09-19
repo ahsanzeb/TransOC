@@ -10,6 +10,7 @@
 ! 4. call UpdateMapB
 
 	module maps
+	
 	use lists, only: Drop4
 	implicit none
 
@@ -179,8 +180,8 @@
 	! check if all req types are assigned slots?
 	do it=1,13
 		if (mapt%req(it) .and. map(it)==-1) then
-			write(*,*) "Error(map): mapt, slot not found for itype=",it
-			stop
+		write(*,*)"Error(map): mapt, slot not found for itype=",it
+		stop
 		endif
 	enddo
 

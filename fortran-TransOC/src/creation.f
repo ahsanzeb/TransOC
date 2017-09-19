@@ -2,6 +2,7 @@
 	use amplitudes
 	use lists, only: SortedInsert,GetPosition
 	use basisstates, only: LexicoIndex,Shift
+	
 	implicit none
 	integer::one=1,two=2,three=3,four=4
 

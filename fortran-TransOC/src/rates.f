@@ -1,6 +1,6 @@
 
 	module rates
-	use modmain, only: qt,eig,itypes,
+	use modmain, only: qt,eig,itypes, 
      .  mapb,mapt,maph,mapc,nokappa, nogamma
 	implicit none
 
@@ -62,11 +62,9 @@
 			!write(*,*)"ih, ways(ih)%ns = ",ih, ways(ih)%ns
 			!write(*,'(a,i5,5x,4f10.5)')"ih, ts(ih,:) =",ih, ts(ih,:)
 			rate(ih)%rcs(:,:) = 0.0d0
-
-			!write(*,*) ways(ih)%active	
-
 			do is=1,ways(ih)%ns,1
 				do ic=1,nc
+					!write(*,*) 'heloowwww 2' !ways(ih)%active	
 					call ratehcs(ih,ic,is)
 					!write(*,*)"rates:ih,ic,rcs=",ih,ic,rate(ih)%rcs(ic,is)
 					if(PermSym) then ! total rate = (rates for one site) * ns
@@ -168,6 +166,9 @@
 	double precision, allocatable :: de(:)
 	integer :: nsec, ia,icl,itl,i
 	double precision:: x,y
+	logical :: dblehop, emptyhop
+
+	!write(*,*) 'heloowwww A'
 
 
 	! if no available hops, set rate = 0
@@ -175,6 +176,8 @@
 		rate(ih)%rcs(ic,is) = 0.d0
 		return
 	endif
+
+	!write(*,*) 'heloowwww b'
 
 	! conditions on nx for ih=1-4
 	if(nx==0) then
@@ -191,6 +194,8 @@
 		endif
 	endif
 
+	!write(*,*) 'heloowwww c'
+
 	! conditions on nx for ih=7,8
 	if (ih==7 .or. ih==8) then
 		if ( (ic < 3 .and. nx .lt. 1) .or. 
@@ -200,6 +205,8 @@
 			return 
 		endif
 	endif
+
+	!write(*,*) 'heloowwww d'
 
 	! locations of data
 	itl = mapt%map(itypes(ih,ic)) ! location of final hilber space
@@ -215,13 +222,19 @@
 	! no of degenerate sectors
 	nsec = eig(itl)%nsec 
 	allocate(de(nsec))
-	
+
+	!write(*,*) 'heloowwww e'
+
 	! change in energy for all transitions
 	de = eig(itl)%esec(1:nsec) + dqc(ih,ic); ! changes due to efield, barries, etc.
 	de = de - Einit; ! total change in energy
 
 	! rates; total for this hop/hchannel/site
 
+	if(.not. allocated(qt(ia)%cs(icl,is)%amp2)) then
+	write(*,*) "alloc amp2=>F: ih,ic,is,icl,ia",ih,ic,is,icl,ia
+	stop
+	endif
 
 	rate(ih)%rcs(ic,is) =
      .   sum(PenaltyArray(de,nsec) * qt(ia)%cs(icl,is)%amp2)

@@ -81,7 +81,8 @@
 		! testing HtUf(1,:);!
 		qt(ia)%cs(ic,is)%amp=reshape(matmul(psi,HtUf),(/n2/)); ! both input dense
 		deallocate(HtUf)
-		
+		!write(*,*) "amp: ih,ic, ia, is,itl=",ih,ic, ia, is,itl
+	
 		call GetAmp2(qt(ia)%cs(ic,is)%amp, n2,
      .		qt(ia)%cs(ic,is)%amp2, eig(itl)%nsec, eig(itl)%ind)
 	endif
@@ -132,8 +133,8 @@
 		qt(ia)%cs(ic,is)%amp = 0.0d0
 		do i=1,nnz
 			if (rowc(i) == ipsi) then
-				write(*,*)"ih, ic,is = ",ih, ic,is
-				write(*,*)"ipsi, i, ir, ic = ",ipsi,i,rowc(i),col(i)
+				!write(*,*)"ih, ic,is = ",ih, ic,is
+				!write(*,*)"ipsi, i, ir, ic = ",ipsi,i,rowc(i),col(i)
 				qt(ia)%cs(ic,is)%amp(col(i)) = 1.0d0
 				exit ! just a single entry
 			endif
@@ -154,7 +155,7 @@
 		!write(*,*)"amp0: shape(psi),shape(HtUf) ",shape(psi),shape(HtUf) 
 		qt(ia)%cs(ic,is)%amp=reshape(matmul(psi,HtUf),(/n2/)); ! both input dense
 		deallocate(HtUf)
-		!write(*,*) "amp: ih,ic, ia: ic,is,itl=",ih,ic, ia, ic,is,itl
+		!write(*,*) "amp0: ih,ic, ia, is,itl=",ih,ic, ia, is,itl
 		call GetAmp2(qt(ia)%cs(ic,is)%amp, n2,
      .		qt(ia)%cs(ic,is)%amp2,
      .		eig(itl)%nsec, eig(itl)%ind)

@@ -50,7 +50,7 @@
 	logical :: crosshops 
 
 	! output options:
-	logical:: ztout, ntrapout, ratesout, stdout
+	logical::  ztout, ntrapout, ratesout
 
 	! no matter-light coupling?
 	logical :: nog

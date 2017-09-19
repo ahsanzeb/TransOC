@@ -177,7 +177,7 @@
 				endif
 				dqc(i,j) = dqc(i,j) - signEr(i)*Er
 			end do
-			write(*,'(a,i5,a,4f15.10)')"ih = ",i,"  dqc = ",dqc(i,:)
+			!write(*,'(a,i5,a,4f15.10)')"ih = ",i,"  dqc = ",dqc(i,:)
 		end do
 
 		
@@ -197,7 +197,7 @@
 	if (allocated(sys%occ)) deallocate(sys%occ)
 	allocate(sys%occ(nsites))
 
-	write(*,*)" init: Nsites = ",nsites
+	!write(*,*)" init: Nsites = ",nsites
 
 	ina = 0;
 	sys%occ(:) = 0;
@@ -213,7 +213,7 @@
 	
 	do while (ina < nelec)
 			i = int(1+nsites*rand(0));
-			write(*,*)"i  = ",i
+			!write(*,*)"i  = ",i
 			if (	sys%occ(i) < maxocc ) then
 				sys%occ(i) = sys%occ(i) + 1;
 				ina = ina + 1;
@@ -251,7 +251,7 @@
 	sys%n2=n2;
 
 	na = n1;
-	write(*,*)"init: na = ",na
+	!write(*,*)"init: na = ",na
 
 	return
 	end subroutine initOcc

@@ -60,10 +60,10 @@
 	nolosses = .false.
 	mincarriers = .false.
 	givenNexcit = .false.;
-	ztout= .false.;
-	ntrapout= .false.;
-	ratesout= .false.;
-	stdout= .true.;
+	ztout= .true.;
+	ntrapout= .true.;
+	ratesout= .true.;
+	!std= .true.;
 	!--------------------------!
 	!     read from input.in   !
 	!--------------------------!
@@ -97,8 +97,8 @@
 	case('ratesout')
 		read(50,*,err=20) ratesout
 
-	case('stdout')
-		read(50,*,err=20) stdout
+	!case('stdout')
+	!	read(50,*,err=20) std
 
 	case('Nsites')
 		read(50,*,err=20) nsites
@@ -191,7 +191,7 @@
 	case('ContactsBarriers','Barriers','barriers')
 		read(50,*,err=20) Ebr,Ebl
 
-	case('EFieldNNSEnergy','Er')
+	case('EFieldNNSEnergy','Er','er')
 		read(50,*,err=20) Er
 
 	case('ExcitonEnergy','w0')

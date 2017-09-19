@@ -1,6 +1,6 @@
 
 	module modways
-	use modmain, only: sys, ways, periodic
+	use modmain, only: sys, ways, periodic 
 	implicit none
 
 	public :: UpdateWays, UpdateOcc

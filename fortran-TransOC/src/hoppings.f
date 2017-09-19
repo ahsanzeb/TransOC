@@ -2,7 +2,7 @@
 	!	calls routines that calculate amplitudes for all hops
 	module Hoppings
 	use modmain, only: ways,PermSym,na,nx,crosshops,
-     .              nokappa,nogamma
+     .              nokappa,nogamma 
 	use dhops, only: dhops1, dhops2
 	use creation !, only: DPhiCreat1,DPhiCreat3,DPhiCreat4
 	use annihilation, only: DPhiAn1,DPhiAn2

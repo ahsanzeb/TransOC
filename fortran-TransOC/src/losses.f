@@ -1,6 +1,7 @@
 
 	module losses
 	use amplitudes
+	
 	implicit none
 
 	public:: LossGamma,LossKappa

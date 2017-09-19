@@ -31,8 +31,7 @@
 	! readinput file
 	call input()
 
-	!if(nog) write(*,*)" **** No Coupling! **** "
-
+	if(nog) write(*,*)" **** No Coupling! **** "
 	!------------------------------------------------------
 
 	do nex=mexmin,mexmax,dmex
@@ -46,6 +45,7 @@
 		if (nelec == 0 .and. onlydoped) cycle
 		ielec=	ielec+1;
 
+		!write(*,*) 'dw, nelec = ', dw, nelec
 		stathc = 0;
 		do itraj=1,ntraj
 	!********************** trajectories *************
@@ -68,21 +68,21 @@
 	! main loop over number of hops asked
 	do iter=1,niter
 
-		write(*,'(a)') ". . . . . . . . . . . . "
-		write(*,'(a,i10,a,i10,a,2i10)') " itraj = ",itraj,
-     .               " iter = ",iter,"  N, m = ",na,nx
-		write(*,*)          
-		
+		!write(*,'(a)') ". . . . . . . . . . . . "
+		!write(*,'(a,i10,a,i10,a,2i10)') " itraj = ",itraj,
+    ! .               " iter = ",iter,"  N, m = ",na,nx
+		!write(*,*)          
+
 		! make basis states ksub
 		call mkbasis(na,nx)
-		if(debug) write(*,*) " basis done....  "
+		if(debug)write(*,*) " basis done....  "
 		
 		! make hamiltonian
 		call mkHamilt()
-		if(debug) write(*,*) "main: Hamiltonians done....  "
+		if(debug)write(*,*) "main: Hamiltonians done....  "
 
 		call diagonalise()
-		if(debug) write(*,*) "main: diagonalisation done.... "
+		if(debug)write(*,*) "main: diagonalisation done.... "
 		
 		!stop
 
@@ -100,7 +100,7 @@
 		!write(*,*)"main: psi="	,psi
 		!write(*,*)"main: eval 1="	,eig(it)%eval
 		
-		write(*,*)"sys%occ = ",sys%occ
+		!write(*,*)"sys%occ = ",sys%occ
 
 		if(.not. alloc) then
 			! at most nsites ways for any hop???
@@ -126,11 +126,11 @@
 		! and allocate space for rates???
 		s = 1;
 10		call AllHops()
-		if(debug) write(*,*) "main:   AllHops done... "	
+		if(debug)write(*,*) "main:   AllHops done... "	
 		
 		! rates from am2 and energetic penalties
 		call CalRates()
-		if(debug) write(*,*) "main:   CalRates done... "	
+		if(debug)write(*,*) "main:   CalRates done... "	
 
 		if ( sum(rate(:)%r) < 1.0d-14 ) then
 			write(*,*)"main: sum(rate(:)%r) = ",sum(rate(:)%r)
@@ -140,7 +140,7 @@
 			
 			if (trapiter == iter) then
 				s = s + 1;
-				write(*,*) "main: trap for sector excited sector",s-1," too"
+				write(*,*) "main: trap for excited sector",s-1," too"
 				write(*,*) "main: s, eig(it)%nsec=",s, eig(it)%nsec
 				if (s > eig(it)%nsec) then
 					write(*,*)"main: no more sectors! Aborting!"
@@ -194,9 +194,9 @@
 		ih = ihSelect() 
 
 		!write(*,*) "main: ===2==> ",rate(:)%r
-		if(debug) write(*,*) "main:   ihSelect: ih = ",ih
+		if(debug)write(*,*) "main:   ihSelect: ih = ",ih
 		call icsSelect(ih,ic,is)
-		if(debug) write(*,*) "main:   icsSelect: ic,is =  ",ic,is
+		if(debug)write(*,*) "main:   icsSelect: ic,is =  ",ic,is
 
 		! if nog, the final state index from selected ih,ic
 		if (nog) then
@@ -244,11 +244,11 @@
 		!	in case the lowest state psi sees a trap,
 		! we will use this state to get us out
 		if (.not. nog) call getpsi2(ih,ic,is);
-		if(debug) write(*,*) "main: getpsi2 done...."
+		if(debug)write(*,*) "main: getpsi2 done...."
 		!write(*,*) "main: ---3--"
 		!write(*,*) "main: =====> ",rate(:)%r
 		!write(*,*) "main: =====> "
-		if(debug) write(*,*) "main: writeout done...."
+		if(debug)write(*,*) "main: writeout done...."
 		! perform the transition... update XXXXXXX
 		!write(*,*) "main: ---4--"
 
@@ -299,10 +299,10 @@
 
 		! update occupations, sys%occ, Asites etc
 		call UpdateOcc(ih,is)
-		if(debug) write(*,*) "main: UpdateOcc done...."
+		if(debug)write(*,*) "main: UpdateOcc done...."
 
 		call UpdateWays()
-		if(debug) write(*,*) "main:   UpdateWays done... "	
+		if(debug)write(*,*) "main:   UpdateWays done... "	
 		
 		if (fixmap) then
 			call DONTUSEmaps() ! dont reuse basis/hg
@@ -312,11 +312,11 @@
 			call UpdateMapT ! mapt%map, mapt%cal
 			call UpdateGroupTB ! mapt%cal ===> ntb, grouptb
 			call UpdateMapB
-			if(debug) write(*,*) "----- updated mapb,mapt--------"
+			if(debug)write(*,*) "----- updated mapb,mapt--------"
 		endif
 
 	enddo ! iter
-	write(*,*)"transoc: niter hops done.... " 
+	!write(*,*)"transoc: niter hops done.... " 
 	!===================================================== 
 
 99		continue

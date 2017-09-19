@@ -1,5 +1,6 @@
 
 	module hamiltonian
+	
 	implicit none
 	public :: mkHamilt
 	private:: MakeHgMulti, MakeHgMulti1, HgMap
@@ -143,7 +144,7 @@
 	! N,m values
 	n = na + dna(itlist(1)); ! no of active sites
 
-	write(*,*) " n = ",n
+	!write(*,*) " n = ",n
 	
 	do i=1,nt,1
 		m	=	 nx + dnx(itlist(i)); ! no of excitations
