@@ -317,6 +317,7 @@
 	!hop(1:4)%spfrmt = 'diagonal';
 
 
+	logical :: leads ! include contact or not?
 
 	double precision :: dw,g
 	logical :: detuning
@@ -357,66 +358,73 @@
 	! local
 	integer :: i
 	logical, save :: first = .true.;
+	integer :: iu
 
 	if (first) then
 	first = .false.
 	i = 1+int((mexmax-mexmin)/dmex);
 
+	iu=101
 	if(ratesout)then
-		open(100,file='rates.out',action='write')
+		open(iu,file='rates.out',action='write')
 		if (onlydoped) then
-			write(100,*) i,ndw, 1+int((nelmax-nelmin-1)/dnelec),ntraj
+			write(iu,*) i,ndw, 1+int((nelmax-nelmin-1)/dnelec),ntraj
 		else
-			write(100,*) i,ndw, 1+int((nelmax-nelmin)/dnelec),ntraj
+			write(iu,*) i,ndw, 1+int((nelmax-nelmin)/dnelec),ntraj
 		endif
-	endif
-		
-	if(ztout)then
-		open(100,file='zt.out',action='write')
-		if (onlydoped) then
-			write(100,*) i,ndw, 1+int((nelmax-nelmin-1)/dnelec),ntraj
-		else
-			write(100,*) i,ndw, 1+int((nelmax-nelmin)/dnelec),ntraj
-		endif
-		close(100)
+		close(iu)
 	endif
 
-	if(ntrapout)then
-		open(3,file='traps.out',action='write')
+	iu=102
+	if(ztout)then
+		open(iu,file='zt.out',action='write')
 		if (onlydoped) then
-			write(100,*) i,ndw, 1+int((nelmax-nelmin-1)/dnelec),ntraj
+			write(iu,*) i,ndw, 1+int((nelmax-nelmin-1)/dnelec),ntraj
 		else
-			write(100,*) i,ndw, 1+int((nelmax-nelmin)/dnelec),ntraj
+			write(iu,*) i,ndw, 1+int((nelmax-nelmin)/dnelec),ntraj
 		endif
-		close(100)
+		close(iu)
+	endif
+
+	iu=103
+	if(ntrapout)then
+		open(iu,file='traps.out',action='write')
+		if (onlydoped) then
+			write(iu,*) i,ndw, 1+int((nelmax-nelmin-1)/dnelec),ntraj
+		else
+			write(iu,*) i,ndw, 1+int((nelmax-nelmin)/dnelec),ntraj
+		endif
+		close(iu)
 	endif
 	
 	endif
 	!------------------------------------------------------
 
-
+	iu=104
 	if(ratesout) then
-		open(100,file='rates.out',action='write',position='append')
+		open(iu,file='rates.out',action='write',position='append')
 		if(periodic .or. onlybulk) then
-			write(100,'(f15.8,5x,10f15.8)')
+			write(iu,'(f15.8,5x,10f15.8)')
      . sum(rate(:)%r),rate(1:8)%r,rate(25:26)%r
 		else
-			write(100,'(f15.8,5x,26f15.8)')
+			write(iu,'(f15.8,5x,26f15.8)')
      . sum(rate(:)%r),rate(1:8)%r,rate(25:26)%r,rate(9:24)%r
 		endif
-		close(100)
+		close(iu)
 	endif
 
+	iu=105
 	if(trajend .and. ztout)then
-		open(100,file='zt.out',action='write',position='append')
-		write(100,*) zt
-		close(100)
+		open(iu,file='zt.out',action='write',position='append')
+		write(iu,*) zt
+		close(iu)
 	endif
 
+	iu=106
 	if(trajend .and. ntrapout)then
-		open(100,file='traps.out',action='write',position='append')
-		write(100,*) ntrap
-		close(100)
+		open(iu,file='traps.out',action='write',position='append')
+		write(iu,*) ntrap
+		close(iu)
 	endif
 
 	

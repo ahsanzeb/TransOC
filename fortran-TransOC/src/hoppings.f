@@ -2,12 +2,12 @@
 	!	calls routines that calculate amplitudes for all hops
 	module Hoppings
 	use modmain, only: ways,PermSym,na,nx,crosshops,
-     .              nokappa,nogamma 
+     . nokappa,nogamma,leads,nsites
 	use dhops, only: dhops1, dhops2
 	use creation !, only: DPhiCreat1,DPhiCreat3,DPhiCreat4
 	use annihilation, only: DPhiAn1,DPhiAn2
 	use losses, only: losskappa, lossgamma
-
+	use Contacts, only: CDAnnihil, CDCreat
 	implicit none
 
 	public :: AllHops
@@ -109,7 +109,18 @@
 	endif
 	!-------------------------------
 
-	!write(*,*) "hops: ---------- 5"
+	! Contacts:
+	if (leads) then
+		! annihilation at contacts
+		if (sum(ways(15:16)%ns+ways(11:12)%ns+
+     .   ways(13:14)%ns+ways(9:10)%ns) > 0) then
+			call CDAnnihil()
+		endif
+
+		! creation of D/Phi at contacts
+		if (sum(ways(21:24)%ns)>0) call CDCreat('l')
+		if (sum(ways(17:20)%ns)>0) call CDCreat('r')
+	endif
 
 	return
 	end subroutine AllHops

@@ -284,7 +284,7 @@
 
 
 !------------------------------------------
-!	D Phi Annihilation for channel 3
+!	D Phi creation for channel 3
 ! up,up become D,Phi
 !------------------------------------------
 	subroutine DPhiCreat3(is)
@@ -378,7 +378,7 @@
 
 
 !------------------------------------------
-!	D Phi Annihilation for channel 4
+!	D Phi creation for channel 4
 ! dn,dn become D,Phi
 !------------------------------------------
 	subroutine DPhiCreat4(is)

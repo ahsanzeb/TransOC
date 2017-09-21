@@ -13,7 +13,7 @@
 ! calculates total rates for all processes
 !----------------------------------------------------
 	subroutine CalRates()
-	use modmain, only: crosshops,nolosses,onlybulk
+	use modmain, only: crosshops,nolosses,leads
 	implicit none
 	! local
 	integer :: nc
@@ -31,7 +31,8 @@
 	call totr('creation',nc)
 	!write(*,*) "rates  3"
 	if (.not. nolosses) call totr('losses',1)
-	if (.not. onlybulk) call totr('contacts',1)
+	if (leads) call totr('contacts',1)
+
 	return
 	end subroutine CalRates
 
@@ -143,11 +144,16 @@
 	!-------------------------------------------------
 	! ih:9-24; R/L contacts injection/extraction of e/h
 	!-------------------------------------------------
-		ic=1; is=1
 		do ih=9,24
 			rate(ih)%rcs(:,:) = 0.0d0
-			!call ratehcs(ih,ic,1)
-			rate(ih)%r = 0.0d0 !rate(ih)%rcs(ic,is); ! total rate for ih hop
+			if(ways(ih)%ns==1) then
+				if(ih==19 .or. ih==20 .or. ih==23 .or. ih==24) then
+					if (nx > 0) call ratehcs(ih,1,1)
+				else
+					call ratehcs(ih,1,1)
+				endif
+			endif
+			rate(ih)%r = rate(ih)%rcs(1,1); ! total rate for ih hop
 		end do
 
 	end select

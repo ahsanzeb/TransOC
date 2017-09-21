@@ -263,6 +263,14 @@
 				case(2,3,6,8)
 					charge = -1
 			end select
+		elseif(leads) then ! just monitor the left contact
+			charge = 0
+			select case(ih)
+				case(15,16,21,23)
+					charge = +1
+				case(11,12,22,24)
+					charge = -1
+			end select	
 			dt=1.0d0/sum(rate(:)%r)
 			totcharge = totcharge + charge
 			tottime = tottime + dt
@@ -315,17 +323,26 @@
 			if(debug)write(*,*) "----- updated mapb,mapt--------"
 		endif
 
+		!write(*,*)nsites,nelec,sum(sys%occ),(nsites-nelec)-sum(sys%occ)   
+
 	enddo ! iter
 	!write(*,*)"transoc: niter hops done.... " 
 	!===================================================== 
 
 99		continue
 
+
 	open(200,file='current.out',action='write',position='append')
 	if(itraj == 1) write(200,*) "# idw, ielec",idw,ielec
 	!write(200,*) !'(i5,5x,2f15.10)')
-  !   . totcharge, tottime, totcharge*1.0d0/tottime,zt,ntrap ,nelec
-	write(200,*) totcharge, tottime
+  !   . totcharge, tottime, net charge on the system
+	if (leads) then
+  		! Net charge on the system if contact are present
+		! intrinsic #electrons - present #electrons
+		write(200,*) totcharge, tottime, (nsites-nelec)-sum(sys%occ)
+	else
+		write(200,*) totcharge, tottime
+	endif
 	close(200)
 	!else ! will see it later
 
@@ -338,11 +355,17 @@
 
 	! hops statistics
 	open(10,file='stat.out',action='write',position='append')
-	do i=1,8
-		write(10,*)stathc(i,:)
-	enddo
-	write(10,*)stathc(25,:)
-	write(10,*)stathc(26,:)
+	if(leads) then
+		do i=1,24
+			write(10,*)stathc(i,:)
+		enddo
+	else
+		do i=1,8
+			write(10,*)stathc(i,:)
+		enddo
+		write(10,*)stathc(25,:)
+		write(10,*)stathc(26,:)
+	endif
 	close(10)
 
 	

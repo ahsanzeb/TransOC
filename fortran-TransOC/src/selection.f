@@ -34,8 +34,8 @@
 		endif
 	end do	
 	! error?
-	if (ihSelect == -1) then
-		write(*,*) "ihSelect: something wrong.... "
+	if (ihSelect == -1 .or. ihSelect>26) then
+		write(*,*) "ihSelect: something wrong.... ihSelect=",ihSelect
 		write(*,*) "ihSelect: eta = ",	eta		
 		write(*,*) "ihSelect: rlist = ",	rlist	
 		stop

@@ -25,8 +25,8 @@
 
 	debug = .false.
 	nsites = 5;
-	nel = nsites;
-	nelmin=nsites; nelmax=nsites;
+	nel = 1;
+	nelmin=1; nelmax=1;dnelec=1
 	nx = 1;
 	niter = 500;
 	ntraj = 10;
@@ -43,6 +43,7 @@
 	JhR=10*th; JlR=10*th; JhL=10*th; JlL=10*th;
 	EBlock = .false.; HBlock = .false.;
 	periodic = .true.; onlybulk = .false.;
+	leads = .false.;
 	Ebr = 0.7d0; Ebl = 0.7d0; 
 	Er = 1.0d0
 	w0 = 2.0d0
@@ -243,6 +244,18 @@
 	!write(*,*)"1. nolosses = ",nolosses
 
 
+
+
+	! contact/leads present?
+	leads = (.not. periodic) .and. (.not. onlybulk);
+	!if (sum(abs(JhR+JlR+JhL+JlL)) < 1.0d-5) then
+	!	leads = .false.
+	!	onlybulk = .true.
+	!endif
+
+
+
+
 	if(.not. givenNexcit) then
 		mexmin=nx;
 		mexmax=nx;
@@ -317,7 +330,6 @@
 		write(*,*) "main: tlh and thl are too small so no crosshops"
 	endif
 
-	if (.not. givenNel) nel = nsites
 	if (.not. givenNelrange) then
 		nelmin=nel; nelmax=nel; dnelec=1;
 	endif

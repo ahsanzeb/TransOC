@@ -1,6 +1,6 @@
 
 	module modways
-	use modmain, only: sys, ways, periodic 
+	use modmain, only: sys, ways, periodic, nsites,leads 
 	implicit none
 
 	public :: UpdateWays, UpdateOcc
@@ -14,7 +14,8 @@
 	integer:: ntot, p,la,lo,is,is1
 	integer, dimension(26) :: nps
 	integer, allocatable, dimension(:,:) :: act,oth
-
+	integer :: l,r
+	
 	! initialise
 	nps = 0	
 	! copy current sys
@@ -53,8 +54,6 @@
 		
 	end do
 
-	! contact processes: DO LATER
-
 	!write(*,*) 'nps(:) = ',nps(:)
 	!write(*,*) 'sys%occ = ',sys%occ
 
@@ -75,13 +74,34 @@
 	deallocate(act,oth)
 
 	!-----------------------------------
-	! allocate qt etc
+	! contact processes
 	!-----------------------------------
-
-
-
+	if (leads) then
+	l = sys%occ(1); ! site nns of left contact
+	r = sys%occ(nsites); ! site nns of right contact
+	ways(9:24)%ns = 0;
 	
+	select case(l)
+		case(0)
+			ways(15:16)%ns = 1
+		case(1)
+			ways(21:24)%ns = 1
+		case(2)
+			ways(11:12)%ns = 1
+	end select
 
+	select case(r)
+		case(0)
+			ways(13:14)%ns = 1
+		case(1)
+			ways(17:20)%ns = 1
+		case(2)
+			ways(9:10)%ns = 1
+	end select
+	!-----------------------------------
+	endif
+	
+	return
 	end subroutine UpdateWays
 !**********************************************
 !-----------------------	-----------------------	
@@ -167,26 +187,22 @@
 
 	subroutine UpdateOcc(ih,is)
 	! only for bulk hoppings at the moment
-	use modmain, only: sys,Asites,ways
-	use lists, only: Drop4, Join, Substitute
+	use modmain, only: sys,Asites,ways,nsites
+	use lists, only: Drop4, Join, Substitute,MemberQ4
 	implicit none
 	integer, intent(in):: ih,is
 	! local
 	integer :: la,lo,n0,n1,n2,two=2
-	integer, dimension(sys%n1+2) :: Asitesx
+	integer, dimension(sys%n1+2) :: Asitesx,Asitesy
+	integer:: i
 
-	if (ih > 8 .and. ih < 25 ) then
-		write(*,*) "UpdateOcc: ERROR!!!"
-		write(*,*) "contact processes not done yet"
-		stop
-	endif
-
+	!write(*,*) "in: Asites = ",Asites
+	!write(*,*) "in: occ = ",sys%occ
+	
 	if(ih <= 8) then
 		la = ways(ih)%active(is)
 		lo = ways(ih)%sites(is)
-	elseif(ih >= 9 .and. ih <= 24) then
-			! contacts case, write later
-	else
+	elseif(ih ==25 .or. ih == 26) then
 		! kappa/gamma, no change in occ
 		return
 	endif
@@ -231,9 +247,9 @@
 						
 			Asitesx(1:n1) = Asites;
 			! append first D then Phi; la=D for ih=5,6
-			call Join(Asitesx(1:n1),n1,(/la,lo/),two,Asitesx(1:n1+2))
+			call Join(Asitesx(1:n1),n1,(/la,lo/),two,Asitesy(1:n1+2))
 			deallocate(Asites); allocate(Asites(n1+2))
-			Asites = Asitesx;
+			Asites = Asitesy;
 
 			sys%n0 = n0-1
 			sys%n1 = n1+2
@@ -242,19 +258,90 @@
 			sys%occ(la) = 2 ! la=D,lo=phi for ih=7,8
 			sys%occ(lo) = 0
 			Asitesx(1:n1) = Asites;
-			call Drop4(Asitesx(1:n1),n1,la,Asitesx(1:n1-1))
-			call Drop4(Asitesx(1:n1-1),n1,lo,Asitesx(1:n1-2))
+			call Drop4(Asitesx(1:n1),n1,la,Asitesy(1:n1-1))
+			call Drop4(Asitesy(1:n1-1),n1,lo,Asitesx(1:n1-2))
 			deallocate(Asites); allocate(Asites(n1-2))
 			Asites = Asitesx(1:n1-2);		
 			sys%n0 = n0+1
 			sys%n1 = n1-2
 			sys%n2 = n2+1
+
+		case(9,10,13,14)! right contact annihilation, site=nsites
+			sys%occ(nsites) = 1
+			Asitesx(1:n1) = Asites;
+			Asitesx(n1+1) = nsites;
+			deallocate(Asites); allocate(Asites(n1+1))
+			Asites = Asitesx(1:n1+1);
+			sys%n1 = n1+1
+			if(ih > 10) then
+				sys%n0 = n0-1
+			else
+				sys%n2 = n2-1
+			endif
+		case(11,12,15,16) ! left contact annihilation, site=1
+			sys%occ(1) = 1
+			Asitesx(1:n1) = Asites;
+			Asitesx(n1+1) = 1;
+			deallocate(Asites); allocate(Asites(n1+1))
+			Asites = Asitesx(1:n1+1);
+			sys%n1 = n1+1
+			if(ih > 12) then
+				sys%n0 = n0-1
+			else
+				sys%n2 = n2-1
+			endif
+
+		case(17:20) ! right contact creation, site=nsite
+			call Drop4(Asites,n1,nsites,Asitesy(1:n1-1))
+			deallocate(Asites); allocate(Asites(n1-1))
+			Asites = Asitesy(1:n1-1);	
+			sys%n1 = n1-1
+			if(mod(ih,2)==0) then ! Phi created, ih=18,20
+				sys%occ(nsites) = 0;
+				sys%n0 = n0+1
+			else ! D created, ih=17,19
+				sys%occ(nsites) = 2;
+				sys%n2 = n2+1
+			endif
+
+		case(21:24) ! left contact creation, site=1
+			call Drop4(Asites,n1,1,Asitesy(1:n1-1))
+			deallocate(Asites); allocate(Asites(n1-1))
+			Asites = Asitesy(1:n1-1);	
+			sys%n1 = n1-1
+			if(mod(ih,2)==0) then ! Phi created, ih=22,24
+				sys%occ(1) = 0;
+				sys%n0 = n0+1
+			else ! D created, ih=21,23
+				sys%occ(1) = 2;
+				sys%n2 = n2+1
+			endif
+
 	end select		
 
 	if(sys%n0+sys%n1+sys%n2 .ne. sys%nsites)then
 		write(*,*)"modways: nsites != n0+n1+n2 "
 		stop
 	endif
+
+
+	!write(*,*) "out: Asites = ",Asites
+	!write(*,*) "out: occ = ",sys%occ
+	!write(*,*) "-----------------------"	
+
+	do i=1,nsites
+		if(sys%occ(i) == 1) then
+			if(.not. MemberQ4(Asites,sys%n1,i)) then
+				write(*,*)"Error(UpdateOcc): Asites not updated correctly!"
+				write(*,*)"Asites=",Asites
+				write(*,*)"occ=",sys%occ
+				write(*,*)" ih,is = ",ih,is
+			endif
+		endif
+	enddo
+
+
+
 
 	return
 	end subroutine UpdateOcc

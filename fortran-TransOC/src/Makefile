@@ -2,7 +2,7 @@
 objects = basisstates.o main.o hamiltonian.o lists.o modmain.o memory.o \
  hoppings.o dhops.o modmultiply.o annihilation.o losses.o \
  maps.o init.o amplitudes.o creation.o selection.o \
- rates.o modways.o readinput.o diag.o timestamp.o
+ rates.o modways.o readinput.o diag.o timestamp.o contacts.o
 
 
 
@@ -84,6 +84,8 @@ amplitudes.mod: modmain.mod basisstates.mod modmultiply.mod amplitudes.f
 modmultiply.mod: modmain.mod modmultiply.o modmultiply.f
 	$(FC) -c $(switch) modmultiply.f
 
+contacts.mod: modmain.mod basisstates.mod lists.mod amplitudes.mod lists.mod contacts.o contacts.f
+	$(FC) -c $(switch) contacts.f
 
 #-----------------------------------------------------
 # objects
@@ -122,16 +124,15 @@ dhops.o: modmain.mod basisstates.mod lists.mod amplitudes.o dhops.f
 annihilation.o: modmain.mod basisstates.mod amplitudes.o annihilation.f
 	$(FC) -c $(switch) annihilation.f
 
-creation.o: modmain.mod basisstates.mod amplitudes.o creation.f
+creation.o: modmain.mod basisstates.mod lists.mod amplitudes.o creation.f
 	$(FC) -c $(switch) creation.f
-
 
 losses.o: modmain.mod basisstates.mod lists.mod amplitudes.o losses.f
 	$(FC) -c $(switch) losses.f
 
 main.o:	modmain.mod basisstates.mod hamiltonian.mod lists.mod \
 hoppings.mod init.mod selection.mod rates.mod modways.mod\
- readinput.mod maps.mod diag.mod main.f 
+ readinput.mod maps.mod diag.mod contacts.mod main.f 
 	$(FC) -c $(switch) main.f 
 
 hamiltonian.o: modmain.mod basisstates.mod hamiltonian.f
@@ -141,7 +142,7 @@ amplitudes.o: modmain.mod modmultiply.mod amplitudes.f
 	$(FC) -c $(switch) amplitudes.f
 
 hoppings.o: modmain.mod dhops.mod annihilation.mod creation.mod\
-losses.mod hoppings.f
+losses.mod contacts.mod hoppings.f
 	$(FC) -c $(switch) hoppings.f
 
 rates.o: modmain.mod rates.f
@@ -155,6 +156,9 @@ diag.o: modmain.mod diag.f
 
 timestamp.o: timestamp.f
 	$(FC) -c $(switch) timestamp.f
+
+contacts.o: modmain.mod basisstates.mod lists.mod amplitudes.mod lists.mod contacts.f
+	$(FC) -c $(switch) contacts.f
 
 #-----------------------------------------------------
 
