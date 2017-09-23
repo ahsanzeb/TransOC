@@ -8,10 +8,9 @@ objects = basisstates.o main.o hamiltonian.o lists.o modmain.o memory.o \
 
 include make.inc
 
-execname= transoc
 
-switch= -O3 -g -fcheck=all -fbounds-check -fbacktrace 
-#switch= -O3 -ffpe-trap=invalid,zero,overflow,underflow,denormal
+switch= -O3 -g -fbounds-check -fbacktrace 
+#switch= -O3 -fcheck=all -ffpe-trap=invalid,zero,overflow,underflow,denormal
 # -O -Wall -fcheck=all -g -fbacktrace
 # -g -fbounds-check
 # -g 
@@ -21,7 +20,8 @@ switch= -O3 -g -fcheck=all -fbounds-check -fbacktrace
 #-----------------------------------------------------
 
 transoc: $(objects)
-	$(FC) -o $(execname) $(switch) $(objects) $(LIB)
+	$(FC) -o transoc $(switch) $(objects) $(LIB)
+	cp transoc ~/bin/.
 
 LIB = libarpack_mac.a -llapack 
 
@@ -84,7 +84,7 @@ amplitudes.mod: modmain.mod basisstates.mod modmultiply.mod amplitudes.f
 modmultiply.mod: modmain.mod modmultiply.o modmultiply.f
 	$(FC) -c $(switch) modmultiply.f
 
-contacts.mod: modmain.mod basisstates.mod lists.mod amplitudes.mod lists.mod contacts.o contacts.f
+contacts.mod: modmain.mod basisstates.mod lists.mod amplitudes.mod lists.mod contacts.f
 	$(FC) -c $(switch) contacts.f
 
 #-----------------------------------------------------
@@ -127,12 +127,16 @@ annihilation.o: modmain.mod basisstates.mod amplitudes.o annihilation.f
 creation.o: modmain.mod basisstates.mod lists.mod amplitudes.o creation.f
 	$(FC) -c $(switch) creation.f
 
+
+contacts.o: modmain.mod basisstates.mod lists.mod amplitudes.o lists.o contacts.f
+	$(FC) -c $(switch) contacts.f
+
 losses.o: modmain.mod basisstates.mod lists.mod amplitudes.o losses.f
 	$(FC) -c $(switch) losses.f
 
 main.o:	modmain.mod basisstates.mod hamiltonian.mod lists.mod \
 hoppings.mod init.mod selection.mod rates.mod modways.mod\
- readinput.mod maps.mod diag.mod contacts.mod main.f 
+ readinput.mod maps.mod diag.mod main.f 
 	$(FC) -c $(switch) main.f 
 
 hamiltonian.o: modmain.mod basisstates.mod hamiltonian.f
@@ -157,16 +161,13 @@ diag.o: modmain.mod diag.f
 timestamp.o: timestamp.f
 	$(FC) -c $(switch) timestamp.f
 
-contacts.o: modmain.mod basisstates.mod lists.mod amplitudes.mod lists.mod contacts.f
-	$(FC) -c $(switch) contacts.f
-
 #-----------------------------------------------------
 
 
 %.o: %.f
 
 clean:
-	rm $(execname) *.o  *.mod
+	rm transoc *.o  *.mod
 
 # =================================================================================
 # End of the makefile

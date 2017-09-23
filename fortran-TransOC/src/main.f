@@ -7,7 +7,7 @@
 	use Hoppings, only: AllHops ! 
 	use rates, only: CalRates
 	use selection, only: ihSelect,icsSelect,getpsi2
-	use modways, only: UpdateWays, UpdateOcc
+	use modways, only: UpdateWays,UpdateOcc,UpdateDEQs
 	use readinput, only: input
 	use maps
 	use diag, only: diagonalise
@@ -21,7 +21,7 @@
 	double precision:: tottime, dt
 	integer:: trapiter,s,iss,nc,ns,itraj,nex,nelec,idw,ielec
 	logical :: found,alloc
-	
+	integer :: x(3)
 	! time stamp & random seed 
 	call timestamp
 
@@ -59,11 +59,12 @@
 	call initialise(nelec)
 
 	! put this in init?
-	if(nog) then
-		ipsi = 1;
-		Einit = nx*dw;
-	endif
+	!if(nog ) then
+	!	ipsi = 1;
+	!	Einit = nx*dw;
+	!endif
 
+	x = 0;
 	!========== iterations over number of hops
 	! main loop over number of hops asked
 	do iter=1,niter
@@ -84,7 +85,12 @@
 		call diagonalise()
 		if(debug)write(*,*) "main: diagonalisation done.... "
 		
-		!stop
+		!uncoupled case: start with excited sites
+		if(nog .and. iter==1) then
+			call chooseipsi(ipsi,Einit);
+			!ipsi = eig(mapt%map(1))%ntot
+			!Einit = eig(mapt%map(1))%eval(ipsi)
+		endif
 
 		if (.not. nog) then
 			if(allocated(psi)) deallocate(psi)
@@ -119,6 +125,16 @@
 		enddo
 
 	!if(nog)write(*,*) "main: nog=T; ipsi =  ",ipsi
+
+
+		! Before calculating the rates:
+		! Net charge on the system
+		Qnet = (nsites-nelec)-sum(sys%occ);
+		! charging energies for contact hops
+		call UpdateDEQs(Qnet, nelec)	
+
+	if (leads)
+     . x = x + (/nelec,sum(sys%occ),(nsites-nelec)-sum(sys%occ)/);
 
 
 		! All available hops: 
@@ -271,10 +287,10 @@
 				case(11,12,22,24)
 					charge = -1
 			end select	
-			dt=1.0d0/sum(rate(:)%r)
-			totcharge = totcharge + charge
-			tottime = tottime + dt
 		endif
+		dt=1.0d0/sum(rate(:)%r)
+		totcharge = totcharge + charge
+		tottime = tottime + dt
 		!-------------------------------
 
 		! update na, nx
@@ -323,8 +339,6 @@
 			if(debug)write(*,*) "----- updated mapb,mapt--------"
 		endif
 
-		!write(*,*)nsites,nelec,sum(sys%occ),(nsites-nelec)-sum(sys%occ)   
-
 	enddo ! iter
 	!write(*,*)"transoc: niter hops done.... " 
 	!===================================================== 
@@ -333,13 +347,17 @@
 
 
 	open(200,file='current.out',action='write',position='append')
-	if(itraj == 1) write(200,*) "# idw, ielec",idw,ielec
+	if(itraj == 1) then
+		write(200,*) "# idw, ielec",idw,ielec
+		write(200,*) 
+		write(200,*) 
+	endif				
 	!write(200,*) !'(i5,5x,2f15.10)')
   !   . totcharge, tottime, net charge on the system
 	if (leads) then
   		! Net charge on the system if contact are present
 		! intrinsic #electrons - present #electrons
-		write(200,*) totcharge, tottime, (nsites-nelec)-sum(sys%occ)
+		write(200,*) totcharge, tottime, x/niter
 	else
 		write(200,*) totcharge, tottime
 	endif
@@ -374,7 +392,7 @@
 	enddo ! nex
 	!	do postprocessing....
 	!write(*,*)"zt = ",zt
-	
+
 
 	! completion message...
 	write(*,*)"transoc: everything done.... " 

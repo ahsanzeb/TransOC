@@ -18,15 +18,15 @@
 	write(6,*)
 	write(6,*)"**************************"//
      .		"******************************"
-	write(6,'(/,a)')"			WELCOME ! "
-	write(6,'(/,a)')"		   TransOC Started !"
+	write(6,'(/,a)')"			WELCOME! "
+	write(6,'(/,a)')" TransOC: Transport in Organic Cavities"
         write(6,'(/,a)')
      .        '	        . . . Running v 0.0 . . . '
 
 	write(6,'(/,a,i2,a,i2,2a,i2,a,i2,a,i4,a)')
      . 	"	   ",
      .                   dt(5)," Baj kar ",dt(6), " min",
-     .               " DATE :  ",dt(3),"/",dt(2),"/",dt(1)
+     .               " aor tarekh hai ",dt(3),"/",dt(2),"/",dt(1)
 	write(6,*)"**************************"//
      .		"******************************"
 

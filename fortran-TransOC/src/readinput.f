@@ -26,7 +26,8 @@
 	debug = .false.
 	nsites = 5;
 	nel = 1;
-	nelmin=1; nelmax=1;dnelec=1
+	nelmin=1; nelmax=1;dnelec=1;
+	Eq = 0.0;
 	nx = 1;
 	niter = 500;
 	ntraj = 10;
@@ -40,11 +41,11 @@
 	ndsec = 3;
 	g = 0.3d0;
 	th = 1.0d0; tl=1.0d0; tlh=0.005d0; thl=1.0d0;
-	JhR=10*th; JlR=10*th; JhL=10*th; JlL=10*th;
+	JhR=10.0d0; JlR=10.0d0; JhL=10.0d0; JlL=10.0d0;
 	EBlock = .false.; HBlock = .false.;
 	periodic = .true.; onlybulk = .false.;
 	leads = .false.;
-	Ebr = 0.7d0; Ebl = 0.7d0; 
+	Ebr = 0.7d0; Ebl = 0.7d0;
 	Er = 1.0d0
 	w0 = 2.0d0
 	dw = 0.0d0
@@ -64,6 +65,7 @@
 	ztout= .true.;
 	ntrapout= .true.;
 	ratesout= .true.;
+	onlydoped = .true.
 	!std= .true.;
 	!--------------------------!
 	!     read from input.in   !
@@ -112,6 +114,15 @@
 		read(50,*,err=20) nelmin, nelmax,dnelec
 		givenNelrange = .true.;
 
+	case('ChargingEnergy')
+		read(50,*,err=20) Eq
+		! Eq > 0 only
+		if(Eq < 0.0d0) then
+			write(*,*)"Warning(readinput): ChargingEnergy should be >= 0"
+			write(*,*)"==> Finite e affinity cannot keep charging..."
+			write(*,*)"==> Or change the form of dEQs to include it."	
+		endif
+
 	case('NExcitationsRange','NexcitationsRange','nexcitationsrange')
 		read(50,*,err=20) mexmin,mexmax,dmex
 		givenNexcit = .true.;
@@ -121,7 +132,7 @@
 		read(50,*,err=20) dwmin,dwmax,ddw
 		givenDwRange = .true.;
 		
-	case('Nexcitations')
+	case('NExcitations','Nexcitations')
 		read(50,*,err=20) nx
 
 	case('Niter')
@@ -248,6 +259,7 @@
 
 	! contact/leads present?
 	leads = (.not. periodic) .and. (.not. onlybulk);
+	if(leads) onlydoped = .false.
 	!if (sum(abs(JhR+JlR+JhL+JlL)) < 1.0d-5) then
 	!	leads = .false.
 	!	onlybulk = .true.

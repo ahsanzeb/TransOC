@@ -3,7 +3,7 @@
 	use modmain, only: sys, ways, periodic, nsites,leads 
 	implicit none
 
-	public :: UpdateWays, UpdateOcc
+	public :: UpdateWays, UpdateOcc,UpdatedEQs
 	private:: WhichBulkHop
 
 	contains
@@ -346,5 +346,37 @@
 	return
 	end subroutine UpdateOcc
 !**********************************************
+!	charging energy
+	subroutine UpdatedEQs(Qtot,nelec)
+	use modmain, only: Eq, dEQs
+	implicit none
+	integer, intent(in)::Qtot,nelec
+	integer:: ih
+	! Net charge on the system
+	!	Qnet = (nsites-nelec)-sum(sys%occ);
+	! Net charging energy
+	! Eqtot = Eq * Qnet*(Qnet+1)/2.0d0;
+
+	dEQs = 0.0d0;
+	do ih = 9,24
+		select case(ih)
+			case(9:12,18,20,22,24)
+				! e extraction/hole injection
+				dEQs(ih-8) = +1.0d0;
+			case(13:16,17,19,21,23)
+				! e injection/hole extraction
+				dEQs(ih-8) = -1.0d0;
+		end select
+	enddo
+
+	! not abs(Qtot); 
+	! similar charging increase energy, opposite decreases
+	dEQs = Eq * Qtot * dEQs;
+
+	return
+	end 	subroutine UpdatedEQs
+
+
+
 
 	end module modways

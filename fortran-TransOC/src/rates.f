@@ -165,7 +165,7 @@
 	! rates for ih hop, ic channel, is site
 	! sets global variable rate(ih)%rcs(ic,is)
 	use modmain, only: nx,qt,eig,itypes,beta,
-     .  mapt,maph,mapc,Einit,rate,ways,dqc
+     .  mapt,maph,mapc,Einit,rate,ways,dqc,dEQs
 	implicit none
 	integer, intent(in) :: ih,ic,is
 	! local
@@ -234,6 +234,11 @@
 	! change in energy for all transitions
 	de = eig(itl)%esec(1:nsec) + dqc(ih,ic); ! changes due to efield, barries, etc.
 	de = de - Einit; ! total change in energy
+
+	! charging energy contact hops
+	if(ih .ge. 9 .and. ih .le. 24) then
+		de = de + dEQs(ih-8)
+	endif
 
 	! rates; total for this hop/hchannel/site
 

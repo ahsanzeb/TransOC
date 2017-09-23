@@ -22,12 +22,17 @@
 	! DopingRange
 	integer :: nel,nelmin,nelmax,dnelec ! nel will stay fixed if no contacts
 
+	! net charge on the system
+	integer :: Qnet
+	! Charging energy prop constant
+	double precision:: Eq
+	! charging energy for contact hops
+	double precision:: dEQs(16)
+
 	! undoped case can get into traps,
 	! and until no clear release mechanism is decided,
 	!	e.g., full dissipative dynamics between hops,
-	! I will use onlydoped = T.
-	logical, parameter :: onlydoped = .true. 
-
+	logical :: onlydoped
 
 	! excitations:
 	integer :: mexmin,mexmax,dmex
@@ -431,5 +436,23 @@
 	return
 	end 	subroutine writeout
 !---------------------------------------
+	! for uncoupled case:
+	! pick one of ksub with max possible excited sites
+	! for nog case, we never need N_ex > 0 unless
+	! we want to have some up spins
+	subroutine chooseipsi(ipsi,Einit);
+	implicit none
+	integer, intent(out):: ipsi
+	double precision, intent(out):: Einit
+	! local
+	integer :: it
+
+	it = mapt%map(1);
+	! here, the last one, just because
+	! it is easy to get it's index
+	ipsi = eig(it)%ntot
+	Einit = eig(it)%eval(ipsi)
+	return
+	end subroutine chooseipsi
 
 	end module
