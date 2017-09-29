@@ -1,24 +1,21 @@
 
 	module lindblad
+	use modmain, only: dt, ntcoarse, beta, wcut, J0, rhovt
 	implicit none
 	! to use various subroutines in this module
 	integer :: ne, nsec
 	integer, allocatable, dimension(:):: ind !start index of sectors
 	double precision, allocatable, dimension(:):: esec, amp
-	double precision, allocatable, dimension(:):: rhov
+	double precision, allocatable, dimension(:):: rhov ! rho in vectorised form at t=0
 	integer, allocatable, dimension(:):: maprho ! location of diagonal elements of rho in rhov
 	integer:: lrhov
-
-
-	
+	double precision, allocatable, dimension(:,:):: gdecay
+	double precision :: gphi
+	! 1/kbT, Ohmic spectral density cut-off and prefix with pi etc absorbed
+	!double precision :: beta, wcut, J0
+	double precision :: dth,dt6
+	!integer, parameter :: ntcoarse = 50 !
 	! rhovt(:,:): rhov for a coarse grained time grid
-
-	! conversion of deg sectors in rhov back to comput basis
-	! and calc of rates etc
-
-	! we need to have data for the prev hop so that in case
-	! we are trapped, we pretend to go back and solve master eq etc...
-
 
 ! Lindblad dynamics
 ! 1. integrate Lindblad equation and find density matrix on a coarse grid
@@ -65,32 +62,68 @@
 	return
 	end 	subroutine initme	
 !---------------------------------------
-	subroutine mesolve(dt,ntmax)
+	double precision function Sw(w)
+	double precision, intent(in) :: w
+	!Sw = Jw(w) * nw(w)
+	Sw = J0 * w * dexp(-(w/wcut)**2) * dexp(-w*beta)
+	return
+	end function
+!---------------------------------------
+	subroutine makegammas()
 	implicit none
-	double precision :: dt
-	! aux
-	double precision, dimension(lrhov) :: psit,v
-	integer :: i
-	double precision :: dth,dt6
+	! local
+	integer:: is,js
+	
+	if(allocated(gdecay))deallocate(gdecay)
+	allocate(gdecay(nsec,nsec))
+	gdecay = 0.0d0
+	! decay rates
+	do js=1,nsec
+		do is=1,js-1
+			w = esec(js) - esec(is);
+			gdecay(js,is) = 2*Sw(w)
+		enddo
+	enddo	
+	dphi = 2*Sw(0.0d0); ! dephasing rate
+	return
+	end 	subroutine makegammas
+!---------------------------------------
+	subroutine mesolve()
+	use modmain, only: rhovt	
+	implicit none
 
-	dth = dt/2.0d0;
-	dt6 = dt/6.0d0;
+	! aux
+	integer :: ntmax, ntcoarse
+	integer :: i, it1
 
 	!	calculate rhov, maprho, lrhov
 	call makerho()
+	! calculate gdecay, gphi
+	call makegammas()
 
-	! calculate gammadec, gammaphi
+	ntmax = 200; ! for integration of Lindblad equation
+	ntcoarse = min(ntmax,50); ! 50 points for coarse grid to save rho snapshots?
 
+	! set time increments for rk4 routine
+	dt = 0.005; ! ?? choose a suitable value
+							!	Ttot = dt*ntmax should be 
+							!	large enough > 1/max(th,tl,thl,....)
+	dth = dt/2.0d0;
+	dt6 = dt/6.0d0;
 
-
-
-	do i=2,ntmax
-		if (mod(i,prntstep) == 0)
-     .   write(6,'(a20,2x,i10,a10,i10)') ' time evolution step ',i,
-     .   ' out of ',ntmax
-		call rk4step(psit)
+	if(allocated(rhovt))deallocate(rhovt)
+	allocate(rhovt(lrhov,ntcoarse))
+	rhovt = 0.0d0;
+	
+	niter1 = int(ntmax/ntcoarse)
+	do i=1,ntcoarse
+		rhovt(:,i) = rhov;
+		do j=1,niter1
+ 			call rk4step(rhov);
+ 		enddo
 	end do
-
+	
+	return
 	end subroutine mesolve
 !---------------------------------------
 	subroutine rk4step(y)
@@ -150,7 +183,6 @@
 !---------------------------------------
 	subroutine yprime(rhov,Ldiss) ! dissipators
 	! calculates Ldiss using input rhov
-	use modmain, only: gammadec, gammaphi ! define these in this module?
 	implicit none
 	double precision, dimension(lrhov),intent(in):: rhov
 	double precision, dimension(lrhov),intent(out):: Ldiss
@@ -160,7 +192,7 @@
 	integer:: i,i1,i2,j,k,indx,lrhov,g,is,js
 
 	! NOTE:
-	! calculate gammadec, gammaphi before calling this.
+	! calculate gdecay, gphi before calling this.
 	
 	! decay; diagonal elements only
 	Ldecay = 0.0d0;
@@ -172,14 +204,14 @@
 			! lower sectors reduce populations
 			do is=1,js-1
 				g = ind(is+1) - ind(is); ! degeneracy of ith sector
-				Ldecay(j) = Ldecay(j) - gammadec(js,is)*g*rhov(indx);
+				Ldecay(j) = Ldecay(j) - gdecay(js,is)*g*rhov(indx);
 			enddo
 
 			! higher sectors increase populations
 			do is=js+1,nsec
 				do i=ind(is),ind(is+1)-1
 					indx = maprho(i);
-					Ldecay(j) = Ldecay(j) + gammadec(is,js)*rhov(indx);
+					Ldecay(j) = Ldecay(j) + gdecay(is,js)*rhov(indx);
 				enddo
 			enddo
 
@@ -187,9 +219,9 @@
 	enddo ! js
 
 	! dephasing ==> off-diagonal of rho
-	!	Lphi = gammaphi * rhov;
+	!	Lphi = gphi * rhov;
 	! fill diagonal elements with Ldecay
-	Ldiss = gammaphi * rhov; 
+	Ldiss = gphi * rhov; 
 	do i=1,ne
 		indx = maprho(i);
 		Ldiss(indx) = Ldecay(i);
@@ -198,7 +230,5 @@
 	return
 	subroutine yprime
 !---------------------------------------
-
-
 
 	end module lindblad

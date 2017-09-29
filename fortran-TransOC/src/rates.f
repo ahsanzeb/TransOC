@@ -308,5 +308,55 @@
 	return
 	end function PenaltyArray
 !******************************************************
+
+!----------------------------------------
+! For master equation case:
+! finds time increment for which dtau=1/R(t) 
+!	and sets global variable rate%* at this time.
+! writes time dependent rates in file Rt.out
+	subroutine setrates()
+	use modmain, only: mrate, ntcoarse
+	implicit none
+	!double precision, intent(in):: dt,
+	!double precision, intent(out):: dtau
+	! local
+	integer :: it,ih, itm
+	double precision:: t, delta, deltaold, Rt	
+
+	open(123,file='Rt.out',action='write',position='append')
+	write(123,*) 
+	write(123,*)
+	! r(t) = total rates at time t
+	deltaold = 1.0d20; ! a large number
+	itm=1;
+	do it=1,ntcoarse
+		do ih=1,26
+			mrate(ih)%r(it) = sum(mrate(ih)%rcst(:,:,it))
+		enddo
+		! R(t) = sum of total rates of all hops
+		Rt = sum(mrate(:)%r(it))
+		t = it*dt;
+		write(123,'(28f15.10)') t, Rt, mrate(:)%r(it)
+
+		! find t = R(t) point;
+		delta = abs(t - 1/Rt);
+		if(delta < delold) itm = it
+		delta = deltaold
+	enddo
+	close(123)
+
+	! time increment: dtau = dt*it
+	!	dtau = dt*itm;
+	! set global var rate 
+	do ih=1,26
+		rate(ih)%rcs(:,:) = mrate(ih)%rcst(:,:,itm)
+		rate(ih)%r = sum(mrate(ih)%rcst(:,:,itm))
+	enddo
+
+	! now we can use usual routine select etc...
+	return
+	end subroutine setrates
+!------------------------------------------
+
 	end module rates
 

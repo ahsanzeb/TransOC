@@ -5,20 +5,20 @@
 	use basisstates, only: mkbasis
 	use hamiltonian, only: mkHamilt
 	use Hoppings, only: AllHops ! 
-	use rates, only: CalRates
+	use rates, only: CalRates, setrates
 	use selection, only: ihSelect,icsSelect,getpsi2
 	use modways, only: UpdateWays,UpdateOcc,UpdateDEQs
 	use readinput, only: input
 	use maps
 	use diag, only: diagonalise
-	
+	use lindblad, only: initme, mesolve
 	implicit none
 
 	integer:: i,ic,is,ia,iter,ih,j,ntot,zt,icl
 	integer:: nev,ncv,it
 	integer :: stath(26),statc(4),ntrap,stathc(26,4)
 	integer :: totcharge,charge
-	double precision:: tottime, dt
+	double precision:: tottime, dtau
 	integer:: trapiter,s,iss,nc,ns,itraj,nex,nelec,idw,ielec
 	logical :: found,alloc
 	integer :: x(3)
@@ -27,7 +27,7 @@
 
 	!stath = 0; statc = 0; 
 	alloc = .false.
-	
+	master = .false.
 	! readinput file
 	call input()
 
@@ -111,11 +111,18 @@
 		if(.not. alloc) then
 			! at most nsites ways for any hop???
 				do ia=1,14
-					allocate(qt(ia)%cs(4,sys%nsites)) ! alloc/deallocate at every iteration...
+					allocate(qt(ia)%cs(4,sys%nsites))
 				enddo
 				! allocate space for rates
 				do ih=1,26 ! testing... alloc 26 all 
-					allocate(rate(ih)%rcs(4,sys%nsites))! alloc/deallocate at every iteration...
+					if(PermSym)then
+						allocate(rate(ih)%rcs(4,1))
+						allocate(mrate(ih)%rcst(4,1,ntcoarse))
+					else
+						allocate(rate(ih)%rcs(4,sys%nsites))
+						allocate(mrate(ih)%rcst(4,sys%nsites,ntcoarse))
+					endif
+					allocate(mrate(ih)%r(ntcoarse))
 				enddo
 				alloc = .true.
 		endif
@@ -141,7 +148,7 @@
 		!	transition amplitudes and amp^2 for degenerate sectors
 		! and allocate space for rates???
 		s = 1;
-10		call AllHops()
+		call AllHops()
 		if(debug)write(*,*) "main:   AllHops done... "	
 		
 		! rates from am2 and energetic penalties
@@ -149,58 +156,28 @@
 		if(debug)write(*,*) "main:   CalRates done... "	
 
 		if ( sum(rate(:)%r) < 1.0d-14 ) then
-			write(*,*)"main: sum(rate(:)%r) = ",sum(rate(:)%r)
-			
-			! to avoid mem error if trap on first iteration
-			!if(iter==1 .and. (.not. nog)) call getpsi2(1,1,1); 
-			
-			if (trapiter == iter) then
-				s = s + 1;
-				write(*,*) "main: trap for excited sector",s-1," too"
-				write(*,*) "main: s, eig(it)%nsec=",s, eig(it)%nsec
-				if (s > eig(it)%nsec) then
-					write(*,*)"main: no more sectors! Aborting!"
-					goto 99
-				endif
-			else
-				write(*,*) "main: trap encountered! , iter = ",iter
-				s = 2; ! second sec =  first excited sec
-				ntrap = 	ntrap +1;
-				trapiter = iter;
-			endif		
 			if (nog) then
-				write(*,*) "main: trap encountered! , iter = ",iter
+				write(*,*) "main: nog; trap encountered! , iter = ",iter
 				goto 99
 			endif
-			! psi2, Einit2, 
-			!	in case the lowest state psi sees a trap,
-			! we will use this state to get us out
-			if(s <= eig(it)%nsec) then
-				if(iter==1) then
-					Einit = eig(mapt%map(1))%eval(s);
-					psi(1,:) = 0.0d0;
-					!random superposition 
-					do i=eig(it)%ind(s),eig(it)%ind(s+1)-1 ! second degenerate sector
-						psi(1,:) = psi(1,:) + eig(it)%evec(:,i) * rand()
-					enddo
-					! normalise ?
-					psi(1,:) = psi(1,:)/sum(psi(1,:)**2);			
-				else
-					psi(1,:) = psi2(s,:);
-					Einit = Einit2(s);
-				endif
-			else
-				write(*,*)"main: s <= eig(it)%nsec ! Aborting..."
-				stop
-			endif
-			goto 10 ! calculate amplitudes and rates again
-							!	with this excited state
-			! if needed, can we keep repeating this
-			! for higher and higher degen sectors
-			! until we are out of trap?
-		elseif(s>1 .and. (.not. nog))then
-				write(*,*) "main: got out of trap, s=",s	
-				s = 0;	
+
+			write(*,*)"main: sum(rate(:)%r) = ",sum(rate(:)%r)
+			ntrap = 	ntrap +1;
+			!  Rt , delta ?!
+			! set to 0.0d0
+			do ih=1,26
+				mrate(ih)%rcst = 0.0d0
+				mrate(ih)%r = 0.0d0		
+			enddo
+
+			call mesolve()
+			! then go to AllHops() with master=.true.
+			! and after than call findtau() instead of CalRates()
+			! then things are usual.
+			master = .true.
+			call AllHops()
+			master = .false.
+			call setrates();
 		endif
 
 
@@ -214,6 +191,9 @@
 		call icsSelect(ih,ic,is)
 		if(debug)write(*,*) "main:   icsSelect: ic,is =  ",ic,is
 
+		! saves amp etc for later use in case it's a trap  
+		call initme(ih,ic,is) 
+		
 		! if nog, the final state index from selected ih,ic
 		if (nog) then
 			if(PermSym) then
@@ -288,9 +268,9 @@
 					charge = -1
 			end select	
 		endif
-		dt=1.0d0/sum(rate(:)%r)
+		dtau=1.0d0/sum(rate(:)%r)
 		totcharge = totcharge + charge
-		tottime = tottime + dt
+		tottime = tottime + dtau
 		!-------------------------------
 
 		! update na, nx

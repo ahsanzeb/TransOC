@@ -284,6 +284,19 @@
 		double precision, allocatable :: rcs(:,:) !channel,site resolved
 	end type TransitionRates
 
+	! Master equation case, transition rates
+	type :: MasterRates
+		!integer :: nc,ns,nt ! number of channels, sites, timesteps		
+		double precision, allocatable :: r(:) ! total
+		double precision, allocatable :: rcst(:,:,:) !channel,site,timestep resolved
+	end type MasterRates
+
+	logical :: master ! alter CalAmp0/CalAmp behaviour when master eq is solved
+	integer :: ntcoarse ! size of coarse time grid for rhovt and mrate etc
+	double precision :: dt ! for integration of master eq in mesolve
+	double precision :: wcut, J0 ! bath Ohmic spectral density parameters
+	double precision :: rhovt
+	!integer :: lrhov
 	!---------------------------------------	
 	! define system
 	!---------------------------------------	
@@ -321,6 +334,7 @@
 	! set the format for sparse matrix
 	!hop(1:4)%spfrmt = 'diagonal';
 
+	type(MasterRates), dimension(26):: mrate
 
 	logical :: leads ! include contact or not?
 
