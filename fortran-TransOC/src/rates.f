@@ -315,14 +315,16 @@
 !	and sets global variable rate%* at this time.
 ! writes time dependent rates in file Rt.out
 	subroutine setrates()
-	use modmain, only: mrate, ntcoarse
+	use modmain, only: rate, mrate, ntmax, ntcoarse, dt
 	implicit none
 	!double precision, intent(in):: dt,
 	!double precision, intent(out):: dtau
 	! local
-	integer :: it,ih, itm
-	double precision:: t, delta, deltaold, Rt	
+	integer :: it,ih, itm,ih1
+	double precision:: t, delta, deltaold, Rt,dtt
 
+	dtt = dt * int(ntmax/ntcoarse);
+	
 	open(123,file='Rt.out',action='write',position='append')
 	write(123,*) 
 	write(123,*)
@@ -334,17 +336,23 @@
 			mrate(ih)%r(it) = sum(mrate(ih)%rcst(:,:,it))
 		enddo
 		! R(t) = sum of total rates of all hops
-		Rt = sum(mrate(:)%r(it))
-		t = it*dt;
-		write(123,'(28f15.10)') t, Rt, mrate(:)%r(it)
+		Rt = sum((/(mrate(ih1)%r(it),ih1=1,26)/))
+		t = (it-1)*dtt;
+		write(123,*) t, Rt, (mrate(ih1)%r(it),ih1=1,26)
 
 		! find t = R(t) point;
 		delta = abs(t - 1/Rt);
-		if(delta < delold) itm = it
-		delta = deltaold
+		if(delta < deltaold) itm = it
+		deltaold = delta;
 	enddo
 	close(123)
 
+	if(itm == ntcoarse) then
+		write(*,*) "Warning(rates): higher states might still be"
+		write(*,*) " decaying to LP... "
+		write(*,*) " dtau=1/R needs to consider this....." 
+	endif
+	
 	! time increment: dtau = dt*it
 	!	dtau = dt*itm;
 	! set global var rate 
@@ -352,6 +360,14 @@
 		rate(ih)%rcs(:,:) = mrate(ih)%rcst(:,:,itm)
 		rate(ih)%r = sum(mrate(ih)%rcst(:,:,itm))
 	enddo
+
+	! what if evolution 1/R > tmax that rho is evolved up to?
+	!	if lowest eigenstate is a trap, then higher states will still be decaying to it, so the dtau=1/R needs to consider this..... 
+	 
+	if(sum(rate(:)%r) < 1.0d-14) then
+		write(*,*)"Warning(rates): R < 1.0d-10 ??? stopping..."
+		stop
+	endif
 
 	! now we can use usual routine select etc...
 	return

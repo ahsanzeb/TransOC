@@ -2,7 +2,7 @@
 objects = basisstates.o main.o hamiltonian.o lists.o modmain.o memory.o \
  hoppings.o dhops.o modmultiply.o annihilation.o losses.o \
  maps.o init.o amplitudes.o creation.o selection.o \
- rates.o modways.o readinput.o diag.o timestamp.o contacts.o
+ rates.o modways.o readinput.o diag.o timestamp.o contacts.o lindblad.o
 
 
 
@@ -48,6 +48,10 @@ basisstates.mod: modmain.mod lists.mod basisstates.o basisstates.f
 
 hamiltonian.mod: modmain.mod lists.mod basisstates.mod hamiltonian.o hamiltonian.f
 	$(FC) -c $(switch)  hamiltonian.f 
+
+
+lindblad.mod: modmain.mod lindblad.o lindblad.f
+	$(FC) -c $(switch)  lindblad.f 
 
 dhops.mod: modmain.mod dhops.o dhops.f
 	$(FC) -c $(switch) dhops.f
@@ -134,9 +138,12 @@ contacts.o: modmain.mod basisstates.mod lists.mod amplitudes.o lists.o contacts.
 losses.o: modmain.mod basisstates.mod lists.mod amplitudes.o losses.f
 	$(FC) -c $(switch) losses.f
 
+lindblad.o: modmain.mod lindblad.f
+	$(FC) -c $(switch) lindblad.f
+
 main.o:	modmain.mod basisstates.mod hamiltonian.mod lists.mod \
 hoppings.mod init.mod selection.mod rates.mod modways.mod\
- readinput.mod maps.mod diag.mod main.f 
+ readinput.mod maps.mod diag.mod lindblad.mod main.f 
 	$(FC) -c $(switch) main.f 
 
 hamiltonian.o: modmain.mod basisstates.mod hamiltonian.f

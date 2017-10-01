@@ -174,7 +174,7 @@
 		write(*,*)"sel: qt(ia)%cs ",shape(qt(ia)%cs)
 		write(*,*)"sel: qt(ia)%cs(ic,is)%amp ",
      .				shape(qt(ia)%cs(ic,iss)%amp)
-		write(*,*)"sel: is = is"
+		write(*,*)"sel: is =",is
 	endif
 
 	do s=1,nsec

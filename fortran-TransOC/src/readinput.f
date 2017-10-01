@@ -65,8 +65,18 @@
 	ztout= .true.;
 	ntrapout= .true.;
 	ratesout= .true.;
-	onlydoped = .true.
+	!onlydoped = .true.
+	onlydoped = .false. ! master equation now should allow zero doping.... 
 	!std= .true.;
+	!--------------
+	! master equation solver related:
+	ntcoarse = 20;
+	J0=1.0d0;
+	wcut=5.0d0;
+	ntmax=100;
+	dt = 0.005;
+	!--------------
+
 	!--------------------------!
 	!     read from input.in   !
 	!--------------------------!
@@ -99,6 +109,19 @@
 
 	case('ratesout')
 		read(50,*,err=20) ratesout
+
+	case('METimeGrids')
+		read(50,*,err=20) dt, ntmax, ntcoarse
+
+	!case('MEGridSize')
+	!	read(50,*,err=20) ntmax
+	!case('MEGridDivision')
+	!	read(50,*,err=20) dt
+	!case('MECoarseGridSize')
+	!	read(50,*,err=20) ntcoarse
+
+	case('MESpectralDensity')
+		read(50,*,err=20) J0, wcut
 
 	!case('stdout')
 	!	read(50,*,err=20) std
@@ -254,7 +277,10 @@
 
 	!write(*,*)"1. nolosses = ",nolosses
 
-
+	if(ntcoarse > ntmax) then
+		ntcoarse = ntmax
+		write(*,*)"Warning(input): ntcoarse > ntmax ===> set equal"
+	endif
 
 
 	! contact/leads present?
@@ -355,12 +381,11 @@
 	endif
 
 
-
-
 	!---------------------------------------------
 	! write various parameters
 	i = 1+int((mexmax-mexmin)/dmex);
 	j	=	1+int((nelmax-nelmin)/dnelec)
+
 	if (onlydoped) j=1+int((nelmax-nelmin-1)/dnelec);
 	open(200,file='parameters.out',action='write')
 		write(200,*) i,ndw,j,ntraj,niter

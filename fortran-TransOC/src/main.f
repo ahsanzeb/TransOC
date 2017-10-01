@@ -69,11 +69,13 @@
 	! main loop over number of hops asked
 	do iter=1,niter
 
-		!write(*,'(a)') ". . . . . . . . . . . . "
-		!write(*,'(a,i10,a,i10,a,2i10)') " itraj = ",itraj,
-    ! .               " iter = ",iter,"  N, m = ",na,nx
-		!write(*,*)          
-
+		if(1==1) then
+			write(*,'(a)') ". . . . . . . . . . . . "
+			write(*,'(a,i10,a,i10,a,2i10)') " itraj = ",itraj,
+     .               " iter = ",iter,"  N, m = ",na,nx
+			write(*,*)          
+		endif
+		
 		! make basis states ksub
 		call mkbasis(na,nx)
 		if(debug)write(*,*) " basis done....  "
@@ -106,7 +108,7 @@
 		!write(*,*)"main: psi="	,psi
 		!write(*,*)"main: eval 1="	,eig(it)%eval
 		
-		!write(*,*)"sys%occ = ",sys%occ
+		write(*,*)"sys%occ = ",sys%occ
 
 		if(.not. alloc) then
 			! at most nsites ways for any hop???
@@ -155,9 +157,13 @@
 		call CalRates()
 		if(debug)write(*,*) "main:   CalRates done... "	
 
-		if ( sum(rate(:)%r) < 1.0d-14 ) then
+		!if ( sum(rate(:)%r) < 1.0d-8 ) then
+		if ( mod(iter,3)==0) then
+			!write(*,*)" ===== * ===== * ===== * ===== * ===== *"
+
+			write(*,*) "main: trap encountered! , iter = ",iter
+			
 			if (nog) then
-				write(*,*) "main: nog; trap encountered! , iter = ",iter
 				goto 99
 			endif
 
@@ -170,14 +176,25 @@
 				mrate(ih)%r = 0.0d0		
 			enddo
 
+			! what if evolution 1/R > tmax that rho is evolved up to?
+			!	if lowest eigenstate is a trap, then higher states
+			! will still be decaying to it, so the dtau=1/R needs
+			! to consider this..... 
+			write(*,*) "mesolve called... "
 			call mesolve()
+
+			write(*,*) "mesolve done... "
+
 			! then go to AllHops() with master=.true.
 			! and after than call findtau() instead of CalRates()
 			! then things are usual.
 			master = .true.
 			call AllHops()
+			write(*,*) "Allhops with master=T done... "
+
 			master = .false.
 			call setrates();
+			write(*,*) "setrates done... "
 		endif
 
 
@@ -185,6 +202,9 @@
 	
 		! select a hop based on rates
 		ih = ihSelect() 
+
+		if(na==10) write(*,*)"R = ",sum(rate(:)%r),rate(1:8)%r
+
 
 		!write(*,*) "main: ===2==> ",rate(:)%r
 		if(debug)write(*,*) "main:   ihSelect: ih = ",ih

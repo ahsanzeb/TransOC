@@ -293,9 +293,12 @@
 
 	logical :: master ! alter CalAmp0/CalAmp behaviour when master eq is solved
 	integer :: ntcoarse ! size of coarse time grid for rhovt and mrate etc
-	double precision :: dt ! for integration of master eq in mesolve
+	integer :: ntmax ! mesolve integration grid size
+	double precision :: dt ! incremental time, for integration of master eq in mesolve
 	double precision :: wcut, J0 ! bath Ohmic spectral density parameters
-	double precision :: rhovt
+	double precision, allocatable, dimension(:,:) :: rhovt
+	integer, allocatable, dimension(:):: maprho ! location of diagonal elements 
+	integer :: lrhov
 	!integer :: lrhov
 	!---------------------------------------	
 	! define system
