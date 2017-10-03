@@ -74,25 +74,27 @@
 	end 	subroutine initme	
 !---------------------------------------
 	subroutine makeOnx()
-	use modmain, only: eig, mapt,na,nx,basis
+	use modmain, only: eig, mapt,na,nx,basis,mapb
 	implicit none
 	! local
 	double precision, allocatable, dimension(:,:):: aux
-	integer :: n1,n2,k,i1,i2,itl
+	integer :: n1,n2,k,i1,i2,itl,ib
 	
 	itl = mapt%map(1) ! location of eig data
 	n1 = eig(itl)%n1; ! dim of hilbert space
 	n2 = eig(itl)%n2; ! num of evec we have
 	!--------------------------------------
 	! calculate Onxc
-	allocate(aux(n1,n2))
+	allocate(aux(n2,n1))
 	aux = transpose(eig(itl)%evec); ! U^T
+
+	ib = mapb%map(3) ! location of basis data
 
 	! U^T.Onxc
 	do k=0,min(na,nx);
 		! range of basis with exciton number k
-		i1=basis(itl)%pntr(k+1)+1;
-		i2=basis(itl)%pntr(k+2);
+		i1=basis(ib)%pntr(k+1)+1;
+		i2=basis(ib)%pntr(k+2);
 		! relevant terms of U^T.Onxc
 		aux(:,i1:i2) = aux(:,i1:i2) * k
 	enddo
