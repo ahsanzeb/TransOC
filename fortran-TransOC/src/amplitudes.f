@@ -72,7 +72,7 @@
 		if (master) then
 			it1 = mapt%map(1); ! inition/current hilbert space location
 			allocate(Hte(eig(it1)%n2,n2))
-			Hte = matmul(eig(it1)%evec,HtUf);
+			Hte = matmul(transpose(eig(it1)%evec),HtUf); ! Ui^T.Ht.Uf
 			! Hte is Ht in eigenbasis.
 			!	split rhovt into degenerate sectors
 			!	and do: Hte^T.rhovtsec.Hte OR Hte.rhovtsec.Hte^T ?
@@ -144,7 +144,7 @@
 		if (master) then
 			it1 = mapt%map(1); ! inition/current hilbert space location
 			allocate(Hte(eig(it1)%n2,n2))
-			Hte = matmul(eig(it1)%evec,HtUf);
+			Hte = matmul(transpose(eig(it1)%evec),HtUf); ! Ui^T.Ht.Uf
 			! Hte is Ht in eigenbasis.
 			!	split rhovt into degenerate sectors
 			!	and do: Hte^T.rhovtsec.Hte OR Hte.rhovtsec.Hte^T ?
@@ -209,6 +209,22 @@
 	return
 	end subroutine GetAmp2
 !---------------------------------------
+	subroutine GetMEAmp2(amp,ne,amp2,nsec,ind)
+	! calculates total amplitude squared for degenerate sectors
+	integer, intent(in) :: ne, nsec
+	double precision,dimension(ne),intent(in):: amp ! amp^2 for final states
+	integer,dimension(nsec+1),intent(in):: ind !start index of sectors
+	double precision,dimension(nsec),intent(out):: amp2 !tot amp^2 of sec
+	! local
+	integer:: i,i1,i2,j
+	amp2 = 0.0d0;
+	do i=1,nsec !-1
+		i1 = ind(i); i2=ind(i+1)-1
+		amp2(i) = sum(amp(i1:i2)) ! amp already squared
+	end do	
+	return
+	end subroutine GetMEAmp2
+!---------------------------------------
 
 	!-------------------------------------
 	subroutine allocqt(ia,ic,is,itl,n2)
@@ -237,13 +253,14 @@
 	! for all t-points on coarse grid.
 	! get amp2. Multiply penalty function and get rates.
 	subroutine merates(ih,ic,is,Hte,n1,n2,it1,it2)
-	use modmain, only: rhovt, lrhov,ntcoarse, mrate, eig, maprho,ts
+	use modmain, only: rhovt, lrhov, ntcoarse, mrate, eig,
+     .               maprho, ts, ways, PermSym
 	!use lindblad, only: ? or rhovt in modmain?
 	implicit none
 	integer, intent(in):: ih,ic,is,n1,n2,it1,it2
 	double precision, dimension(n1,n2), intent(in):: Hte ! Ht in eigenbasis
 	! local
-	double precision:: r
+	double precision:: r, tr
 	double precision, allocatable, dimension(:):: amp2
 	double precision, allocatable, dimension(:,:):: rho, aux
 	integer :: irow,icol,l1,l2,it,j,dl,i
@@ -251,6 +268,7 @@
 	allocate(amp2(eig(it2)%nsec))
 
 	do it=1,ntcoarse
+	!tr = 0.0d0;
 	do i=1,eig(it1)%nsec ! initial spectrum degen sectors
 		l1 = eig(it1)%ind(i); l2 = eig(it1)%ind(i+1)-1;
 		dl = l2 - l1 + 1;
@@ -259,11 +277,14 @@
 		! fold part of rhov of a degen block to make upper triangular of rho
 		j=maprho(l1);
 		do irow=1,dl;
+			!tr = tr + rhovt(j,it); ! trace
+			!if(rhovt(j,it)<0.0d0)write(*,*)"? rhovt = ",rhovt(j,it)
 			do icol = irow,dl;
 				rho(irow,icol) = rhovt(j,it);
 				j = j + 1;
 			enddo
 		enddo
+		
 		! fill lower triangular
 		do irow=1,dl;
 			do icol = 1,irow-1;
@@ -271,21 +292,43 @@
 			enddo
 		enddo
 		!--------------------------------
+
+		!	debugging
+		!rho = 0.0d0
+		!if(i==1)rho(1,1)=1.0d0;
+		!if(it==1 .and. i==1)write(*,*)"amp:  dummy  rho(1,1)=1.0d0"
+
+		! t=0, pure state
+		!if(it==1) then
+		!	tr = sum( (/ (rho(irow,irow),irow=1,dl) /) )
+		!	tr=sum(abs(tr*rho-matmul(rho,rho)));
+		!	write(*,*)"amp: t=0; sum|rho-rho^2|=",tr
+		!endif
+
+		
 		allocate(aux(dl,n2))
 		aux = matmul(rho,Hte(l1:l2,:));
-		aux = Hte(l1:l2,:) * aux; ! elem by elem *
-		aux(1,:) = sum(aux,dim=1);! amp
+		! two steps ==> diagonal elem of Hte^T.rho.Hte
+		aux = Hte(l1:l2,:) * aux; ! elem by elem * 
+		aux(1,:) = sum(aux,dim=1);! amp2; all final states 
 		! amp2 for degen sectors:
-		call GetAmp2(aux(1,:), n2, amp2, eig(it2)%nsec, eig(it2)%ind)
+		call GetMEAmp2(aux(1,:), n2, amp2, eig(it2)%nsec, eig(it2)%ind)
+		!write(*,*)"amp: 	amp2=",amp2
 		deallocate(aux, rho)
 		! now get rates using penalty function
 		call ratehcst(ih,ic,is,eig(it1)%esec(i),
      .              eig(it2)%nsec,eig(it2)%esec,amp2,r)
 		! set global variable mrate:
 		! accumulate for all init sectors
-		mrate(ih)%rcst(ic,is,it) = mrate(ih)%rcst(ic,is,it)
-     .                         + ts(ic,is)*r 
+		if(PermSym) then ! total rate = (rates for one site) * ns
+			mrate(ih)%rcst(ic,is,it) = mrate(ih)%rcst(ic,is,it)
+     .                         + ts(ih,ic)*r*ways(ih)%ns
+		else
+			mrate(ih)%rcst(ic,is,it) = mrate(ih)%rcst(ic,is,it)
+     .                         + ts(ih,ic)*r
+		endif
 	enddo ! i; initial spec sec
+	!if(mod(it-1,20)==0)write(*,*) "it, trace = ", it, tr
 	enddo ! it; time
 
 	deallocate(amp2)

@@ -10,8 +10,9 @@
 	double precision, allocatable, dimension(:):: rhov ! rho in vectorised form at t=0
 	!integer, allocatable, dimension(:):: maprho ! location of diagonal elements of rho in rhov
 	!integer:: lrhov
-	double precision, allocatable, dimension(:,:):: gdecay
-	double precision :: gphi
+	double precision, allocatable, dimension(:,:):: SD
+	double precision, allocatable, dimension(:,:):: Onx !exciton number operator in eigenbasis
+	!double precision :: gphi
 	! 1/kbT, Ohmic spectral density cut-off and prefix with pi etc absorbed
 	!double precision :: beta, wcut, J0
 	double precision :: dth,dt6
@@ -72,6 +73,38 @@
 	return
 	end 	subroutine initme	
 !---------------------------------------
+	subroutine makeOnx()
+	use modmain, only: eig, mapt,na,nx,basis
+	implicit none
+	! local
+	double precision, allocatable, dimension(:,:):: aux
+	integer :: n1,n2,k,i1,i2,itl
+	
+	itl = mapt%map(1) ! location of eig data
+	n1 = eig(itl)%n1; ! dim of hilbert space
+	n2 = eig(itl)%n2; ! num of evec we have
+	!--------------------------------------
+	! calculate Onxc
+	allocate(aux(n1,n2))
+	aux = transpose(eig(itl)%evec); ! U^T
+
+	! U^T.Onxc
+	do k=0,min(na,nx);
+		! range of basis with exciton number k
+		i1=basis(itl)%pntr(k+1)+1;
+		i2=basis(itl)%pntr(k+2);
+		! relevant terms of U^T.Onxc
+		aux(:,i1:i2) = aux(:,i1:i2) * k
+	enddo
+
+	if(allocated(Onx))deallocate(Onx)
+	allocate(Onx(n2,n2))
+	Onx = matmul(aux,eig(itl)%evec) ! (U^T.Onxc).U
+	deallocate(aux)
+	
+	return
+	end 	subroutine makeOnx
+!---------------------------------------
 	double precision function Sw(w)
 	double precision, intent(in) :: w
 	double precision :: bw
@@ -89,30 +122,24 @@
 	return
 	end function
 !---------------------------------------
-	subroutine makegammas()
+	subroutine makeSD()
 	implicit none
 	! local
 	integer:: is,js
-	double precision:: w
+	double precision:: wi
 	
-	if(allocated(gdecay))deallocate(gdecay)
-	allocate(gdecay(nsec,nsec))
-	gdecay = 0.0d0
-	! decay rates
-	do js=1,nsec
-		do is=1,js-1
-			w = esec(js) - esec(is);
-			gdecay(js,is) = 2*Sw(w)
+	if(allocated(SD))deallocate(SD)
+	allocate(SD(nsec,nsec))
+	SD = 0.0d0
+	do is=1,nsec
+		wi=esec(is)
+		do js=is,nsec
+			SD(js,is) = Sw(esec(js) - wi)
 		enddo
 	enddo	
-	gphi = 2*Sw(0.0d0); ! dephasing rate
-
-	!write(*,*)"gphi, gdecay="
-	!write(*,*)gphi
-	!write(*,*)gdecay
 	
 	return
-	end 	subroutine makegammas
+	end 	subroutine makeSD
 !---------------------------------------
 	subroutine mesolve()
 	!use modmain, only: rhovt	, ntcoarse,J0,wcut
@@ -126,8 +153,11 @@
 	!	calculate rhov, maprho, lrhov
 	call makerho()
 	
-	! calculate gdecay, gphi
-	call makegammas()
+	! calculate SD matrix, power spectral density; S(w_{sr})
+	call makeSD()
+
+	! calculate Onx, exciton number operator in eigenbasis
+	call makeOnx()
 
 	! set time increments for rk4 routine
 	!dt = 0.005; ! ?? choose a suitable value
@@ -145,7 +175,7 @@
 	niter1 = int(ntmax/ntcoarse)
 	do i=1,ntcoarse
 		rhovt(:,i) = rhov;		
-		call writepop(rhov,lrhov,dt*(i-1)*niter1+1, 0)
+		call writepop(rhov,lrhov,dt*(i-1)*niter1, 0)
 		
 		do j=1,niter1
  			call rk4step(rhov);
@@ -220,6 +250,7 @@
 	! out: sets global arrays rhov, maprho, and size of rhov = lrhov
 	! local
 	integer:: i,i1,i2,j,k,indx,nst
+	double precision :: x(ne,ne)
 
 	! calculate size of vectorised rho with upper triangular only
 	lrhov=0;
@@ -251,58 +282,85 @@
 		enddo
 	enddo
 
+	!write(*,*)"norm |amp><amp| = ",
+  !   .matmul(reshape(amp,shape=(/1,ne/)),reshape(amp,shape=(/ne,1/)))
+	
+	!x=matmul(reshape(amp,shape=(/ne,1/)),reshape(amp,shape=(/1,ne/)))
+	!write(*,*)"makerho: res rho-rho^2 = ",
+  !   . sum(abs(x - matmul(x,x)))
+
 	return
 	end subroutine makerho
+
 !---------------------------------------
-	subroutine yprime(rhov,Ldiss) ! dissipators
+! Redfied equation
+!	with degeneracies, populations and coherence
+!	do not decouple in the secular approximation.
+!	For only upper triangular blocks of degen sectors in rho
+!	uses exciton number operator Onxs=sum_{i=1,na}(c_i^daggar.c_i)
+! Onxs is diagonal in computational basis.
+!	In eigenbasis, Onx=U^T.Onxs.U, U eigenstates (columns) in comp basis.
+	subroutine yprime(rhov,Ldiss)
 	! calculates Ldiss using input rhov
 	implicit none
 	double precision, dimension(lrhov),intent(in):: rhov
 	double precision, dimension(lrhov),intent(out):: Ldiss
 	
 	! local
-	double precision, dimension(ne):: Ldecay
-	integer:: i,i1,i2,j,k,indx,lrhov,g,is,js
+	integer:: is,js,i1,i2,j1,j2,k1,k2
+	integer:: p,q,r,s
+	integer:: indx,indx2,indx3
+	double precision:: rhops, Aps, Nxrs, Swsr
 
-	! NOTE:
-	! calculate gdecay, gphi before calling this.
-	
-	! decay; diagonal elements only
-	Ldecay = 0.0d0;
-	do js=1,nsec
-		do j=ind(js),ind(js+1)-1 ! eigenstates in js sector
 
-			indx = maprho(j); ! location of jth diagonal element of rho in rhov
+	! before calling this routine:
+		! Onx: exciton number operator in eigenbasis
+		! declare global in this module and set when mesolve starts
+		! Calculate SD(is,js) matrix....
 
-			! lower sectors reduce populations
-			do is=1,js-1
-				g = ind(is+1) - ind(is); ! degeneracy of ith sector
-				Ldecay(j) = Ldecay(j) - gdecay(js,is)*g*rhov(indx);
-			enddo
 
-			! higher sectors increase populations
-			do is=js+1,nsec
-				do i=ind(is),ind(is+1)-1
-					indx = maprho(i);
-					Ldecay(j) = Ldecay(j) + gdecay(is,js)*rhov(indx);
-				enddo
-			enddo
-
-		enddo !j
-	enddo ! js
-
-	! dephasing ==> off-diagonal of rho
-	!	Lphi = gphi * rhov;
-	! fill diagonal elements with Ldecay
-	Ldiss = gphi * rhov; 
-	do i=1,ne
-		indx = maprho(i);
-		Ldiss(indx) = Ldecay(i);
+	Ldiss = 0.0d0
+	do is=1,nsec
+	i1=ind(is); i2=ind(is+1)-1;
+	do p=i1,i2
+	indx = maprho(p); ! location of rho_pp
+	indx3 = indx; k2 = indx + i2 - p;
+	do s=p,i2 ! s >= p
+		rhops=rhov(indx); ! use: indx+s-p OR indx += 1
+		indx = indx + 1;
+		Aps = 0.0d0;
+		do js=1,is ! js <= is
+		j1=ind(js); j2=ind(js+1)-1;
+		Swsr = SD(is,js); ! wsr= w(is)-w(js); s in is, r in js sector
+		do r=j1,j2
+		indx2 = maprho(r); ! location of rho_rr
+		Nxrs = Onx(r,s);
+		!-------------------------------------------------------
+		! only q=r: Sw(s,r)*N(p,r)*N(r,s)* [ rho(s,:) at (p,:)]
+		! How to do this?
+		! Aps = Aps + Sw(s,r)*N(p,r)*N(r,s) here, and 
+		!	multiply with rho(s,:) after r loop completes
+		Aps = Aps + Swsr*Onx(p,r)*Nxrs
+		!-------------------------------------------------------
+		do q=r,j2; ! q >= r
+			!	SD(s,r)*N(p,q)*N(r,s)* [ rho(p,s) at (r,q)]
+			Ldiss(indx2) = Ldiss(indx2) + Swsr*Onx(p,q)*Nxrs*rhops
+			indx2 = indx2 + 1;
+		enddo
+		enddo
+		enddo
+		!-------------------------------
+		! set Ldiss(p,:) = Aps * rho(s,:) here, after sum over r; all jsec
+		! t >= s,p; s >= p already so t >= s
+		! Ldiss(p,s:i2) = Ldiss(p,s:i2) + Aps * rhov(s,s:i2)
+		!indx3 = maprho(p);
+		k1 = indx3 + s - p; 
+		!k2 = maprho(p+1) - 1; !k2 = indx3 + i2 - p;
+		Ldiss(k1:k2) = Ldiss(k1:k2) + Aps * rhov(k1:k2)
+		!-------------------------------
 	enddo
-
-	if((.not. isnan(sum(rhov))) .and. isnan(sum(Ldiss))) then
-		write(*,*)"Ldiss=",Ldiss
-	endif
+	enddo
+	enddo
 
 	return
 	end subroutine yprime

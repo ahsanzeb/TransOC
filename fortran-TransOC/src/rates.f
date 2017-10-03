@@ -347,6 +347,14 @@
 	enddo
 	close(123)
 
+	write(*,*) "ntcouase, itm = ",ntcoarse, itm
+	Rt = sum((/(mrate(ih1)%r(ntcoarse),ih1=1,26)/)) ! R(tmax)
+	t = sum((/(mrate(ih1)%r(itm),ih1=1,26)/)) ! R(t)
+	write(*,*) "R(tmax), R(t) = ",Rt, t
+	write(*,*) "rates: r(t=0) = ",(mrate(ih1)%r(1),ih1=1,8)
+	write(*,*) "rates: r(tmax) = ",(mrate(ih1)%r(ntcoarse),ih1=1,8)
+
+
 	if(itm == ntcoarse) then
 		write(*,*) "Warning(rates): higher states might still be"
 		write(*,*) " decaying to LP... "

@@ -131,6 +131,7 @@
 
 		do ih=1,26
 			rate(ih)%rcs(:,:) = 0.0d0
+			rate(ih)%r = 0.0d0
 		enddo
 
 	!if(nog)write(*,*) "main: nog=T; ipsi =  ",ipsi
@@ -168,6 +169,8 @@
 			endif
 
 			write(*,*)"main: sum(rate(:)%r) = ",sum(rate(:)%r)
+			write(*,*)"main: r = ",rate(1:8)%r
+
 			ntrap = 	ntrap +1;
 			!  Rt , delta ?!
 			! set to 0.0d0
@@ -195,6 +198,8 @@
 			master = .false.
 			call setrates();
 			write(*,*) "setrates done... "
+			write(*,*)"main: mesolve: sum(rate(:)%r) = ",sum(rate(:)%r)
+
 		endif
 
 
