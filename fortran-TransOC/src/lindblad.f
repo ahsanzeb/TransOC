@@ -59,6 +59,12 @@
 	
 	esec = eig(itl)%esec(1:nsec);
 	ind = eig(itl)%ind;
+
+	write(*,*)"lindblad: esec(1:5) = ", esec(1:min(nsec,5))
+	write(*,*)"lindblad: ind(1:5) = ", ind(1:min(nsec,5))
+		
+
+	
 	if(PermSym) then
 		amp = qt(ia)%cs(icl,1)%amp
 	else
@@ -69,6 +75,8 @@
 	!if(dabs(sum(amp**2)-1.0d0) > 1.0d-3) then
 	!	write(*,*)"initme: sum(amp**2) < 1 ???"
 	!endif
+	write(*,*)"lindblad: amp(1:5) = ", amp(1:min(ne,20))
+
 	
 	return
 	end 	subroutine initme	
@@ -139,6 +147,10 @@
 			SD(js,is) = Sw(esec(js) - wi)
 		enddo
 	enddo	
+
+	! debug...
+	sd = 1.0d0
+
 	
 	return
 	end 	subroutine makeSD
@@ -149,11 +161,16 @@
 
 	! aux
 	!integer :: ntmax !, ntcoarse
-	integer :: i, it1,j,niter1,ii
+	integer :: i, it1,j,niter1,ii,p
 	double precision:: norm
+	double precision, allocatable, dimension(:) :: rhovx
 
 	!	calculate rhov, maprho, lrhov
 	call makerho()
+
+	! debug...
+	allocate(rhovx(lrhov))
+
 	
 	! calculate SD matrix, power spectral density; S(w_{sr})
 	call makeSD()
@@ -174,6 +191,18 @@
 
 	!write(*,*)"rhov = ",rhov
 
+
+	! debug... set off diag to 0
+	rhovt(:,1) = rhov;	
+	rhov = 0.0d0;
+	do i=1,nsec
+		j = maprho(i)
+		rhov(j) = rhovt(j,1) 
+	enddo
+
+
+
+
 	niter1 = int(ntmax/ntcoarse)
 	do i=1,ntcoarse
 		rhovt(:,i) = rhov;		
@@ -181,11 +210,37 @@
 		
 		do j=1,niter1
  			call rk4step(rhov);
- 		enddo
+ 		enddo 		
+
+	if(mod(i-1,10)==0 .and. i < 100) then
+		! debug...
+		call yprime(rhov,rhovx)
+		norm = 0.0d0
+		do ii=1,nsec
+			j = maprho(ii)
+			norm = norm + rhovx(j)
+			write(*,*) "it: i, L(i,i) = ",i, ii, rhovx(j)
+		enddo
+		write(*,*) "it: total change in pop = ",norm
+	endif
+
+
+ 		
 	end do
 
 	call writepop(rhov,lrhov,0.0d0, 1)
 
+	! debug...
+	call yprime(rhovt(:,ntcoarse),rhov)
+	norm = 0.0d0
+	do i=1,nsec
+		j = maprho(i)
+		norm = norm + rhov(j)
+		write(*,*) "tmax: i, L(i,i) = ",i, rhov(j)
+	enddo
+	write(*,*) "tmax: total change in pop = ",norm
+
+	
 	return
 	end subroutine mesolve
 !---------------------------------------
@@ -221,7 +276,7 @@
 			!write(*,*)" i, pop(i) = ", i, pop(i)
 		enddo
 		!write(*,*) "t, pop = ",t, pop
-		write(120,*) t, pop
+		write(120,*) t, sum(pop), pop
 	endif
 
 	close(120)
@@ -281,16 +336,22 @@
 				indx = indx + 1;
 				rhov(indx) = amp(j) * amp(k);
 			enddo
-		enddo
+		enddo	
+		
 	enddo
 
 	!write(*,*)"norm |amp><amp| = ",
   !   .matmul(reshape(amp,shape=(/1,ne/)),reshape(amp,shape=(/ne,1/)))
 	
-	!x=matmul(reshape(amp,shape=(/ne,1/)),reshape(amp,shape=(/1,ne/)))
+	x=matmul(reshape(amp,shape=(/ne,1/)),reshape(amp,shape=(/1,ne/)))
 	!write(*,*)"makerho: res rho-rho^2 = ",
   !   . sum(abs(x - matmul(x,x)))
-
+	write(*,*)"============================="
+	do i=1,ne
+		write(*,*)i, x(i,:)
+	enddo
+	write(*,*)"============================="
+	
 	return
 	end subroutine makerho
 
@@ -313,59 +374,119 @@
 	integer:: p,q,r,s
 	integer:: indx,indx2,indx3
 	double precision:: rhops, Aps, Nxrs, Swsr
-
-
+	integer:: i,ir,ld,i0
+	integer, allocatable, dimension(:) :: rcoo1, rcoo2
+	
 	! before calling this routine:
 		! Onx: exciton number operator in eigenbasis
 		! declare global in this module and set when mesolve starts
 		! Calculate SD(is,js) matrix....
-
 
 	Ldiss = 0.0d0
 	do is=1,nsec
 	i1=ind(is); i2=ind(is+1)-1;
 	do p=i1,i2
 	indx = maprho(p); ! location of rho_pp
-	indx3 = indx; k2 = indx + i2 - p;
+	! rcoo: vectorised rho/L coordinates:
+	ld = i2-i1 + 1; ! size of this degen block
+	i0 = maprho(i1); ! coord of (1,1) elem of this degen block
+	allocate(rcoo1(ld)); allocate(rcoo2(ld))
+	call rowcoor(p-i1+1,ld,i0,rcoo1); ! coor of L(p,:)
+	!=============== s >= p ===================
 	do s=p,i2 ! s >= p
 		rhops=rhov(indx); ! use: indx+s-p OR indx += 1
 		indx = indx + 1;
+		call rowcoor(s-i1+1,ld,i0,rcoo2); ! coor of rho(s,:)
 		Aps = 0.0d0;
 		do js=1,is ! js <= is
 		j1=ind(js); j2=ind(js+1)-1;
 		Swsr = SD(is,js); ! wsr= w(is)-w(js); s in is, r in js sector
 		do r=j1,j2
 		indx2 = maprho(r); ! location of rho_rr
-		Nxrs = Onx(r,s);
+		Nxrs = Swsr*Onx(r,s);
 		!-------------------------------------------------------
 		! only q=r: Sw(s,r)*N(p,r)*N(r,s)* [ rho(s,:) at (p,:)]
 		! How to do this?
 		! Aps = Aps + Sw(s,r)*N(p,r)*N(r,s) here, and 
 		!	multiply with rho(s,:) after r loop completes
-		Aps = Aps + Swsr*Onx(p,r)*Nxrs
+		Aps = Aps + Onx(p,r)*Nxrs;
 		!-------------------------------------------------------
 		do q=r,j2; ! q >= r
 			!	SD(s,r)*N(p,q)*N(r,s)* [ rho(p,s) at (r,q)]
-			Ldiss(indx2) = Ldiss(indx2) + Swsr*Onx(p,q)*Nxrs*rhops
+			Ldiss(indx2) = Ldiss(indx2) + Onx(p,q)*Nxrs*rhops
 			indx2 = indx2 + 1;
 		enddo
 		enddo
 		enddo
 		!-------------------------------
 		! set Ldiss(p,:) = Aps * rho(s,:) here, after sum over r; all jsec
-		! t >= s,p; s >= p already so t >= s
-		! Ldiss(p,s:i2) = Ldiss(p,s:i2) + Aps * rhov(s,s:i2)
-		!indx3 = maprho(p);
-		k1 = indx3 + s - p; 
-		!k2 = maprho(p+1) - 1; !k2 = indx3 + i2 - p;
-		Ldiss(k1:k2) = Ldiss(k1:k2) + Aps * rhov(k1:k2)
+		! since rho and L have only upper triangular of degen blocks:
+		! 		bend the s and p rows of rho and L to 90deg up
+		!		and use columns instead.
+		do i=1,ld
+			ir = rcoo1(i);
+			Ldiss(ir)	= Ldiss(ir)	- Aps * rhov(rcoo2(i))	
+		enddo
+		! also do s<p case. before or after this s loop, with inner r loop
 		!-------------------------------
+	enddo ! is >= p
+	!=============== s < p ===================
+	do s=i1,p-1
+		call rowcoor(s-i1+1,ld,i0,rcoo2); ! coor of rho(s,:)
+		Aps = 0.0d0;
+		do js=1,is ! js <= is
+			Swsr = SD(is,js); ! wsr= w(is)-w(js); s in is, r in js sector
+			do r=ind(js),ind(js+1)-1
+				Aps = Aps + Swsr*Onx(p,r)*Onx(r,s)
+			enddo
+		enddo
+		do i=1,ld
+			ir = rcoo1(i);
+			Ldiss(ir)	= Ldiss(ir)	- Aps * rhov(rcoo2(i))	
+		enddo	
 	enddo
+	!==================================
+	deallocate(rcoo1,rcoo2)	
+	enddo ! p
 	enddo
+
+	! + h.c ===> diagonal = diagonal*2
+	do p=1,ne
+		indx = maprho(p);
+		Ldiss(indx) = Ldiss(indx)*2.0d0
 	enddo
+
+	!write(*,*)"lindblad: L = ", sum(abs(Ldiss))
+
+
 
 	return
 	end subroutine yprime
 !---------------------------------------
+!	finds coordinates of rows: rho(s,:)
+	! since rho and L have only upper triangular of degen blocks:
+	! 	bend any row of rho or L to 90deg up and use columns instead.
+	subroutine rowcoor(s,ld,i0,rcoo)
+	implicit none
+	integer, intent(in) :: s ! row number that needs coor in vectzd format
+	integer, intent(in) :: ld ! size of the block
+	integer, intent(in) :: i0 ! i0 = coordinate of block's (1,1) element
+	integer, dimension(ld),intent(out) :: rcoo ! output coordinates
+	! local
+	integer :: i,ld1
 
+	! part of sth row bended to sth col
+	rcoo(1) = (i0-1) + s;
+	ld1 = ld+1
+	do i=2,s
+		rcoo(i) = rcoo(i-1) + ld1 - i;
+	enddo
+	! the rest of sth row, not bended
+	do i=s+1,ld
+		rcoo(i) = rcoo(i-1) + 1
+	enddo
+
+	return
+	end 	subroutine rowcoor
+!---------------------------------------
 	end module lindblad

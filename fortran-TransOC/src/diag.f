@@ -366,7 +366,7 @@ c        %----------------------------------------------%
 	integer, intent(out) :: nsec
 	integer,dimension(ne+1),intent(out):: ind !start index of sectors; 1:nsec
 	! local
-	double precision:: tol = 1.0d-3 ! tolerance
+	double precision:: tol = 1.0d-2 ! tolerance
 	integer:: i,j
 
 	!write(*,*)"diag: e = ",es
