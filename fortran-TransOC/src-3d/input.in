@@ -1,0 +1,57 @@
+
+
+
+! number of sites in the system
+
+Nsites
+	10
+
+Nexcitations
+3
+
+!DontReuseData
+!F
+
+Detuning
+0
+
+
+! above this size, iterative arpack solver will be used
+!	to diagonalise Hamiltonians
+DirectSolverSize
+20
+
+IterSolverMaxIter
+100
+
+Kappa
+0.1
+
+Gamma
+0.1
+
+Niter
+500
+
+Beta
+40.0
+
+!++++++++++++++++++++++
+!	TO DO
+!++++++++++++++++++++++
+! Hg selected N,m 
+!			===> N,m > 0
+!			===> only if needed! if nways > 0 for relevant hop
+!	add another array for if an itype Hg is required by some hop or not!, if not, dont calcualte.
+!	same with basis.
+!	===> mapb, mapt % req(:)?
+
+
+! 
+
+
+
+
+
+
+
