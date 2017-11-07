@@ -94,9 +94,9 @@
 	double precision :: kappa, gamma	
 	logical :: nokappa, nogamma
 	! hopping parameters
-	double precision, dimension(26,4):: ts
+	double precision, dimension(34,4):: ts
 	! energy changes due to contact barriers, applied field, etc
-	double precision, dimension(26,4):: dqc
+	double precision, dimension(34,4):: dqc
 	! hopping parameters
 	double precision:: th, tl, tlh, thl
 	double precision:: JhR, JlR, JhL, JlL
@@ -125,7 +125,7 @@
      . ibs = (/ 3,3,3,5,5,5,1,1,1,4,4,2,2 /);
 	integer, dimension(5)::
      . dns = (/ -2,-1,0,1,2 /); 
-	integer, dimension(26,4)::
+	integer, dimension(34,4)::
      . itypes = reshape( ( / 1, 1, 2, 3, 1, 1, 2, 3, 1, 1,
      . 2, 3, 1, 1, 2, 3, 4, 4, 5, 6,
      . 4, 4, 5, 6, 7, 7, 8, 9, 7, 7,
@@ -138,8 +138,12 @@
      . 12, 12, 12, 12, 12, 12, 13,
      . 13, 13, 13, 13, 13, 13, 13,
      . 12, 12, 12, 12, 12, 12, 12,
-     . 12, 2, 2, 2, 2, 2, 2, 2, 2 /),
-     . (/ 26,4 /), order=(/2,1/) ); 
+     . 12, 2, 2, 2, 2, 2, 2, 2, 2,
+     . 1, 1, 2, 3, 1, 1, 2, 3, 1, 1,
+     . 2, 3, 1, 1, 2, 3, 4, 4, 5, 6,
+     . 4, 4, 5, 6, 7, 7, 8, 9, 7, 7,
+     . 8, 9 /),
+     . (/ 34,4 /), order=(/2,1/) ); ! ih=1-8 <==> 26-34 for in-plane hops
 
 
 	type :: BMaps
@@ -268,8 +272,8 @@
 	!---------------------------------------	
 	! map from ih,ic to ia,icl
 	!---------------------------------------	
-	integer, dimension(26,4) :: maph ! ih  to ia
-	integer, dimension(26,4) :: mapc ! ic to icl
+	integer, dimension(34,4) :: maph ! ih  to ia
+	integer, dimension(34,4) :: mapc ! ic to icl
 	!	mapc only needed for channel 8,
 	!	channel 8: swap channel 1 and 2 for amplitudes
 	!---------------------------------------	
@@ -321,7 +325,7 @@
 		!	active: active site or D if d,phi annihilation
 		integer, allocatable :: active(:) ! active site(s) involved
 	end type HoppingWays
-	type(HoppingWays), dimension(26) :: ways ! 8 bulk, others contact
+	type(HoppingWays), dimension(34) :: ways ! 8 bulk, others contact
 
 
 	!	26 hopping processes
@@ -333,11 +337,11 @@
 	double precision, allocatable :: psi(:,:) ! to store quantum state
 	double precision, allocatable :: psi2(:,:) ! to store quantum state
 
-	type(TransitionRates), dimension(26):: rate
+	type(TransitionRates), dimension(34):: rate
 	! set the format for sparse matrix
 	!hop(1:4)%spfrmt = 'diagonal';
 
-	type(MasterRates), dimension(26):: mrate
+	type(MasterRates), dimension(34):: mrate
 
 	logical :: leads ! include contact or not?
 

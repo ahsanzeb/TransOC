@@ -26,10 +26,10 @@
 	logical :: ch,exst,logNmm1,logkg,ldpa,lap,lcda,lcAp
 
 	ch = crosshops;
-	logNmm1= (sum(ways(1:4)%ns) > 0 .and. ch);
+	logNmm1= (sum(ways(1:4)%ns + sum(ways(27:30)%ns) > 0 .and. ch);
 	logkg= ((.not. nokappa) .or. (.not. nogamma));
-	ldpa = sum(ways(5:6)%ns) > 0;
-	lap = ways(7)%ns > 0;
+	ldpa = sum(ways(5:6)%ns) + sum(ways(31:32)%ns) > 0;
+	lap = ways(7)%ns + ways(33)%ns > 0;
 	lcda=sum(ways(9:16)%ns) > 0;
 	lcAp=sum(ways(17:24)%ns) > 0;
 
@@ -323,8 +323,67 @@
 	return
 	end subroutine UpdateMapB
 !--------------------------------------------
-
 	subroutine calmaphc()
+	use modmain, only: maph,mapc
+	implicit none
+
+	integer :: ih
+
+	! input: ih,ic
+	!	output: ia,icl
+	! index: ih,ic; 1 ==> ia, 2 ==> icl
+
+	! ia: 1 - 14 in Mathematica notaitons:
+	! RDAR,RDAL,RPhiAR,RPhiAL
+	! RDPhiA, RDPhiAinv, [ih=8: ic swap 1,2]
+	! RCDAl, RCDAh
+	! RCAlR,RCAhR
+	! RCAlL,RCAhL
+	! Rkappa, Rgamma
+
+	! icl=ic except for ih=8
+
+	do ih=1,34
+		select case(ih)
+		case(1-4)
+			maph(ih,:) = ih
+		case(27-30)
+			maph(ih,:) = ih-26 ! ih=1-4 <====> ih=27-30
+		case(5,6,31,32)
+			maph(ih,:) = 5
+		case(7,8,33,34)
+			maph(ih,:) = 6
+		case(9,11,13,15)
+			maph(ih,:) = 7
+		case(10,12,14,16)
+			maph(ih,:) = 8
+		case(17,18)
+			maph(ih,:) = 9
+		case(19,20)
+			maph(ih,:) = 10
+		case(21,22)
+			maph(ih,:) = 11
+		case(23,24)
+			maph(ih,:) = 12
+		case(25)
+			maph(ih,:) = 13
+		case(26)
+			maph(ih,:) = 14
+		end select
+
+		! mapc: swap channel 1,2 for ih=8,34
+		if(ih==8 .or. ih==34) then
+			mapc(ih,:) = (/2,1,3,4/)
+		else
+			mapc(ih,:) = (/1,2,3,4/)
+		endif
+	
+	end do
+
+	return
+	end subroutine calmaphc
+!----------------------------------------
+	subroutine calmaphc0()
 	use modmain, only: maph,mapc
 	implicit none
 
@@ -383,7 +442,8 @@
 		enddo !ic
 	enddo ! ih
 
-	end subroutine calmaphc
+	return
+	end subroutine calmaphc0
 !-------------------------------------------
 	subroutine DONTUSEmaps()
 	! this would also ask to calculated basis and Hg/eig that are not even required! very bad! just use for testing.

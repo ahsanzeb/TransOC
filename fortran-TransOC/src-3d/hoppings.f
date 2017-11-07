@@ -22,20 +22,18 @@
 
 	implicit none
 	! local
-	integer:: ih
+	integer:: ih,ih1
 	integer:: is,l
+	integer, dimension(8) ::
+     .                  ihdphops=(/1,2,3,4,27,28,29,30/)
 
-	!p=1,8 bulk processes
-	!ways(p)%ns
-	!ways(p)%sites ! ???? correct this array to store something meaningful
-	!ways(ih)%active(is); ! active site 
-
-	!write(*,*) "hops: ---------- 1"
 	!-------------------------------
 	! ih:1-4 DHopsR/L, PhiHopsR/L
+	! ih=27-30  DHopsU/D, PhiHopsU/D (Up/Down 3d cases)
 	! ?? L/R also same if PermSym. D/phi also same, swaped 1,2 channels?
-	do ih=1,4
-		do is=1,ways(ih)%ns,1
+	do ih1=1,8
+		ih = ihdphops(ih1)
+		do is=1,ways(ih)%ns
 			if (.not. crosshops) then
 				call dhops1(ih,is) ! chan 1-2
 			else
@@ -47,45 +45,50 @@
 		!write(*,*) "hops: ---------- 2"
 
 	!-------------------------------
-	! ih:5-6 (D,Phi), (Phi,D) annihilation
-	if (ways(5)%ns + ways(6)%ns > 0) then
+	! ih:5-6,31-32 (D,Phi), (Phi,D) annihilation
+	if(ways(5)%ns+ways(6)%ns+ways(31)%ns+ways(32)%ns >0)then
 		if (.not. crosshops) then
 			call DPhiAn1() ! 1-2
 		else
-
-		 	!write(*,*) "hops: ---------- inside"
-
 			call DPhiAn2() ! 1-4
  		endif
  	endif
- 		!write(*,*) "hops: ---------- 3"
+ 	!write(*,*) "hops: ---------- 3"
 
 	!-------------------------------
 	! ih=7,8 (D,Phi), (Phi,D) created
 	ih=7;	! ih=8 has the same amplitudes,
 				! chan 1,2 swapped, handled via maph, mapc
-
 	do is=1,ways(ih)%ns,1
+		if (nx .ge. 1) then
+			call DPhiCreat1(is) ! 1-2
+		endif
+		if (crosshops) then
+			if (nx .ge. 2) then
+				call DPhiCreat3(is) ! 3                                        
+				endif
+				call DPhiCreat4(is) ! 4
+		endif
+		if(PermSym) exit! only a single site/case for each hop type
+	end do
+	!write(*,*) "hops: ---------- 4"
+	!-------------------------------	
+	! ih=33,34 for in-plane hops  <====> ih=7,8
+	if(.not. PermSym) then
+		ih = 33; ! ih=34 will be treated like ih=8 with ih=7
+		do is=1,ways(ih)%ns,1
 			if (nx .ge. 1) then
 				call DPhiCreat1(is) ! 1-2
-				!write(*,*) "hops: ---------creat 12"
-
 			endif
 			if (crosshops) then
 				if (nx .ge. 2) then
 				call DPhiCreat3(is) ! 3
-				!write(*,*) "hops: ---------creat 3"
-				
 				endif
-
 				call DPhiCreat4(is) ! 4
-				!write(*,*) "hops: ---------creat 4"
-
 			endif
-			if(PermSym) exit! only a single site/case for each hop type
-	end do
-		!write(*,*) "hops: ---------- 4"
-
+			!if(PermSym) exit! only a single site/case for each hop type
+		end do
+	endif
 	!-------------------------------
 	!-------------------------------
 	! cavity and exciton losses
