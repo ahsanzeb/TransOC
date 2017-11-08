@@ -1,182 +1,85 @@
 
-objects = basisstates.o main.o hamiltonian.o lists.o modmain.o memory.o \
- hoppings.o dhops.o modmultiply.o annihilation.o losses.o \
- maps.o init.o amplitudes.o creation.o selection.o \
- rates.o modways.o readinput.o diag.o timestamp.o contacts.o lindblad.o
 
+FC 	= gfortran
+FFLAGS= -O3 -g -fbounds-check -fbacktrace 
+LOADLIBES = libarpack_mac.a -llapack 
 
+SRC = basisstates.f main.f hamiltonian.f lists.f modmain.f memory.f \
+ hoppings.f dhops.f modmultiply.f annihilation.f losses.f \
+ maps.f init.f amplitudes.f creation.f selection.f \
+ rates.f modways.f readinput.f diag.f timestamp.f contacts.f
 
-include make.inc
+OBJ = $(SRC:.f=.o)
 
+.SUFFIXES: .o .f
 
-switch= -O3 -g -fbounds-check -fbacktrace 
-#switch= -O3 -fcheck=all -ffpe-trap=invalid,zero,overflow,underflow,denormal
-# -O -Wall -fcheck=all -g -fbacktrace
-# -g -fbounds-check
-# -g 
-# -fbounds-check
-# -static
-
-#-----------------------------------------------------
-
-transoc: $(objects)
-	$(FC) -o transoc $(switch) $(objects) $(LIB)
+transoc: $(OBJ)
+	$(FC) -o transoc $(FFLAGS) $(OBJ) $(LOADLIBES)
 	cp transoc ~/bin/.
 
-LIB = libarpack_mac.a -llapack 
 
-#-----------------------------------------------------
-# modules
-#-----------------------------------------------------
-modmain.mod:	modmain.o modmain.f
-	$(FC) -c $(switch) modmain.f
+# Here are the compile steps
+ 
+modmain.o: modmain.f  
+	 $(FC) -c $(FFLAGS) modmain.f 
 
-readinput.mod: modmain.mod readinput.o readinput.f
-	$(FC) -c $(switch) readinput.f
+lists.o: lists.f modmain.o 
+	 $(FC) -c $(FFLAGS) lists.f 
 
-maps.mod: modmain.mod lists.mod maps.o maps.f
-	$(FC) -c $(switch) maps.f
+maps.o: maps.f lists.o modmain.o
+	 $(FC) -c $(FFLAGS) maps.f 
 
-diag.mod: modmain.mod diag.f
-	$(FC) -c $(switch) diag.f
+modways.o: modways.f modmain.o lists.o 
+	 $(FC) -c $(FFLAGS) modways.f 
 
-lists.mod: modmain.mod lists.o lists.f
-	$(FC) -c $(switch) lists.f
+init.o: init.f modmain.o maps.o modways.o 
+	 $(FC) -c $(FFLAGS) init.f 
 
-basisstates.mod: modmain.mod lists.mod basisstates.o basisstates.f
-	$(FC) -c $(switch) basisstates.f
+basisstates.o: basisstates.f modmain.o lists.o 
+	 $(FC) -c $(FFLAGS) basisstates.f 
 
-hamiltonian.mod: modmain.mod lists.mod basisstates.mod hamiltonian.o hamiltonian.f
-	$(FC) -c $(switch)  hamiltonian.f 
+hamiltonian.o: hamiltonian.f modmain.o lists.o basisstates.o
+	 $(FC) -c $(FFLAGS) hamiltonian.f 
 
+modmultiply.o: modmultiply.f  
+	 $(FC) -c $(FFLAGS) modmultiply.f 
 
-lindblad.mod: modmain.mod lindblad.o lindblad.f
-	$(FC) -c $(switch)  lindblad.f 
+amplitudes.o: amplitudes.f modmultiply.o modmain.o
+	 $(FC) -c $(FFLAGS) amplitudes.f 
 
-dhops.mod: modmain.mod dhops.o dhops.f
-	$(FC) -c $(switch) dhops.f
+dhops.o: dhops.f amplitudes.o lists.o modmain.o basisstates.o 
+	 $(FC) -c $(FFLAGS) dhops.f 
 
-init.mod: modmain.mod maps.mod modways.mod init.o init.f
-	$(FC) -c $(switch) init.f
+creation.o: creation.f amplitudes.o lists.o basisstates.o
+	 $(FC) -c $(FFLAGS) creation.f 
 
+annihilation.o: annihilation.f amplitudes.o modmain.o basisstates.o
+	 $(FC) -c $(FFLAGS) annihilation.f 
 
-annihilation.mod: modmain.mod annihilation.o annihilation.f
-	$(FC) -c $(switch) annihilation.f
+losses.o: losses.f amplitudes.o modmain.o basisstates.o lists.o 
+	 $(FC) -c $(FFLAGS) losses.f 
 
-creation.mod: modmain.mod creation.o creation.f
-	$(FC) -c $(switch) creation.f
+contacts.o: contacts.f amplitudes.o lists.o basisstates.o modmain.o
+	 $(FC) -c $(FFLAGS) contacts.f 
 
-losses.mod: modmain.mod losses.o losses.f
-	$(FC) -c $(switch) losses.f
+hoppings.o: hoppings.f modmain.o dhops.o creation.o annihilation.o losses.o contacts.o 
+	 $(FC) -c $(FFLAGS) hoppings.f 
 
-hoppings.mod: modmain.mod dhops.mod annihilation.mod creation.mod\
- losses.mod hoppings.o hoppings.f
-	$(FC) -c $(switch) hoppings.f
+rates.o: rates.f modmain.o 
+	 $(FC) -c $(FFLAGS) rates.f 
 
-rates.mod: modmain.mod rates.o rates.f
-	$(FC) -c $(switch) rates.f
+selection.o: selection.f modmain.o 
+	 $(FC) -c $(FFLAGS) selection.f 
 
-selection.mod: modmain.mod selection.f
-	$(FC) -c $(switch) selection.f
+readinput.o: readinput.f modmain.o 
+	 $(FC) -c $(FFLAGS) readinput.f 
 
-modways.mod: modmain.mod lists.mod modways.o modways.f
-	$(FC) -c $(switch) modways.f
+diag.o: diag.f modmain.o
+	 $(FC) -c $(FFLAGS) diag.f 
 
-amplitudes.mod: modmain.mod basisstates.mod modmultiply.mod amplitudes.f
-	$(FC) -c $(switch) amplitudes.f
-
-modmultiply.mod: modmain.mod modmultiply.o modmultiply.f
-	$(FC) -c $(switch) modmultiply.f
-
-contacts.mod: modmain.mod basisstates.mod lists.mod amplitudes.mod lists.mod contacts.f
-	$(FC) -c $(switch) contacts.f
-
-#-----------------------------------------------------
-# objects
-#-----------------------------------------------------
-
-modmain.o:	modmain.f
-	$(FC) -c $(switch) modmain.f
-
-lists.o: modmain.mod lists.f
-	$(FC) -c $(switch) lists.f
-
-readinput.o: modmain.mod readinput.f
-	$(FC) -c $(switch) readinput.f
-
-memory.o: memory.f
-	$(FC) -c $(switch) memory.f
-
-modmultiply.o: modmultiply.f
-	$(FC) -c $(switch) modmultiply.f
-
-init.o: modmain.mod maps.mod modways.mod init.f
-	$(FC) -c $(switch) init.f
-
-basisstates.o: modmain.mod lists.mod basisstates.f
-	$(FC) -c $(switch) basisstates.f
-
-selection.o: modmain.mod selection.f
-	$(FC) -c $(switch) selection.f
-
-maps.o:	modmain.mod lists.mod maps.f
-	$(FC) -c $(switch) maps.f
-
-dhops.o: modmain.mod basisstates.mod lists.mod amplitudes.o dhops.f
-	$(FC) -c $(switch) dhops.f
-
-annihilation.o: modmain.mod basisstates.mod amplitudes.o annihilation.f
-	$(FC) -c $(switch) annihilation.f
-
-creation.o: modmain.mod basisstates.mod lists.mod amplitudes.o creation.f
-	$(FC) -c $(switch) creation.f
-
-
-contacts.o: modmain.mod basisstates.mod lists.mod amplitudes.o lists.o contacts.f
-	$(FC) -c $(switch) contacts.f
-
-losses.o: modmain.mod basisstates.mod lists.mod amplitudes.o losses.f
-	$(FC) -c $(switch) losses.f
-
-lindblad.o: modmain.mod lindblad.f
-	$(FC) -c $(switch) lindblad.f
-
-main.o:	modmain.mod basisstates.mod hamiltonian.mod lists.mod \
-hoppings.mod init.mod selection.mod rates.mod modways.mod\
- readinput.mod maps.mod diag.mod lindblad.mod main.f 
-	$(FC) -c $(switch) main.f 
-
-hamiltonian.o: modmain.mod basisstates.mod hamiltonian.f
-	$(FC) -c $(switch) hamiltonian.f
-
-amplitudes.o: modmain.mod modmultiply.mod amplitudes.f
-	$(FC) -c $(switch) amplitudes.f
-
-hoppings.o: modmain.mod dhops.mod annihilation.mod creation.mod\
-losses.mod contacts.mod hoppings.f
-	$(FC) -c $(switch) hoppings.f
-
-rates.o: modmain.mod rates.f
-	$(FC) -c $(switch) rates.f
-
-modways.o: modmain.mod lists.mod modways.f
-	$(FC) -c $(switch) modways.f
-
-diag.o: modmain.mod diag.f
-	$(FC) -c $(switch) diag.f
-
-timestamp.o: timestamp.f
-	$(FC) -c $(switch) timestamp.f
-
-#-----------------------------------------------------
-
-
-%.o: %.f
+main.o: main.f modmain.o init.o basisstates.o hamiltonian.o hoppings.o rates.o selection.o modways.o readinput.o maps.o diag.o 
+	 $(FC) -c $(FFLAGS) main.f 
 
 clean:
-	rm transoc *.o  *.mod
-
-# =================================================================================
-# End of the makefile
-# =================================================================================
-
+	rm -rf *.o *.mod transoc
+  

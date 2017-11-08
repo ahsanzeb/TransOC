@@ -13,32 +13,39 @@
 	implicit none
 	! local
 	integer:: ntot, p,la,lo,is,is1
-	integer, dimension(26) :: nps
+	integer, dimension(34) :: nps
+	integer, dimension(16) ::
+     .    plist = (/1,2,3,4,5,6,7,8,
+     .       27,28,29,30,31,32,33,34 /);
 	integer, allocatable, dimension(:,:) :: act,oth
-	integer :: l,r
+	integer :: l,r, i
 	
 	! initialise
 	nps = 0	
 	! copy current sys
 	ntot = sys%nsites
-	allocate(act(26,ntot))
-	allocate(oth(26,ntot))
+	allocate(act(34,ntot))
+	allocate(oth(34,ntot))
 	act = -2
 	oth = -2
 
-	!write(*,*)'sys%nsites====>',  sys%nsites
-	! bulk processes
-	do is=1,ntot ! loop over left site
 
+	! left,right <===> up,down : left===up, right===down
+
+	!-----------------------------------------
+	! bulk processes
+	! left-right
+	do is=1,ntot ! loop over left/up site	
 		! choose the right site
-		if (is < ntot) then
-			is1 = is+1;
+		if (is < ntot-2) then
+			is1 = is+3;
 		elseif (periodic) then
-			is1 = 1;
+			is1 = is - ntot + 3;
 		else
-			exit ! if not periodic then is=1,ntot-1
+			cycle
 		endif
-	
+		
+		! find process for left-right sites
 		call WhichBulkHop(is,is1,p,la,lo)
 		!write(*,*) "=======>>> is, p, la,lo =",is, p, la,lo 
 		if (p .gt. 0 ) then
@@ -53,13 +60,40 @@
 			endif
 		endif
 		
+	enddo
+	!-----------------------------------------
+	! bulk : up-down
+	do is=1,ntot
+		! choose the down site
+		if(mod(is,3)==0) then ! site=1,2,3 in first triangle; 4,5,6 in second, ...
+			is1 = is-2; ! thrid in the triangles connect back to the first
+		else
+			is1 = is+1;
+		endif
+
+		! find process for up-down sites
+		call WhichBulkHopUD(is,is1,p,la,lo)
+		if (p .gt. 0 ) then
+			nps(p) = nps(p) + 1;
+			act(p,nps(p)) = la
+			oth(p,nps(p)) = lo
+			if (p .eq. 33) then ! count both 33,34
+				! la,lo = up,down sites for ih=33,34
+				nps(34) = nps(34) + 1; 	!33: D,Phi; 34: Phi,D
+				act(34,nps(34)) = lo 		! put d in active?
+				oth(34,nps(34)) = la 		
+			endif
+		endif
+		
 	end do
+	!-----------------------------------------
 
 	!write(*,*) 'nps(:) = ',nps(:)
 	!write(*,*) 'sys%occ = ',sys%occ
 
 	! set gloable variable ways
-	do p=1,8 ! only 8 at the moment, contact processes later
+	do i=1,16
+		p = plist(i);
 		ways(p)%ns = nps(p)
 		if(allocated(ways(p)%active)) deallocate(ways(p)%active)
 		if(allocated(ways(p)%sites)) deallocate(ways(p)%sites)
@@ -72,35 +106,56 @@
 		endif
 	end do
 
-	deallocate(act,oth)
 
 	!-----------------------------------
 	! contact processes
 	!-----------------------------------
-	if (leads) then
-	l = sys%occ(1); ! site nns of left contact
-	r = sys%occ(nsites); ! site nns of right contact
-	ways(9:24)%ns = 0;
+	act = 0;
 	
+	if (leads) then
+	ways(9:24)%ns = 0;
+
+	do i=1,3
+	l = sys%occ(i); ! site nns of left contact
+	r = sys%occ(nsites-3+i); ! site nns of right contact
+
 	select case(l)
 		case(0)
-			ways(15:16)%ns = 1
+			ways(15:16)%ns = ways(15:16)%ns + 1
+			act(15:16,ways(15)%ns) = i; ! left contact
 		case(1)
-			ways(21:24)%ns = 1
+			ways(21:24)%ns = ways(21:24)%ns + 1
+			act(21:24,ways(21)%ns) = i; ! left contact
 		case(2)
-			ways(11:12)%ns = 1
+			ways(11:12)%ns = ways(11:12)%ns + 1
+			act(11:12,ways(11)%ns) = i; ! left contact
 	end select
 
 	select case(r)
 		case(0)
-			ways(13:14)%ns = 1
+			ways(13:14)%ns = ways(13:14)%ns + 1
+			act(13:14,ways(13)%ns) = nsites-3+i;	! right contact
 		case(1)
-			ways(17:20)%ns = 1
+			ways(17:20)%ns = ways(17:20)%ns + 1
+			act(17:20,ways(17)%ns) = nsites-3+i;	! right contact
 		case(2)
-			ways(9:10)%ns = 1
+			ways(9:10)%ns = ways(9:10)%ns + 1
+			act(9:10,ways(9)%ns) = nsites-3+i;	! right contact
 	end select
+
+	enddo
 	!-----------------------------------
-	endif
+	do p=9,24
+		if(allocated(ways(p)%active)) deallocate(ways(p)%active)
+		if (ways(p)%ns .gt. 0) then
+			allocate(ways(p)%active(ways(p)%ns))
+			ways(p)%active = act(p,1:ways(p)%ns)
+		endif
+	enddo
+	!-----------------------------------
+	endif !  leads
+
+	deallocate(act,oth)
 	
 	return
 	end subroutine UpdateWays
@@ -185,6 +240,75 @@
 	return
 	end subroutine WhichBulkHop
 !**********************************************
+
+
+	subroutine WhichBulkHopUD(is,is1,p,la,lo)
+	implicit none
+	integer, intent(in) :: is,is1
+	integer, intent(out) :: p,la,lo 
+	! process ind, active site, other site (or phi if D,Phi annihilation)
+	! local
+	integer:: l,r ! occupation on up, down sites
+
+	l = sys%occ(is);
+	r = sys%occ(is1);
+	! both D or both Phi
+	if ((l==0 .and. r==0).or.(l==2 .and. r==2))then
+		p=-1; la=-1;lo=-1; ! no way
+	return
+	endif
+
+	! both active
+	if ((l==1 .and. r==1))then
+		p = 33; la=is;lo=is1 ! 33,34 both possible: phi,d | d,phi created
+	return
+	endif
+
+	! left active
+	if (l==1) then
+		la=is;lo=is1;
+		if (r==0) then ! phi
+			p = 30 ! phi hops left
+		else ! D
+			p = 28 ! D hops left
+		endif
+	return
+	endif
+
+	! right active
+	if (r==1) then
+		la=is1;lo=is;
+		if (l==0) then ! phi
+			p = 29 ! phi hops right
+		else ! D
+			p = 27 ! D hops right
+		endif
+	return
+	endif
+
+	! left D
+	if (l==2) then
+		! right must be a phi, since all other options crossed above.
+		la=is;lo=is1; ! la=D
+		p = 31 ! d,phi annihilated
+	elseif (l==0) then 	! left Phi
+		! right must be a D, since all other options crossed above.
+		la=is1;lo=is; ! la=D
+		p = 32 ! phi,d annihilated
+		!write(*,*) "=============== la,lo = ",la,lo		
+
+	else
+		p = -1; la=-1;lo=-1;
+		write(*,*) "modways: something wrong .... "
+		stop
+	endif
+
+
+	return
+	end subroutine WhichBulkHopUD
+
+!**********************************************
+
 	subroutine UpdateOcc(ih,is)
 	! only for bulk hoppings at the moment
 	use modmain, only: sys,Asites,ways,nsites
@@ -199,12 +323,14 @@
 	!write(*,*) "in: Asites = ",Asites
 	!write(*,*) "in: occ = ",sys%occ
 	
-	if(ih <= 8) then
+	if(ih <= 8 .or. ih >= 27) then
 		la = ways(ih)%active(is)
 		lo = ways(ih)%sites(is)
 	elseif(ih ==25 .or. ih == 26) then
 		! kappa/gamma, no change in occ
 		return
+	elseif(ih >= 9 .and. ih <= 24) then ! contacts
+		la = ways(ih)%active(is) ! site involved in the process
 	endif
 
 	Asitesx = 0
@@ -218,30 +344,30 @@
 	!write(*,*) "sys%occ 1=",sys%occ
 		
 	select case(ih)	
-		case(1,2)
+		case(1,2,27,28)
 			if(sys%occ(la)==1 .and. sys%occ(lo)==2)then
 				sys%occ(la) = 2
 				sys%occ(lo) = 1
 			else
-				write(*,*)"Error(UpdateOcc): case 1,2"
+				write(*,*)"Error(UpdateOcc): case 1,2,27,28"
 				stop
 			endif
 			call Substitute(Asites,n1,la,lo)
-		case(3,4)
+		case(3,4,29,30)
 			if(sys%occ(la)==1 .and. sys%occ(lo)==0)then
 				sys%occ(la) = 0
 				sys%occ(lo) = 1
 			else
-				write(*,*)"Error(UpdateOcc): case 3,4"
+				write(*,*)"Error(UpdateOcc): case 3,4,29,30"
 				stop
 			endif
 			call Substitute(Asites,n1,la,lo)
-		case(5,6)
+		case(5,6,31,32)
 			if(sys%occ(la)==2 .and. sys%occ(lo)==0)then
 				sys%occ(la) = 1
 				sys%occ(lo) = 1
 			else
-				write(*,*)"Error(UpdateOcc): case 5,6"
+				write(*,*)"Error(UpdateOcc): case 5,6,31,32"
 				stop
 			endif
 						
@@ -254,7 +380,7 @@
 			sys%n0 = n0-1
 			sys%n1 = n1+2
 			sys%n2 = n2-1
-		case(7,8)
+		case(7,8,33,34)
 			sys%occ(la) = 2 ! la=D,lo=phi for ih=7,8
 			sys%occ(lo) = 0
 			Asitesx(1:n1) = Asites;
@@ -267,9 +393,9 @@
 			sys%n2 = n2+1
 
 		case(9,10,13,14)! right contact annihilation, site=nsites
-			sys%occ(nsites) = 1
+			sys%occ(la) = 1
 			Asitesx(1:n1) = Asites;
-			Asitesx(n1+1) = nsites;
+			Asitesx(n1+1) = la;
 			deallocate(Asites); allocate(Asites(n1+1))
 			Asites = Asitesx(1:n1+1);
 			sys%n1 = n1+1
@@ -279,9 +405,9 @@
 				sys%n2 = n2-1
 			endif
 		case(11,12,15,16) ! left contact annihilation, site=1
-			sys%occ(1) = 1
+			sys%occ(la) = 1
 			Asitesx(1:n1) = Asites;
-			Asitesx(n1+1) = 1;
+			Asitesx(n1+1) = la;
 			deallocate(Asites); allocate(Asites(n1+1))
 			Asites = Asitesx(1:n1+1);
 			sys%n1 = n1+1
@@ -292,28 +418,28 @@
 			endif
 
 		case(17:20) ! right contact creation, site=nsite
-			call Drop4(Asites,n1,nsites,Asitesy(1:n1-1))
+			call Drop4(Asites,n1,la,Asitesy(1:n1-1))
 			deallocate(Asites); allocate(Asites(n1-1))
 			Asites = Asitesy(1:n1-1);	
 			sys%n1 = n1-1
 			if(mod(ih,2)==0) then ! Phi created, ih=18,20
-				sys%occ(nsites) = 0;
+				sys%occ(la) = 0;
 				sys%n0 = n0+1
 			else ! D created, ih=17,19
-				sys%occ(nsites) = 2;
+				sys%occ(la) = 2;
 				sys%n2 = n2+1
 			endif
 
 		case(21:24) ! left contact creation, site=1
-			call Drop4(Asites,n1,1,Asitesy(1:n1-1))
+			call Drop4(Asites,n1,la,Asitesy(1:n1-1))
 			deallocate(Asites); allocate(Asites(n1-1))
 			Asites = Asitesy(1:n1-1);	
 			sys%n1 = n1-1
 			if(mod(ih,2)==0) then ! Phi created, ih=22,24
-				sys%occ(1) = 0;
+				sys%occ(la) = 0;
 				sys%n0 = n0+1
 			else ! D created, ih=21,23
-				sys%occ(1) = 2;
+				sys%occ(la) = 2;
 				sys%n2 = n2+1
 			endif
 

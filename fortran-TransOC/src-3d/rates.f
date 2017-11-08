@@ -40,34 +40,33 @@
 	subroutine totr(process,nc)
 	! calculates c,s resolved rate and total rate
 	!	rate(ih)%rcs(ic,is) and rate(ih)%r
-	use modmain, only: rate, ways, PermSym,na,nx,ts
+	use modmain, only: rate, ways, PermSym,na,nx,ts,
+     .              ihdphops,ihcreat,ihannih
 	implicit none
 	character(len=*), intent(in):: process
 	integer, intent(in) :: nc
 	! local
 	integer:: ih, ic, ih1, ih2,is
+	integer, dimension(8):: ihs
 
 	select case(process)
 	case('dphihops','creation')
 	!-------------------------------
-	! ih:1-4 DHopsR/L, PhiHopsR/L
+	! ih:1-4, 27-30 DHopsR/L, PhiHopsR/L, DHops Up/Down, PhiHops Up/Down
 	!-------------------------------
-	! ih=7,8 (D,Phi), (Phi,D) created
-	! ih=8 same amplitudes,chan 1,2 swapped: done in ratehcs()
+	! ih=7,8; 33,34 (D,Phi), (Phi,D) created : R/L; Up/Down
 	!--------------------------------------------------------
-		ih1=1;ih2=4; ! 'dphihops'
-		if(process == 'creation') then
-			ih1=7;ih2=8;
+		if(process == 'dphihops') then
+			ih2=8; ihs = ihdphops;
+		else ! 'creation'
+			ih2=4; ihs(1:4) = ihcreat;
 		endif
-		do ih=ih1,ih2
-			!write(*,*)"ih, ways(ih)%ns = ",ih, ways(ih)%ns
-			!write(*,'(a,i5,5x,4f10.5)')"ih, ts(ih,:) =",ih, ts(ih,:)
+		do ih1=1,ih2
+			ih = ihs(ih1)
 			rate(ih)%rcs(:,:) = 0.0d0
 			do is=1,ways(ih)%ns,1
 				do ic=1,nc
-					!write(*,*) 'heloowwww 2' !ways(ih)%active	
 					call ratehcs(ih,ic,is)
-					!write(*,*)"rates:ih,ic,rcs=",ih,ic,rate(ih)%rcs(ic,is)
 					if(PermSym) then ! total rate = (rates for one site) * ns
 						rate(ih)%rcs(ic,is)=
      .             ts(ih,ic)*rate(ih)%rcs(ic,is)*ways(ih)%ns
@@ -78,15 +77,15 @@
 				if(PermSym) exit; ! only a single site/case for each hop type
 			end do
 			rate(ih)%r = sum(rate(ih)%rcs); ! total rate for ih hop
-			!write(*,*)"ih,rate(ih)%rcs=",ih, rate(ih)%rcs
-			!write(*,*)"ih,rate(ih)%r=",ih, rate(ih)%r
 		end do
+
 	case('annihilation')
 	!-------------------------------------------------
 	! ih:5-6 D,Phi annihilation R,L ==> D,Phi | Phi,D
+	! ih:31,32 D,Phi annihilation up,dn ==> D,Phi | Phi,D
 	!-------------------------------------------------
-
-		do ih=5,6
+		do ih1=1,4
+			ih = ihannih(ih1)
 			rate(ih)%rcs(:,:) = 0.0d0
 			if (ways(ih)%ns>0) then
 				do ic=1,nc
@@ -146,15 +145,25 @@
 	!-------------------------------------------------
 		do ih=9,24
 			rate(ih)%rcs(:,:) = 0.0d0
-			if(ways(ih)%ns==1) then
+			do is=1,ways(ih)%ns
+				if(ways(ih)%ns>1) then
 				if(ih==19 .or. ih==20 .or. ih==23 .or. ih==24) then
-					if (nx > 0) call ratehcs(ih,1,1)
+					if (nx > 0) call ratehcs(ih,1,is)
 				else
-					call ratehcs(ih,1,1)
+					call ratehcs(ih,1,is)
 				endif
-			endif
-			rate(ih)%r = rate(ih)%rcs(1,1); ! total rate for ih hop
-		end do
+				endif
+
+				if(PermSym) then ! total rate = (rates for one site) * ns
+					rate(ih)%rcs(1,is)=
+     .       ts(ih,1)*rate(ih)%rcs(1,is)*na
+					exit; ! only a single site/case for each hop type
+				else
+					rate(ih)%rcs(ic,is)=ts(ih,ic)*rate(ih)%rcs(ic,is)
+				endif
+			enddo ! is		
+			rate(ih)%r = sum(rate(ih)%rcs); ! total rate for ih hop
+		enddo ! ih
 
 	end select
 	!-------------------------------------------------
@@ -174,16 +183,13 @@
 	double precision:: x,y
 	logical :: dblehop, emptyhop
 
-	!write(*,*) 'heloowwww A'
-
-
+	! I think this if block is not needed, the condition in it
+	! is already filtered before calling this subroutine.
 	! if no available hops, set rate = 0
-	if (ih <= 8 .and. ways(ih)%ns == 0) then
+	if ((ih <= 8 .or. ih >= 27) .and. ways(ih)%ns == 0) then
 		rate(ih)%rcs(ic,is) = 0.d0
 		return
 	endif
-
-	!write(*,*) 'heloowwww b'
 
 	! conditions on nx for ih=1-4
 	if(nx==0) then
@@ -198,12 +204,19 @@
 			rate(ih)%rcs(ic,is) = 0.0d0 
 			return
 		endif
+
+		if(((ih==27 .or. ih==28) .and. (ic==1 .or. ic==3)) .or. 
+     . ((ih==29 .or. ih==30) .and. (ic==2 .or. ic==3))) then
+			rate(ih)%rcs(ic,is) = 0.0d0 
+			return
+		endif
+
 	endif
 
 	!write(*,*) 'heloowwww c'
 
-	! conditions on nx for ih=7,8
-	if (ih==7 .or. ih==8) then
+	! conditions on nx for ih=7,8; 33,34
+	if (ih==7 .or. ih==8 .or. ih==33 .or. ih==34) then
 		if ( (ic < 3 .and. nx .lt. 1) .or. 
      .   (ic == 3 .and. nx .lt. 2) ) then
 			rate(ih)%rcs(ic,is) = 0.d0;

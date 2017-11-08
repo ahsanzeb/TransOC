@@ -25,7 +25,7 @@
 # | other than your home directory.      |
 # %--------------------------------------%
 #
-home = /Users/panda/repos/transport-code/fortran-TransOC/src/arpack/ARPACK
+home = /Users/maz/repos/transport-code/fortran-TransOC/src-3d/arpack/ARPACK
 #
 #  %--------------------------------------%
 #  | The platform identifier to suffix to |

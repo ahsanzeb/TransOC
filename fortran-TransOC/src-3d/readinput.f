@@ -317,6 +317,7 @@
 		AlwaysLP = .false. ! stay in the state (= ksub set) after a transition
 		sameg = .true. ! g=0 for all molecules
 	endif
+	! nog ===> AlwaysLP=F ===> PermSym = F
 	!--------------------------
 
 

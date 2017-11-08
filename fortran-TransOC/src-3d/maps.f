@@ -26,7 +26,7 @@
 	logical :: ch,exst,logNmm1,logkg,ldpa,lap,lcda,lcAp
 
 	ch = crosshops;
-	logNmm1= (sum(ways(1:4)%ns + sum(ways(27:30)%ns) > 0 .and. ch);
+	logNmm1= (sum(ways(1:4)%ns) + sum(ways(27:30)%ns) > 0 .and. ch);
 	logkg= ((.not. nokappa) .or. (.not. nogamma));
 	ldpa = sum(ways(5:6)%ns) + sum(ways(31:32)%ns) > 0;
 	lap = ways(7)%ns + ways(33)%ns > 0;
@@ -345,9 +345,9 @@
 
 	do ih=1,34
 		select case(ih)
-		case(1-4)
+		case(1:4)
 			maph(ih,:) = ih
-		case(27-30)
+		case(27:30)
 			maph(ih,:) = ih-26 ! ih=1-4 <====> ih=27-30
 		case(5,6,31,32)
 			maph(ih,:) = 5

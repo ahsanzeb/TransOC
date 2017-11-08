@@ -2,7 +2,7 @@
 	!	calls routines that calculate amplitudes for all hops
 	module Hoppings
 	use modmain, only: ways,PermSym,na,nx,crosshops,
-     . nokappa,nogamma,leads,nsites
+     . nokappa,nogamma,leads,nsites,ihdphops
 	use dhops, only: dhops1, dhops2
 	use creation !, only: DPhiCreat1,DPhiCreat3,DPhiCreat4
 	use annihilation, only: DPhiAn1,DPhiAn2
@@ -24,9 +24,6 @@
 	! local
 	integer:: ih,ih1
 	integer:: is,l
-	integer, dimension(8) ::
-     .                  ihdphops=(/1,2,3,4,27,28,29,30/)
-
 	!-------------------------------
 	! ih:1-4 DHopsR/L, PhiHopsR/L
 	! ih=27-30  DHopsU/D, PhiHopsU/D (Up/Down 3d cases)
@@ -86,7 +83,6 @@
 				endif
 				call DPhiCreat4(is) ! 4
 			endif
-			!if(PermSym) exit! only a single site/case for each hop type
 		end do
 	endif
 	!-------------------------------

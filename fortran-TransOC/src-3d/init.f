@@ -103,8 +103,16 @@
      . JhR,0.0d0,0.0d0,0.0d0, JlR,0.0d0,0.0d0,0.0d0,
      . JlL,0.0d0,0.0d0,0.0d0, JhL,0.0d0,0.0d0,0.0d0,
      . JhL,0.0d0,0.0d0,0.0d0, JlL,0.0d0,0.0d0,0.0d0,
-     . kappa,0.0d0,0.0d0,0.0d0, gamma,0.0d0,0.0d0,0.0d0
-     . /), (/ 26,4 /), order=(/2,1/) );
+     . kappa,0.0d0,0.0d0,0.0d0, gamma,0.0d0,0.0d0,0.0d0,
+     . th, tl, tlh, thl,
+     . th, tl, tlh, thl,
+     . tl, th, tlh, thl,
+     . tl, th, tlh, thl,
+     . th, tl, tlh, thl,
+     . th, tl, tlh, thl,
+     . th, tl, tlh, thl,
+     . th, tl, tlh, thl
+     . /), (/ 34,4 /), order=(/2,1/) );
 	!-----------------------------------------
 	!Block injecton?? 
 	!-----------------------------------------
@@ -151,7 +159,7 @@
   !local
 	double precision, dimension(4):: dEbulk
 	double precision, dimension(18):: dEcont
-	integer, dimension(26):: signEr
+	integer, dimension(34):: signEr
 	integer :: i,j
   	
 	dEbulk = (/ 0.0d0, 0.0d0, -w0, w0 /)
@@ -165,21 +173,20 @@
      .   1, -1, -1, 1, 1, -1, -1, 1,
      .   1, 1, -1, -1, -1, -1, 1, 1,
      .   -1, 1, -1, 1, 1, -1, 1, -1,
-     .   0, 0 /);
+     .   0, 0,
+     .   0, 0, 0, 0, 0, 0, 0, 0 /);
 
 		dqc(:,:) = 0.0d0
-		do i=1,26
-			do j=1,4
-   			if (i .le. 8) then
-					dqc(i,j) = dEbulk(j);
-				else
-					dqc(i,j) = dEcont(i - 8)
-				endif
-				dqc(i,j) = dqc(i,j) - signEr(i)*Er
-			end do
+		do i=1,34
+			select case(i)
+				case(1:8,27:34)
+					dqc(i,:) = dEbulk(:);
+				case(9:26)
+					dqc(i,:) = dEcont(i - 8)
+			end select
+			dqc(i,:) = dqc(i,:) - signEr(i)*Er
 			!write(*,'(a,i5,a,4f15.10)')"ih = ",i,"  dqc = ",dqc(i,:)
 		end do
-
 		
 	return
 	end subroutine SetDQC

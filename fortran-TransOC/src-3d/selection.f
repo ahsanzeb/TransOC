@@ -14,27 +14,27 @@
 	implicit none
 	! local
 	integer:: ih
-	double precision, dimension(27):: rlist ! accumulated rates
+	double precision, dimension(35):: rlist ! accumulated rates
 	double precision:: eta
 
 	!write(*,*)"rates= ",rate(:)%r
 	! select ih stochastically
 	rlist(1) = 0.0d0;
-	do ih=1,26
+	do ih=1,34
 		rlist(ih+1) = 	rlist(ih) + rate(ih)%r
 	end do
 	! eta, random real in range 0-rlist(27)
-	eta = rand(0) * rlist(27);
+	eta = rand(0) * rlist(35);
 	! location of eta on accumulated rates
 	ihSelect = -1;
-	do ih=1,26
+	do ih=1,34
 		if (eta .ge. rlist(ih) .and. eta .lt. rlist(ih+1) ) then
 			ihSelect = ih;
 			exit
 		endif
 	end do	
 	! error?
-	if (ihSelect == -1 .or. ihSelect>26) then
+	if (ihSelect == -1 .or. ihSelect>34) then
 		write(*,*) "ihSelect: something wrong.... ihSelect=",ihSelect
 		write(*,*) "ihSelect: eta = ",	eta		
 		write(*,*) "ihSelect: rlist = ",	rlist	
@@ -54,23 +54,17 @@
 	integer :: ntot,nc,ns,which,i
 	double precision:: eta
 
-	
 	!write(*,*)"rate%rcs= ",rate(ih)%rcs(:,:)
-
+	
 	nc = 1;
-	if (ih .le. 8) then
+	if (ih .le. 8 .or. ih .ge. 27) then ! ih=1-8, 27-34
 		nc = 2
 		if (crosshops) nc = 4
 	endif
-	
-	ns = 1; ! only in=1-4, 7,8
-	if(.not. PermSym) then	
-		if ( (ih .le. 4) .or. 
-     . ih==7 .or. ih==8 .or. ih==26) ns = ways(ih)%ns
-	endif
-	
-	if(nog)then
-		nc = 4; ns = sys%nsites;
+
+	ns = 1; ! just for selection; not actual ns 
+	if(.not. PermSym) then	 ! also applies to nog case
+		ns = ways(ih)%ns 
 	endif
 
 	ntot = ns * nc + 1;
@@ -108,12 +102,8 @@
 
 	if(ns == 1) then
 		ic = which;
-		ns = ways(ih)%ns;
-		if(ns > 1) then
-			is = int(rand(0)*ns) + 1; ! when PermSym
-		else
-			is = 1;
-		endif
+		ns = ways(ih)%ns; ! resume
+		is = int(rand(0)*ns) + 1;
 	elseif(nc == 1) then
 			ic = 1;
 			is = which;
@@ -189,5 +179,24 @@
 	return
 	end subroutine getpsi2
 !***************************************************
+
+!--------------------------------------
+	logical function MemberQ4(a,la,x)
+	implicit none
+	integer, intent(in):: la,x
+	integer, dimension(la), intent(in):: a
+	integer:: i
+	
+	MemberQ4 = .false.
+	do i=1,la
+		if (a(i) == x) then
+			MemberQ4 = .true.
+			exit
+		endif
+	end do
+	return
+	end function
+!--------------------------------------
+
 
 	end module selection

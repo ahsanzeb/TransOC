@@ -145,6 +145,13 @@
      . 8, 9 /),
      . (/ 34,4 /), order=(/2,1/) ); ! ih=1-8 <==> 26-34 for in-plane hops
 
+	integer, dimension(8) ::
+     .                  ihdphops=(/1,2,3,4,27,28,29,30/)
+
+	integer, dimension(4) ::
+     .                  ihcreat = (/7,8,33,34/)
+	integer, dimension(4) ::
+     .                  ihannih = (/5,6,31,32/)
 
 	type :: BMaps
 		integer :: nnu
