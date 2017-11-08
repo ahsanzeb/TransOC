@@ -324,7 +324,8 @@
 	end subroutine UpdateMapB
 !--------------------------------------------
 	subroutine calmaphc()
-	use modmain, only: maph,mapc
+	use modmain, only: maph,mapc 
+	! maph depends only on h, not c so second dim can be removed. but does not matter much not fixed.
 	implicit none
 
 	integer :: ih

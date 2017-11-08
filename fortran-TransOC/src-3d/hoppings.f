@@ -2,7 +2,7 @@
 	!	calls routines that calculate amplitudes for all hops
 	module Hoppings
 	use modmain, only: ways,PermSym,na,nx,crosshops,
-     . nokappa,nogamma,leads,nsites,ihdphops, qt
+     . nokappa,nogamma,leads,nsites,ihdphops, qt,maph
 	use dhops, only: dhops1, dhops2
 	use creation !, only: DPhiCreat1,DPhiCreat3,DPhiCreat4
 	use annihilation, only: DPhiAn1,DPhiAn2
@@ -10,7 +10,7 @@
 	use Contacts, only: CDAnnihil, CDCreat
 	implicit none
 	integer, dimension(4,2) ::
-	 dpih = reshape( (/1,2,27,28, 3,4,29,30/),
+     . dpih = reshape( (/1,2,27,28, 3,4,29,30/),
      .            (/ 4,2 /), order=(/1,2/) );
 	integer, dimension(4) :: ihs
 	public :: AllHops
@@ -33,20 +33,6 @@
 	! ih=27-30  DHopsU/D, PhiHopsU/D (Up/Down 3d cases)
 	! ?? L/R also same if PermSym. D/phi also same, swaped 1,2 channels?
 
-!	do ih1=1,8
-!		ih = ihdphops(ih1)
-!		do is=1,ways(ih)%ns
-!			if (.not. crosshops) then
-!				call dhops1(ih,is) ! chan 1-2
-!			else
-!				call dhops2(ih,is) ! chan 1-4
-!			endif
-!			if(PermSym) exit; ! only a single site/case for each hop type
-!		end do
-!	end do
-		!write(*,*) "hops: ---------- 2"
-
-
 	do ii=1,2 ! DHops, PhiHops
 			ihs = dpih(:,ii)	
 		do ih1=1,4
@@ -56,7 +42,8 @@
 				if(PermSym) then
 					call CheckAmp(ihs,ih,found,ia1,ia2)		
 					if(found) then ! copy qt instead of repeat calc
-					call copyqt(ia1,ia2); ! takes care of all channels 1-2/1-4	
+						call copyqt(ia1,ia2); ! takes care of all channels 1-2/1-4	
+					endif
 				endif
 				if(.not. found) then ! due to PermSym=F or from CheckAmp()
 					if (.not. crosshops) then
@@ -91,36 +78,29 @@
 	do ih1=1,2
 	ih = ihs(ih);
 	do is=1,ways(ih)%ns,1
-		if (nx .ge. 1) then
-			call DPhiCreat1(ih,is) ! 1-2
+		found = .false.
+		if(PermSym) then
+			if(ih==33 .and. ways(7)%ns > 0) then ! copy qt of ih=7 to ih=33
+				ia1 = maph(7,1); ia2 = maph(33,1);
+				call copyqt(ia1,ia2);
+				found = .true.
+			endif
 		endif
-		if (crosshops) then
-			if (nx .ge. 2) then
-				call DPhiCreat3(ih,is) ! 3                                        
+		if(.not. found) then ! calculate 
+			if (nx .ge. 1) then
+				call DPhiCreat1(ih,is) ! 1-2
+			endif
+			if (crosshops) then
+				if (nx .ge. 2) then
+					call DPhiCreat3(ih,is) ! 3                                        
 				endif
 				call DPhiCreat4(ih,is) ! 4
+			endif
 		endif
 		if(PermSym) exit! only a single site/case for each hop type
 	enddo
 	enddo
-	!write(*,*) "hops: ---------- 4"
-	!-------------------------------	
-	! ih=33,34 for in-plane hops  <====> ih=7,8
-	if(.not. PermSym) then
-		ih = 33; ! ih=34 will be treated like ih=8 with ih=7
-		do is=1,ways(ih)%ns,1
-			if (nx .ge. 1) then
-				call DPhiCreat1(is) ! 1-2
-			endif
-			if (crosshops) then
-				if (nx .ge. 2) then
-				call DPhiCreat3(is) ! 3
-				endif
-				call DPhiCreat4(is) ! 4
-			endif
-		end do
-	endif
-	!-------------------------------
+
 	!-------------------------------
 	! cavity and exciton losses
 	!-------------------------------
@@ -190,12 +170,16 @@
 	return
 	end 	subroutine CheckAmp
 !---------------------------------
-
 	subroutine copyqt(ia1,ia2)
 	implicit none
 	integer, intent(in) :: ia1, ia2
 	integer:: ic, nc, n2
 	integer :: is=1
+
+		! some conditions on nx etc might stop calc of ia1 amp
+		! should skip such cases; but since rates() does not use qt in such cases,
+		! we can just copy incorrect data from prev iterations to avoid checking all
+		! the conditions here.
 
 	if(crosshops) then
 		nc=4
@@ -207,23 +191,25 @@
 		! --------- allocate amp-----------
 		! find the size of ia1 array amp
 		n2 = qt(ia1)%cs(ic,is)%namp
-		! allocate ia2 array amp
-		if(allocated(qt(ia2)%cs(ic,is)%amp))
+		if(n2>0) then
+			! allocate ia2 array amp
+			if(allocated(qt(ia2)%cs(ic,is)%amp))
      .						deallocate(qt(ia2)%cs(ic,is)%amp)
-		allocate(qt(ia2)%cs(ic,is)%amp(n2))
-		qt(ia2)%cs(ic,is)%namp = n2
-		! --------- allocate amp2 -----------
-		! find the size of ia1 array amp2
-		n2 = qt(ia1)%cs(ic,is)%nsec
-		! 	allocate ia2 array amp2
-		if(allocated(qt(ia2)%cs(ic,is)%amp2))
+			allocate(qt(ia2)%cs(ic,is)%amp(n2))
+			qt(ia2)%cs(ic,is)%namp = n2
+			! --------- allocate amp2 -----------
+			! find the size of ia1 array amp2
+			n2 = qt(ia1)%cs(ic,is)%nsec
+			! 	allocate ia2 array amp2
+			if(allocated(qt(ia2)%cs(ic,is)%amp2))
      .					deallocate(qt(ia2)%cs(ic,is)%amp2)
-		allocate(qt(ia2)%cs(ic,is)%amp2(n2))
-		qt(ia2)%cs(ic,is)%nsec = n2
-		! --------------assign --------------
-		qt(ia2)%cs(ic,is)%amp = qt(ia1)%cs(ic,is)%amp
-		qt(ia2)%cs(ic,is)%amp2 = qt(ia1)%cs(ic,is)%amp2
-		!------------------------------------
+			allocate(qt(ia2)%cs(ic,is)%amp2(n2))
+			qt(ia2)%cs(ic,is)%nsec = n2
+			! --------------assign --------------
+			qt(ia2)%cs(ic,is)%amp = qt(ia1)%cs(ic,is)%amp
+			qt(ia2)%cs(ic,is)%amp2 = qt(ia1)%cs(ic,is)%amp2
+			!------------------------------------
+		endif
 	enddo
 
 	return

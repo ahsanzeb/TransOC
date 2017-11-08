@@ -183,7 +183,7 @@
 !------------------------------------------
 !	D Phi Annihilation for channel 1,2,3,4
 !------------------------------------------
-	subroutine DPhiAn2(ih)
+	subroutine DPhiAn2()
 	! chan 1,2,3,4 
 	use modmain, only: basis,na,nx,mapb
 	implicit none
