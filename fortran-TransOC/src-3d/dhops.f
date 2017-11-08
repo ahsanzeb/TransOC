@@ -1,7 +1,7 @@
 
 	module Dhops
 	use amplitudes
-	use lists, only: MemberQ,Drop,SortedInsert,GetPosition
+	use lists, only: MemberQ,Drop,SortedInsert,GetPosition,MemberQ4
 	
 	implicit none
 	integer::one=1,two=2,three=3,four=4
@@ -57,7 +57,12 @@
 	double precision, allocatable:: HtUf(:,:)
 	integer:: n1,n2,n3
 	integer:: itl
+	logical :: dhop, phop
 
+
+	dhop = MemberQ4((/1,2,27,28/),4,ih)
+	phop = MemberQ4((/3,4,29,30/),4,ih)
+	
 	l = ways(ih)%active(is); ! localtion of active site in lattice
 	l = GetPosition(Asites,na,l); ! localtion of active site in Asites
 	
@@ -76,9 +81,9 @@
 		!row2(1) = 1;
 		!n3=1;
 		! swap channel 1,2 for PhiHops
-		if(ih==1 .or. ih==2) then
+		if(dhop) then
 			call CalAmp(ih,2,is,(/1/),1,1,'multiplyd') ! ic=2
-		else	if(ih==3 .or. ih==4) then
+		else	if(phop) then
 			call CalAmp(ih,1,is,(/1/),1,1,'multiplyd') ! ic=2
 		else
 			write(*,*)"Error(dhops1): stopping!";
@@ -139,13 +144,13 @@
 	!write(*,*) "dhops: row2 = ",row2
 	! calculate transition amplitudes
 	! swap channel 1,2 for PhiHops
-	if(ih==1 .or. ih==2) then
+	if(dhop) then
 		call CalAmp(ih,1,is,row1,lat,n3,'multiplyd') ! ic=1
 		call CalAmp(ih,2,is,row2,lbt,n3,'multiplyd') ! ic=2
-	else	if(ih==3 .or. ih==4) then
+	else	if(phop) then
 		call CalAmp(ih,2,is,row1,lat,n3,'multiplyd') ! ic=2
 		call CalAmp(ih,1,is,row2,lbt,n3,'multiplyd') ! ic=1
-		else
+	else
 			write(*,*)"Error(dhops1): stopping!";
 			stop
 	endif
@@ -183,7 +188,6 @@
 	integer(kind=isk), dimension(k-1) :: seta
 	integer(kind=isk), dimension(k+1) :: setb
 	integer:: ntot,i,inda,indb,k1
-
 	
 	ntot = la+lb;
 	inda = 0; indb=0;
@@ -233,6 +237,11 @@
 	integer, allocatable, dimension(:):: row1,row2,col3,col4
 	double precision, allocatable:: HtUf(:,:)
 	integer :: itl
+	logical :: dhop, phop
+
+	dhop = MemberQ4((/1,2,27,28/),4,ih)
+	phop = MemberQ4((/3,4,29,30/),4,ih)
+
 
 	l = ways(ih)%active(is); ! localtion of active site in lattice
 	l = GetPosition(Asites,na,l); ! localtion of active site in Asites
@@ -261,9 +270,9 @@
 		! calculate transition amplitudes
 
 		! swap channel 1,2 for PhiHops
-		if(ih==1 .or. ih==2) then
+		if(dhop) then
 			call CalAmp(ih,2,is,row2,lbt,n3,'multiplyd') ! ic=2
-		else	if(ih==3 .or. ih==4) then
+		else	if(phop) then
 			call CalAmp(ih,1,is,row2,lbt,n3,'multiplyd') ! ic=1
 		else
 			write(*,*)"Error(dhops2): stopping!";
@@ -329,13 +338,13 @@
 
 	! calculate transition amplitudes
 	! swap channel 1,2 for PhiHops
-	if(ih==1 .or. ih==2) then
+	if(dhop) then
 		call CalAmp(ih,1,is,row1,lat,n3,'multiplyd') ! ic=1
 		call CalAmp(ih,2,is,row2,lbt,n3,'multiplyd') ! ic=2
-	else	if(ih==3 .or. ih==4) then
+	else	if(phop) then
 		call CalAmp(ih,2,is,row1,lat,n3,'multiplyd') ! ic=2
 		call CalAmp(ih,1,is,row2,lbt,n3,'multiplyd') ! ic=1
-		else
+	else
 			write(*,*)"Error(dhops2): stopping!";
 			stop
 	endif

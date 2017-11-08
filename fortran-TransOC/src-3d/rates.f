@@ -56,6 +56,8 @@
 	!-------------------------------
 	! ih=7,8; 33,34 (D,Phi), (Phi,D) created : R/L; Up/Down
 	!--------------------------------------------------------
+
+	! If PermSym; rates for 27=28; 29=30; 33=34; avoid repeat calc
 		if(process == 'dphihops') then
 			ih2=8; ihs = ihdphops;
 		else ! 'creation'
@@ -66,18 +68,27 @@
 			rate(ih)%rcs(:,:) = 0.0d0
 			do is=1,ways(ih)%ns,1
 				do ic=1,nc
-					call ratehcs(ih,ic,is)
-					if(PermSym) then ! total rate = (rates for one site) * ns
-						rate(ih)%rcs(ic,is)=
+					! PermSym: use equiv ih's if rates already calculated;
+					!	ih ordered in 'ihs'
+					! equiv because no E.r term for in-plane hops ===> Up==Down
+					if(PermSym) then 
+						if((ih==28 .and. ways(27)%ns > 0) .or.
+     .         (ih==30 .and. ways(29)%ns > 0) .or.
+     .         (ih==34 .and. ways(33)%ns > 0) ) then
+							rate(ih)%rcs(ic,is) = rate(ih-1)%rcs(ic,is); ! 27 for 28, etc.
+						else
+							rate(ih)%rcs(ic,is)=
      .             ts(ih,ic)*rate(ih)%rcs(ic,is)*ways(ih)%ns
+						endif
 					else
+						call ratehcs(ih,ic,is)
 						rate(ih)%rcs(ic,is)=ts(ih,ic)*rate(ih)%rcs(ic,is)
 					endif
-				end do
+				end do ! ic
 				if(PermSym) exit; ! only a single site/case for each hop type
-			end do
+			end do ! is
 			rate(ih)%r = sum(rate(ih)%rcs); ! total rate for ih hop
-		end do
+		end do ! ih
 
 	case('annihilation')
 	!-------------------------------------------------
@@ -125,12 +136,10 @@
 				if(PermSym) then ! total rate = (rates for one site) * ns
 					rate(ih)%rcs(ic,is)=
      .       ts(ih,ic)*rate(ih)%rcs(ic,is)*na
+     			exit; ! only a single site/case for each hop type; no ic loop
 				else
 					rate(ih)%rcs(ic,is)=ts(ih,ic)*rate(ih)%rcs(ic,is)
 				endif
-
-				if(PermSym) exit; ! only a single site/case for each hop type
-
 			end do
 			rate(ih)%r = sum(rate(ih)%rcs(:,:)); ! total rate for ih hop
 			!write(*,*) "rate:  gamma ==> ",rate(ih)%r
@@ -143,20 +152,21 @@
 	!-------------------------------------------------
 	! ih:9-24; R/L contacts injection/extraction of e/h
 	!-------------------------------------------------
+		ic=1;
 		do ih=9,24
 			rate(ih)%rcs(:,:) = 0.0d0
 			do is=1,ways(ih)%ns
 				if(ways(ih)%ns>1) then
 				if(ih==19 .or. ih==20 .or. ih==23 .or. ih==24) then
-					if (nx > 0) call ratehcs(ih,1,is)
+					if (nx > 0) call ratehcs(ih,ic,is)
 				else
-					call ratehcs(ih,1,is)
+					call ratehcs(ih,ic,is)
 				endif
 				endif
 
 				if(PermSym) then ! total rate = (rates for one site) * ns
-					rate(ih)%rcs(1,is)=
-     .       ts(ih,1)*rate(ih)%rcs(1,is)*na
+					rate(ih)%rcs(ic,is)=
+     .       ts(ih,ic)*rate(ih)%rcs(ic,is)*na
 					exit; ! only a single site/case for each hop type
 				else
 					rate(ih)%rcs(ic,is)=ts(ih,ic)*rate(ih)%rcs(ic,is)

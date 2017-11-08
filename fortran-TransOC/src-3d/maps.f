@@ -341,18 +341,27 @@
 	! RCAlL,RCAhL
 	! Rkappa, Rgamma
 
-	! icl=ic except for ih=8
+	! ia=15 - 18 for ih=27-30; ia=19 for ih=33,34
+	! ih=27-34: ih=1-8, L=> Up, R => Down
+
+
+	! icl=ic except for ih=8,34
 
 	do ih=1,34
 		select case(ih)
 		case(1:4)
 			maph(ih,:) = ih
 		case(27:30)
-			maph(ih,:) = ih-26 ! ih=1-4 <====> ih=27-30
+			maph(ih,:) = 14 + ih-26 ! ih=27:30 =>ia=15:18
+			! amp ih=1-4 <====> ih=27-30 if PermSym 
 		case(5,6,31,32)
-			maph(ih,:) = 5
-		case(7,8,33,34)
+			maph(ih,:) = 5 
+			! current code not for disorder in g,w0
+			!	31,32 === 5,6
+		case(7,8)
 			maph(ih,:) = 6
+		case(33,34)
+			maph(ih,:) = 19			
 		case(9,11,13,15)
 			maph(ih,:) = 7
 		case(10,12,14,16)

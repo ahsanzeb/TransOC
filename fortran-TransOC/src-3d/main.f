@@ -1,4 +1,10 @@
 
+! NOtes: Assume g, w0 same for all sites
+! if not, DPhicreat/annihil, D/Phi hops, all would need seperate sets of eigenstates/values to compute the amplitudes making the comput cot very high.
+! might do this in future, but at the moment, PermSym=F can only occur for reasons that do not require diff eig.
+
+
+
 	program TransOC
 	use modmain
 	use init, only: initialise
@@ -132,7 +138,7 @@
 
 		if(.not. alloc) then
 			! at most nsites ways for any hop???
-				do ia=1,14
+				do ia=1,19
 					allocate(qt(ia)%cs(4,sys%nsites))
 				enddo
 				! allocate space for rates

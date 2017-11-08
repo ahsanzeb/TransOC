@@ -205,18 +205,19 @@
 !------------------------------------------
 !	D creation at a contact
 !------------------------------------------
-	subroutine CDCreat(cont)
-	use modmain, only: basis,na,nx,Asites,mapb,nsites
+	subroutine CDCreat(cont,is)
+	use modmain, only: basis,na,nx,Asites,mapb,nsites,ways
 	
 	implicit none
 	character(len=1), intent(in):: cont
+	integer, intent(in) :: is
 	!	local
 	integer:: ib1i=3, ib2i=2,ib1,ib2 ! see dnalist5 in modmain
 	integer::k,n,m,m1,m2,m3
 	integer :: ntot, ind, ntot1,nnz,n1,n2,n3,i
 	integer, allocatable, dimension(:) :: map,row,col
 	integer, allocatable, dimension(:):: pntr1,pntr2,pntr3
-	integer :: is=1, ih,l1
+	integer :: ih,l1,l
 
 	ib1= mapb%map(ib1i);
 	ib2= mapb%map(ib2i);
@@ -237,9 +238,11 @@
 
 	! position of active contact site in Asites list.
 	if(cont=='l') then
-		l1 = GetPosition(ASites,n,1);
+		l = 	ways(21)%active(is); ! ih=21:24; localtion of active site in lattice
+		l1 = GetPosition(ASites,n,l);
 	elseif(cont=='r') then
-		l1 = GetPosition(ASites,n,nsites);
+		l = 	ways(17)%active(is); ! ih=17:20; localtion of active site in lattice
+		l1 = GetPosition(ASites,n,l);
 	endif
 
 	allocate(pntr1(m1+2))
@@ -293,7 +296,7 @@
 	elseif(cont=='r') then ! l=nsites, Right conatact
 		ih = 19;
 	endif
-	call CalAmp0(ih,1,1,row,nnz,n3,col)
+	call CalAmp0(ih,1,is,row,nnz,n3,col)
 	
 	deallocate(row,col)
 	endif ! m > 0
@@ -336,7 +339,7 @@
 	elseif(cont=='r') then ! l=nsites, Right conatact
 		ih = 17;
 	endif
-	call CalAmp0(ih,1,1,row,nnz,n3,col)
+	call CalAmp0(ih,1,is,row,nnz,n3,col)
 
 	deallocate(pntr1,pntr2,row,col)
 	

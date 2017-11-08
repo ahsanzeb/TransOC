@@ -163,13 +163,13 @@
 !	D Phi Annihilation for channel 1,2
 ! up,dn become D,Phi
 !------------------------------------------
-	subroutine DPhiCreat1(is)
+	subroutine DPhiCreat1(ih,is)
 	use modmain, only: basis,na,nx,Asites,ways,mapb
 	
 	implicit none
-	integer, intent(in):: is
+	integer, intent(in):: ih, is ! ih=7
 	!	local
-	integer:: ih=7, ib1i=3, ib2i=1,ib1,ib2 ! see dnalist5 in modmain
+	integer:: ib1i=3, ib2i=1,ib1,ib2 ! see dnalist5 in modmain
 	integer::k,n,m,m1,m2,m3
 	integer :: ntot, ind, ntot1,nnz,n1,n2,n3,i
 	integer, allocatable, dimension(:,:) :: map,row
@@ -287,12 +287,12 @@
 !	D Phi creation for channel 3
 ! up,up become D,Phi
 !------------------------------------------
-	subroutine DPhiCreat3(is)
+	subroutine DPhiCreat3(ih,is)
 	use modmain, only: basis,na,nx,Asites,ways,mapb
 	implicit none
-	integer, intent(in):: is
+	integer, intent(in):: ih, is ! ih=7
 	!	local
-	integer:: ih=7, ib1i=3, ib2i=1,ib1,ib2 ! see dnalist5 in modmain
+	integer:: ib1i=3, ib2i=1,ib1,ib2 ! see dnalist5 in modmain
 	integer::n,k,m,m1,m2
 	integer :: ntot, ind, nnz,n1,n2,n3,i1,i2,i
 	integer, allocatable, dimension(:) :: map,row,col
@@ -381,12 +381,12 @@
 !	D Phi creation for channel 4
 ! dn,dn become D,Phi
 !------------------------------------------
-	subroutine DPhiCreat4(is)
+	subroutine DPhiCreat4(ih,is)
 	use modmain, only: basis,na,nx,Asites,ways,mapb
 	implicit none
-	integer, intent(in):: is
+	integer, intent(in):: ih, is ! ih=7, 
 	!	local
-	integer:: ih=7, ib1i=3, ib2i=1,ib1,ib2! see dnalist5 in modmain
+	integer:: ib1i=3, ib2i=1,ib1,ib2! see dnalist5 in modmain
 	integer::k,n,m,m1,m2
 	integer :: ntot, ind, nnz,n1,n2,n3,i
 	integer, allocatable, dimension(:) :: map,row,col

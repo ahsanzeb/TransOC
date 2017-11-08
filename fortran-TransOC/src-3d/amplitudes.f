@@ -117,7 +117,6 @@
 	!write(*,*)"itypes(ih,ic), itl = ",itypes(ih,ic),itl
 	ia = maph(ih,ic); ! location of amplitudes
 
-		
 	n1=eig(itl)%n1 ! dim of final hilbert space
 	n2=eig(itl)%n2
 	if(.not. master) call allocqt(ia,ic,is,itl,n2)

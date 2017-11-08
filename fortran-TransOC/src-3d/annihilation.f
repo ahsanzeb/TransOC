@@ -1,4 +1,9 @@
 
+! NOtes: Assume g, w0 same for all sites
+! if not, DPhicreat/annihil, D/Phi hops, all would need seperate sets of eigenstates/values to compute the amplitudes making the comput cot very high.
+! might do this in future, but at the moment, PermSym=F can only occur for reasons that do not require diff eig.
+
+
 	module Annihilation
 	use amplitudes
 	
@@ -85,6 +90,7 @@
 	subroutine DPhiAn1()
 	use modmain, only: basis,na,nx,mapb
 	implicit none
+	!integer, intent(in) :: ih ! ih=5, is=1
 	!	local
 	integer:: ih=5, is=1, ib1i=3, ib2i=5 ! see dnalist5 in modmain
 	integer:: ib1,ib2
@@ -177,10 +183,11 @@
 !------------------------------------------
 !	D Phi Annihilation for channel 1,2,3,4
 !------------------------------------------
-	subroutine DPhiAn2()
+	subroutine DPhiAn2(ih)
 	! chan 1,2,3,4 
 	use modmain, only: basis,na,nx,mapb
 	implicit none
+	!integer, intent(in) :: ih ! ih=5, is=1
 	!	local
 	integer:: ih=5, is=1, ib1i=3, ib2i=5 ! see dnalist5 in modmain
 	!	itype? n,m, etc....?

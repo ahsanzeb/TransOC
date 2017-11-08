@@ -340,7 +340,7 @@
 
 	! not 26: in some cases, multiple hopping processes share amplitudes.
 	! maph would give location for a given hopping process, ih ---> ihl
-	type(QuantumTransitions), dimension(14) :: qt 
+	type(QuantumTransitions), dimension(19) :: qt 
 	double precision, allocatable :: psi(:,:) ! to store quantum state
 	double precision, allocatable :: psi2(:,:) ! to store quantum state
 
