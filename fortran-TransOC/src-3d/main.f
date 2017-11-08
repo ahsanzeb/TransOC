@@ -95,6 +95,8 @@
 
 
 		!write(*,*) iter, na, nx
+		write(*,*) "in: Asites = ",Asites
+		write(*,*) "in: occ = ",sys%occ
 
 		
 		nms = nms + (/na,nx/);
@@ -135,7 +137,7 @@
 		!write(*,*)"main: eval 1="	,eig(it)%eval
 		
 		!write(*,*)"sys%occ = ",sys%occ
-
+		
 		if(.not. alloc) then
 			! at most nsites ways for any hop???
 				do ia=1,19
@@ -145,12 +147,9 @@
 				do ih=1,34 ! testing... alloc 26 all 
 					if(PermSym)then
 						allocate(rate(ih)%rcs(4,1))
-						allocate(mrate(ih)%rcst(4,1,ntcoarse))
 					else
 						allocate(rate(ih)%rcs(4,sys%nsites))
-						allocate(mrate(ih)%rcst(4,sys%nsites,ntcoarse))
 					endif
-					allocate(mrate(ih)%r(ntcoarse))
 				enddo
 				alloc = .true.
 		endif
@@ -184,7 +183,7 @@
 		call CalRates()
 		if(debug)write(*,*) "main:   CalRates done... "	
 
-		!write(*,*) "main: ===1==> ",rate(:)%r
+		write(*,*) "main: ===1==> ",rate(:)%r
 
 		! select a hop based on rates
 		ih = ihSelect() 

@@ -174,7 +174,7 @@
 	integer :: ntot, ind, ntot1,nnz,n1,n2,n3,i
 	integer, allocatable, dimension(:,:) :: map,row
 	integer, allocatable, dimension(:):: pntr1,pntr2,col
-	integer :: l1,l2,l
+	integer :: l1,l2,l,lp1
 	logical :: order
 
 	ib1= mapb%map(ib1i);
@@ -191,8 +191,9 @@
 
 
 	l = ways(ih)%active(is); ! localtion of active site in lattice
+	lp1 = ways(ih)%sites(is);
 	! order in list of active sites
-	call ActiveOrder(ASites,na,l,l1,l2,order)
+	call ActiveOrder(ASites,na,l,lp1,l1,l2,order)
 
 	allocate(pntr1(m1+2))
 	allocate(pntr2(m2+2)) 
@@ -297,7 +298,7 @@
 	integer :: ntot, ind, nnz,n1,n2,n3,i1,i2,i
 	integer, allocatable, dimension(:) :: map,row,col
 	integer, allocatable :: pntr1(:), pntr2(:)
-	integer:: l1,l2,l
+	integer:: l1,l2,l,lp1
 	logical :: order
 
 	ib1= mapb%map(ib1i);
@@ -312,8 +313,9 @@
 	m2 = min(n-2,m-2);
 
 	l = ways(ih)%active(is); ! localtion of active site in lattice
+	lp1 = ways(ih)%sites(is);
 	! order in list of active sites
-	call ActiveOrder(ASites,na,l,l1,l2,order)
+	call ActiveOrder(ASites,na,l,lp1,l1,l2,order)
 
 	allocate(pntr1(m1+2))
 	allocate(pntr2(m2+2)) 
@@ -391,7 +393,7 @@
 	integer :: ntot, ind, nnz,n1,n2,n3,i
 	integer, allocatable, dimension(:) :: map,row,col
 	integer, allocatable, dimension(:):: pntr1,pntr2
-	integer :: l1,l2,l
+	integer :: l1,l2,l,lp1
 	logical :: order
 
 	ib1= mapb%map(ib1i);
@@ -406,8 +408,9 @@
 	m2 = min(n-2,m); ! m3=min(n-2,m)=m2 at least two up required
 
 	l = ways(ih)%active(is); ! localtion of active site in lattice
+	lp1 = ways(ih)%sites(is);
 	! order in list of active sites
-	call ActiveOrder(ASites,na,l,l1,l2,order)
+	call ActiveOrder(ASites,na,l,lp1,l1,l2,order)
 
 	allocate(pntr1(m1+2))
 	allocate(pntr2(m2+2)) 
@@ -458,24 +461,16 @@
 !------------------------------------------
 
 !---------------------------------------
-	subroutine ActiveOrder(ASites,na,l,l1,l2,order)
+	subroutine ActiveOrder(ASites,na,l,lp1,l1,l2,order)
 	use modmain, only: sys, periodic,isk
 	implicit none
-	integer, intent(in) :: na,l
+	integer, intent(in) :: na,l,lp1
 	integer, dimension(na), intent(in):: Asites
 	integer, intent(out) :: l1,l2
 	logical, intent(out) :: order
 	! local
-	integer:: x1,x2,lp1
+	integer:: x1,x2
 
-	if(l < sys%nsites) then
-		lp1 = l + 1;
-	elseif(l==sys%nsites .and. periodic)then
-		lp1 = 1;
-	else
-		write(*,*)"Error(ActiveOrder): ?!"
-	endif
-	
 	! order in the list of active sites
 	x1 = GetPosition(ASites,na,l);
 	x2 = GetPosition(ASites,na,lp1);

@@ -76,7 +76,7 @@
 				! chan 1,2 swapped, handled via maph, mapc
 	ihs(1:2) = (/7,33/);
 	do ih1=1,2
-	ih = ihs(ih);
+	ih = ihs(ih1);
 	do is=1,ways(ih)%ns,1
 		found = .false.
 		if(PermSym) then
@@ -214,26 +214,5 @@
 
 	return
 	end subroutine copyqt
-!---------------------------------
-
-
-	logical function AmpExist(a,x)
-	implicit none
-	integer, dimension(4), intent(in):: a
-	integer, intent(in):: x
-	integer:: i, ns
-
-	ns = 0;
-	do i=1,4
-		if (a(i) < x) then
-			ns = ns + ways(a(i))%ns
-		else
-			exit
-		endif
-	end do
-	AmpExist = (ns > 0);
-	
-	return
-	end function
 !-------------------------------------------
 	end module Hoppings

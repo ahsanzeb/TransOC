@@ -25,7 +25,8 @@
 	if (crosshops) nc=4; 
 	! calculate rate(:)%r and rate(:)%rcs(:,:) for all hops
 	call totr('dphihops',nc)
-	!write(*,*) "rates  1"
+	!write(*,*) "rates  1: "
+	
 	call totr('annihilation',nc)
 	!write(*,*) "rates  2"
 	call totr('creation',nc)
@@ -49,6 +50,8 @@
 	integer:: ih, ic, ih1, ih2,is
 	integer, dimension(8):: ihs
 
+	!write(*,*)"totr: ways(:)%ns = ", ways(:)%ns
+
 	select case(process)
 	case('dphihops','creation')
 	!-------------------------------
@@ -68,6 +71,7 @@
 			rate(ih)%rcs(:,:) = 0.0d0
 			do is=1,ways(ih)%ns,1
 				do ic=1,nc
+						!write(*,*)"** ih,is,ic=...**",ih,is,ic
 					! PermSym: use equiv ih's if rates already calculated;
 					!	ih ordered in 'ihs'
 					! equiv because no E.r term for in-plane hops ===> Up==Down
@@ -77,6 +81,7 @@
      .         (ih==34 .and. ways(33)%ns > 0) ) then
 							rate(ih)%rcs(ic,is) = rate(ih-1)%rcs(ic,is); ! 27 for 28, etc.
 						else
+							call ratehcs(ih,ic,is)
 							rate(ih)%rcs(ic,is)=
      .             ts(ih,ic)*rate(ih)%rcs(ic,is)*ways(ih)%ns
 						endif
@@ -88,6 +93,7 @@
 				if(PermSym) exit; ! only a single site/case for each hop type
 			end do ! is
 			rate(ih)%r = sum(rate(ih)%rcs); ! total rate for ih hop
+			!write(*,*) "ih, rate(ih)%r = ",ih,rate(ih)%r
 		end do ! ih
 
 	case('annihilation')
@@ -196,10 +202,17 @@
 	! I think this if block is not needed, the condition in it
 	! is already filtered before calling this subroutine.
 	! if no available hops, set rate = 0
+
+	!write(*,*) 'heloowwww 1'
+
+
 	if ((ih <= 8 .or. ih >= 27) .and. ways(ih)%ns == 0) then
 		rate(ih)%rcs(ic,is) = 0.d0
 		return
 	endif
+
+	!write(*,*) 'heloowwww 2'
+
 
 	! conditions on nx for ih=1-4
 	if(nx==0) then
@@ -223,7 +236,7 @@
 
 	endif
 
-	!write(*,*) 'heloowwww c'
+	!write(*,*) 'heloowwww 3'
 
 	! conditions on nx for ih=7,8; 33,34
 	if (ih==7 .or. ih==8 .or. ih==33 .or. ih==34) then
@@ -270,11 +283,13 @@
 	stop
 	endif
 
+	write(*,*)"qt(ia)%cs(icl,is)%amp2 = ",qt(ia)%cs(icl,is)%amp2
+
 	rate(ih)%rcs(ic,is) =
      .   sum(PenaltyArray(de,nsec) * qt(ia)%cs(icl,is)%amp2)
 
 	! for debugging, remove later
-	if (isnan(rate(ih)%rcs(ic,is))) then
+	if (isnan(rate(ih)%rcs(ic,is)) .or. 1==0) then
 		write(*,*)"rates: rcs =",rate(ih)%rcs(ic,is)
 		x = 0.0d0
 		do i=1,nsec

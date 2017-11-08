@@ -62,10 +62,10 @@
 
 	dhop = MemberQ4((/1,2,27,28/),4,ih)
 	phop = MemberQ4((/3,4,29,30/),4,ih)
-	
+
 	l = ways(ih)%active(is); ! localtion of active site in lattice
 	l = GetPosition(Asites,na,l); ! localtion of active site in Asites
-	
+
 	!------------------------------------------	
 	! N,m values of itype:
 	n = na + dna(itype); ! no of active sites
