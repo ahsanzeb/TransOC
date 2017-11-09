@@ -320,8 +320,8 @@
 	integer, dimension(sys%n1+2) :: Asitesx,Asitesy
 	integer:: i
 
-	write(*,*) "in: Asites = ",Asites
-	write(*,*) "in: occ = ",sys%occ
+	!write(*,*) "in: Asites = ",Asites
+	!write(*,*) "in: occ = ",sys%occ
 	
 	if(ih <= 8 .or. ih >= 27) then
 		la = ways(ih)%active(is)

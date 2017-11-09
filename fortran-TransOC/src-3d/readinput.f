@@ -24,7 +24,7 @@
 	!--------------------------!
 
 	debug = .false.
-	nsites = 5;
+	nsites = 6;
 	nel = 1;
 	nelmin=1; nelmax=1;dnelec=1;
 	Eq = 0.0;
@@ -136,7 +136,12 @@
 
 	case('Nsites')
 		read(50,*,err=20) nsites
-
+		if(mod(nsites,3) .ne. 0) then
+			write(*,*)"Warning(readinp): Nsites increased to multiple of 3"
+			write(*,*)	"Warning(readinp): given Nsites=",Nsites
+			nsites = 3*(nsites/3) + 3; ! integer arithmatic
+			write(*,*)	"Warning(readinp): used Nsites=",Nsites
+		endif
 	case('Doping','doping')
 		read(50,*,err=20) nel
 		givenNel = .true.

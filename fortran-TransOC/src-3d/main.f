@@ -95,8 +95,8 @@
 
 
 		!write(*,*) iter, na, nx
-		write(*,*) "in: Asites = ",Asites
-		write(*,*) "in: occ = ",sys%occ
+		!write(*,*) "in: Asites = ",Asites
+		!write(*,*) "in: occ = ",sys%occ
 
 		
 		nms = nms + (/na,nx/);
@@ -183,7 +183,7 @@
 		call CalRates()
 		if(debug)write(*,*) "main:   CalRates done... "	
 
-		write(*,*) "main: ===1==> ",rate(:)%r
+		!write(*,*) "main: ===1==> ",rate(:)%r
 
 		! select a hop based on rates
 		ih = ihSelect() 

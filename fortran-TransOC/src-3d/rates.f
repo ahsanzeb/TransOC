@@ -283,7 +283,7 @@
 	stop
 	endif
 
-	write(*,*)"qt(ia)%cs(icl,is)%amp2 = ",qt(ia)%cs(icl,is)%amp2
+	!write(*,*)"qt(ia)%cs(icl,is)%amp2 = ",qt(ia)%cs(icl,is)%amp2
 
 	rate(ih)%rcs(ic,is) =
      .   sum(PenaltyArray(de,nsec) * qt(ia)%cs(icl,is)%amp2)
