@@ -161,14 +161,25 @@
 	double precision, dimension(18):: dEcont
 	integer, dimension(34):: signEr
 	integer :: i,j
-  	
-	dEbulk = (/ 0.0d0, 0.0d0, -w0, w0 /)
+
+	! Exciton binding energy: Exb; Exciton energy = w0;
+	! (LUMO/D energy = w0 + Exb; and Contact barriers are defind w.r.t this level)
+  	! Important NOTE: 
+  	! adjustig the 'energy of a D/Lumo filled' for
+  	! the change in the energy reference of the eigenstates,
+  	! we only need to consider the rest of the changes.
+	dEbulk = (/ 0.0d0, 0.0d0, -w0, w0 /);
 	dEcont = (/
      .   -Ebr, -Ebr + w0, -Ebl, -Ebl + w0,
-     .   Ebr - w0, Ebr, Ebl - w0, Ebl,
-     .   Ebr, -Ebr + w0, Ebr - w0, -Ebr,
-     .   Ebl, -Ebl + w0, Ebl - w0, -Ebl,
+     .   Ebr-Exb-w0, Ebr-Exb, Ebl-Exb-w0, Ebl-Exb,
+     .   Ebr, -Ebr + w0+Exb, Ebr - w0, -Ebr+Exb,
+     .   Ebl, -Ebl + w0+Exb, Ebl - w0, -Ebl+Exb,
      .   -w0, -w0 /);
+	! kappa, gamma: -w0 to reflect cange in reference for spectrum
+	! otherwise the transition would just take the energy difference between
+	! kappa: what would be the energy of emitted photon? ~ w0-wR
+	! similarly, exciton loss will release energy to the lattice;
+	! it will not cost energy so no energetic penalty supression etc
 	signEr =(/
      .   1, -1, -1, 1, 1, -1, -1, 1,
      .   1, 1, -1, -1, -1, -1, 1, 1,
@@ -179,8 +190,12 @@
 		dqc(:,:) = 0.0d0
 		do i=1,34
 			select case(i)
-				case(1:8,27:34)
+				case(1:4,27:30)
 					dqc(i,:) = dEbulk(:);
+				case(5,6,31,32)
+					dqc(i,:) = dEbulk(:) - Exb
+				case(7,8,33,34)
+					dqc(i,:) = dEbulk(:) + Exb
 				case(9:26)
 					dqc(i,:) = dEcont(i - 8)
 			end select

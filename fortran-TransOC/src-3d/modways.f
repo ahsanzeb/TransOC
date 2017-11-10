@@ -475,23 +475,38 @@
 ! signdEQ = 	sign of charging energy for various contact processes
 ! i.e., electron/hole extraction/injection
 !----------------------------------------
-	subroutine UpdatedEQs(Qtot,nelec)
-	use modmain, only: Eq, dEQs,Eqtot
+	subroutine UpdatedEQs(Qtot)
+	use modmain, only: Eq, dEQs
+	! in: Qtot, Eq;
+	! out: dEQs
 	implicit none
-	integer, intent(in)::Qtot,nelec
-	integer:: ih
+	integer, intent(in)::Qtot
+	integer:: i, Qtotf
+	double precision :: Eqi
 	! Net charge on the system
 	!	Qnet = (nsites-nelec)-sum(sys%occ);
-	! Net charging energy
-	Eqtot = Eq * abs(Qtot)*(abs(Qtot)+1)/2.0d0;
-
+	! charging energy
+	Eqi = ChargingE(Qtot);
 	! change in charging energy for various contact processes
+	!	i.e., electron/hole injection/extraction
 	! similar charging increase energy, opposite decreases
-	dEQs = Eq * Qtot * signdEQ;
+	do i=1,16
+		Qtotf = Qtot + signdEQ(i);
+		dEQs(i) = ChargingE(Qtotf) - Eqi;
+	enddo
 
 	return
 	end 	subroutine UpdatedEQs
-
-
+!-----------------------------------
+	double precision function ChargingE(q)
+	use modmain, only: Eq
+	implicit none
+	integer, intent(in) :: q
+	integer :: absq
+	absq = abs(q);
+	ChargingE = Eq * (absq - 1) * absq / 2.0d0
+	return
+	end function ChargingE
+!-----------------------------------
 
 	end module modways

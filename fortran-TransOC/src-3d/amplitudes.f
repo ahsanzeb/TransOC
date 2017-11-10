@@ -7,7 +7,7 @@
 	contains
 ! transition matrices and amplitudes
 	subroutine CalAmp(ih,ic,is,rowc,nnz,n3,routine)
-	use modmain, only: qt,mapt,maph,eig,itypes,psi,ipsi,nog,master
+	use modmain, only: qt,mapt,maph,eig,itypes,psi,ipsi,nog
 	implicit none
 	integer, intent(in) :: is
 	integer, intent(in) :: ih,ic
@@ -30,7 +30,7 @@
 	n1=eig(itl)%n1 ! dim of final hilbert space
 	n2=eig(itl)%n2
 	
-	if(.not. master) call allocqt(ia,ic,is,itl,n2)
+	call allocqt(ia,ic,is,itl,n2)
 
 	if(nog) then
 		!write(*,*)"========> ih,ic,is = ",ih,ic,is 
@@ -68,19 +68,6 @@
 			write(*,*) "amplitudes: something wrong....!"
 			stop
 		endif
-
-		if (master) then
-			it1 = mapt%map(1); ! inition/current hilbert space location
-			allocate(Hte(eig(it1)%n2,n2))
-			Hte = matmul(transpose(eig(it1)%evec),HtUf); ! Ui^T.Ht.Uf
-			! Hte is Ht in eigenbasis.
-			!	split rhovt into degenerate sectors
-			!	and do: Hte^T.rhovtsec.Hte OR Hte.rhovtsec.Hte^T ?
-			! for all t-points on coarse grid.
-			! get amp2. Multiply penalty function and get rates.
-			call merates(ih,ic,is,Hte,eig(it1)%n2,n2,it1,itl)
-			deallocate(Hte)
-		else
 			! multiply psi with HtUf to get amplitudes
 			! psi should be a row vector; shape = 1 x n3
 			! testing HtUf(1,:);!
@@ -88,7 +75,6 @@
 			!write(*,*) "amp: ih,ic, ia, is,itl=",ih,ic, ia, is,itl
 			call GetAmp2(qt(ia)%cs(ic,is)%amp, n2,
      .		qt(ia)%cs(ic,is)%amp2, eig(itl)%nsec, eig(itl)%ind)
-		endif
 		deallocate(HtUf)
 	endif
 
@@ -98,7 +84,7 @@
 
 
 	subroutine CalAmp0(ih,ic,is,rowc,nnz,n3,col)
-	use modmain, only: qt,mapt,maph,eig,itypes,psi,ipsi,nog,master
+	use modmain, only: qt,mapt,maph,eig,itypes,psi,ipsi,nog
 	implicit none
 	integer, intent(in) :: is
 	integer, intent(in) :: ih,ic
@@ -119,7 +105,7 @@
 
 	n1=eig(itl)%n1 ! dim of final hilbert space
 	n2=eig(itl)%n2
-	if(.not. master) call allocqt(ia,ic,is,itl,n2)
+	call allocqt(ia,ic,is,itl,n2)
 
 	if(nog) then
 		qt(ia)%cs(ic,is)%amp = 0.0d0
@@ -140,18 +126,6 @@
 		call multiply(rowc,col,nnz,eig(itl)%evec,n1,n2,
      .							HtUf,n3,n2)
 
-		if (master) then
-			it1 = mapt%map(1); ! inition/current hilbert space location
-			allocate(Hte(eig(it1)%n2,n2))
-			Hte = matmul(transpose(eig(it1)%evec),HtUf); ! Ui^T.Ht.Uf
-			! Hte is Ht in eigenbasis.
-			!	split rhovt into degenerate sectors
-			!	and do: Hte^T.rhovtsec.Hte OR Hte.rhovtsec.Hte^T ?
-			! for all t-points on coarse grid.
-			! get amp2. Multiply penalty function and get rates.
-			call merates(ih,ic,is,Hte,eig(it1)%n2,n2,it1,itl)
-			deallocate(Hte)
-		else
 			! multiply psi with HtUf to get amplitudes
 			! psi should be a row vector; shape = 1 x n3
 			!HtUf = 1.0d0;
@@ -162,7 +136,6 @@
 			call GetAmp2(qt(ia)%cs(ic,is)%amp, n2,
      .		qt(ia)%cs(ic,is)%amp2,
      .		eig(itl)%nsec, eig(itl)%ind)
-		endif
 		deallocate(HtUf)  
 	endif
 
@@ -207,23 +180,6 @@
 	
 	return
 	end subroutine GetAmp2
-!---------------------------------------
-	subroutine GetMEAmp2(amp,ne,amp2,nsec,ind)
-	! calculates total amplitude squared for degenerate sectors
-	integer, intent(in) :: ne, nsec
-	double precision,dimension(ne),intent(in):: amp ! amp^2 for final states
-	integer,dimension(nsec+1),intent(in):: ind !start index of sectors
-	double precision,dimension(nsec),intent(out):: amp2 !tot amp^2 of sec
-	! local
-	integer:: i,i1,i2,j
-	amp2 = 0.0d0;
-	do i=1,nsec !-1
-		i1 = ind(i); i2=ind(i+1)-1
-		amp2(i) = sum(amp(i1:i2)) ! amp already squared
-	end do	
-	return
-	end subroutine GetMEAmp2
-!---------------------------------------
 
 	!-------------------------------------
 	subroutine allocqt(ia,ic,is,itl,n2)
@@ -244,243 +200,5 @@
 	end subroutine allocqt
 	!-------------------------------------
 
-
-!--------------------------------------------------------
-	subroutine merates(ih,ic,is,Hte,n1,n2,it1,it2)
-	use modmain, only: pauli
-	implicit none
-	integer, intent(in):: ih,ic,is,n1,n2,it1,it2
-	double precision, dimension(n1,n2), intent(in):: Hte ! Ht in eigenbasis
-		if (pauli) then
-			call pmerates(ih,ic,is,Hte,n1,n2,it1,it2)
-		else
-			call rmerates(ih,ic,is,Hte,n1,n2,it1,it2)
-		endif
-	end subroutine merates
-!--------------------------------------------------------
-!	Redfield master equation
-	!	split rhovt into degenerate sectors
-	!	and do: Hte^T.rhovtsec.Hte OR Hte.rhovtsec.Hte^T ?
-	! for all t-points on coarse grid.
-	! get amp2. Multiply penalty function and get rates.
-	subroutine rmerates(ih,ic,is,Hte,n1,n2,it1,it2)
-	use modmain, only: rhovt, lrhov, ntcoarse, mrate, eig,
-     .               maprho, ts, ways, PermSym,ne, nsec
-	!use lindblad, only: ? or rhovt in modmain?
-	implicit none
-	integer, intent(in):: ih,ic,is,n1,n2,it1,it2
-	double precision, dimension(n1,n2), intent(in):: Hte ! Ht in eigenbasis
-	! local
-	double precision:: r, tr
-	double precision, allocatable, dimension(:):: amp2
-	double precision, allocatable, dimension(:,:):: rho, aux
-	integer :: irow,icol,l1,l2,it,j,dl,i
-	
-	allocate(amp2(eig(it2)%nsec))
-
-	do it=1,ntcoarse
-	!tr = 0.0d0;
-	do i=1,nsec ! initial spectrum degen sectors
-		l1 = eig(it1)%ind(i); l2 = eig(it1)%ind(i+1)-1;
-		dl = l2 - l1 + 1;
-		!---------------- degen block: rho vector to matrix; 
-		allocate(rho(dl,dl)); ! dense block for this degenerate sector
-		! fold part of rhov of a degen block to make upper triangular of rho
-		j=maprho(l1);
-		do irow=1,dl;
-			!tr = tr + rhovt(j,it); ! trace
-			!if(rhovt(j,it)<0.0d0)write(*,*)"? rhovt = ",rhovt(j,it)
-			do icol = irow,dl;
-				rho(irow,icol) = rhovt(j,it);
-				j = j + 1;
-			enddo
-		enddo
-		
-		! fill lower triangular
-		do irow=1,dl;
-			do icol = 1,irow-1;
-				rho(irow,icol) = rho(icol,irow)
-			enddo
-		enddo
-		!--------------------------------
-		
-		allocate(aux(dl,n2))
-		aux = matmul(rho,Hte(l1:l2,:));
-		! two steps ==> diagonal elem of Hte^T.rho.Hte
-		aux = Hte(l1:l2,:) * aux; ! elem by elem * 
-		aux(1,:) = sum(aux,dim=1);! amp2; all final states 
-		! amp2 for degen sectors:
-		call GetMEAmp2(aux(1,:), n2, amp2, eig(it2)%nsec, eig(it2)%ind)
-		!write(*,*)"amp: 	amp2=",amp2
-		deallocate(aux, rho)
-		! now get rates using penalty function
-		call ratehcst(ih,ic,is,eig(it1)%esec(i),
-     .              eig(it2)%nsec,eig(it2)%esec,amp2,r)
-		! set global variable mrate:
-		! accumulate for all init sectors
-		if(PermSym) then ! total rate = (rates for one site) * ns
-			mrate(ih)%rcst(ic,is,it) = mrate(ih)%rcst(ic,is,it)
-     .                         + ts(ih,ic)*r*ways(ih)%ns
-		else
-			mrate(ih)%rcst(ic,is,it) = mrate(ih)%rcst(ic,is,it)
-     .                         + ts(ih,ic)*r
-		endif
-	enddo ! i; initial spec sec
-	!if(mod(it-1,20)==0)write(*,*) "it, trace = ", it, tr
-	enddo ! it; time
-
-	deallocate(amp2)
-	
-	return
-	end 	subroutine rmerates
-!--------------------------------------------------------
-!	Pauli's master equation case
-	!	split rhovt into degenerate sectors
-	!	and do: Hte^T.rhovtsec.Hte OR Hte.rhovtsec.Hte^T ?
-	! for all t-points on coarse grid.
-	! get amp2. Multiply penalty function and get rates.
-	subroutine pmerates(ih,ic,is,Hte,n1,n2,it1,it2)
-	use modmain, only: rhovt, lrhov, ntcoarse, mrate, eig,
-     .               maprho, ts, ways, PermSym
-	!use lindblad, only: ? or rhovt in modmain?
-	implicit none
-	integer, intent(in):: ih,ic,is,n1,n2,it1,it2
-	double precision, dimension(n1,n2), intent(in):: Hte ! Ht in eigenbasis
-	! local
-	double precision:: r, tr
-	double precision, allocatable, dimension(:):: rho, amp2
-	double precision, allocatable, dimension(:,:):: aux
-	integer :: irow,icol,l1,l2,it,j,dl,i,l12
-	
-	allocate(amp2(eig(it2)%nsec))
-
-	do it=1,ntcoarse
-	i = 0; l12 = eig(it1)%ind(2)-eig(it1)%ind(1);
-	do while (l12 .le. lrhov ) ! rhovt: nsec might be less than eig(it1)%nsec
-		i = i + 1;! initial spectrum degen sectors
-		l1 = eig(it1)%ind(i); l2 = eig(it1)%ind(i+1)-1;
-		dl = l2 - l1 + 1;
-		l12 = l12 + dl
-		allocate(rho(dl));
-		rho = rhovt(l1:l2,it);
-
-		allocate(aux(dl,n2))
-		!aux = matmul(rho,Hte(l1:l2,:));
-		do j=1,n2 ! columns first
-			aux(:,j) = rho * Hte(l1:l2,j)
-		enddo
-
-		! two steps ==> diagonal elem of Hte^T.rho.Hte
-		aux = Hte(l1:l2,:) * aux; ! elem by elem * 
-		aux(1,:) = sum(aux,dim=1);! amp2; all final states 
-
-
-		! amp2 for degen sectors:
-		call GetMEAmp2(aux(1,:), n2, amp2, eig(it2)%nsec, eig(it2)%ind)
-		!write(*,*)"amp: 	amp2=",amp2
-		deallocate(aux, rho)
-		! now get rates using penalty function
-		call ratehcst(ih,ic,is,eig(it1)%esec(i),
-     .              eig(it2)%nsec,eig(it2)%esec,amp2,r)
-		! set global variable mrate:
-		! accumulate for all init sectors
-		if(PermSym) then ! total rate = (rates for one site) * ns
-			mrate(ih)%rcst(ic,is,it) = mrate(ih)%rcst(ic,is,it)
-     .                         + ts(ih,ic)*r*ways(ih)%ns
-		else
-			mrate(ih)%rcst(ic,is,it) = mrate(ih)%rcst(ic,is,it)
-     .                         + ts(ih,ic)*r
-		endif
-	enddo ! i; initial spec sec
-	enddo ! it; time
-
-	deallocate(amp2)
-	
-	return
-	end 	subroutine pmerates
-!--------------------------------------------------------
-
-
-
-	subroutine ratehcst(ih,ic,is,Einit,nsec,esec,amp2,r)
-	use modmain, only: nx,ways,dqc,dEQs,Eqtot
-	implicit none
-	integer, intent(in) :: ih,ic,is,nsec
-	double precision, intent(in) :: Einit
-	double precision, dimension(nsec),intent(in):: esec, amp2
-	double precision, intent(out):: r
-	
-	! local
-	double precision, dimension(nsec):: de
-	integer :: itl,i
-	double precision:: x,y
-	
-	! if no available hops, set rate = 0
-	if (ih <= 8 .and. ways(ih)%ns == 0) then
-		r = 0.d0
-		return
-	endif
-
-	! conditions on nx for ih=1-4
-	if(nx==0) then
-						! Dhops Homo-Homo channel (ic=1) blocked, 
-						! Lumo-homo (ic=3) not available because
-						! all spin down: homo filled on all active sites
-						! similarly, D,Phi creation only ic=4 possible
-						! (conditions in ratehcs()
-						! amplitudes for these ic's and ih's not calculated
-		if(((ih==1 .or. ih==2) .and. (ic==1 .or. ic==3)) .or. 
-     . ((ih==3 .or. ih==4) .and. (ic==2 .or. ic==3))) then
-			r = 0.0d0 
-			return
-		endif
-	endif
-
-	! conditions on nx for ih=7,8
-	if (ih==7 .or. ih==8) then
-		if ( (ic < 3 .and. nx .lt. 1) .or. 
-     .   (ic == 3 .and. nx .lt. 2) ) then
-			r = 0.d0;
-			!write(*,*)"rate: nx cond; ih,ic,is=",ih,ic,is
-			return 
-		endif
-	endif
-
-	! change in energy for all transitions
-	de = esec + dqc(ih,ic); ! changes due to efield, barries, etc.
-	de = de - Einit-Eqtot; ! total change in energy
-
-	! charging energy contact hops
-	if(ih .ge. 9 .and. ih .le. 24) then
-		de = de + dEQs(ih-8)
-	endif
-
-	r = sum(Penalty(de,nsec) * amp2)
-	return
-	end subroutine ratehcst
-!--------------------------------------------
-	function Penalty(de,ne)
-	use modmain, only: beta
-	implicit none
-		integer,intent(in) :: ne
-		double precision, dimension(ne),intent(in):: de
-		double precision, dimension(ne):: tmp
-		double precision, dimension(ne):: Penalty
-		! local
-		integer:: i
-		double precision:: x, fac=30.0d0
-		
-		Penalty = 1.0d0;
-		tmp = de*beta;
-		do i=1,ne
-			if(tmp(i) > fac) then
-				Penalty(i)=0.0d0
-			elseif (tmp(i) > 0.0d0) then
-					Penalty(i)= dexp(-tmp(i))
-			endif
-		end do
-
-	return
-	end function Penalty
 !------------------------------------------
 	end 	module amplitudes

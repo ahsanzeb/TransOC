@@ -190,7 +190,7 @@
 	! rates for ih hop, ic channel, is site
 	! sets global variable rate(ih)%rcs(ic,is)
 	use modmain, only: nx,qt,eig,itypes,beta,
-     .  mapt,maph,mapc,Einit,rate,ways,dqc,dEQs,Eqtot
+     .  mapt,maph,mapc,Einit,rate,ways,dqc,dEQs
 	implicit none
 	integer, intent(in) :: ih,ic,is
 	! local
@@ -269,12 +269,14 @@
 
 	! change in energy for all transitions
 	de = eig(itl)%esec(1:nsec) + dqc(ih,ic); ! changes due to efield, barries, etc.
-	de = de - Einit - Eqtot; ! total change in energy
+	de = de - Einit; ! total change in energy
 
 	! charging energy contact hops
 	if(ih .ge. 9 .and. ih .le. 24) then
 		de = de + dEQs(ih-8)
 	endif
+
+	!write(*,*) "rate: ih, de = ", ih, de
 
 	! rates; total for this hop/hchannel/site
 
@@ -331,7 +333,7 @@
 		double precision, dimension(ne):: PenaltyArray
 		! local
 		integer:: i
-		double precision:: x, fac=30.0d0
+		double precision:: x, fac=40.0d0
 		
 		PenaltyArray = 1.0d0;
 		tmp = de*beta;
@@ -346,79 +348,6 @@
 	return
 	end function PenaltyArray
 !******************************************************
-
-!----------------------------------------
-! For master equation case:
-! finds time increment for which dtau=1/R(t) 
-!	and sets global variable rate%* at this time.
-! writes time dependent rates in file Rt.out
-	subroutine setrates()
-	use modmain, only: rate, mrate, ntmax, ntcoarse, dt
-	implicit none
-	!double precision, intent(in):: dt,
-	!double precision, intent(out):: dtau
-	! local
-	integer :: it,ih, itm,ih1
-	double precision:: t, delta, deltaold, Rt,dtt
-
-	dtt = dt * int(ntmax/ntcoarse);
-	
-	open(123,file='Rt.out',action='write',position='append')
-	write(123,*) 
-	write(123,*)
-	! r(t) = total rates at time t
-	deltaold = 1.0d20; ! a large number
-	itm=1;
-	do it=1,ntcoarse
-		do ih=1,26
-			mrate(ih)%r(it) = sum(mrate(ih)%rcst(:,:,it))
-		enddo
-		! R(t) = sum of total rates of all hops
-		Rt = sum((/(mrate(ih1)%r(it),ih1=1,26)/))
-		t = (it-1)*dtt;
-		write(123,*) t, Rt, (mrate(ih1)%r(it),ih1=1,26)
-
-		! find t = R(t) point;
-		delta = abs(t - 1/Rt);
-		if(delta < deltaold) itm = it
-		deltaold = delta;
-	enddo
-	close(123)
-
-	write(*,*) "ntcouase, itm = ",ntcoarse, itm
-	Rt = sum((/(mrate(ih1)%r(ntcoarse),ih1=1,26)/)) ! R(tmax)
-	t = sum((/(mrate(ih1)%r(itm),ih1=1,26)/)) ! R(t)
-	write(*,*) "R(tmax), R(t) = ",Rt, t
-	write(*,*) "rates: r(t=0) = ",(mrate(ih1)%r(1),ih1=1,8)
-	write(*,*) "rates: r(tmax) = ",(mrate(ih1)%r(ntcoarse),ih1=1,8)
-
-
-	if(itm == ntcoarse) then
-		write(*,*) "Warning(rates): higher states might still be"
-		write(*,*) " decaying to LP... "
-		write(*,*) " dtau=1/R needs to consider this....." 
-	endif
-	
-	! time increment: dtau = dt*it
-	!	dtau = dt*itm;
-	! set global var rate 
-	do ih=1,26
-		rate(ih)%rcs(:,:) = mrate(ih)%rcst(:,:,itm)
-		rate(ih)%r = sum(mrate(ih)%rcst(:,:,itm))
-	enddo
-
-	! what if evolution 1/R > tmax that rho is evolved up to?
-	!	if lowest eigenstate is a trap, then higher states will still be decaying to it, so the dtau=1/R needs to consider this..... 
-	 
-	if(sum(rate(:)%r) < 1.0d-14) then
-		write(*,*)"Warning(rates): R < 1.0d-10 ??? stopping..."
-		stop
-	endif
-
-	! now we can use usual routine select etc...
-	return
-	end subroutine setrates
-!------------------------------------------
 
 	end module rates
 

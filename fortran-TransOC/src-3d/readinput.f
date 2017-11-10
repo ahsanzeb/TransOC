@@ -45,9 +45,12 @@
 	EBlock = .false.; HBlock = .false.;
 	periodic = .true.; onlybulk = .false.;
 	leads = .false.;
-	Ebr = 0.7d0; Ebl = 0.7d0;
+	Ebr = 0.5d0; Ebl = 0.5d0; ! R/L contact barriers for electrons 
 	Er = 1.0d0
-	w0 = 2.0d0
+	w0 = 2.0d0; ! exciton energy: E_LUMO = w0+Exb;
+	! we are ignoring electron-electron repulsion U : E_Double_occupied = E_LUMO = w0+Exb;
+	!	We can absorb U in Exb term, since the only states that matter are excited and D. (?)
+	Exb = 0.5; ! exciton binding energy
 	dw = 0.0d0
 	dwmin=0.0; dwmax=0.0; ddw=0.0
 	detuning = .false.
@@ -66,19 +69,7 @@
 	ntrapout= .true.;
 	ratesout= .true.;
 	!onlydoped = .true.
-	onlydoped = .false. ! master equation now should allow zero doping.... 
-	!std= .true.;
 	!--------------
-	! master equation solver related:
-	ntcoarse = 20;
-	J0=1.0d0;
-	wcut=5.0d0;
-	ntmax=100;
-	dt = 0.005;
-	commonbath=.false.
-	pauli = .true.
-	!--------------
-
 	!--------------------------!
 	!     read from input.in   !
 	!--------------------------!
@@ -111,28 +102,6 @@
 
 	case('ratesout')
 		read(50,*,err=20) ratesout
-
-	case('METimeGrids')
-		read(50,*,err=20) dt, ntmax, ntcoarse
-
-	case('MECommonBath','CommonBath','Commonbath','commonbath')
-		read(50,*,err=20) commonbath
-
-	case('MEPauli','MEpauli','Mepauli','mepauli')
-		read(50,*,err=20) pauli
-
-	!case('MEGridSize')
-	!	read(50,*,err=20) ntmax
-	!case('MEGridDivision')
-	!	read(50,*,err=20) dt
-	!case('MECoarseGridSize')
-	!	read(50,*,err=20) ntcoarse
-
-	case('MESpectralDensity')
-		read(50,*,err=20) J0, wcut
-
-	!case('stdout')
-	!	read(50,*,err=20) std
 
 	case('Nsites')
 		read(50,*,err=20) nsites
@@ -245,6 +214,9 @@
 	case('ExcitonEnergy','w0')
 		read(50,*,err=20) w0
 
+	case('ExcitonBindingEnergy','Exb')
+		read(50,*,err=20) Exb
+
 	case('Detuning','detuning','dw')
 		read(50,*,err=20) dw
 
@@ -285,17 +257,6 @@
 30			continue
 	close(50)
 
-	!write(*,*)"1. kappa,gamma; nokappa,nogamma",
-  !   . kappa,gamma, nokappa,nogamma
-
-	!write(*,*)"1. nolosses = ",nolosses
-
-	if(ntcoarse > ntmax) then
-		ntcoarse = ntmax
-		write(*,*)"Warning(input): ntcoarse > ntmax ===> set equal"
-	endif
-
-
 	! contact/leads present?
 	leads = (.not. periodic) .and. (.not. onlybulk);
 	if(leads) onlydoped = .false.
@@ -304,7 +265,8 @@
 	!	onlybulk = .true.
 	!endif
 
-
+	write(*,*)"readinput: periodic, onlybulk, leads = ",
+     .       periodic, onlybulk, leads
 
 
 	if(.not. givenNexcit) then
@@ -394,6 +356,7 @@
 		write(*,*)" changed to sensible min, max values."
 	endif
 
+	write(*,*)"nelmin, nelmax, dnelec = ",nelmin, nelmax, dnelec
 
 	!---------------------------------------------
 	! write various parameters

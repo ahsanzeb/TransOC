@@ -11,13 +11,12 @@
 	use basisstates, only: mkbasis
 	use hamiltonian, only: mkHamilt
 	use Hoppings, only: AllHops ! 
-	use rates, only: CalRates, setrates
+	use rates, only: CalRates
 	use selection, only: ihSelect,icsSelect,getpsi2
 	use modways, only: UpdateWays,UpdateOcc,UpdateDEQs
 	use readinput, only: input
 	use maps
 	use diag, only: diagonalise
-	!use lindblad, only: initme, mesolve
 	implicit none
 
 	integer:: i,ic,is,ia,iter,ih,j,ntot,zt,icl
@@ -36,9 +35,12 @@
 
 	!stath = 0; statc = 0; 
 	alloc = .false.
-	master = .false.
 	! readinput file
 	call input()
+
+
+
+
 
 	if(nog) write(*,*)" **** No Coupling! **** "
 	!------------------------------------------------------
@@ -90,7 +92,7 @@
 			write(*,'(a)') ". . . . . . . . . . . . "
 			write(*,'(a,i10,a,i10,a,2i10)') " itraj = ",itraj,
      .               " iter = ",iter,"  N, m = ",na,nx
-			write(*,*)          
+			write(*,*)        
 		endif
 
 
@@ -164,12 +166,13 @@
 
 		! Before calculating the rates:
 		! Net charge on the system
+		! nelec =  doping given in input; +ve for holes, -ve for electrons
 		Qnet = (nsites-nelec)-sum(sys%occ);
 		! charging energies for contact hops
-		call UpdateDEQs(Qnet, nelec)	
+		call UpdateDEQs(Qnet)	
 
 	if (leads)
-     . x = x + (/nelec,sum(sys%occ),(nsites-nelec)-sum(sys%occ)/);
+     . x = x + (/nelec,sum(sys%occ), Qnet /);
 
 
 		! All available hops: 
@@ -184,12 +187,18 @@
 		if(debug)write(*,*) "main:   CalRates done... "	
 
 		!write(*,*) "main: ===1==> ",rate(:)%r
+		if(na==nsites) write(*,*)"main: N,m, R = ", na,nx,sum(rate(:)%r)
 
 		! select a hop based on rates
 		ih = ihSelect() 
 
-		!if(na==10) write(*,*)"R = ",sum(rate(:)%r),rate(1:8)%r
-
+		if(1==0 .and. na==nsites) then
+			write(*,*)"main: Rtot = ",sum(rate(:)%r)
+			write(*,*)"main: R_L/R = ",rate(1:8)%r
+			write(*,*)"main: R_U/D = ",rate(27:34)%r
+			write(*,*)"main: Rkappa, Rgamma= ",rate(25:26)%r
+		endif
+		
 		!write(*,*) "main: ===2==> ",rate(:)%r
 		if(debug)write(*,*) "main:   ihSelect: ih = ",ih
 		call icsSelect(ih,ic,is)
@@ -337,7 +346,7 @@
 	if (leads) then
   		! Net charge on the system if contact are present
 		! intrinsic #electrons - present #electrons
-		write(200,*) totcharge, tottime, x/(niter*1.d0)
+		write(200,*) totcharge, tottime, x(2)/(niter*1.d0) ! x(2) => number of electrons
 	else
 		write(200,*) totcharge, tottime
 	endif

@@ -27,7 +27,7 @@
 	! Charging energy prop constant
 	double precision:: Eq
 	! charging energy for contact hops
-	double precision:: dEQs(16), Eqtot
+	double precision:: dEQs(16)
 	
 	! undoped case can get into traps,
 	! and until no clear release mechanism is decided,
@@ -102,7 +102,7 @@
 	double precision:: JhR, JlR, JhL, JlL
 	! bare exciton energy, right and left contact barriers
 	!	Electric field energy Er assumed constant for all hops
-	double precision:: w0, Ebr,Ebl, Er
+	double precision:: w0, Ebr,Ebl, Er, Exb
 	! beta = 1/KbT for penalty function
 	double precision:: beta	
 	! block injection of electron/holes?
@@ -294,23 +294,6 @@
 		double precision :: r ! total
 		double precision, allocatable :: rcs(:,:) !channel,site resolved
 	end type TransitionRates
-
-	! Master equation case, transition rates
-	type :: MasterRates
-		!integer :: nc,ns,nt ! number of channels, sites, timesteps		
-		double precision, allocatable :: r(:) ! total
-		double precision, allocatable :: rcst(:,:,:) !channel,site,timestep resolved
-	end type MasterRates
-
-	logical :: master ! alter CalAmp0/CalAmp behaviour when master eq is solved
-	integer :: ntcoarse ! size of coarse time grid for rhovt and mrate etc
-	integer :: ntmax ! mesolve integration grid size
-	double precision :: dt ! incremental time, for integration of master eq in mesolve
-	double precision :: wcut, J0 ! bath Ohmic spectral density parameters
-	double precision, allocatable, dimension(:,:) :: rhovt
-	integer, allocatable, dimension(:):: maprho ! location of diagonal elements 
-	integer :: lrhov
-	!integer :: lrhov
 	!---------------------------------------	
 	! define system
 	!---------------------------------------	
@@ -348,8 +331,6 @@
 	! set the format for sparse matrix
 	!hop(1:4)%spfrmt = 'diagonal';
 
-	type(MasterRates), dimension(34):: mrate
-
 	logical :: leads ! include contact or not?
 
 	double precision :: dw,g
@@ -366,14 +347,6 @@
 	integer :: ndsec ! number of degenerate sectors in the spectrum to calculate
 	! ~ 3 seems fine, energetic penalty is not going to
 	! allow much higher transitions anyway.
-
-	logical :: commonbath
-	logical :: pauli 
-	integer :: ne, nsec
-	! total hop rates of 26 hopping processes vs time (iterations)
-	! write to file?!
-	!double precision, allocatable :: HopRates(:,:)
-
 
 	contains
 

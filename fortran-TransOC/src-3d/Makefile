@@ -13,9 +13,9 @@ OBJ = $(SRC:.f=.o)
 
 .SUFFIXES: .o .f
 
-transoc: $(OBJ)
-	$(FC) -o transoc $(FFLAGS) $(OBJ) $(LOADLIBES)
-	cp transoc ~/bin/.
+transoc3d: $(OBJ)
+	$(FC) -o transoc3d $(FFLAGS) $(OBJ) $(LOADLIBES)
+	cp transoc3d ~/bin/.
 
 
 # Here are the compile steps
@@ -81,5 +81,5 @@ main.o: main.f modmain.o init.o basisstates.o hamiltonian.o hoppings.o rates.o s
 	 $(FC) -c $(FFLAGS) main.f 
 
 clean:
-	rm -rf *.o *.mod transoc
+	rm -rf *.o *.mod transoc3d
   
