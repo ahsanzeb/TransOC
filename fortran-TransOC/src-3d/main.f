@@ -88,11 +88,11 @@
 	! main loop over number of hops asked
 	do iter=1,niter
 
-		if(1==0) then
-			write(*,'(a)') ". . . . . . . . . . . . "
+		if(1==1) then
+			!write(*,'(a)') ". . . . . . . . . . . . "
 			write(*,'(a,i10,a,i10,a,2i10)') " itraj = ",itraj,
      .               " iter = ",iter,"  N, m = ",na,nx
-			write(*,*)        
+			!write(*,*)        
 		endif
 
 
@@ -362,18 +362,18 @@
 	write(10,*) 
 	if(leads) then
 		do i=1,34
-			write(10,*)stathc(i,:)
+			write(10,*)i, stathc(i,:)
 		enddo
 	else
 		do i=1,8
-			write(10,*)stathc(i,:)
+			write(10,*)i, stathc(i,:)
 		enddo
 		do i=27,34
-			write(10,*)stathc(i,:)
+			write(10,*)i, stathc(i,:)
 		enddo
+		write(10,*)25, stathc(25,:)
+		write(10,*)26, stathc(26,:)
 	endif
-	write(10,*)stathc(25,:)
-	write(10,*)stathc(26,:)
 	close(10)
 
 	enddo ! ielectron

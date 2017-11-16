@@ -18,6 +18,9 @@
 	! total number of sites in the system
 	integer:: nsites
 
+	double precision :: wcut, J0 ! bath Ohmic spectral density parameters
+	logical :: simplepf 
+	
 	! number of electrons 
 	! DopingRange
 	integer :: nel,nelmin,nelmax,dnelec ! nel will stay fixed if no contacts

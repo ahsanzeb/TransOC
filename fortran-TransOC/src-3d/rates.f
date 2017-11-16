@@ -8,7 +8,6 @@
 	private:: totr, ratehcs, PenaltyArray !, Penalty
 
 	contains
-
 !----------------------------------------------------
 ! calculates total rates for all processes
 !----------------------------------------------------
@@ -190,7 +189,7 @@
 	! rates for ih hop, ic channel, is site
 	! sets global variable rate(ih)%rcs(ic,is)
 	use modmain, only: nx,qt,eig,itypes,beta,
-     .  mapt,maph,mapc,Einit,rate,ways,dqc,dEQs
+     .  mapt,maph,mapc,Einit,rate,ways,dqc,dEQs,simplepf
 	implicit none
 	integer, intent(in) :: ih,ic,is
 	! local
@@ -287,9 +286,17 @@
 
 	!write(*,*)"qt(ia)%cs(icl,is)%amp2 = ",qt(ia)%cs(icl,is)%amp2
 
-	rate(ih)%rcs(ic,is) =
+	if(simplepf .or. ih==25) then 
+		! simple penalty function: min(1,Exp[-beta*dE])
+		! ih=25 because the de does not contain energy of leaking photon
+		! which should make de
+		rate(ih)%rcs(ic,is) =
      .   sum(PenaltyArray(de,nsec) * qt(ia)%cs(icl,is)%amp2)
-
+	else ! use bath spectral density to evaluate the penalty function
+		rate(ih)%rcs(ic,is) =
+     .   sum(PenaltyArray2(de,nsec) * qt(ia)%cs(icl,is)%amp2)
+	endif
+	
 	! for debugging, remove later
 	if (isnan(rate(ih)%rcs(ic,is)) .or. 1==0) then
 		write(*,*)"rates: rcs =",rate(ih)%rcs(ic,is)
@@ -325,7 +332,7 @@
 	end subroutine ratehcs
 !******************************************************
 	function PenaltyArray(de,ne)
-	use modmain, only: beta
+	use modmain, only: beta, wcut !, J0 = 1 
 	implicit none
 		integer,intent(in) :: ne
 		double precision, dimension(ne),intent(in):: de
@@ -334,19 +341,56 @@
 		! local
 		integer:: i
 		double precision:: x, fac=40.0d0
-		
-		PenaltyArray = 1.0d0;
+
+		! Ohmic spectral density with high energy cutoff wcut:
+		! J(w) = J0 * w * dexp(-(w/wcut)**2);
+		!Sw = Jw(w) * [ nw(w) + 1 ]; w >= 0 ===> de < 0 here
+		PenaltyArray = 1.d0;
 		tmp = de*beta;
 		do i=1,ne
 			if(tmp(i) > fac) then
 				PenaltyArray(i)=0.0d0
 			elseif (tmp(i) > 0.0d0) then
-					PenaltyArray(i)= dexp(-tmp(i))
+				PenaltyArray(i)= dexp(-tmp(i))
 			endif
 		end do
 
 	return
 	end function PenaltyArray
+!******************************************************
+	function PenaltyArray2(de,ne)
+	use modmain, only: beta, wcut !, J0 = 1 
+	implicit none
+		integer,intent(in) :: ne
+		double precision, dimension(ne),intent(in):: de
+		double precision, dimension(ne):: tmp
+		double precision, dimension(ne):: PenaltyArray2
+		! local
+		integer:: i
+		double precision:: x, fac=40.0d0, smalle=1.0d-3
+
+		! Ohmic spectral density with high energy cutoff wcut:
+		! J(w) = J0 * w * dexp(-(w/wcut)**2);
+		!Sw = Jw(w) * [ nw(w) + 1 ]; w >= 0 ===> de < 0 here
+		PenaltyArray2 = 1.d0;
+		tmp = de*beta;
+		do i=1,ne
+			if(abs(tmp(i)) > fac) then
+				PenaltyArray2(i)=0.0d0
+			else
+				x = dexp(-(de(i)/wcut)**2);
+				if (abs(tmp(i)) <= smalle) then ! avoid 0/0
+					PenaltyArray2(i) = x / (1.d0 + 0.5*tmp(i)) 
+				elseif(tmp(i) > smalle) then ! positive de
+					PenaltyArray2(i) = x * tmp(i)/(dexp(tmp(i)) - 1.0d0)
+				else ! negative de
+					PenaltyArray2(i)=-x * tmp(i)/(1.0d0-dexp(tmp(i)))
+				endif
+			endif
+		end do
+
+	return
+	end function PenaltyArray2
 !******************************************************
 
 	end module rates

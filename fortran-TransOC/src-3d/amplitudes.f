@@ -4,6 +4,8 @@
 	
 	implicit none
 
+! CalAmp and CalAmp0 use different routines for Ht.Uf multiplication
+
 	contains
 ! transition matrices and amplitudes
 	subroutine CalAmp(ih,ic,is,rowc,nnz,n3,routine)
@@ -142,6 +144,57 @@
 	
 	return
 	end subroutine CalAmp0
+!----------------------------------------------------------
+	! cavity losses case
+	subroutine CalAmpk(ih,ic,is,rowc,nnz,n3)
+	use modmain, only: qt,mapt,maph,eig,itypes,psi,ipsi,nog
+	implicit none
+	integer, intent(in) :: is
+	integer, intent(in) :: ih,ic
+	integer, intent(in) :: nnz,n3
+	double precision, dimension(nnz), intent(in)  :: rowc
+	! local
+	double precision, allocatable:: HtUf(:,:)
+	integer :: ia,n1,n2,itl,i,it1
+	double precision, allocatable, dimension(:,:):: Hte ! Ht in eigenbasis
+
+	!-------------------------------------------------------
+	! calculate transition amplitudes
+	!-------------------------------------------------------
+	itl = mapt%map(itypes(ih,ic)) !???????! location of final hilber space
+	ia = maph(ih,ic); ! location of amplitudes
+		
+	n1=eig(itl)%n1 ! dim of final hilbert space
+	n2=eig(itl)%n2
+	
+	call allocqt(ia,ic,is,itl,n2)
+
+	if(nog) then
+		! use efficient mat vec multiplications for diagonal Uf
+		qt(ia)%cs(ic,is)%amp= 0.0d0; ! psi.Ht.Uf
+		! just index: psi = ipsi; Uf = Identity
+		qt(ia)%cs(ic,is)%amp(ipsi) = rowc(ipsi)
+		qt(ia)%cs(ic,is)%amp2 = qt(ia)%cs(ic,is)%amp**2;
+	else
+		allocate(HtUf(n3,n2))
+		! NOTE: allocate qt(ih)%cs(:,:) in calling routine
+		! sizes: Ht(n3 x n1) . Uf(n1 x n2) = HtUf(n3 x n2)
+		! out: HtUf
+		call multiplydk(rowc,nnz,eig(itl)%evec,n1,n2,
+     .							HtUf,n3,n2)
+			! multiply psi with HtUf to get amplitudes
+			! psi should be a row vector; shape = 1 x n3
+			! testing HtUf(1,:);!
+			qt(ia)%cs(ic,is)%amp=reshape(matmul(psi,HtUf),(/n2/)); ! both input dense
+			!write(*,*) "amp: ih,ic, ia, is,itl=",ih,ic, ia, is,itl
+			call GetAmp2(qt(ia)%cs(ic,is)%amp, n2,
+     .		qt(ia)%cs(ic,is)%amp2, eig(itl)%nsec, eig(itl)%ind)
+		deallocate(HtUf)
+	endif
+
+	return
+	end subroutine CalAmpk
+!---------------------------------------------
 
 
 !----------------------------------------------

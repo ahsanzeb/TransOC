@@ -62,6 +62,35 @@
 
 	end subroutine multiplyd
 !-----------------------------------	
+	subroutine multiplydk(row,nnz,mat,n1,n2,matf,n3,n4)
+	! for cavity losses: includes the sqrt prefactors
+	! use only when:
+	!	0 - the sparse matrix is diagonal
+	!	1 - the sparse matrix has at most a single element in a row
+	!	2 - the nonzero elements of the sparse matrix are all *?
+	! (3 - matrix mati is dense)
+	!			Eigenvectors matrix Uf is dense
+	! in: row contains row(=col) indexes for nonzero elements
+	implicit none
+	integer, intent(in) :: nnz,n1,n2,n3,n4
+	double precision, dimension(nnz), intent(in) :: row ! Ht map
+	double precision, dimension(n1,n2), intent(in) :: mat  ! Uf eigenvectors
+	double precision, dimension(n3,n4), intent(out) :: matf! Ht.Uf output
+
+	! local
+	integer :: i
+
+	matf = 0.0d0
+	do i=1,nnz ! diagonal but not full diagonal, first nnz elements
+		matf(i,:) = mat(i,:) * row(i)
+	end do
+	! since row/first index moves continuously,
+	!efficient if this is inner loop, ??? below: 
+	!do i=1,n2
+	!	matf(1:nnz,i) = mat(1:nnz,i) * row(:) ! elem by elem multipl
+	!enddo
+	end subroutine multiplydk
+!-----------------------------------	
 	subroutine multiplydc(col,nnz,mat,n1,n2,matf,n3,n4)
 	!use kinds, only: EvecKind
 	! use only when:			

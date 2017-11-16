@@ -130,9 +130,11 @@
 	implicit none
 	!	local
 	integer:: ih=25, is=1, ib1=3, ib2=3 ! see dnalist5 in modmain
-	integer::n,m,m1,m2
+	integer::n,m,m1,m2,i1,i2
 	integer :: ntot1, ntot2,ibl1,ibl2,i
-	integer, allocatable, dimension(:):: col
+	!integer, allocatable, dimension(:):: col
+	double precision, allocatable, dimension(:):: col
+	double precision :: pref
 	!------------------------------------------	
 	! N,m values of itype:
 	n = na; ! no of active sites
@@ -154,18 +156,18 @@
 
 	! spin combinations map to themselves, only a photon is lost
 	!	basis with up to m2=min(n,m-1) up spins contribute non-zero
-	col(:) = (/ (i,i=1,ntot2,1) /)
+	!col(:) = (/ (i,i=1,ntot2,1) /) missing sqrt prefactors
+	i1 = 0;
+	do i=0,m2 ! sectors of i up spin
+		i2 = basis(ibl2)%pntr(i+2);
+		pref = dsqrt((m-i)*1.0d0);
+		col(i1+1:i2) = pref;
+		i1 = i2;
+	enddo
 	!-------------------------------------------------------
 	! calculate transition amplitudes
 	!-------------------------------------------------------
-
-	!write(*,*) "kappa: calling amp"
-
-	!write(*,*) "kappa: ntot2",ntot2
-	!write(*,*) "kappa: rowc(1:5)",col(1:min(5,ntot2))
-
-	!write(*,*) "len of multiplyd- =",len("multiplyd-")
-	call CalAmp(ih,1,is,col,ntot2,ntot1,'multiplyd') ! ic=1
+	call CalAmpk(ih,1,is,col,ntot2,ntot1) ! ic=1
 	!---------------------------------
 
 	!write(*,*) "kappa: done amp"

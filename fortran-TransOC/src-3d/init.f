@@ -17,8 +17,8 @@
 
 	nelec = nsites - doping;
 
-	if(nelec==0 .or. nelec >= 2*nsites) then
-		write(*,*)"Error(init): Nelectron = 0 or >= Nsites !"
+	if(nelec <= 0 .or. nelec >= 2*nsites) then
+		write(*,*)"Error(init): Nelectron <= 0 or >= Nsites !"
 		write(*,*)"Charge transport cannot occur!"
 		stop
 	endif
@@ -85,12 +85,12 @@
 	!th = tpar(1); tl = tpar(2);
 	!tlh = tpar(3); thl = tpar(4);
 	!JhR = tpar(5); JlR = tpar(6);
-	!JhL = tpar(7); JlL = tpar(8);
+	!JhL = tpar(7); JlL = tpar(8); 
 	ts = reshape( (/
      . th, tl, tlh, thl,
      . th, tl, tlh, thl,
-     . tl, th, tlh, thl,
-     . tl, th, tlh, thl,
+     . th, tl, tlh, thl,
+     . th, tl, tlh, thl,
      . th, tl, tlh, thl,
      . th, tl, tlh, thl,
      . th, tl, tlh, thl,
@@ -106,8 +106,8 @@
      . kappa,0.0d0,0.0d0,0.0d0, gamma,0.0d0,0.0d0,0.0d0,
      . th, tl, tlh, thl,
      . th, tl, tlh, thl,
-     . tl, th, tlh, thl,
-     . tl, th, tlh, thl,
+     . th, tl, tlh, thl,
+     . th, tl, tlh, thl,
      . th, tl, tlh, thl,
      . th, tl, tlh, thl,
      . th, tl, tlh, thl,
@@ -219,23 +219,29 @@
 	if (allocated(sys%occ)) deallocate(sys%occ)
 	allocate(sys%occ(nsites))
 
-	!write(*,*)" init: Nsites = ",nsites
+	write(*,*)" init: Nsites, nelec = ",nsites, nelec
 
 	ina = 0;
 	sys%occ(:) = 0;
 	maxocc = 2;
+	!write(*,*) "init: mincarriers = ",mincarriers
+
 	if(mincarriers) then
 		if(nelec < nsites) then
 			maxocc = 1;
+			!write(*,*) "init: nelec < nsites ? ",nelec, nsites
 		else ! nelec >= nsites
 			sys%occ(:) = 1;
-			ina = nsites
+			ina = nsites;
+			!write(*,*) "init: **** ina = ",ina
 		endif
 	endif
+
+	!write(*,*) "init: ina = ",ina
 	
 	do while (ina < nelec)
 			i = int(1+nsites*rand(0));
-			!write(*,*)"i  = ",i
+			write(*,*)"i  = ",i
 			if (	sys%occ(i) < maxocc ) then
 				sys%occ(i) = sys%occ(i) + 1;
 				ina = ina + 1;
@@ -273,7 +279,7 @@
 	sys%n2=n2;
 
 	na = n1;
-	!write(*,*)"init: na = ",na
+	write(*,*)"init: na = ",na
 
 	return
 	end subroutine initOcc

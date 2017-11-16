@@ -25,6 +25,8 @@
 
 	debug = .false.
 	nsites = 6;
+	!J0=1.0d0;
+	wcut=0.3d0;
 	nel = 1;
 	nelmin=1; nelmax=1;dnelec=1;
 	Eq = 0.0;
@@ -63,12 +65,14 @@
 	nokappa = .false.
 	nogamma = .false.	
 	nolosses = .false.
-	mincarriers = .false.
+	mincarriers = .true.
 	givenNexcit = .false.;
 	ztout= .true.;
 	ntrapout= .true.;
 	ratesout= .true.;
 	!onlydoped = .true.
+	simplepf = .false.
+	
 	!--------------
 	!--------------------------!
 	!     read from input.in   !
@@ -103,6 +107,7 @@
 	case('ratesout')
 		read(50,*,err=20) ratesout
 
+
 	case('Nsites')
 		read(50,*,err=20) nsites
 		if(mod(nsites,3) .ne. 0) then
@@ -118,6 +123,12 @@
 	case('DopingRange','Dopingrange','dopingrange')
 		read(50,*,err=20) nelmin, nelmax,dnelec
 		givenNelrange = .true.;
+
+
+	case('SimplePenaltyFunction','simplepf')
+		read(50,*,err=20) simplepf ! if false, use Ohmic bath spectral density
+	case('BathSpectralDensityCutoff','wcut')
+		read(50,*,err=20) wcut
 
 	case('ChargingEnergy')
 		read(50,*,err=20) Eq
@@ -265,8 +276,8 @@
 	!	onlybulk = .true.
 	!endif
 
-	write(*,*)"readinput: periodic, onlybulk, leads = ",
-     .       periodic, onlybulk, leads
+	!write(*,*)"readinput: periodic, onlybulk, leads = ",
+  !   .       periodic, onlybulk, leads
 
 
 	if(.not. givenNexcit) then
