@@ -1,4 +1,4 @@
-
+cc
 ! NOtes: Assume g, w0 same for all sites
 ! if not, DPhicreat/annihil, D/Phi hops, all would need seperate sets of eigenstates/values to compute the amplitudes making the comput cot very high.
 ! might do this in future, but at the moment, PermSym=F can only occur for reasons that do not require diff eig.
@@ -20,7 +20,7 @@
 	implicit none
 
 	integer:: i,ic,is,ia,iter,ih,j,ntot,zt,icl
-	integer:: nev,ncv,it
+	integer:: nev,ncv,it,ier
 	integer :: stath(34),statc(4),ntrap,stathc(34,4)
 	integer :: totcharge,charge
 	double precision:: tottime, dtau
@@ -29,7 +29,8 @@
 	integer :: x(3)
 	integer :: nms(2), wayss(34)
 	double precision:: rout(10)
-	
+	double precision, allocatable, dimension (:):: Ivser
+	character*50 :: frmt
 	! time stamp & random seed 
 	!call timestamp
 
@@ -38,11 +39,13 @@
 	! readinput file
 	call input()
 
+	allocate(Ivser(ntraj))
+	write(frmt,'("(",I4.4,"G18.10)")') ntraj+3
 
 
 
 
-	if(nog) write(*,*)" **** No Coupling! **** "
+	!if(nog) write(*,*)" **** No Coupling! **** "
 	!------------------------------------------------------
 
 	do nex=mexmin,mexmax,dmex
@@ -53,6 +56,12 @@
 	dw = dwmin + (idw-1)*ddw;
 	ielec=0
 
+	if(abs(dw)<1.0d-6) then
+		detuning = .false.;
+		write(*,*) "# main(Warning): dw given, dw used = ",dw, 0.0
+		dw = 0.0;
+	endif
+	
 	write(*,*) "# dw = ",dw
 	write(*,*)
 	write(*,*)
@@ -61,8 +70,12 @@
 		if (nelec == 0 .and. onlydoped) cycle
 		ielec=	ielec+1;
 
+	do ier=1,ner ! Er: electric field x r_nns
+	Er = Ermin + (ier-1)*dEr;
+
 		!write(*,*) 'dw, nelec = ', dw, nelec
 		stathc = 0;
+		Ivser = 0.0d0
 		do itraj=1,ntraj
 	!********************** trajectories *************
 		zt = 0; ntrap = 0;
@@ -88,7 +101,7 @@
 	! main loop over number of hops asked
 	do iter=1,niter
 
-		if(1==1) then
+		if(1==0) then
 			!write(*,'(a)') ". . . . . . . . . . . . "
 			write(*,'(a,i10,a,i10,a,2i10)') " itraj = ",itraj,
      .               " iter = ",iter,"  N, m = ",na,nx
@@ -170,6 +183,8 @@
 		Qnet = (nsites-nelec)-sum(sys%occ);
 		! charging energies for contact hops
 		call UpdateDEQs(Qnet)	
+
+		!write(*,*)"sum(sys%occ) = ", sum(sys%occ)
 
 	if (leads)
      . x = x + (/nelec,sum(sys%occ), Qnet /);
@@ -352,9 +367,23 @@
 	endif
 	close(200)
 	!else ! will see it later
+
+	Ivser(itraj) = totcharge/tottime
+		
 	!------------------------------------------------------------
 	enddo ! itraj
 	!********************** trajectories *************
+
+	open(300,file="IvsEr.out",position='append')
+	if(itraj == 1) then
+		write(300,'(a,5x,3I10)') "# nx, idw, ielec ",nex, idw, ielec
+		write(300,'("     ")')
+		write(300,'("     ")')
+	endif
+
+	! statistics in modmain: statistics = (/ average, variance /)
+	write(300,frmt) Er, statistics(Ivser,ntraj), Ivser 
+	close(300)
 
 	! hops statistics
 	open(10,file='stat.out',action='write',position='append')
@@ -376,6 +405,7 @@
 	endif
 	close(10)
 
+	enddo ! Er
 	enddo ! ielectron
 	enddo ! idw
 	enddo ! nex

@@ -139,18 +139,12 @@
 	call SetDQC()
 	!-----------------------------------------
 
-	! only bulk processes? nh=1-8
-	!nh = 26;
-	!if(nocontacts) then
+	!-----------------------------------------
+	! set SigndEQ global vaiable in modways
+	!-----------------------------------------
+	call SetSigndEQ()
 
-
-
-
-
-
-
-
-
+	return
 	end subroutine initialise
 !-------------------------------------------------------------
 !	sets dqc array, energetic changes for various hops/channels
@@ -219,7 +213,7 @@
 	if (allocated(sys%occ)) deallocate(sys%occ)
 	allocate(sys%occ(nsites))
 
-	write(*,*)" init: Nsites, nelec = ",nsites, nelec
+	!write(*,*)" init: Nsites, nelec = ",nsites, nelec
 
 	ina = 0;
 	sys%occ(:) = 0;
@@ -241,7 +235,7 @@
 	
 	do while (ina < nelec)
 			i = int(1+nsites*rand(0));
-			write(*,*)"i  = ",i
+			!write(*,*)"i  = ",i
 			if (	sys%occ(i) < maxocc ) then
 				sys%occ(i) = sys%occ(i) + 1;
 				ina = ina + 1;
@@ -279,7 +273,7 @@
 	sys%n2=n2;
 
 	na = n1;
-	write(*,*)"init: na = ",na
+	!write(*,*)"init: na = ",na
 
 	return
 	end subroutine initOcc

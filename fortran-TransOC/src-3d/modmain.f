@@ -106,6 +106,8 @@
 	! bare exciton energy, right and left contact barriers
 	!	Electric field energy Er assumed constant for all hops
 	double precision:: w0, Ebr,Ebl, Er, Exb
+	double precision:: Ermin, Ermax, dEr
+	integer :: ner
 	! beta = 1/KbT for penalty function
 	double precision:: beta	
 	! block injection of electron/holes?
@@ -460,5 +462,23 @@
 	Einit = eig(it)%eval(ipsi)
 	return
 	end subroutine chooseipsi
+
+!========================================
+	function statistics(x,l)
+	implicit none
+	integer,intent(in) :: l
+	double precision, dimension(l),intent(in):: x
+	double precision, dimension(2):: statistics
+	
+	! local
+	integer:: i
+	double precision:: av, var
+
+	statistics(1) = sum(x)/l;
+	statistics(2) = sum((x - statistics(1))**2)/l
+
+	return
+	end function statistics
+!========================================
 
 	end module

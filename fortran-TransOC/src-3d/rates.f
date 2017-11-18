@@ -267,7 +267,7 @@
 	!write(*,*) 'heloowwww e'
 
 	! change in energy for all transitions
-	de = eig(itl)%esec(1:nsec) + dqc(ih,ic); ! changes due to efield, barries, etc.
+	de = eig(itl)%esec(1:nsec) + dqc(ih,ic); ! changes due to efield, barries, reference, etc.
 	de = de - Einit; ! total change in energy
 
 	! charging energy contact hops
@@ -284,8 +284,10 @@
 	stop
 	endif
 
-	!write(*,*)"qt(ia)%cs(icl,is)%amp2 = ",qt(ia)%cs(icl,is)%amp2
-
+	! Energy of leacking photon ?????? 
+	! ih=25; photon leackage: w_photon = |dE| if dE < 0;
+	! so set pf = 1 for all negative dE, and Boltzmann factor for +ve.
+	
 	if(simplepf .or. ih==25) then 
 		! simple penalty function: min(1,Exp[-beta*dE])
 		! ih=25 because the de does not contain energy of leaking photon
@@ -296,6 +298,11 @@
 		rate(ih)%rcs(ic,is) =
      .   sum(PenaltyArray2(de,nsec) * qt(ia)%cs(icl,is)%amp2)
 	endif
+
+	!write(*,*) '=========================='
+	!write(*,*) 'PenaltyArray(de,nsec) = ',PenaltyArray(de,nsec)
+	!write(*,*) 'PenaltyArray2(de,nsec) = ',PenaltyArray2(de,nsec)
+
 	
 	! for debugging, remove later
 	if (isnan(rate(ih)%rcs(ic,is)) .or. 1==0) then
@@ -367,7 +374,7 @@
 		double precision, dimension(ne):: PenaltyArray2
 		! local
 		integer:: i
-		double precision:: x, fac=40.0d0, smalle=1.0d-3
+		double precision:: x, fac=80.0d0, smalle=1.0d-3
 
 		! Ohmic spectral density with high energy cutoff wcut:
 		! J(w) = J0 * w * dexp(-(w/wcut)**2);

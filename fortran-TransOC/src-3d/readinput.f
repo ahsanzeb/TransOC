@@ -14,11 +14,11 @@
 	character(40) :: block
 	character(20):: Geometry
 	integer :: iostat,i,j
-	logical :: givenNel,givenNelrange,givenDwRange,givenNexcit
+	logical :: givenNel,givenNelrange,givenDw,givenNexcit,givenEr
 
 	givenNel = .false.; givenNelrange=.false.
-	givenDwRange=.false.
-
+	givenDw=.false.
+	givenEr = .false.
 	!--------------------------!
 	!     default values       !
 	!--------------------------!
@@ -48,14 +48,13 @@
 	periodic = .true.; onlybulk = .false.;
 	leads = .false.;
 	Ebr = 0.5d0; Ebl = 0.5d0; ! R/L contact barriers for electrons 
-	Er = 1.0d0
+	Er = 1.0d0;
+	Ermin=0.0; Ermax=0.0; dEr=0.0; ner = 1;
 	w0 = 2.0d0; ! exciton energy: E_LUMO = w0+Exb;
 	! we are ignoring electron-electron repulsion U : E_Double_occupied = E_LUMO = w0+Exb;
 	!	We can absorb U in Exb term, since the only states that matter are excited and D. (?)
 	Exb = 0.5; ! exciton binding energy
-	dw = 0.0d0
-	dwmin=0.0; dwmax=0.0; ddw=0.0
-	detuning = .false.
+	dwmin=0.0; dwmax=0.0; ddw=0.0; ndw = 1;
 	kappa = 0.1 !0.005d0 ! ref to th=1.0d0; scale times proportionally tp th.
 	gamma = 0.1 !0.005d0
 	beta = 40.0d0
@@ -72,7 +71,8 @@
 	ratesout= .true.;
 	!onlydoped = .true.
 	simplepf = .false.
-	
+
+	givenEr = .false.
 	!--------------
 	!--------------------------!
 	!     read from input.in   !
@@ -143,10 +143,9 @@
 		read(50,*,err=20) mexmin,mexmax,dmex
 		givenNexcit = .true.;
 
-
-	case('DetuningRange','Detuningrange','detuningrange')
-		read(50,*,err=20) dwmin,dwmax,ddw
-		givenDwRange = .true.;
+	case('Detuning')
+		read(50,*,err=20) dwmin,dwmax,ndw
+		givenDw = .true.;
 		
 	case('NExcitations','Nexcitations')
 		read(50,*,err=20) nx
@@ -219,17 +218,17 @@
 	case('ContactsBarriers','Barriers','barriers')
 		read(50,*,err=20) Ebr,Ebl
 
-	case('EFieldNNSEnergy','Er','er')
-		read(50,*,err=20) Er
-
+	!case('EFieldNNSEnergy','Er','er')
+	!	read(50,*,err=20) Er
+	case('Er')
+		read(50,*,err=20) Ermin, Ermax, ner
+		dEr = (Ermax - Ermin)/(ner-1);
+		givenEr = .true.
 	case('ExcitonEnergy','w0')
 		read(50,*,err=20) w0
 
 	case('ExcitonBindingEnergy','Exb')
 		read(50,*,err=20) Exb
-
-	case('Detuning','detuning','dw')
-		read(50,*,err=20) dw
 
 	case('Kappa','kappa')
 		read(50,*,err=20) kappa
@@ -267,6 +266,16 @@
 	stop
 30			continue
 	close(50)
+
+
+	
+	if(.not. givenEr) then
+		call giveinput('Er')
+	else
+		call VarRange(Ermin,Ermax,ner,der,givenEr,1.0d-2)
+	endif
+
+	call VarRange(dwmin,dwmax,ndw,ddw,givendw,1.0d-5)
 
 	! contact/leads present?
 	leads = (.not. periodic) .and. (.not. onlybulk);
@@ -317,32 +326,6 @@
 	endif
 	!--------------------------
 
-
-	!--------------------------
-	! detuning?
-	!--------------------------
-	if(abs(dw) > 1.d-6 .and. (.not. givenDwRange)) then
-		detuning=.true.
-		dwmin=dw
-		dwmax=dw
-		ddw=dw
-		ndw=1
-	elseif(givenDwRange) then
-		detuning=.true.
-		if(abs(dwmax-dwmin) < 1.d-6)then
-			write(*,*)"Warning(readinput): dwmax-dwmin too small!"
-		endif
-		ndw=int((dwmax-dwmin)/ddw) + 1;
-	else ! abs(dw) < 1.d-6, range not given
-		detuning=.false.
-		dwmin=dw !dw=0
-		dwmax=dw
-		ddw=dw
-		ndw=1
-	endif
-	!--------------------------
-
-
 	
 	if(AlwaysLP)then
 		PermSym = .true.; ! XXXXX add conditions on gi=g/ei=w0 
@@ -388,6 +371,34 @@
 	return
 	end subroutine
 !************************************************
+	subroutine giveinput(str)
+	implicit none
+	character(len=*) :: str
+	write(*,'("Input variable ",a," not given, stopping!")') str
+	stop ! stop the code
+	return
+	end 	subroutine giveinput
+!************************************************
+! VarRange sets the value of increment, 
+!						and number of points/divisions
+	subroutine VarRange(dwmin,dwmax,ndw,ddw,given,tol)
+	implicit none
+	double precision, intent(in):: dwmin,dwmax, tol
+	logical, intent(in):: given
+	integer, intent(inout):: ndw
+	double precision, intent(out)::ddw
+	if(  (.not. given) .or.
+     . (ndw==1 .or. abs(dwmax-dwmin) < tol)
+     . ) then
+		ddw=0.0; ndw=1;
+	else
+		ddw = (dwmax-dwmin)/(ndw-1);
+	endif
+
+	return
+	end 	subroutine VarRange
+!************************************************
+
 	end module readinput
 
 

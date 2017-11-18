@@ -494,7 +494,12 @@
 		Qtotf = Qtot + signdEQ(i);
 		dEQs(i) = ChargingE(Qtotf) - Eqi;
 	enddo
-
+	!write(*,*)'Eqi, Eq = ',Eqi, Eq
+	!write(*,*)"dEQs = ",dEQs
+	!write(*,*) "Qtotf = ", Qtot + signdEQ
+	!write(*,*) "Qtot = ", Qtot
+	!write(*,*) "Sign = ", signdEQ
+	
 	return
 	end 	subroutine UpdatedEQs
 !-----------------------------------
