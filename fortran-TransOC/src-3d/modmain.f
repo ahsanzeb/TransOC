@@ -13,6 +13,9 @@
 	! selected_int_kind(R) ==> smallest kind, to 10^R exclusive 
 	integer, parameter :: isk=selected_int_kind(2);
 
+	integer :: nproc
+	logical :: EqualDistr
+
 	logical :: debug
 
 	! total number of sites in the system
@@ -476,7 +479,6 @@
 
 	statistics(1) = sum(x)/l;
 	statistics(2) = sum((x - statistics(1))**2)/l
-
 	return
 	end function statistics
 !========================================

@@ -10,7 +10,7 @@
 
 !***************************************************
 	integer function ihSelect()
-	use modmain, only: rate
+	use modmain, only: rate, nproc
 	implicit none
 	! local
 	integer:: ih
@@ -20,21 +20,21 @@
 	!write(*,*)"rates= ",rate(:)%r
 	! select ih stochastically
 	rlist(1) = 0.0d0;
-	do ih=1,34
+	do ih=1,nproc
 		rlist(ih+1) = 	rlist(ih) + rate(ih)%r
 	end do
 	! eta, random real in range 0-rlist(27)
-	eta = rand(0) * rlist(35);
+	eta = rand(0) * rlist(nproc+1);
 	! location of eta on accumulated rates
 	ihSelect = -1;
-	do ih=1,34
+	do ih=1,nproc
 		if (eta .ge. rlist(ih) .and. eta .lt. rlist(ih+1) ) then
 			ihSelect = ih;
 			exit
 		endif
 	end do	
 	! error?
-	if (ihSelect == -1 .or. ihSelect>34) then
+	if (ihSelect == -1 .or. ihSelect>nproc) then
 		write(*,*) "ihSelect: something wrong.... ihSelect=",ihSelect
 		write(*,*) "ihSelect: eta = ",	eta		
 		write(*,*) "ihSelect: rlist = ",	rlist	

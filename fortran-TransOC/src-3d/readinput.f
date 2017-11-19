@@ -15,14 +15,17 @@
 	character(20):: Geometry
 	integer :: iostat,i,j
 	logical :: givenNel,givenNelrange,givenDw,givenNexcit,givenEr
+	logical :: OneDchains
 
 	givenNel = .false.; givenNelrange=.false.
 	givenDw=.false.
 	givenEr = .false.
+	OneDchains = .false.;
 	!--------------------------!
 	!     default values       !
 	!--------------------------!
 
+	nproc = 34; EqualDistr = .false.
 	debug = .false.
 	nsites = 6;
 	!J0=1.0d0;
@@ -95,6 +98,11 @@
 
 	select case(trim(block))
 
+	case('OneDChains')
+		read(50,*,err=20) OneDchains
+		if (OneDchains) nproc = 26
+		EqualDistr = .true.
+		
 	case('debug')
 		read(50,*,err=20) debug
 
@@ -350,7 +358,7 @@
 		write(*,*)" changed to sensible min, max values."
 	endif
 
-	write(*,*)"nelmin, nelmax, dnelec = ",nelmin, nelmax, dnelec
+	!write(*,*)"nelmin, nelmax, dnelec = ",nelmin, nelmax, dnelec
 
 	!---------------------------------------------
 	! write various parameters

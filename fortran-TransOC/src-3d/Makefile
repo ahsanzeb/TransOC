@@ -1,6 +1,6 @@
 
 
-FC 	= gfortran
+FC 	= mpif90
 FFLAGS= -O3 -g -fbounds-check -fbacktrace 
 LOADLIBES = libarpack_mac.a -llapack 
 

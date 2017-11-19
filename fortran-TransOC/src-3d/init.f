@@ -233,14 +233,30 @@
 
 	!write(*,*) "init: ina = ",ina
 	
-	do while (ina < nelec)
+
+	if(EqualDistr) then ! Equally distribute the carriers/dopants
+		!	so that all three chains can get more or less equal carriers
+		!	this option will be useful for OneDChains=T case
+		i = 0;
+		do while (ina < nelec)
+			i = i + 1;
+			if (	sys%occ(i) < maxocc ) then
+				sys%occ(i) = sys%occ(i) + 1;
+				ina = ina + 1;
+			endif	
+		enddo
+	else ! random, with occ <= maxocc
+		do while (ina < nelec)
 			i = int(1+nsites*rand(0));
 			!write(*,*)"i  = ",i
 			if (	sys%occ(i) < maxocc ) then
 				sys%occ(i) = sys%occ(i) + 1;
 				ina = ina + 1;
 			endif	
-	enddo
+		enddo
+	endif
+
+
 	
 	n0 = 0;n1=0;n2=0;
 	do i=1,nsites

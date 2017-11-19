@@ -9,7 +9,7 @@
 
 !------------------------------------------
 	subroutine mkHamilt()
-	use modmain, only: mapt,Hg,detuning,sameg,debug,nog
+	use modmain, only: mapt,Hg,detuning,sameg,debug,nog,dw
 	implicit none
 	! local
 	integer:: nt,ib
@@ -22,7 +22,7 @@
 		do ib=1,5
 			nt = mapt%ntb(ib)
 			if (nt > 0) then ! something to calculate or not?
-				!write(*,*) ' nt = ',nt
+				!write(*,*) ' detuning = ',detuning
 			
 				if(  nog    ) then 
 					! H is diagonal, store evec sparse, later Ht.Uf sparse
@@ -32,6 +32,7 @@
 					!if(debug) write(*,*) "hamilt: better = T"
 					call MakeHgMulti1(grouptb(ib,1:nt),nt)
 				elseif (detuning) then
+					!write(*,*) 'Detuning.... , dw = ',dw
 					!if(debug) write(*,*) "hamilt: better = F"
 					!write(*,*) nt, grouptb(ib,1:nt)					
 					! simple CSR format to store sparse

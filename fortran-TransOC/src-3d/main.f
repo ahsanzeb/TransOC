@@ -17,11 +17,12 @@ cc
 	use readinput, only: input
 	use maps
 	use diag, only: diagonalise
+	use mpi
 	implicit none
 
 	integer:: i,ic,is,ia,iter,ih,j,ntot,zt,icl
 	integer:: nev,ncv,it,ier
-	integer :: stath(34),statc(4),ntrap,stathc(34,4)
+	integer :: ntrap,stathc(34,4), stathc0(34,4)
 	integer :: totcharge,charge
 	double precision:: tottime, dtau
 	integer:: trapiter,s,iss,nc,ns,itraj,nex,nelec,idw,ielec
@@ -29,55 +30,223 @@ cc
 	integer :: x(3)
 	integer :: nms(2), wayss(34)
 	double precision:: rout(10)
-	double precision, allocatable, dimension (:):: Ivser
+	! mpi
+	integer:: ierr, ntp, num_procs, node, maxtraj
+	double precision, allocatable, dimension (:):: Iav, Iall
 	character*50 :: frmt
+
+
+
+
+	
 	! time stamp & random seed 
 	!call timestamp
 
-	!stath = 0; statc = 0; 
-	alloc = .false.
 	! readinput file
 	call input()
+	alloc = .false.;
+	
+!======================================================================
+	call MPI_INIT(ierr)
+	!find out MY process ID, and how many processes were started.
+	call MPI_COMM_RANK (MPI_COMM_WORLD, node, ierr)
+	call MPI_COMM_SIZE (MPI_COMM_WORLD, num_procs, ierr)
+	! find ntp
+	call setntp(ntraj,num_procs,ntp)
+	maxtraj = ntp * num_procs; ! could be greater than ntraj
+	allocate(Iav(ntp))
 
-	allocate(Ivser(ntraj))
-	write(frmt,'("(",I4.4,"G18.10)")') ntraj+3
+	write(*,*) "Node = ",node," num_procs, ntp = ",num_procs, ntp 
+	
+	if(node==0) then
+		allocate(Iall(maxtraj))
+		write(frmt,'("(",I6.6,"G18.10)")') maxtraj+3 ! do we really need full out?
+	endif
 
+	call printnode(node)
 
+	do nex=mexmin,mexmax,dmex ! excitations
+		do idw=1,ndw ! detuning
+			dw = dwmin + (idw-1)*ddw;
+			ielec=0;
+			call setdetuning(dw,detuning,node)
+			do nelec = nelmin,nelmax,dnelec
+				if (nelec == 0 .and. onlydoped) cycle
+				ielec=	ielec+1;
+				do ier=1,ner ! Er: electric field x r_nns
+					Er = Ermin + (ier-1)*dEr;
+					! runs ntp trajectories, output => current: Iav, h/c counts: stathc
+					call trajectory(ntp, Iav, stathc)
+					! gather all data
+					call mpi_gather(Iav, ntp, mpi_double_precision, Iall, ntp, 
+     .                mpi_double_precision, 0, MPI_COMM_WORLD, ierr)
+					call CheckError(ierr, node, 'gather')
+					! sum up all stathc
+					call mpi_reduce(stathc,stathc0,34*4, mpi_integer,mpi_sum,
+     .                                      0, MPI_COMM_WORLD, ierr)
+					call CheckError(ierr, node, 'reduce')		
+					if(node==0) then ! write output 
+						call WriteIvsEr(maxtraj,Iall)
+						call WriteStat(stathc0)
+					endif
+				enddo ! Er
+			enddo ! ielectron
+		enddo ! idw
+	enddo ! nex
+	if(node==0) write(*,*)"transoc: everything done.... " 
 
+	call MPI_FINALIZE(ierr)
+!======================================================================
+	contains
+!======================================================================
+	subroutine printnode(node)
+	implicit none
+	integer, intent(in) :: node
+	if(node==0) then
+		write(*,'("main: this is the master node ",I5)')node
+	else
+		write(*,'("main: this is the slave node ",I5)') node
+	endif
+	return
+	end 	subroutine printnode
+!=============================================	
+	subroutine CheckError(ierr, node, oper)
+	implicit none
+	integer, intent(in):: ierr, node
+	character(len=*):: oper
+	if(ierr .ne. 0) then
+		write(*,'("main: mpi operation ",a," at node ",I3," ier = ",I3)')
+     .          oper, node, ierr
+		stop
+	endif
+	! comment
+	!write(*,'("main: mpi operation ",a," at node ",I3," ier = ",I3)')
+  !   .          oper, node, ierr
+	return
+	end 	subroutine CheckError
+!=============================================
+	subroutine setntp(ntraj,num_procs,ntp)
+	implicit none
+	integer, intent(in) :: ntraj,num_procs
+	integer, intent(out) :: ntp
+	
+	if( mod(ntraj,num_procs)==0 ) then
+		ntp = ntraj/num_procs; ! integer div
+		if(ntp==0) ntp = 1;
+	else
+		ntp = ntraj/num_procs + 1; ! integer div
+		write(*,*) 'main: ntraj increased to ', ntp * num_procs
+	endif
 
-	!if(nog) write(*,*)" **** No Coupling! **** "
-	!------------------------------------------------------
-
-	do nex=mexmin,mexmax,dmex
-	!nex = nx; ! copy for each trajectory
-
-	! detuning
-	do idw=1,ndw
-	dw = dwmin + (idw-1)*ddw;
-	ielec=0
-
+	return
+	end 	subroutine setntp
+!=============================================
+	subroutine setdetuning(dw,detuning,node)
+	implicit none
+	double precision, intent(inout) :: dw
+	logical, intent(inout) :: detuning
+	integer, intent(in) :: node
 	if(abs(dw)<1.0d-6) then
 		detuning = .false.;
-		write(*,*) "# main(Warning): dw given, dw used = ",dw, 0.0
+		if(node==0) write(*,*) "# main(Warning): dw given, dw used = ",dw, 0.0
 		dw = 0.0;
+	else
+		detuning = .true.;
 	endif
+	if(node==0) then
+		write(*,*) "# dw = ",dw
+		write(*,*)
+		write(*,*)
+	endif 
+	return
+	end subroutine setdetuning
+!=============================================
+	subroutine WriteIvsEr(maxtraj,Iall)
+	implicit none
+	integer, intent(in):: maxtraj
+	double precision, dimension(maxtraj), intent(in) :: Iall
+	open(300,file="I-vs-Er.out",position='append')
+	if(ier==1) then
+		write(300,'(a,5x,4I10)') "# ier, nx, idw, iel =  ", ier, 
+     .         nex, idw, ielec
+		write(300,'("     ")')
+		write(300,'("     ")')
+	endif
+	! statistics in modmain: statistics = (/ average, variance^2 /)
+	!write(300,frmt) Er, statistics(Iall,ntraj), Iall 
+	write(300,'(3G18.10)') Er, statistics(Iall,ntraj)
+	close(300)
+	return
+	end subroutine WriteIvsEr
+!===============================================
+	subroutine WriteStat(stathc)
+	implicit none
+	integer, dimension(34,4), intent(in):: stathc
+	! hops statistics
+	open(10,file='stat.out',action='write',position='append')
+	write(10,*) '# ier, nx, idw, iel = ', ier, nex, idw, ielec
+	write(10,*) 
+	if(leads) then
+		do i=1,34
+			write(10,*)i, stathc(i,:)
+		enddo
+	else
+		do i=1,8
+			write(10,*)i, stathc(i,:)
+		enddo
+		do i=27,34
+			write(10,*)i, stathc(i,:)
+		enddo
+		write(10,*)25, stathc(25,:)
+		write(10,*)26, stathc(26,:)
+	endif
+	close(10)
+	return
+	end subroutine WriteStat
+
+!===============================================
+	subroutine writeR()
+	implicit none
 	
-	write(*,*) "# dw = ",dw
-	write(*,*)
-	write(*,*)
+	open(200,file='R.out',action='write',position='append')
+	if(itraj == 1) then
+		write(200,*) "# idw, ielec",idw,ielec
+		write(200,*) 
+		write(200,*) 
+	endif				
+	write(200,*) sum(rout)/(niter*1.d0), rout/(niter*1.d0)
+	close(200)
+	return
+	end 	subroutine writeR
+!===============================================
+	subroutine writeways()
+	implicit none
+	open(200,file='ways.out',action='write',position='append')
+	if(itraj == 1) then
+		write(200,*) "# idw, ielec",idw,ielec
+		write(200,*) 
+		write(200,*) 
+	endif				
+	if (leads) then
+		write(200,*) nms/(niter*1.d0), wayss/(niter*1.d0)
+	else
+		write(200,*) nms/(niter*1.d0), wayss(1:8)/(niter*1.d0)
+	endif
+	close(200)
+	return
+	end subroutine writeways
+!======================================================================
+! tranejctry runs ntp traj, output: Iav ==> their average currents
+!======================================================================
+	subroutine trajectory(ntp,Iav, stathc)
+	implicit none
+	integer, intent(in) :: ntp
+	double precision, dimension(ntp), intent(out) :: Iav
+	integer, dimension(34,4), intent(out) :: stathc
 
-	do nelec = nelmin,nelmax,dnelec
-		if (nelec == 0 .and. onlydoped) cycle
-		ielec=	ielec+1;
-
-	do ier=1,ner ! Er: electric field x r_nns
-	Er = Ermin + (ier-1)*dEr;
-
-		!write(*,*) 'dw, nelec = ', dw, nelec
-		stathc = 0;
-		Ivser = 0.0d0
-		do itraj=1,ntraj
-	!********************** trajectories *************
+	stathc = 0;
+	
+	do itraj=1, ntp
 		zt = 0; ntrap = 0;
 		totcharge=0; tottime=0.0d0
 		trapiter=0
@@ -202,7 +371,7 @@ cc
 		if(debug)write(*,*) "main:   CalRates done... "	
 
 		!write(*,*) "main: ===1==> ",rate(:)%r
-		if(na==nsites) write(*,*)"main: N,m, R = ", na,nx,sum(rate(:)%r)
+		!if(na==nsites) write(*,*)"main: N,m, R = ", na,nx,sum(rate(:)%r)
 
 		! select a hop based on rates
 		ih = ihSelect() 
@@ -277,7 +446,7 @@ cc
 					charge = -1
 			end select	
 		endif
-		dtau=1.0d0/sum(rate(:)%r)
+		dtau=1.0d0/sum(rate(1:nproc)%r)
 		totcharge = totcharge + charge
 		tottime = tottime + dtau
 		!-------------------------------
@@ -322,98 +491,13 @@ cc
 		endif
 
 	enddo ! iter
-	!write(*,*)"transoc: niter hops done.... " 
-	!===================================================== 
 
-99		continue
-	!------------------------------------------------------------ 
-	open(200,file='R.out',action='write',position='append')
-	if(itraj == 1) then
-		write(200,*) "# idw, ielec",idw,ielec
-		write(200,*) 
-		write(200,*) 
-	endif				
-	write(200,*) sum(rout)/(niter*1.d0), rout/(niter*1.d0)
-	close(200)
-
+	Iav(itraj) = totcharge/tottime
 	
-	open(200,file='ways.out',action='write',position='append')
-	if(itraj == 1) then
-		write(200,*) "# idw, ielec",idw,ielec
-		write(200,*) 
-		write(200,*) 
-	endif				
-	if (leads) then
-		write(200,*) nms/(niter*1.d0), wayss/(niter*1.d0)
-	else
-		write(200,*) nms/(niter*1.d0), wayss(1:8)/(niter*1.d0)
-	endif
-	close(200)
-	!------------------------------------------------------------
-	open(200,file='current.out',action='write',position='append')
-	if(itraj == 1) then
-		write(200,*) "# nx, idw, ielec ",nex, idw, ielec
-		write(200,*) 
-		write(200,*) 
-	endif				
-	!write(200,*) !'(i5,5x,2f15.10)')
-  !   . totcharge, tottime, net charge on the system
-	if (leads) then
-  		! Net charge on the system if contact are present
-		! intrinsic #electrons - present #electrons
-		write(200,*) totcharge, tottime, x(2)/(niter*1.d0) ! x(2) => number of electrons
-	else
-		write(200,*) totcharge, tottime
-	endif
-	close(200)
-	!else ! will see it later
-
-	Ivser(itraj) = totcharge/tottime
-		
-	!------------------------------------------------------------
 	enddo ! itraj
-	!********************** trajectories *************
 
-	open(300,file="IvsEr.out",position='append')
-	if(itraj == 1) then
-		write(300,'(a,5x,3I10)') "# nx, idw, ielec ",nex, idw, ielec
-		write(300,'("     ")')
-		write(300,'("     ")')
-	endif
-
-	! statistics in modmain: statistics = (/ average, variance /)
-	write(300,frmt) Er, statistics(Ivser,ntraj), Ivser 
-	close(300)
-
-	! hops statistics
-	open(10,file='stat.out',action='write',position='append')
-	write(10,*) '# nx, idw, iel = ', nex, idw, ielec
-	write(10,*) 
-	if(leads) then
-		do i=1,34
-			write(10,*)i, stathc(i,:)
-		enddo
-	else
-		do i=1,8
-			write(10,*)i, stathc(i,:)
-		enddo
-		do i=27,34
-			write(10,*)i, stathc(i,:)
-		enddo
-		write(10,*)25, stathc(25,:)
-		write(10,*)26, stathc(26,:)
-	endif
-	close(10)
-
-	enddo ! Er
-	enddo ! ielectron
-	enddo ! idw
-	enddo ! nex
-	!	do postprocessing....
-	!write(*,*)"zt = ",zt
-
-
-	! completion message...
-	write(*,*)"transoc: everything done.... " 
+	return
+	end subroutine trajectory
+!======================================================================
 
 	end program
