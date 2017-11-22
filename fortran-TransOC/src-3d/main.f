@@ -56,14 +56,17 @@ cc
 	maxtraj = ntp * num_procs; ! could be greater than ntraj
 	allocate(Iav(ntp))
 
-	write(*,*) "Node = ",node," num_procs, ntp = ",num_procs, ntp 
+	!write(*,*) "Node = ",node," num_procs, ntp = ",num_procs, ntp 
 	
 	if(node==0) then
 		allocate(Iall(maxtraj))
 		write(frmt,'("(",I6.6,"G18.10)")') maxtraj+3 ! do we really need full out?
 	endif
+	
+	!call printnode(node)
 
-	call printnode(node)
+	! SetBondLengths() once for all loops or once for a trajectory?
+	! currently, it's for a trajectory 
 
 	do nex=mexmin,mexmax,dmex ! excitations
 		do idw=1,ndw ! detuning
@@ -75,6 +78,7 @@ cc
 				ielec=	ielec+1;
 				do ier=1,ner ! Er: electric field x r_nns
 					Er = Ermin + (ier-1)*dEr;
+					if (VRH) Efieldh = signEr*Er ! VRH= variable range hopping
 					! runs ntp trajectories, output => current: Iav, h/c counts: stathc
 					call trajectory(ntp, Iav, stathc)
 					! gather all data
@@ -259,6 +263,8 @@ cc
 	nx = nex;
 	call initialise(nelec)
 
+	!write(*,*) "main: BondLengths = ",BondLengths
+
 	! put this in init?
 	!if(nog ) then
 	!	ipsi = 1;
@@ -329,7 +335,7 @@ cc
 				enddo
 				! allocate space for rates
 				do ih=1,34 ! testing... alloc 26 all 
-					if(PermSym)then
+					if(PermSym .and. (.not. vrh))then
 						allocate(rate(ih)%rcs(4,1))
 					else
 						allocate(rate(ih)%rcs(4,sys%nsites))

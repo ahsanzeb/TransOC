@@ -41,14 +41,20 @@
 	! calculates c,s resolved rate and total rate
 	!	rate(ih)%rcs(ic,is) and rate(ih)%r
 	use modmain, only: rate, ways, PermSym,na,nx,ts,
-     .              ihdphops,ihcreat,ihannih
+     .              ihdphops,ihcreat,ihannih,vrh
 	implicit none
 	character(len=*), intent(in):: process
 	integer, intent(in) :: nc
 	! local
 	integer:: ih, ic, ih1, ih2,is
 	integer, dimension(8):: ihs
-
+	logical :: nvrh, psnvrh
+	
+	nvrh  = (.not. vrh); ! no variable range hopping?
+	psnvrh = PermSym .and. nvrh;
+	! if PermSym, amp for is=1 only;
+	! if vrh, is>1 is given in ratehcs, fix it there if PermSym.
+	
 	!write(*,*)"totr: ways(:)%ns = ", ways(:)%ns
 
 	select case(process)
@@ -75,21 +81,25 @@
 					!	ih ordered in 'ihs'
 					! equiv because no E.r term for in-plane hops ===> Up==Down
 					if(PermSym) then 
+						! check if we already have rates for an equivalent hop?
 						if((ih==28 .and. ways(27)%ns > 0) .or.
      .         (ih==30 .and. ways(29)%ns > 0) .or.
      .         (ih==34 .and. ways(33)%ns > 0) ) then
-							rate(ih)%rcs(ic,is) = rate(ih-1)%rcs(ic,is); ! 27 for 28, etc.
-						else
+							rate(ih)%rcs(ic,is) = rate(ih-1)%rcs(ic,is); ! 27 for 28, etc.; valid even if vrh
+						elseif(nvrh)then
 							call ratehcs(ih,ic,is)
 							rate(ih)%rcs(ic,is)=
      .             ts(ih,ic)*rate(ih)%rcs(ic,is)*ways(ih)%ns
+						else ! vrh: calculate rates for all sites is=1,ns
+							call ratehcs(ih,ic,is)
+							rate(ih)%rcs(ic,is) = ts(ih,ic)*rate(ih)%rcs(ic,is)
 						endif
 					else
 						call ratehcs(ih,ic,is)
 						rate(ih)%rcs(ic,is)=ts(ih,ic)*rate(ih)%rcs(ic,is)
 					endif
 				end do ! ic
-				if(PermSym) exit; ! only a single site/case for each hop type
+				if(psnvrh) exit; ! only a single site/case for each hop type
 			end do ! is
 			rate(ih)%r = sum(rate(ih)%rcs); ! total rate for ih hop
 			!write(*,*) "ih, rate(ih)%r = ",ih,rate(ih)%r
@@ -103,18 +113,21 @@
 		do ih1=1,4
 			ih = ihannih(ih1)
 			rate(ih)%rcs(:,:) = 0.0d0
-			if (ways(ih)%ns>0) then
+			rate(ih)%r = 0.0d0;
+			do is=1,ways(ih)%ns		
 				do ic=1,nc
-					call ratehcs(ih,ic,1)
-					! total rate = (rates for one site) * ns
-					rate(ih)%rcs(ic,1)=
-     .           ts(ih,ic)*rate(ih)%rcs(ic,1)*ways(ih)%ns
-				end do
-				rate(ih)%r = sum(rate(ih)%rcs(:,:)); ! total rate for ih hop
-				!write(*,*)"rates: ann:ih,ic, rcs=",ih,ic,rate(ih)%rcs
-			else
-				rate(ih)%r = 0.0d0;
-			endif
+					call ratehcs(ih,ic,is)
+					if(psnvrh) then 
+						! total rate = (rates for one site) * ns
+						rate(ih)%rcs(ic,is)=
+     .           ts(ih,ic)*rate(ih)%rcs(ic,is)*ways(ih)%ns
+     			else ! no PermSym or vrh
+						rate(ih)%rcs(ic,is) = ts(ih,ic)*rate(ih)%rcs(ic,is)
+     			endif
+				enddo! ic
+				if(psnvrh) exit; ! only a single site/case for each hop type
+			enddo ! is
+			rate(ih)%r = sum(rate(ih)%rcs(:,:)); ! total rate for ih hop
 		end do
 	case('losses')
 	!-------------------------------------------------
@@ -161,17 +174,14 @@
 		do ih=9,24
 			rate(ih)%rcs(:,:) = 0.0d0
 			do is=1,ways(ih)%ns
-				if(ways(ih)%ns>1) then
 				if(ih==19 .or. ih==20 .or. ih==23 .or. ih==24) then
 					if (nx > 0) call ratehcs(ih,ic,is)
 				else
 					call ratehcs(ih,ic,is)
 				endif
-				endif
-
-				if(PermSym) then ! total rate = (rates for one site) * ns
+				if(psnvrh) then ! total rate = (rates for one site) * ns
 					rate(ih)%rcs(ic,is)=
-     .       ts(ih,ic)*rate(ih)%rcs(ic,is)*na
+     .       ts(ih,ic)*rate(ih)%rcs(ic,is)*ways(ih)%ns
 					exit; ! only a single site/case for each hop type
 				else
 					rate(ih)%rcs(ic,is)=ts(ih,ic)*rate(ih)%rcs(ic,is)
@@ -189,13 +199,14 @@
 	! rates for ih hop, ic channel, is site
 	! sets global variable rate(ih)%rcs(ic,is)
 	use modmain, only: nx,qt,eig,itypes,beta,
-     .  mapt,maph,mapc,Einit,rate,ways,dqc,dEQs,simplepf
+     .  mapt,maph,mapc,Einit,rate,ways,dqc,dEQs,
+     .  simplepf,Efieldh,a0,vrh,PermSym
 	implicit none
 	integer, intent(in) :: ih,ic,is
 	! local
 	double precision, allocatable :: de(:)
-	integer :: nsec, ia,icl,itl,i
-	double precision:: x,y
+	integer :: nsec, ia,icl,itl,i,isa
+	double precision:: x,y,rnns,tvr
 	logical :: dblehop, emptyhop
 
 	! I think this if block is not needed, the condition in it
@@ -203,7 +214,6 @@
 	! if no available hops, set rate = 0
 
 	!write(*,*) 'heloowwww 1'
-
 
 	if ((ih <= 8 .or. ih >= 27) .and. ways(ih)%ns == 0) then
 		rate(ih)%rcs(ic,is) = 0.d0
@@ -247,6 +257,15 @@
 		endif
 	endif
 
+	isa = is; ! site index for amplitudes
+	! annihilation? set isa=1 if PermSym in case vrh is used
+	if (PermSym .and. is > 1) then
+		! this happens when vrh=T
+		isa = 1;
+	else
+		isa = is;
+	endif
+
 	!write(*,*) 'heloowwww d'
 
 	! locations of data
@@ -279,24 +298,36 @@
 
 	! rates; total for this hop/hchannel/site
 
-	if(.not. allocated(qt(ia)%cs(icl,is)%amp2)) then
+	if(.not. allocated(qt(ia)%cs(icl,isa)%amp2)) then
 	write(*,*) "alloc amp2=>F: ih,ic,is,icl,ia",ih,ic,is,icl,ia
 	stop
 	endif
 
+	! variable range hopping: 
+	if(VRH) then
+		! find 	nns distance for this hop
+		rnns = dij(ih,is);
+		tvr = dexp(-(rnns-a0)/a0); ! bare amplitude prefactor
+		de = de - Efieldh(ih)*rnns; ! Efield(ih)*rnns = Electric field energy
+	else
+		tvr = 1.0d0
+	endif
+	
+
+
+
 	! Energy of leacking photon ?????? 
 	! ih=25; photon leackage: w_photon = |dE| if dE < 0;
 	! so set pf = 1 for all negative dE, and Boltzmann factor for +ve.
-	
 	if(simplepf .or. ih==25) then 
 		! simple penalty function: min(1,Exp[-beta*dE])
 		! ih=25 because the de does not contain energy of leaking photon
 		! which should make de
 		rate(ih)%rcs(ic,is) =
-     .   sum(PenaltyArray(de,nsec) * qt(ia)%cs(icl,is)%amp2)
+     .  tvr * sum(PenaltyArray(de,nsec) * qt(ia)%cs(icl,isa)%amp2)
 	else ! use bath spectral density to evaluate the penalty function
 		rate(ih)%rcs(ic,is) =
-     .   sum(PenaltyArray2(de,nsec) * qt(ia)%cs(icl,is)%amp2)
+     .  tvr * sum(PenaltyArray2(de,nsec) * qt(ia)%cs(icl,isa)%amp2)
 	endif
 
 	!write(*,*) '=========================='
@@ -399,6 +430,87 @@
 	return
 	end function PenaltyArray2
 !******************************************************
+!	finds the inter-site distances
+	double precision function dij(ih,is)
+	use modmain, only: BondLengths, periodic, leads, nsites,ways
+	implicit none
+	integer, intent(in):: ih,is
+	integer :: l1, l2
+	integer::is1,is2,id
+	!logical :: log1, log2
+
+	l1 = ways(ih)%active(is); ! main site associated with the hop
+	if(ih >= 9 .and. ih <= 24) then ! contact hops
+		l2 = -100
+	else
+		l2 = ways(ih)%sites(is); ! the second site involved
+	endif
+
+	!----------------------------------------
+	! call ReadBondLengths(l1,l2) 
+	!----------------------------------------
+	! is1 is always in 1:nsites
+	! is2 can be <0 or >nsites; diff interpretation for periodic vs leads
+	if (leads) then
+		! when retrieving bondlengths:
+		! assume virtual triangle with -2,-1,0 sites as left contact,
+		! and that with n+1,n+2,n+3 as the right contact
+		! first gives the bonds with sites 1,2,3; second with n-2,n-1,n
+		if (l2 == -100) then ! contact hops: only possible when leads=T and l1 is nns of a lead/contact
+			if(l1 <= 3) then ! left contact
+				is1 = l1; is2 = is1 - 3; ! left virtual trianlge
+			elseif(l1 >= nsites-2) then ! right contact
+				is1 = l1; is2 = is1 + 3 ! right virtual trianlge
+			endif
+		else ! bulk hops;
+			is1 = l1; is2 = l2; 
+		endif
+	elseif (periodic) then
+		! when retrieving bondlengths:
+		! convention: if {is1,is2} are in {first,last} triangles, use left virtual triangles for bonds.
+
+		!i.e., if is1,is2 are in last phys triangle of sites, and next virtual triangle,
+		! take it the same as left vitual trianlge and first phys trianlge	
+		!	if is2> nsites, then is2 = is2-nsites to get left virtual triangle
+		
+		! if the bonds are between first and the last triangles?
+		!log1 = l1 <= 3 .and. l2 >= nsites-2;
+		!log2 = l2 <= 3 .and. l1 >= nsites-2;
+		! if log1/log2; left virtual trianlges for bonds
+		if( l1 <= 3 .and. l2 >= nsites-2) then
+			is1 = l1; is2 = l2 - nsites;
+		elseif(l2 <= 3 .and. l1 >= nsites-2) then
+			is1 = l2; is2 = l1 - nsites;
+		else
+			is1 = l1; is2 = l2; 
+		endif
+	else !  onlybulk=T ??
+		write(*,*)"Error(dij): onlybulk=T? not implemented",
+     . " (only this dij case?!) "
+		stop
+	endif
+	
+	id = is1 - is2 + 4; ! id in 1:7
+
+	if(id<0 .or. id>7) Write(*,*)"l1,l2,is1,is2,id=",l1,l2,is1,is2,id
+	
+	dij = BondLengths(is1, id);
+	if(dij < 0.0d0) then
+		write(*,*)"rates: dij not set correctlly! fix it! "
+		write(*,*)"rates: l1,l2,is1,is2 = ",l1,l2,is1,is2
+		write(*,*)"rates: is, BondLengths(is1, :) below"
+		do is1=1,nsites
+			write(*,'(I5,3x,7G10.4)')is1, BondLengths(is1, :)	
+		enddo
+		stop
+	endif
+	!----------------------------------------
+
+	return
+	end function dij
+!******************************************************
+
+	
 
 	end module rates
 

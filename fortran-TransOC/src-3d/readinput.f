@@ -24,7 +24,7 @@
 	!--------------------------!
 	!     default values       !
 	!--------------------------!
-
+	a0 = 1.0d0; sigma0 = 0.25d0; nsigma=1.0 ! units? 
 	nproc = 34; EqualDistr = .false.
 	debug = .false.
 	nsites = 6;
@@ -74,8 +74,9 @@
 	ratesout= .true.;
 	!onlydoped = .true.
 	simplepf = .false.
-
 	givenEr = .false.
+	VRH = .true.
+	
 	!--------------
 	!--------------------------!
 	!     read from input.in   !
@@ -226,9 +227,16 @@
 	case('ContactsBarriers','Barriers','barriers')
 		read(50,*,err=20) Ebr,Ebl
 
+	case('VRH','vrh')
+		read(50,*,err=20) VRH
+
+	case('structure')
+		read(50,*,err=20) a0, sigma0
+
+
 	!case('EFieldNNSEnergy','Er','er')
 	!	read(50,*,err=20) Er
-	case('Er')
+	case('Er') ! if VRH, then assume Er is applied Efield, not Efield*rnns
 		read(50,*,err=20) Ermin, Ermax, ner
 		dEr = (Ermax - Ermin)/(ner-1);
 		givenEr = .true.

@@ -16,6 +16,18 @@
 	integer :: nproc
 	logical :: EqualDistr
 
+	logical :: vrh ! variable range hopping
+	double precision, allocatable, dimension(:,:):: bondlengths
+	integer, dimension(34):: signEr =(/
+     .   1, -1, -1, 1, 1, -1, -1, 1,
+     .   1, 1, -1, -1, -1, -1, 1, 1,
+     .   -1, 1, -1, 1, 1, -1, 1, -1,
+     .   0, 0,
+     .   0, 0, 0, 0, 0, 0, 0, 0 /);
+	double precision, dimension(34):: Efieldh
+	! average of r_nns, std dev in r_nns gaussian distribution
+	double precision :: a0, sigma0, nsigma
+	
 	logical :: debug
 
 	! total number of sites in the system
