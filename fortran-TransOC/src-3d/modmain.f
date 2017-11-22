@@ -26,7 +26,7 @@
      .   0, 0, 0, 0, 0, 0, 0, 0 /);
 	double precision, dimension(34):: Efieldh
 	! average of r_nns, std dev in r_nns gaussian distribution
-	double precision :: a0, sigma0, nsigma
+	double precision :: a0, sigma0, nsigma, dinvl
 	
 	logical :: debug
 

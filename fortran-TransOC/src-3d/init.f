@@ -149,6 +149,8 @@
 
 	!-----------------------------------------
 	! set BondLengths global vaiable in modmain
+	! considered positional disorder, and use vrh model for
+	! prefactor of bare hopping rate vs dnns
 	!-----------------------------------------
 	if (vrh) call SetBondLengths()
 

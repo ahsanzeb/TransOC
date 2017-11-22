@@ -307,8 +307,8 @@
 	if(VRH) then
 		! find 	nns distance for this hop
 		rnns = dij(ih,is);
-		tvr = dexp(-(rnns-a0)/a0); ! bare amplitude prefactor
-		de = de - Efieldh(ih)*rnns; ! Efield(ih)*rnns = Electric field energy
+		tvr = dexp(-dinvl*(rnns-a0)/a0); ! bare amplitude prefactor
+		de = de - Efieldh(ih)*rnns/a0; ! Efield(ih) = Electric field energy at rnns = a0;
 	else
 		tvr = 1.0d0
 	endif

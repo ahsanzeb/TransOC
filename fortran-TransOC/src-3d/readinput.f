@@ -24,7 +24,8 @@
 	!--------------------------!
 	!     default values       !
 	!--------------------------!
-	a0 = 1.0d0; sigma0 = 0.25d0; nsigma=1.0 ! units? 
+	a0 = 1.0d0; sigma0 = 0.25d0; nsigma=1.0 ! units?
+	dinvl= 1.0d0; ! controls how fast hopping integeral decays; assumed tvrh=1.0*t_{h,l,hl,..}, etc, at dnns = a0;
 	nproc = 34; EqualDistr = .false.
 	debug = .false.
 	nsites = 6;
@@ -227,16 +228,24 @@
 	case('ContactsBarriers','Barriers','barriers')
 		read(50,*,err=20) Ebr,Ebl
 
-	case('VRH','vrh')
-		read(50,*,err=20) VRH
+	!case('VRH','vrh')
+	!	read(50,*,err=20) VRH
+	case('PositionalDisorder')
+		read(50,*,err=20) VRH !, a0, sigma0, nsigma, dinvl
+ 		! a0= average,
+ 		! sigma0=std,
+ 		! nsigma= spread in dij in terms of std on either side
+		! dinvl =  inverse localisation length in terms of a0
+		if(vrh) then
+			backspace(50)
+			read(50,*,err=20) VRH, a0, sigma0, nsigma, dinvl
+		endif
 
-	case('structure')
-		read(50,*,err=20) a0, sigma0
 
-
+		
 	!case('EFieldNNSEnergy','Er','er')
 	!	read(50,*,err=20) Er
-	case('Er') ! if VRH, then assume Er is applied Efield, not Efield*rnns
+	case('Er') ! Er is applied Efield times a0
 		read(50,*,err=20) Ermin, Ermax, ner
 		dEr = (Ermax - Ermin)/(ner-1);
 		givenEr = .true.

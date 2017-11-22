@@ -76,7 +76,7 @@ cc
 			do nelec = nelmin,nelmax,dnelec
 				if (nelec == 0 .and. onlydoped) cycle
 				ielec=	ielec+1;
-				do ier=1,ner ! Er: electric field x r_nns
+				do ier=1,ner ! Er: electric field * r_nns
 					Er = Ermin + (ier-1)*dEr;
 					if (VRH) Efieldh = signEr*Er ! VRH= variable range hopping
 					! runs ntp trajectories, output => current: Iav, h/c counts: stathc
