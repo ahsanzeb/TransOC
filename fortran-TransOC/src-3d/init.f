@@ -164,7 +164,6 @@
   !local
 	double precision, dimension(4):: dEbulk
 	double precision, dimension(18):: dEcont
-	integer, dimension(34):: signEr
 	integer :: i,j
 
 	! Exciton binding energy: Exb; Exciton energy = w0;
@@ -185,13 +184,6 @@
 	! kappa: what would be the energy of emitted photon? ~ w0-wR
 	! similarly, exciton loss will release energy to the lattice;
 	! it will not cost energy so no energetic penalty supression etc
-	signEr =(/
-     .   1, -1, -1, 1, 1, -1, -1, 1,
-     .   1, 1, -1, -1, -1, -1, 1, 1,
-     .   -1, 1, -1, 1, 1, -1, 1, -1,
-     .   0, 0,
-     .   0, 0, 0, 0, 0, 0, 0, 0 /);
-
 		dqc(:,:) = 0.0d0
 		do i=1,34
 			select case(i)
@@ -204,7 +196,6 @@
 				case(9:26)
 					dqc(i,:) = dEcont(i - 8)
 			end select
-			if(.not. VRH) dqc(i,:) = dqc(i,:) - signEr(i)*Er
 			!write(*,'(a,i5,a,4f15.10)')"ih = ",i,"  dqc = ",dqc(i,:)
 		end do
 		
@@ -456,7 +447,7 @@
 	subroutine SetLattice(doping)
 	implicit none
 	integer, intent(in) :: doping
-	integer :: i,is,it
+	integer :: i,is,it,sgn
 	double precision:: x,y,z
 
 	if(allocated(sys%r)) deallocate(sys%r)
@@ -467,9 +458,9 @@
 	sys%r(-1,:) = (/ 0.0d0, a0, 0.0d0 /); 
 	sys%r( 0,:) = (/ 0.0d0, 0.5d0*a0, 0.866d0*a0 /);
 	is = 0;
-	do it = 1, nsites/3 + 1;
+	do it = 1, nsites/3;! + 1;
 		do i=1,3
-			sys%r(is+1,:) = sys%r(is-3,:) + (/ it*a0,0.0,0.0 /);
+			sys%r(is+1,:) = sys%r(is-3,:) + (/ it*a0,0.d0,0.d0 /);
 			is = is + 1;
 		enddo
 	enddo
@@ -491,11 +482,12 @@
 		! also allocate sys%q for later use
 		if(allocated(sys%q)) deallocate(sys%q)
 		allocate(sys%q(nsites))
-		sgn = sign(doping);
-		do id = 1, doping*sgn
-		! choose sites at random for impurities
-		i = int(rand(0)*nsites) + 1;
-		sys%q0(i) = sgn*1.0d0;
+		sgn = sign(1,doping);
+		do is = 1, doping*sgn
+			! choose sites at random for impurities
+			i = int(rand(0)*nsites) + 1;
+			sys%q0(i) = sgn*1.0d0;
+		enddo
 	endif
 
 	return

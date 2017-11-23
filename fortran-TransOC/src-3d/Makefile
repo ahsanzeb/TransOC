@@ -7,7 +7,7 @@ LOADLIBES = libarpack_mac.a -llapack
 SRC = basisstates.f main.f hamiltonian.f lists.f modmain.f memory.f \
  hoppings.f dhops.f modmultiply.f annihilation.f losses.f \
  maps.f init.f amplitudes.f creation.f selection.f \
- rates.f modways.f readinput.f diag.f timestamp.f contacts.f
+ rates.f modways.f readinput.f diag.f timestamp.f contacts.f coulomb.f
 
 OBJ = $(SRC:.f=.o)
 
@@ -77,8 +77,12 @@ readinput.o: readinput.f modmain.o
 diag.o: diag.f modmain.o
 	 $(FC) -c $(FFLAGS) diag.f 
 
-main.o: main.f modmain.o init.o basisstates.o hamiltonian.o hoppings.o rates.o selection.o modways.o readinput.o maps.o diag.o 
+coulomb.o: coulomb.f modmain.o 
+	 $(FC) -c $(FFLAGS) coulomb.f 
+
+main.o: main.f modmain.o init.o basisstates.o hamiltonian.o hoppings.o rates.o selection.o modways.o readinput.o maps.o diag.o coulomb.o
 	 $(FC) -c $(FFLAGS) main.f 
+
 
 clean:
 	rm -rf *.o *.mod transoc3d

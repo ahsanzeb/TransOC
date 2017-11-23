@@ -18,6 +18,13 @@
 
 
 	logical:: coulomb ! include coulomb interaction?
+	double precision :: Kq ! Coulomb law constant K for the medium
+	double precision :: Etotq ! total Coulomb energy
+	type :: CoulombEnergy
+		double precision, allocatable, dimension(:) :: dEq ! size= ways(ih)%ns
+	end type CoulombEnergy
+	type(CoulombEnergy) :: Ecoul(34) ! size = types of hops
+
 	logical :: vrh ! positional disorder? variable range hopping
 	double precision, allocatable, dimension(:,:):: bondlengths
 	integer, dimension(34):: signEr =(/
@@ -29,7 +36,9 @@
 	double precision, dimension(34):: Efieldh
 	! average of r_nns, std dev in r_nns gaussian distribution
 	double precision :: a0, sigma0, nsigma, dinvl
-	
+
+
+
 	logical :: debug
 
 	! total number of sites in the system

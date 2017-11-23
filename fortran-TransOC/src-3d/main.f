@@ -17,6 +17,7 @@ cc
 	use readinput, only: input
 	use maps
 	use diag, only: diagonalise
+	use modq, only: SetEcoul
 	use mpi
 	implicit none
 
@@ -371,6 +372,10 @@ cc
 		s = 1;
 		call AllHops()
 		if(debug)write(*,*) "main:   AllHops done... "	
+
+		! Coulomb's interaction
+		! sets Ecoul(ih=1:34)%dEq(is=1:ns(ih)) and Etotq for use in rates
+		call SetEcoul()
 		
 		! rates from am2 and energetic penalties
 		call CalRates()

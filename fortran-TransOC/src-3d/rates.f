@@ -200,7 +200,7 @@
 	! sets global variable rate(ih)%rcs(ic,is)
 	use modmain, only: nx,qt,eig,itypes,beta,
      .  mapt,maph,mapc,Einit,rate,ways,dqc,dEQs,
-     .  simplepf,Efieldh,a0,dinvl,vrh,PermSym
+     .  simplepf,Efieldh,a0,dinvl,vrh,PermSym,Ecoul, Etotq
 	implicit none
 	integer, intent(in) :: ih,ic,is
 	! local
@@ -286,7 +286,7 @@
 	!write(*,*) 'heloowwww e'
 
 	! change in energy for all transitions
-	de = eig(itl)%esec(1:nsec) + dqc(ih,ic); ! changes due to efield, barries, reference, etc.
+	de = eig(itl)%esec(1:nsec) + dqc(ih,ic); ! changes due barries, Exciton binding, reference, etc.
 	de = de - Einit; ! total change in energy
 
 	! charging energy contact hops
@@ -309,10 +309,12 @@
 		!rnns = dij(ih,is);
 		rnns = dijl(ih,is);
 		tvr = dexp(-dinvl*(rnns-a0)/a0); ! bare amplitude prefactor
-		de = de - EfieldE() 
 	else
-		tvr = 1.0d0
+		tvr = 1.0d0;
 	endif
+	! Change in Coulomb's energy + Efield energy:
+	!	Ecoul is calculated in main, routine SetEcoul() in modq/coulomb.f
+	de = de + Ecoul(ih)%dEq(is);
 
 	! Energy of leacking photon ?????? 
 	! ih=25; photon leackage: w_photon = |dE| if dE < 0;
@@ -529,29 +531,10 @@
 		end select
 	endif
 	! sys%r(-2:nsites+3), shifted index
-	dijl = dsqrt((sys%r(l1,:) - sys%r(l2,:))**2)
+	dijl = dsqrt(sum((sys%r(l1,:) - sys%r(l2,:))**2))
 
 	return
 	end function dijl
-!******************************************************
-
-	double precision function EfieldE() 
-	implicit none
-
-	if(.not. coulomb) then
-		EfieldE = Efieldh(ih)*rnns/a0; 
-		! Efield(ih) = Electric field energy at rnns = a0;
-		return
-	endif
-
-
-
-
-
-
-	return
-	end function EfieldE
-
 !******************************************************
 	end module rates
 
