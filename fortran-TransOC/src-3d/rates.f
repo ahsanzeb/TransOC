@@ -200,7 +200,7 @@
 	! sets global variable rate(ih)%rcs(ic,is)
 	use modmain, only: nx,qt,eig,itypes,beta,
      .  mapt,maph,mapc,Einit,rate,ways,dqc,dEQs,
-     .  simplepf,Efieldh,a0,vrh,PermSym
+     .  simplepf,Efieldh,a0,dinvl,vrh,PermSym
 	implicit none
 	integer, intent(in) :: ih,ic,is
 	! local
@@ -306,15 +306,13 @@
 	! variable range hopping: 
 	if(VRH) then
 		! find 	nns distance for this hop
-		rnns = dij(ih,is);
+		!rnns = dij(ih,is);
+		rnns = dijl(ih,is);
 		tvr = dexp(-dinvl*(rnns-a0)/a0); ! bare amplitude prefactor
-		de = de - Efieldh(ih)*rnns/a0; ! Efield(ih) = Electric field energy at rnns = a0;
+		de = de - EfieldE() 
 	else
 		tvr = 1.0d0
 	endif
-	
-
-
 
 	! Energy of leacking photon ?????? 
 	! ih=25; photon leackage: w_photon = |dE| if dE < 0;
@@ -510,7 +508,50 @@
 	end function dij
 !******************************************************
 
-	
 
+!	finds the inter-site distances
+	double precision function dijl(ih,is)
+	use modmain, only: sys, nsites, ways
+	implicit none
+	integer, intent(in):: ih,is
+	integer :: l1, l2
+	integer::is1,is2,id
+
+	l1 = ways(ih)%active(is); ! main site associated with the hop
+	if(ih < 9 .and. ih > 24) then ! bulk hop 
+		l2 = ways(ih)%sites(is); ! the second site involved
+	else !contact hops
+		select case(ih)
+			case(11,12,15,16, 21:24) ! left
+			l2 = is - 3;
+			case(9,10,13,14, 17:20) ! right
+			l2 = is + 3
+		end select
+	endif
+	! sys%r(-2:nsites+3), shifted index
+	dijl = dsqrt((sys%r(l1,:) - sys%r(l2,:))**2)
+
+	return
+	end function dijl
+!******************************************************
+
+	double precision function EfieldE() 
+	implicit none
+
+	if(.not. coulomb) then
+		EfieldE = Efieldh(ih)*rnns/a0; 
+		! Efield(ih) = Electric field energy at rnns = a0;
+		return
+	endif
+
+
+
+
+
+
+	return
+	end function EfieldE
+
+!******************************************************
 	end module rates
 

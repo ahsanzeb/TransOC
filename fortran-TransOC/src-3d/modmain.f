@@ -16,7 +16,9 @@
 	integer :: nproc
 	logical :: EqualDistr
 
-	logical :: vrh ! variable range hopping
+
+	logical:: coulomb ! include coulomb interaction?
+	logical :: vrh ! positional disorder? variable range hopping
 	double precision, allocatable, dimension(:,:):: bondlengths
 	integer, dimension(34):: signEr =(/
      .   1, -1, -1, 1, 1, -1, -1, 1,
@@ -321,6 +323,8 @@
 		integer:: nsites
 		integer:: n0,n1,n2 ! number of phi, acive, D
 		integer, allocatable :: occ(:) ! occupancy of the site
+		double precision, allocatable, dimension(:,:) :: r
+		double precision, allocatable, dimension(:) :: q0, q ! integer?
 	end type System
 	type(System) :: sys
 	!---------------------------------------	

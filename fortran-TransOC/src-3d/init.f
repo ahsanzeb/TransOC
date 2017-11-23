@@ -152,7 +152,8 @@
 	! considered positional disorder, and use vrh model for
 	! prefactor of bare hopping rate vs dnns
 	!-----------------------------------------
-	if (vrh) call SetBondLengths()
+	!if (vrh) call SetBondLengths()
+	if (vrh .or. coulomb) call SetLattice(doping)
 
 	return
 	end subroutine initialise
@@ -452,5 +453,53 @@
 	return
 	end 	subroutine SetGaussArray
 !---------------------------------------
+	subroutine SetLattice(doping)
+	implicit none
+	integer, intent(in) :: doping
+	integer :: i,is,it
+	double precision:: x,y,z
 
+	if(allocated(sys%r)) deallocate(sys%r)
+	allocate(sys%r(-2:nsites+3,3))
+
+	! redular lattice: a chain of equilateral trianlges
+	sys%r(-2,:) = (/ 0.0d0, 0.0d0, 0.0d0 /); 
+	sys%r(-1,:) = (/ 0.0d0, a0, 0.0d0 /); 
+	sys%r( 0,:) = (/ 0.0d0, 0.5d0*a0, 0.866d0*a0 /);
+	is = 0;
+	do it = 1, nsites/3 + 1;
+		do i=1,3
+			sys%r(is+1,:) = sys%r(is-3,:) + (/ it*a0,0.0,0.0 /);
+			is = is + 1;
+		enddo
+	enddo
+
+	!add disorder
+	do is=1,nsites
+		! dnns(): random selection from a gaussian distribution
+		! peaked around a0
+		x = dnns() - a0; 
+		y = dnns() - a0;
+		z = dnns() - a0;
+		sys%r(3+is,:) = sys%r(3+is,:) + (/x,y,z/)/1.73d0; !sqrt(3)?
+	enddo
+
+	! donor/acceptor positons? only a single type of doping at the moment
+	if(coulomb) then
+		if(allocated(sys%q0)) deallocate(sys%q0)
+		allocate(sys%q0(nsites))
+		! also allocate sys%q for later use
+		if(allocated(sys%q)) deallocate(sys%q)
+		allocate(sys%q(nsites))
+		sgn = sign(doping);
+		do id = 1, doping*sgn
+		! choose sites at random for impurities
+		i = int(rand(0)*nsites) + 1;
+		sys%q0(i) = sgn*1.0d0;
+	endif
+
+	return
+	end 	subroutine SetLattice
+!---------------------------------------
+	
 	end module init

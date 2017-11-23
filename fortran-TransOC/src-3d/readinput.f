@@ -77,7 +77,7 @@
 	simplepf = .false.
 	givenEr = .false.
 	VRH = .true.
-	
+	coulomb = .false.
 	!--------------
 	!--------------------------!
 	!     read from input.in   !
@@ -241,6 +241,8 @@
 			read(50,*,err=20) VRH, a0, sigma0, nsigma, dinvl
 		endif
 
+	case('Coulomb','coulomb')
+		read(50,*,err=20) coulomb
 
 		
 	!case('EFieldNNSEnergy','Er','er')
