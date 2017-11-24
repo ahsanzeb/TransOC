@@ -10,6 +10,7 @@
 	contains
 !******************************************************
 !	calculates potential Vq and total coulomb energy Eqtot
+! todo?: do we need to have Etotq at all? if not, remove it.
 	subroutine SetEcoul() !Er)
 	implicit none
 	!double precision, intent(in) ::	Er
@@ -60,14 +61,16 @@
 	! real sites
 	do i=1,nsites;
 		do j=1,nsites;
-			if(i .ne. j) then
+			!if(i .ne. j) then
 				rij = dsqrt(sum((sys%r(i,:) - sys%r(j,:))**2));
 				Vq(i) = Vq(i) + sys%q(j)/rij
-			endif
+			!endif
 		enddo
 		Vq(i) = Vq(i) * Kq;
-		Etotq = 	Etotq + Vq(i)*sys%q(i)
+		Etotq = 	Etotq + Vq(i)*sys%q(i);
 	enddo
+	! double counting correction
+	Etotq = 0.5*Etotq;
 	!--------------------------------------------
 	if(leads) then
 		! image sites at left
@@ -379,14 +382,9 @@
 	integer, intent(in) :: l1,l2
 	integer :: z, z1,z2
 
-	if(periodic)then
-		!CoulombEnergyChange = EqChange1(l1,l2)
-		write(*,*)"Coulomb: not implemented yet... "
-		stop
-		! interaction btw nns cells? do it later.... use some cutoff distance....
-		! use ErChange() code with this, together sepereate routine when periodic.
-		return
-	endif
+	! peridoc? warning in readinout.
+	! interaction btw nns cells? do it later.... use some cutoff distance....
+	! use ErChange() code with this, together sepereate routine when periodic.
 	
 	! zones l1,l2 lie in.
 	!z1 = zone(l1);	 	z2 = zone(l2);	

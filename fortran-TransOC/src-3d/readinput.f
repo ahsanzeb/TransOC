@@ -295,6 +295,16 @@
 	close(50)
 
 
+	if(coulomb .and. nsites < 9) then
+		write(*,*) "Error(readinput):"
+		write(*,*) "Coulomb is not implemented for nsites < 9"
+		stop
+	elseif(coulomb .and. periodic) then
+		write(*,*) "Error(readinput):"
+		write(*,*) "Coulomb is not implemented for periodic "
+		write(*,*) "TODO: Ewald method? "
+		stop
+	endif
 	
 	if(.not. givenEr) then
 		call giveinput('Er')
