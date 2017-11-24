@@ -45,7 +45,8 @@
 	end function ihSelect
 !***************************************************
 	subroutine icsSelect(ih,ic,is)
-	use modmain, only: rate, ways,PermSym,crosshops,nog,sys
+	use modmain, only: rate, ways,PermSym,crosshops,nog,sys,
+     .               vrh,coulomb
 	implicit none
 	integer, intent(in) :: ih
 	integer, intent(out) :: ic,is
