@@ -1,6 +1,6 @@
 
 	module modq
-	use modmain, only: sys, nsites, Kq, ways,
+	use modmain, only: sys, nsites, Kq, ways, periodic, leads,
      .    nproc, a0, Ecoul, Etotq, signEr, Er, vrh, coulomb
 	implicit none
 	double precision, allocatable, dimension(:) :: Vq ! Coulomb potential
@@ -69,27 +69,29 @@
 		Etotq = 	Etotq + Vq(i)*sys%q(i)
 	enddo
 	!--------------------------------------------
-	! image sites at left
-	do i=-2,0; 
-		rim = rimage(i+3);
-		do j=1,nsites; ! only real, second mirror images ignored?
-			rij = dsqrt(sum((rim - sys%r(j,:))**2))
-			Vq(i) = Vq(i) + sys%q(j)/rij
+	if(leads) then
+		! image sites at left
+		do i=-2,0; 
+			rim = rimage(i+3);
+			do j=1,nsites; ! only real, second mirror images ignored?
+				rij = dsqrt(sum((rim - sys%r(j,:))**2))
+				Vq(i) = Vq(i) + sys%q(j)/rij
+			enddo
+			Vq(i) = Vq(i) * Kq;
+			Etotq = 	Etotq - Vq(i)*sys%q(i+3)		
 		enddo
-		Vq(i) = Vq(i) * Kq;
-		Etotq = 	Etotq - Vq(i)*sys%q(i+3)		
-	enddo
-	!--------------------------------------------
-	! image sites at right
-	do i=nsites+1,nsites+3
-		rim = rimage(i-3);
-		do j=1,nsites; ! only real, second mirror images ignored?
-			rij = dsqrt(sum((rim - sys%r(j,:))**2))
-			Vq(i) = Vq(i) + sys%q(j)/rij
+		!--------------------------------------------
+		! image sites at right
+		do i=nsites+1,nsites+3
+			rim = rimage(i-3);
+			do j=1,nsites; ! only real, second mirror images ignored?
+				rij = dsqrt(sum((rim - sys%r(j,:))**2))
+				Vq(i) = Vq(i) + sys%q(j)/rij
+			enddo
+			Vq(i) = Vq(i) * Kq;
+			Etotq = 	Etotq - Vq(i)*sys%q(i-3)
 		enddo
-		Vq(i) = Vq(i) * Kq;
-		Etotq = 	Etotq - Vq(i)*sys%q(i-3)
-	enddo
+	endif
 	!--------------------------------------------
 	! finally, set dEq
 	!--------------------------------------------
@@ -125,6 +127,23 @@
 	! zones l1,l2 lie in.
 	z1 = zone(l1);	 z2 = zone(l2);	
 	z = z1 + z2;
+
+	if(periodic) then
+		if (z==2) then ! same or opp ends? 
+			! x-comp of displacement of hopping electron	
+			if(l1<=3 .and. l2>= nsites-2)then ! opposite end layers, apply periodicity
+				drx = sys%r(l2,1) - a0*nsites/3 - sys%r(l1,1);
+			elseif(l2<=3 .and. l1>= nsites-2)then ! opposite end
+				drx = sys%r(l2,1) + a0*nsites/3 - sys%r(l1,1);
+			else ! same end
+				drx = sys%r(l2,1) - sys%r(l1,1);
+			endif
+		else ! deep bulk, no periodic next cell involved
+			drx = sys%r(l2,1) - sys%r(l1,1);
+		endif
+		ErChange = - Er * drx/a0; ! Er is scaled with a0
+		return
+	endif
 
 	if(z > 3)then ! a bulk hop, no contact involved
 		! x-comp of displacement of hopping electron
@@ -185,7 +204,7 @@
 	case(15:16,21,23)! left contact to la electron jump
 		l2 = ways(ih)%active(is); l1 = -1; 
 	end select
-	
+
 	return
 	end 	subroutine ElectronJumpSites
 !-----------------------------------------------
@@ -359,6 +378,16 @@
 	implicit none
 	integer, intent(in) :: l1,l2
 	integer :: z, z1,z2
+
+	if(periodic)then
+		!CoulombEnergyChange = EqChange1(l1,l2)
+		write(*,*)"Coulomb: not implemented yet... "
+		stop
+		! interaction btw nns cells? do it later.... use some cutoff distance....
+		! use ErChange() code with this, together sepereate routine when periodic.
+		return
+	endif
+	
 	! zones l1,l2 lie in.
 	!z1 = zone(l1);	 	z2 = zone(l2);	
 	z = zone(l1) + zone(l2);
