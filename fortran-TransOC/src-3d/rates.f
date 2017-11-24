@@ -41,7 +41,7 @@
 	! calculates c,s resolved rate and total rate
 	!	rate(ih)%rcs(ic,is) and rate(ih)%r
 	use modmain, only: rate, ways, PermSym,na,nx,ts,
-     .              ihdphops,ihcreat,ihannih,vrh
+     .              ihdphops,ihcreat,ihannih,vrh,coulomb
 	implicit none
 	character(len=*), intent(in):: process
 	integer, intent(in) :: nc
@@ -50,7 +50,7 @@
 	integer, dimension(8):: ihs
 	logical :: nvrh, psnvrh
 	
-	nvrh  = (.not. vrh); ! no variable range hopping?
+	nvrh  = (.not. vrh) .and. (.not. coulomb); ! no variable range hopping?
 	psnvrh = PermSym .and. nvrh;
 	! if PermSym, amp for is=1 only;
 	! if vrh, is>1 is given in ratehcs, fix it there if PermSym.

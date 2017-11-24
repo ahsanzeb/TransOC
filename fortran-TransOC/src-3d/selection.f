@@ -63,7 +63,7 @@
 	endif
 
 	ns = 1; ! just for selection; not actual ns 
-	if(.not. PermSym) then	 ! also applies to nog case
+	if(.not. PermSym .or. vrh .or. coulomb) then	 ! also applies to nog case
 		ns = ways(ih)%ns 
 	endif
 
@@ -94,7 +94,7 @@
 	end do	
 	! error?
 	if (which == -1) then
-		write(*,*) "icsSelect: something wrong.... "
+		write(*,*) "icsSelect: something wrong.... ih,ic,is =",ih,ic,is
 		write(*,*) "icsSelect: rlist = ",	rlist	
 		stop
 	endif
