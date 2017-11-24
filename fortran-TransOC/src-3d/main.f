@@ -46,7 +46,6 @@ cc
 	! readinput file
 	call input()
 	alloc = .false.;
-	
 !======================================================================
 	call MPI_INIT(ierr)
 	!find out MY process ID, and how many processes were started.
@@ -60,6 +59,7 @@ cc
 	!write(*,*) "Node = ",node," num_procs, ntp = ",num_procs, ntp 
 	
 	if(node==0) then
+		call timestamp()
 		allocate(Iall(maxtraj))
 		write(frmt,'("(",I6.6,"G18.10)")') maxtraj+3 ! do we really need full out?
 	endif
@@ -98,8 +98,10 @@ cc
 			enddo ! ielectron
 		enddo ! idw
 	enddo ! nex
-	if(node==0) write(*,*)"transoc: everything done.... " 
-
+	if(node==0) then
+		write(*,*)"TransOC: everything done.... " 
+		call timestamp()
+	endif
 	call MPI_FINALIZE(ierr)
 !======================================================================
 	contains
