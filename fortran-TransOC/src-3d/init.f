@@ -73,13 +73,6 @@
 	call calmaphc()
 	!-----------------------------------------
 
-
-	!-----------------------------------------
-	! set occupations
-	
-
-
-
 	!-----------------------------------------
 	! sets hopping parameters for various hops, channels
 	!-----------------------------------------
@@ -153,7 +146,7 @@
 	! prefactor of bare hopping rate vs dnns
 	!-----------------------------------------
 	!if (vrh) call SetBondLengths()
-	if (vrh .or. coulomb) call SetLattice(doping)
+	call SetLattice(doping)
 
 	return
 	end subroutine initialise
@@ -452,28 +445,34 @@
 
 	if(allocated(sys%r)) deallocate(sys%r)
 	allocate(sys%r(-2:nsites+3,3))
-
 	! redular lattice: a chain of equilateral trianlges
 	sys%r(-2,:) = (/ 0.0d0, 0.0d0, 0.0d0 /); 
 	sys%r(-1,:) = (/ 0.0d0, a0, 0.0d0 /); 
 	sys%r( 0,:) = (/ 0.0d0, 0.5d0*a0, 0.866d0*a0 /);
 	is = 0;
-	do it = 1, nsites/3;! + 1;
+	do it = 1, nsites/3 + 1;
 		do i=1,3
-			sys%r(is+1,:) = sys%r(is-3,:) + (/ it*a0,0.d0,0.d0 /);
 			is = is + 1;
+			sys%r(is,:) = sys%r(is-3,:) + (/ it*a0,0.d0,0.d0 /);
 		enddo
 	enddo
 
-	!add disorder
-	do is=1,nsites
-		! dnns(): random selection from a gaussian distribution
-		! peaked around a0
-		x = dnns() - a0; 
-		y = dnns() - a0;
-		z = dnns() - a0;
-		sys%r(3+is,:) = sys%r(3+is,:) + (/x,y,z/)/1.73d0; !sqrt(3)?
-	enddo
+	! positonal disorder?
+	if(vrh)then
+		! sets GaussArray, accumulated probabilities vs rnns
+		if(.not. allocated(GaussArray)) allocate(GaussArray(nmax+1,2))
+		call SetGaussArray(nmax)
+
+		!add disorder
+		do is=1,nsites
+			! dnns(): random selection from a gaussian distribution
+			! peaked around a0
+			x = dnns() - a0; 
+			y = dnns() - a0;
+			z = dnns() - a0;
+			sys%r(3+is,:) = sys%r(3+is,:) + (/x,y,z/)/1.73d0; !sqrt(3)?
+		enddo
+	endif
 
 	! donor/acceptor positons? only a single type of doping at the moment
 	if(coulomb) then
@@ -482,14 +481,13 @@
 		! also allocate sys%q for later use
 		if(allocated(sys%q)) deallocate(sys%q)
 		allocate(sys%q(nsites))
-		sgn = sign(1,doping);
+		sgn = isign(1,doping);
 		do is = 1, doping*sgn
-			! choose sites at random for impurities
+			! choose sites at random for donor/acceptor
 			i = int(rand(0)*nsites) + 1;
-			sys%q0(i) = sgn*1.0d0;
+			sys%q0(i) = -sgn*1.0d0; ! accepter is -ve charged, donor is +ve charged
 		enddo
 	endif
-
 	return
 	end 	subroutine SetLattice
 !---------------------------------------

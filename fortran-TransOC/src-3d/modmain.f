@@ -18,7 +18,7 @@
 
 
 	logical:: coulomb ! include coulomb interaction?
-	double precision :: Kq ! Coulomb law constant K for the medium
+	double precision :: Kq=4.0d0 ! Coulomb law constant K for the medium
 	double precision :: Etotq ! total Coulomb energy
 	type :: CoulombEnergy
 		double precision, allocatable, dimension(:) :: dEq ! size= ways(ih)%ns

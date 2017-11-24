@@ -30,6 +30,7 @@
 				else ! regular lattice/triangles, no positional disorder
 					Ecoul(ih)%dEq(is) = -signEr(ih)*Er
 				endif
+				!write(*,*)"ih,is, Ecoul%dE = ", Ecoul(ih)%dEq(is)
 			enddo
 		enddo
 		return
@@ -76,7 +77,7 @@
 			Vq(i) = Vq(i) + sys%q(j)/rij
 		enddo
 		Vq(i) = Vq(i) * Kq;
-		Etotq = 	Etotq + Vq(i)*sys%q(i)		
+		Etotq = 	Etotq - Vq(i)*sys%q(i+3)		
 	enddo
 	!--------------------------------------------
 	! image sites at right
@@ -87,7 +88,7 @@
 			Vq(i) = Vq(i) + sys%q(j)/rij
 		enddo
 		Vq(i) = Vq(i) * Kq;
-		Etotq = 	Etotq + Vq(i)*sys%q(i)
+		Etotq = 	Etotq - Vq(i)*sys%q(i-3)
 	enddo
 	!--------------------------------------------
 	! finally, set dEq
@@ -105,10 +106,11 @@
 			Ecoul(ih)%dEq(is) = CoulombEnergyChange(l1,l2)
 			! Applied Electric field, Er term
 			Ecoul(ih)%dEq(is) = Ecoul(ih)%dEq(is) + ErChange(l1,l2)
+			!write(*,*)"ih,is, Ecoul%dE = ", Ecoul(ih)%dEq(is)
 		enddo
 	enddo
 	!--------------------------------------------
-
+	
 
 	return
 	end subroutine SetEcoul

@@ -200,7 +200,7 @@
 	! sets global variable rate(ih)%rcs(ic,is)
 	use modmain, only: nx,qt,eig,itypes,beta,
      .  mapt,maph,mapc,Einit,rate,ways,dqc,dEQs,
-     .  simplepf,Efieldh,a0,dinvl,vrh,PermSym,Ecoul, Etotq
+     .  simplepf,Efieldh,a0,dinvl,vrh,PermSym,Ecoul, Etotq, Er
 	implicit none
 	integer, intent(in) :: ih,ic,is
 	! local
@@ -315,6 +315,8 @@
 	! Change in Coulomb's energy + Efield energy:
 	!	Ecoul is calculated in main, routine SetEcoul() in modq/coulomb.f
 	de = de + Ecoul(ih)%dEq(is);
+
+	!write(*,*) "ih, Er, dEnet = ", ih, Er, de(1:min(5,nsec))
 
 	! Energy of leacking photon ?????? 
 	! ih=25; photon leackage: w_photon = |dE| if dE < 0;
@@ -520,7 +522,7 @@
 	integer::is1,is2,id
 
 	l1 = ways(ih)%active(is); ! main site associated with the hop
-	if(ih < 9 .and. ih > 24) then ! bulk hop 
+	if(ih < 9 .or. ih > 24) then ! bulk hop 
 		l2 = ways(ih)%sites(is); ! the second site involved
 	else !contact hops
 		select case(ih)
