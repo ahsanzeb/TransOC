@@ -17,7 +17,7 @@ cc
 	use readinput, only: input
 	use maps
 	use diag, only: diagonalise
-	use modq, only: SetEcoul
+	use modq, only: SetEcoul, qtime
 	use mpi
 	implicit none
 
@@ -40,12 +40,6 @@ cc
 
 
 	
-	! time stamp & random seed 
-	!call timestamp
-
-	! readinput file
-	call input()
-	alloc = .false.;
 !======================================================================
 	call MPI_INIT(ierr)
 	!find out MY process ID, and how many processes were started.
@@ -57,6 +51,9 @@ cc
 	allocate(Iav(ntp))
 
 	!write(*,*) "Node = ",node," num_procs, ntp = ",num_procs, ntp 
+	! readinput file
+	call input(node)
+	alloc = .false.;
 	
 	if(node==0) then
 		call timestamp()
@@ -274,6 +271,9 @@ cc
 	!	Einit = nx*dw;
 	!endif
 
+	!write(*,*)"coulomb: starting traj"
+	!call qtime()
+
 	x = 0;
 	!========== iterations over number of hops
 	! main loop over number of hops asked
@@ -374,6 +374,7 @@ cc
 		s = 1;
 		call AllHops()
 		if(debug)write(*,*) "main:   AllHops done... "	
+
 
 		! Coulomb's interaction
 		! sets Ecoul(ih=1:34)%dEq(is=1:ns(ih)) and Etotq for use in rates
@@ -508,6 +509,12 @@ cc
 	Iav(itraj) = totcharge/tottime
 	
 	enddo ! itraj
+
+
+
+	!write(*,*)"main: end traj"	
+	!call qtime()
+	
 
 	return
 	end subroutine trajectory

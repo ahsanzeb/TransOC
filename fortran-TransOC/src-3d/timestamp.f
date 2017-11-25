@@ -1,7 +1,7 @@
 
 
 
-	Subroutine timestamp
+	Subroutine timestamp()
 !--------------------------------------------------------------------
 ! 	prints welcome message with date and time
 !--------------------------------------------------------------------

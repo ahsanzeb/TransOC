@@ -15,7 +15,7 @@
 	implicit none
 	!double precision, intent(in) ::	Er
 	integer :: ih,is, l1,l2,i,j
-	double precision :: rij, rim(3)
+	double precision :: rij, rim(3), x(2)
 
 	if(.not. coulomb) then ! applied Electric field changes & return
 		do ih=1,nproc
@@ -27,8 +27,11 @@
 					!	electron jumping from l1 to l2;
 					call ElectronJumpSites(ih,is,l1,l2)
 					!	dE for all hops & their sites due to applied Electric field
-					Ecoul(ih)%dEq(is) = ErChange(l1,l2)
+					x = ErChange(l1,l2);
+					ways(ih)%rij(is) = x(1);
+					Ecoul(ih)%dEq(is) = x(2);
 				else ! regular lattice/triangles, no positional disorder
+					ways(ih)%rij(is) = a0;
 					Ecoul(ih)%dEq(is) = -signEr(ih)*Er
 				endif
 				!write(*,*)"ih,is, Ecoul%dE = ", Ecoul(ih)%dEq(is)
@@ -37,7 +40,8 @@
 		return
 	endif
 
-
+	!call qtime()
+	
 !	If coulomb's interaction is true, proceed as follows.
 
 	!--------------------------------------------
@@ -61,16 +65,17 @@
 	! real sites
 	do i=1,nsites;
 		do j=1,nsites;
-			!if(i .ne. j) then
+			if(i .ne. j) then
 				rij = dsqrt(sum((sys%r(i,:) - sys%r(j,:))**2));
 				Vq(i) = Vq(i) + sys%q(j)/rij
-			!endif
+			endif
 		enddo
 		Vq(i) = Vq(i) * Kq;
 		Etotq = 	Etotq + Vq(i)*sys%q(i);
 	enddo
 	! double counting correction
 	Etotq = 0.5*Etotq;
+	!write(*,*) "real sites: Vq = ",Vq
 	!--------------------------------------------
 	if(leads) then
 		! image sites at left
@@ -95,6 +100,8 @@
 			Etotq = 	Etotq - Vq(i)*sys%q(i-3)
 		enddo
 	endif
+
+	!write(*,*) "Vq = ",Vq
 	!--------------------------------------------
 	! finally, set dEq
 	!--------------------------------------------
@@ -102,6 +109,8 @@
 	do ih=1,nproc
 		if(allocated(Ecoul(ih)%dEq)) deallocate(Ecoul(ih)%dEq)
 		allocate(Ecoul(ih)%dEq(ways(ih)%ns)) ! allocate works even if 0?
+		if(allocated(ways(ih)%rij)) deallocate(ways(ih)%rij)
+		allocate(ways(ih)%rij(ways(ih)%ns))
 		!Ecoul(ih)%dEq(:) = 0.0d0
 		do is=1,ways(ih)%ns
 			! find the indeces of sites l1,l2 for 
@@ -109,21 +118,26 @@
 			call ElectronJumpSites(ih,is,l1,l2)
 			! calculate the coulomb energy changes
 			Ecoul(ih)%dEq(is) = CoulombEnergyChange(l1,l2)
+			!write(*,*)"ih,is, Ecoul%dE = ",ih,is, Ecoul(ih)%dEq(is)
 			! Applied Electric field, Er term
-			Ecoul(ih)%dEq(is) = Ecoul(ih)%dEq(is) + ErChange(l1,l2)
-			!write(*,*)"ih,is, Ecoul%dE = ", Ecoul(ih)%dEq(is)
+			x = ErChange(l1,l2);
+			ways(ih)%rij(is) = x(1);
+			Ecoul(ih)%dEq(is) = Ecoul(ih)%dEq(is) + x(2);
+			!write(*,*)"    Ecoul%dE +Er = ", Ecoul(ih)%dEq(is)
 		enddo
 	enddo
 	!--------------------------------------------
+	!write(*,*)"coulomb takes:"
+	!call qtime()
 	
-
 	return
 	end subroutine SetEcoul
 !******************************************************
-	double precision function ErChange(l1,l2)
+	function ErChange(l1,l2)
 	implicit none
 	!double precision, intent(in) :: Er
 	integer, intent(in):: l1,l2
+	double precision, dimension(2) :: ErChange
 	double precision :: drx
 	integer :: z, z1, z2
 
@@ -144,7 +158,8 @@
 		else ! deep bulk, no periodic next cell involved
 			drx = sys%r(l2,1) - sys%r(l1,1);
 		endif
-		ErChange = - Er * drx/a0; ! Er is scaled with a0
+		ErChange(1) = dabs(drx);
+		ErChange(2) = - Er * drx/a0; ! Er is scaled with a0
 		return
 	endif
 
@@ -171,8 +186,9 @@
 		write(*,*)"Error(ErChange): z1, z2 = ", z1, z2
 		stop
 	endif 
-
-	ErChange = - Er * drx/a0; ! Er is scaled with a0
+	
+	ErChange(1) = dabs(drx);
+	ErChange(2) = - Er * drx/a0; ! Er is scaled with a0
 	
 	return
 	end function ErChange
@@ -403,6 +419,9 @@
 		write(*,*)' z1, z2 = ',zone(l1), zone(l2)
 		stop
 	endif
+
+	!write(*,*)' z, dEq ',z,CoulombEnergyChange
+
 	return
 	end function CoulombEnergyChange
 !============================================================
@@ -420,5 +439,20 @@
 	return
 	end function zone
 !============================================================
+	subroutine qtime()
+	implicit none
+	integer, save	:: dt(8), dti(8)=0
+	character*10 :: bb(3)
+	logical, save :: start = .true.;
 
+	call date_and_time(bb(1), bb(2), bb(3), dt)
+
+	write(6,
+     . '("time: ",i2,":",i2.2,":",i2.2,"(h:m:s)")')
+     .   dt(5:7)-dti(5:7)
+	write(6,*) dt(5:8)-dti(5:8)
+	dti = dt;
+	return
+	end subroutine qtime
+!==========================================
 	end module modq

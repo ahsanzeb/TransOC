@@ -18,7 +18,10 @@
 
 
 	logical:: coulomb ! include coulomb interaction?
-	double precision :: Kq=4.0d0 ! Coulomb law constant K for the medium
+	!double precision :: epsr = 4.0d0; !dielectric constant of organic material
+	double precision :: Kq = 0.3556d0; ! Coulomb law constant K for the medium for rij in nm, q's in |e|.
+										! Kq = (1/epsr=4.0) * (8.89d9*1.6d-19/1d-9)
+	
 	double precision :: Etotq ! total Coulomb energy
 	type :: CoulombEnergy
 		double precision, allocatable, dimension(:) :: dEq ! size= ways(ih)%ns
@@ -36,8 +39,6 @@
 	double precision, dimension(34):: Efieldh
 	! average of r_nns, std dev in r_nns gaussian distribution
 	double precision :: a0, sigma0, nsigma, dinvl
-
-
 
 	logical :: debug
 
@@ -347,6 +348,7 @@
 		integer, allocatable :: sites(:) 
 		!	active: active site or D if d,phi annihilation
 		integer, allocatable :: active(:) ! active site(s) involved
+		double precision, allocatable :: rij(:) ! distance for the hop
 	end type HoppingWays
 	type(HoppingWays), dimension(34) :: ways ! 8 bulk, others contact
 

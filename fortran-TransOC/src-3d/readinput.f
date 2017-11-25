@@ -8,8 +8,9 @@
 
 	contains
 !************************************************	
-	subroutine input()
+	subroutine input(node)
 	implicit none
+	integer, intent(in):: node
 	! local
 	character(40) :: block
 	character(20):: Geometry
@@ -24,9 +25,12 @@
 	!--------------------------!
 	!     default values       !
 	!--------------------------!
-	a0 = 1.0d0; sigma0 = 0.25d0; nsigma=1.0 ! units?
-	dinvl= 1.0d0; ! controls how fast hopping integeral decays; assumed tvrh=1.0*t_{h,l,hl,..}, etc, at dnns = a0;
-	nproc = 34; EqualDistr = .false.
+	a0 = 5.0d0; sigma0 = 0.25d0; nsigma=1.0; dinvl= 1.0d0; 
+	! units: a0(nm), sigma0(a0), nsigma(sigma0), dinvl(1/a0)
+	! dinvl= inverse localisation lenght:
+	!	controls how fast hopping integeral decays; assumed tvrh=1.0*t_{h,l,hl,..}, etc, at dnns = a0;
+	nproc = 34; ! number of hopping processes, useful for testing 1D chains by removing Up/down hops
+	EqualDistr = .false.;! 1D chains: distribute carriers equally among chains
 	debug = .false.
 	nsites = 6;
 	!J0=1.0d0;
@@ -395,13 +399,15 @@
 	j	=	1+int((nelmax-nelmin)/dnelec)
 
 	if (onlydoped) j=1+int((nelmax-nelmin-1)/dnelec);
-	open(200,file='parameters.out',action='write')
+	if(node==0) then
+		open(200,file='parameters.out',action='write')
 		write(200,*) i,ndw,j,ntraj,niter
 		write(200,*) mexmin,mexmax,dmex
 		write(200,*) dwmin,dwmax, ddw
 		write(200,*) nelmin,nelmax,dnelec
 		write(200,*) ntraj, niter
-	close(200)
+		close(200)
+	endif
 	!---------------------------------------------
 
 

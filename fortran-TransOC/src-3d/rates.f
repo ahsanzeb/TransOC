@@ -289,7 +289,12 @@
 	de = eig(itl)%esec(1:nsec) + dqc(ih,ic); ! changes due barries, Exciton binding, reference, etc.
 	de = de - Einit; ! total change in energy
 
-	! charging energy contact hops
+	! Change in Coulomb's energy + Efield energy:
+	!	Ecoul is calculated in main, routine SetEcoul() in modq/coulomb.f
+	de = de + Ecoul(ih)%dEq(is);
+
+	! charging energy contact hops:
+	! A cheaper rough approx of true coulomb energy
 	if(ih .ge. 9 .and. ih .le. 24) then
 		de = de + dEQs(ih-8)
 	endif
@@ -307,14 +312,12 @@
 	if(VRH) then
 		! find 	nns distance for this hop
 		!rnns = dij(ih,is);
-		rnns = dijl(ih,is);
+		!rnns = dijl(ih,is);
+		rnns = ways(ih)%rij(is); ! PermSym not used so is is true index of hop
 		tvr = dexp(-dinvl*(rnns-a0)/a0); ! bare amplitude prefactor
 	else
 		tvr = 1.0d0;
 	endif
-	! Change in Coulomb's energy + Efield energy:
-	!	Ecoul is calculated in main, routine SetEcoul() in modq/coulomb.f
-	de = de + Ecoul(ih)%dEq(is);
 
 	!write(*,*) "ih, Er, dEnet = ", ih, Er, de(1:min(5,nsec))
 
@@ -515,7 +518,7 @@
 
 !	finds the inter-site distances
 	double precision function dijl(ih,is)
-	use modmain, only: sys, nsites, ways
+	use modmain, only: sys, nsites, ways, a0
 	implicit none
 	integer, intent(in):: ih,is
 	integer :: l1, l2
@@ -524,16 +527,17 @@
 	l1 = ways(ih)%active(is); ! main site associated with the hop
 	if(ih < 9 .or. ih > 24) then ! bulk hop 
 		l2 = ways(ih)%sites(is); ! the second site involved
+		dijl = dsqrt(sum((sys%r(l1,:) - sys%r(l2,:))**2))
 	else !contact hops
 		select case(ih)
 			case(11,12,15,16, 21:24) ! left
-			l2 = is - 3;
+				dijl = dabs(sys%r(l1,1)); ! distance to the contact/lead
 			case(9,10,13,14, 17:20) ! right
-			l2 = is + 3
+				dijl = dabs(a0*(nsites/3 + 1) - sys%r(l1,1));
 		end select
 	endif
 	! sys%r(-2:nsites+3), shifted index
-	dijl = dsqrt(sum((sys%r(l1,:) - sys%r(l2,:))**2))
+	!dijl = dsqrt(sum((sys%r(l1,:) - sys%r(l2,:))**2))
 
 	return
 	end function dijl
