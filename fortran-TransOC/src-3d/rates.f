@@ -299,6 +299,9 @@
 		de = de + dEQs(ih-8)
 	endif
 
+	!write(*,*)"rates: ih, de, dEq= ",ih,de(1),Ecoul(ih)%dEq(is)
+	
+
 	!write(*,*) "rate: ih, de = ", ih, de
 
 	! rates; total for this hop/hchannel/site

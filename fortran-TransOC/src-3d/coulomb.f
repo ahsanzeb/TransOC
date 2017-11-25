@@ -32,6 +32,7 @@
 					x = ErChange(l1,l2);
 					ways(ih)%rij(is) = x(1);
 					Ecoul(ih)%dEq(is) = x(2);
+					write(*,*)"ih,is, Er = ",ih,is, x(2)
 				else ! regular lattice/triangles, no positional disorder
 					ways(ih)%rij(is) = a0;
 					Ecoul(ih)%dEq(is) = -signEr(ih)*Er
@@ -120,12 +121,13 @@
 			call ElectronJumpSites(ih,is,l1,l2)
 			! calculate the coulomb energy changes
 			Ecoul(ih)%dEq(is) = CoulombEnergyChange(l1,l2)
-			!write(*,*)"ih,is, Ecoul%dE = ",ih,is, Ecoul(ih)%dEq(is)
 			! Applied Electric field, Er term
 			x = ErChange(l1,l2);
 			ways(ih)%rij(is) = x(1);
 			Ecoul(ih)%dEq(is) = Ecoul(ih)%dEq(is) + x(2);
 			!write(*,*)"    Ecoul%dE +Er = ", Ecoul(ih)%dEq(is)
+			write(*,*)"ih,is, Er = ",ih,is, x(2)
+
 		enddo
 	enddo
 	!--------------------------------------------
@@ -195,7 +197,7 @@
 	endif 
 	
 	ErChange(2) = - Er * drx/a0; ! Er is scaled with a0
-	
+	write(*,*)" drx = ",drx
 	return
 	end function ErChange
 !-----------------------------------------------
@@ -210,14 +212,15 @@
 	! right contact identifier: site index > nsites 
 	! left contact identifier: site index < 0 
 
-	! See Processes Table for process indexes
+	! See Processes Table for process indexes, and UpdateWays() for conventions
 	select case(ih)
-	case(1,2,7,8,26,27,33,34)
-		! la to lo electron jump
-		l1 = ways(ih)%active(is); l2 = ways(ih)%sites(is);
-	case(3:6,28:32)
+	case(1,2,5,6,26,27,30,31) ! electron jumps from active to other
 		! lo to la electron jump
-		l2 = ways(ih)%active(is); l1 = ways(ih)%sites(is);
+		l1 = ways(ih)%sites(is); l2 = ways(ih)%active(is); 
+	case(3,4,7,8,28,29,33,34) ! electron jumps from other to active
+		! la to lo electron jump
+		! D,Phi|Phi,D creation, ih=7,8,33,34: D always in active 
+		l1 = ways(ih)%active(is); l2 = ways(ih)%sites(is); 
 	case(9:10,18,20)	! e extraction/hole injection at right contact
 		! la to contact electron jump
 		l1 = ways(ih)%active(is); l2 = nsites+1; 
