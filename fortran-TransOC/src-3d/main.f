@@ -460,7 +460,8 @@ cc
 					charge = -1
 			end select	
 		endif
-		dtau=1.0d0/sum(rate(1:nproc)%r)
+		dtau=1.0d0/sum(rate(1:nproc)%r); ! average used. 
+		!can be picked from adistribution at random using log(eta)/R
 		totcharge = totcharge + charge
 		tottime = tottime + dtau
 		!-------------------------------
@@ -507,6 +508,8 @@ cc
 	enddo ! iter
 
 	Iav(itraj) = totcharge/tottime
+
+	write(*,*)"main: dQ, dt, Iav = ", totcharge, tottime,Iav(itraj)
 	
 	enddo ! itraj
 

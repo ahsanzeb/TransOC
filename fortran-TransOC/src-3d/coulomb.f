@@ -21,6 +21,8 @@
 		do ih=1,nproc
 			if(allocated(Ecoul(ih)%dEq)) deallocate(Ecoul(ih)%dEq)
 			allocate(Ecoul(ih)%dEq(ways(ih)%ns)) ! allocate works even if 0?
+			if(allocated(ways(ih)%rij)) deallocate(ways(ih)%rij)
+			allocate(ways(ih)%rij(ways(ih)%ns))
 			do is=1,ways(ih)%ns
 				if(vrh) then ! positional disorder
 					! find the indeces of sites l1,l2 for 
@@ -138,7 +140,7 @@
 	!double precision, intent(in) :: Er
 	integer, intent(in):: l1,l2
 	double precision, dimension(2) :: ErChange
-	double precision :: drx
+	double precision :: drx, r1(3),r2(3)
 	integer :: z, z1, z2
 
 	! zones l1,l2 lie in.
@@ -146,19 +148,22 @@
 	z = z1 + z2;
 
 	if(periodic) then
+		r1 = sys%r(l1,:); r2 = sys%r(l2,1);
 		if (z==2) then ! same or opp ends? 
 			! x-comp of displacement of hopping electron	
 			if(l1<=3 .and. l2>= nsites-2)then ! opposite end layers, apply periodicity
-				drx = sys%r(l2,1) - a0*nsites/3 - sys%r(l1,1);
+				r2(1) = sys%r(l2,1) - a0*nsites/3;
+				drx = r2(1) - sys%r(l1,1);
 			elseif(l2<=3 .and. l1>= nsites-2)then ! opposite end
-				drx = sys%r(l2,1) + a0*nsites/3 - sys%r(l1,1);
+				r2(1) = sys%r(l2,1) + a0*nsites/3;
+				drx = r2(1) - sys%r(l1,1);
 			else ! same end
 				drx = sys%r(l2,1) - sys%r(l1,1);
 			endif
 		else ! deep bulk, no periodic next cell involved
 			drx = sys%r(l2,1) - sys%r(l1,1);
 		endif
-		ErChange(1) = dabs(drx);
+		ErChange(1) = dsqrt(sum((r1-r2)**2)); ! nns distance, not just x-comp
 		ErChange(2) = - Er * drx/a0; ! Er is scaled with a0
 		return
 	endif
@@ -166,6 +171,7 @@
 	if(z > 3)then ! a bulk hop, no contact involved
 		! x-comp of displacement of hopping electron
 		drx = sys%r(l2,1) - sys%r(l1,1);
+		ErChange(1) = dsqrt(sum((sys%r(l1,:)-sys%r(l2,:))**2));
 	elseif(z==3) then ! a contact hop
 		if(z1==1) then ! l1 ==> contact, l2 ==> interface site
 			! left/right contact?
@@ -182,12 +188,12 @@
 				drx = (nsites/3 + 1)*a0-sys%r(l1,1); ! +x direction
 			endif
 		endif
+		ErChange(1) = dabs(drx);! dist to the contact = x-comp
 	else
 		write(*,*)"Error(ErChange): z1, z2 = ", z1, z2
 		stop
 	endif 
 	
-	ErChange(1) = dabs(drx);
 	ErChange(2) = - Er * drx/a0; ! Er is scaled with a0
 	
 	return
