@@ -421,7 +421,7 @@
 	integer :: i
 
 	tsigma02 = 2*sigma0**2;
-	pref = 1/dsqrt(3.1415927*tsigma02);
+	!pref = 1/dsqrt(3.1415927*tsigma02);
 	
 	amin=a0-nsigma*sigma0;
 	da = 2*nsigma*sigma0/(nmax-1)
@@ -430,7 +430,7 @@
 	do i=1,nmax
 		r = amin + (i-1)*da;
 		GaussArray(i,1) = r;
-		psum = psum + pref*dexp(-(r-a0)**2/tsigma02);
+		psum = psum + dexp(-(r-a0)**2/tsigma02); !pref*dexp(-(r-a0)**2/tsigma02);
 		GaussArray(i+1,2) = psum;
 	enddo
 
@@ -453,7 +453,8 @@
 	do it = 1, nsites/3 + 1;
 		do i=1,3
 			is = is + 1;
-			sys%r(is,:) = sys%r(is-3,:) + (/ it*a0,0.d0,0.d0 /);
+			sys%r(is,:) = sys%r(is-3,:) + (/ a0,0.d0,0.d0 /);
+			!write(*,'(a,i3,2x,3f10.5)')"init: is, sys%r = ",is,sys%r(is,:)
 		enddo
 	enddo
 
@@ -471,6 +472,7 @@
 			y = dnns() - a0;
 			z = dnns() - a0;
 			sys%r(3+is,:) = sys%r(3+is,:) + (/x,y,z/)/1.73d0; !sqrt(3)?
+			!write(*,*)"init: disor dr = ",dsqrt(x**2+y**2+z**2)
 		enddo
 	endif
 

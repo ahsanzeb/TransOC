@@ -58,6 +58,7 @@ cc
 	if(node==0) then
 		call timestamp()
 		allocate(Iall(maxtraj))
+		Iall = 0.0d0;
 		write(frmt,'("(",I6.6,"G18.10)")') maxtraj+3 ! do we really need full out?
 	endif
 	
@@ -75,6 +76,9 @@ cc
 				if (nelec == 0 .and. onlydoped) cycle
 				ielec=	ielec+1;
 				do ier=1,ner ! Er: electric field * r_nns
+					if(node==0)then
+						write(*,'("main: ier = ",i4," of ",i4)')ier,ner
+					endif
 					Er = Ermin + (ier-1)*dEr;
 					if (VRH) Efieldh = signEr*Er ! VRH= variable range hopping
 					! runs ntp trajectories, output => current: Iav, h/c counts: stathc
@@ -509,8 +513,7 @@ cc
 
 	Iav(itraj) = totcharge/tottime
 
-	write(*,*)"main: dQ, dt, Iav = ", totcharge, tottime,Iav(itraj)
-	
+	!write(*,*)"main: dQ, dt, Iav = ", totcharge, tottime,Iav(itraj)
 	enddo ! itraj
 
 

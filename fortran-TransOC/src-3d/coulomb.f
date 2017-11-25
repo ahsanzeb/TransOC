@@ -31,8 +31,9 @@
 					!	dE for all hops & their sites due to applied Electric field
 					x = ErChange(l1,l2);
 					ways(ih)%rij(is) = x(1);
+					!write(*,*) "coulom: rij = ",x(1)
 					Ecoul(ih)%dEq(is) = x(2);
-					write(*,*)"ih,is, Er = ",ih,is, x(2)
+					!write(*,*)"ih,is, Er = ",ih,is, x(2)
 				else ! regular lattice/triangles, no positional disorder
 					ways(ih)%rij(is) = a0;
 					Ecoul(ih)%dEq(is) = -signEr(ih)*Er
@@ -126,8 +127,7 @@
 			ways(ih)%rij(is) = x(1);
 			Ecoul(ih)%dEq(is) = Ecoul(ih)%dEq(is) + x(2);
 			!write(*,*)"    Ecoul%dE +Er = ", Ecoul(ih)%dEq(is)
-			write(*,*)"ih,is, Er = ",ih,is, x(2)
-
+			!write(*,*)"ih,is, Er = ",ih,is, x(2)
 		enddo
 	enddo
 	!--------------------------------------------
@@ -174,6 +174,7 @@
 		! x-comp of displacement of hopping electron
 		drx = sys%r(l2,1) - sys%r(l1,1);
 		ErChange(1) = dsqrt(sum((sys%r(l1,:)-sys%r(l2,:))**2));
+		!write(*,*)"coulomb: l1,l2,rij = ",l1,l2,ErChange(1)
 	elseif(z==3) then ! a contact hop
 		if(z1==1) then ! l1 ==> contact, l2 ==> interface site
 			! left/right contact?
@@ -197,7 +198,7 @@
 	endif 
 	
 	ErChange(2) = - Er * drx/a0; ! Er is scaled with a0
-	write(*,*)" drx = ",drx
+	!write(*,*)" drx = ",drx
 	return
 	end function ErChange
 !-----------------------------------------------
