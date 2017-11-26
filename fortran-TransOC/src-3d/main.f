@@ -45,16 +45,17 @@ cc
 	!find out MY process ID, and how many processes were started.
 	call MPI_COMM_RANK (MPI_COMM_WORLD, node, ierr)
 	call MPI_COMM_SIZE (MPI_COMM_WORLD, num_procs, ierr)
-	! find ntp
-	call setntp(ntraj,num_procs,ntp)
-	maxtraj = ntp * num_procs; ! could be greater than ntraj
-	allocate(Iav(ntp))
 
 	!write(*,*) "Node = ",node," num_procs, ntp = ",num_procs, ntp 
 	! readinput file
 	call input(node)
 	alloc = .false.;
-	
+
+	! find ntp
+	call setntp(ntraj,num_procs,ntp)
+	maxtraj = ntp * num_procs; ! could be greater than ntraj
+	allocate(Iav(ntp))
+
 	if(node==0) then
 		call timestamp()
 		allocate(Iall(maxtraj))
@@ -77,7 +78,7 @@ cc
 				ielec=	ielec+1;
 				do ier=1,ner ! Er: electric field * r_nns
 					if(node==0)then
-						write(*,'("main: ier = ",i4," of ",i4)')ier,ner
+	write(*,'("main: ier = ",i4," of ",i4,"ntp=",i4)')ier,ner,ntp
 					endif
 					Er = Ermin + (ier-1)*dEr;
 					if (VRH) Efieldh = signEr*Er ! VRH= variable range hopping
@@ -137,7 +138,7 @@ cc
 	implicit none
 	integer, intent(in) :: ntraj,num_procs
 	integer, intent(out) :: ntp
-	
+
 	if( mod(ntraj,num_procs)==0 ) then
 		ntp = ntraj/num_procs; ! integer div
 		if(ntp==0) ntp = 1;
@@ -145,6 +146,8 @@ cc
 		ntp = ntraj/num_procs + 1; ! integer div
 		write(*,*) 'main: ntraj increased to ', ntp * num_procs
 	endif
+	write(*,*)"main: setntp: ntraj,num_procs,ntp=",ntraj,num_procs,ntp
+	
 
 	return
 	end 	subroutine setntp
@@ -342,10 +345,10 @@ cc
 				enddo
 				! allocate space for rates
 				do ih=1,34 ! testing... alloc 26 all 
-					if(PermSym .and. (.not. vrh))then
-						allocate(rate(ih)%rcs(4,1))
-					else
+					if(vrh .or. coulomb .or. (.not. PermSym))then
 						allocate(rate(ih)%rcs(4,sys%nsites))
+					else !if(PermSym) then 
+						allocate(rate(ih)%rcs(4,1))
 					endif
 				enddo
 				alloc = .true.

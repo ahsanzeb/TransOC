@@ -16,8 +16,9 @@
 	character(20):: Geometry
 	integer :: iostat,i,j
 	logical :: givenNel,givenNelrange,givenDw,givenNexcit,givenEr
-	logical :: OneDchains
+	logical :: OneDchains, giveExb
 
+	giveExb = .false.
 	givenNel = .false.; givenNelrange=.false.
 	givenDw=.false.
 	givenEr = .false.
@@ -25,6 +26,7 @@
 	!--------------------------!
 	!     default values       !
 	!--------------------------!
+	epsr = 3.0d0; ! relative permitivity/dielectric constant
 	a0 = 5.0d0; sigma0 = 0.25d0; nsigma=1.0; dinvl= 1.0d0; 
 	! units: a0(nm), sigma0(a0), nsigma(sigma0), dinvl(1/a0)
 	! dinvl= inverse localisation lenght:
@@ -260,6 +262,10 @@
 
 	case('ExcitonBindingEnergy','Exb')
 		read(50,*,err=20) Exb
+		giveExb = .true.
+
+	case('DielectricConstant','Epsilonr')
+		read(50,*,err=20) epsr
 
 	case('Kappa','kappa')
 		read(50,*,err=20) kappa
@@ -299,6 +305,7 @@
 	close(50)
 
 
+
 	if(coulomb .and. nsites < 9) then
 		write(*,*) "Error(readinput):"
 		write(*,*) "Coulomb is not implemented for nsites < 9"
@@ -309,7 +316,23 @@
 		write(*,*) "TODO: Ewald method? "
 		stop
 	endif
-	
+
+
+	! Coulomb law constant K for the medium for rij in nm, q's in |e|.
+	Kq = 1.4224d0/epsr; 	! default epsr = 3.0d0; ===> Kq = 0.4741; 
+											! 0.47 eV.nm energy for two elementary charges
+											! ~0.1 eV for two nnz at 5nm 
+	if(.not. giveExb) then ! set Exb assuming a radius of 1nm for the exciton
+		! todo?: ask for exciton radius to compute Exb
+		Exb = Kq; ! Kq(eV.nm/e)*1e/1nm ==> default = 0.4741 eV
+	elseif(coulomb .and. Exb < Kq/a0) then !  .and. a0 > 1.0d0 ??
+		write(*,*)"Serious Warning(readinp): Exb < Kq/a0 "
+		write(*,*)"Electron and holes at nnz might have lower energy "
+		write(*,*)"   compared to an exciton with this binding energy"
+		write(*,*)"For exciton radius ~ 1nm, Exb should be ~ Kq "
+	endif
+
+
 	if(.not. givenEr) then
 		call giveinput('Er')
 	else

@@ -18,8 +18,8 @@
 
 
 	logical:: coulomb ! include coulomb interaction?
-	!double precision :: epsr = 4.0d0; !dielectric constant of organic material
-	double precision :: Kq = 0.3556d0; ! Coulomb law constant K for the medium for rij in nm, q's in |e|.
+	double precision :: epsr != 4.0d0; !dielectric constant of organic material
+	double precision :: Kq != 0.3556d0; ! Coulomb law constant K for the medium for rij in nm, q's in |e|. Units: eV.nm/e
 										! Kq = (1/epsr=4.0) * (8.89d9*1.6d-19/1d-9)
 	
 	double precision :: Etotq ! total Coulomb energy

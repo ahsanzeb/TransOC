@@ -81,7 +81,8 @@
 	Etotq = 0.5*Etotq;
 	!write(*,*) "real sites: Vq = ",Vq
 	!--------------------------------------------
-	if(leads) then
+	if(leads) then ! if not needed, routine called only if device geometry 
+									! but might need to test onlybulk geometry
 		! image sites at left
 		do i=-2,0; 
 			rim = rimage(i+3);
@@ -122,10 +123,15 @@
 			call ElectronJumpSites(ih,is,l1,l2)
 			! calculate the coulomb energy changes
 			Ecoul(ih)%dEq(is) = CoulombEnergyChange(l1,l2)
-			! Applied Electric field, Er term
-			x = ErChange(l1,l2);
-			ways(ih)%rij(is) = x(1);
-			Ecoul(ih)%dEq(is) = Ecoul(ih)%dEq(is) + x(2);
+			if(vrh)then
+				! Applied Electric field, Er term
+				x = ErChange(l1,l2);
+				ways(ih)%rij(is) = x(1);
+				Ecoul(ih)%dEq(is) = Ecoul(ih)%dEq(is) + x(2);
+			else! regular lattice/triangles, no positional disorder
+				ways(ih)%rij(is) = a0;
+				Ecoul(ih)%dEq(is) = Ecoul(ih)%dEq(is)-signEr(ih)*Er
+			endif
 			!write(*,*)"    Ecoul%dE +Er = ", Ecoul(ih)%dEq(is)
 			!write(*,*)"ih,is, Er = ",ih,is, x(2)
 		enddo
