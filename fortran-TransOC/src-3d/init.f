@@ -182,12 +182,11 @@
      .   Ebr, -Ebr + w0+Exb, Ebr - w0, -Ebr+Exb,
      .   Ebl, -Ebl + w0+Exb, Ebl - w0, -Ebl+Exb,
      .   -w0, -w0 /);
-	if(impurity) then
-		dEimp = (/ Eimp-w0-Exb, Eimp-Exb, -Eimp, w0-Eimp,
+	!if(impurity) then
+	dEimp = (/ Eimp-w0-Exb, Eimp-Exb, -Eimp, w0-Eimp,
      .         w0+Exb-Eimp, Eimp, Exb-Eimp, Eimp-w0 /);
-	endif
+	!endif
 
-	
 	! kappa, gamma: -w0 to reflect cange in reference for spectrum
 	! otherwise the transition would just take the energy difference between
 	! kappa: what would be the energy of emitted photon? ~ w0-wR
@@ -209,7 +208,7 @@
 			end select
 			!write(*,'(a,i5,a,4f15.10)')"ih = ",i,"  dqc = ",dqc(i,:)
 		end do
-		
+
 	return
 	end subroutine SetDQC
 !-----------------------------------------

@@ -17,6 +17,8 @@
 	integer :: iostat,i,j
 	logical :: givenNel,givenNelrange,givenDw,givenNexcit,givenEr
 	logical :: OneDchains, giveExb
+	integer:: imptype=0
+	double precision :: Eimp0=0.0d0
 
 	giveExb = .false.
 	givenNel = .false.; givenNelrange=.false.
@@ -250,7 +252,18 @@
 	case('Coulomb','coulomb')
 		read(50,*,err=20) coulomb
 
-		
+	case('Impurity','impurity')! 'TrapLevel','DopantLevel'
+		! impurity?
+		!	imptype: 1,2,3,4 for n trap,p trap, ntype dopant (donor), ptype dopant(acceptor)
+		! Eimp0: energy of impurity level, w.r.t its type's logical reference
+		! i.e., for an ptype dopant, it tell how much lower is the 1LS's level below HOMO of regular molecules, etc....
+		read(50,*,err=20) impurity, imptype, Eimp0
+		if(imptype <0 .or. imptype > 4) then
+			write(*,*)"Error(readinp) : Impurity type 1-4 only"
+			write(*,*)"1 for e & 2 for h trap, 3 for n & 4 for p dopant"
+			if(impurity) stop
+		endif
+
 	!case('EFieldNNSEnergy','Er','er')
 	!	read(50,*,err=20) Er
 	case('Er') ! Er is applied Efield times a0
@@ -347,6 +360,21 @@
 		write(*,*)"For exciton radius ~ 1nm, Exb should be ~ Kq "
 	endif
 
+! set energy of impurity level based on its type; after setting/reading Exb above
+	if(impurity) then
+		if(imptype==1) then
+			Eimp = w0+Exb-Eimp0
+		elseif(imptype==2) then
+			Eimp = Eimp0
+		elseif(imptype==3) then
+			Eimp = w0+Exb+Eimp0
+		elseif(imptype==4) then
+			Eimp = -Eimp
+		else
+			write(*,*)"Error(readinp) : Impurity type 1-4 only"
+			write(*,*)"1 for e & 2 for h trap, 3 for n & 4 for p dopant"
+			stop
+	endif		
 
 	if(.not. givenEr) then
 		call giveinput('Er')
