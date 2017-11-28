@@ -340,11 +340,12 @@ cc
 		
 		if(.not. alloc) then
 			! at most nsites ways for any hop???
-				do ia=1,19
+				do ia=1,23
 					allocate(qt(ia)%cs(4,sys%nsites))
+					if (PermSym .and. ia > 9 ) exit
 				enddo
 				! allocate space for rates
-				do ih=1,34 ! testing... alloc 26 all 
+				do ih=1,42 ! testing... alloc 26 all 
 					if(vrh .or. coulomb .or. (.not. PermSym))then
 						allocate(rate(ih)%rcs(4,sys%nsites))
 					else !if(PermSym) then 
@@ -354,7 +355,7 @@ cc
 				alloc = .true.
 		endif
 
-		do ih=1,34
+		do ih=1,42
 			rate(ih)%rcs(:,:) = 0.0d0
 			rate(ih)%r = 0.0d0
 		enddo

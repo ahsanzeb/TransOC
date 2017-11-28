@@ -354,7 +354,7 @@
 		integer, allocatable :: active(:) ! active site(s) involved
 		double precision, allocatable :: rij(:) ! distance for the hop
 	end type HoppingWays
-	type(HoppingWays), dimension(34) :: ways ! 8 bulk, others contact
+	type(HoppingWays), dimension(42) :: ways ! 8 bulk, others contact, + 8 impurity
 
 
 	!	26 hopping processes
@@ -362,11 +362,11 @@
 
 	! not 26: in some cases, multiple hopping processes share amplitudes.
 	! maph would give location for a given hopping process, ih ---> ihl
-	type(QuantumTransitions), dimension(19) :: qt 
+	type(QuantumTransitions), dimension(23) :: qt ! max possible 23 if no permsym and impurity
 	double precision, allocatable :: psi(:,:) ! to store quantum state
 	double precision, allocatable :: psi2(:,:) ! to store quantum state
 
-	type(TransitionRates), dimension(34):: rate
+	type(TransitionRates), dimension(42):: rate ! max possible 42=34+8 if impurity
 	! set the format for sparse matrix
 	!hop(1:4)%spfrmt = 'diagonal';
 
