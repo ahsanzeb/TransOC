@@ -2,7 +2,7 @@
 	!	calls routines that calculate amplitudes for all hops
 	module Hoppings
 	use modmain, only: ways,PermSym,na,nx,crosshops,
-     . nokappa,nogamma,leads,nsites,ihdphops, qt,maph
+     . nokappa,nogamma,leads,nsites,ihdphops, qt,maph,impurity
 	use dhops, only: dhops1, dhops2
 	use creation !, only: DPhiCreat1,DPhiCreat3,DPhiCreat4
 	use annihilation, only: DPhiAn1,DPhiAn2
@@ -13,16 +13,210 @@
      . dpih = reshape( (/1,2,27,28, 3,4,29,30/),
      .            (/ 4,2 /), order=(/1,2/) );
 	integer, dimension(4) :: ihs
-	public :: AllHops
+
+	public :: AllHops0, AllHops1
 
 	contains
 	!-------------------------------------------------------
 	! perform all available hoppings. 
 	!	the routines called set the gloabl variables related to 
 	!	respective quantum amplitudes
-	!-------------------------------------------------------	
-	subroutine AllHops()
+	!-------------------------------------------------------
+	! call when PermSym	
+	subroutine AllHops0()
+	implicit none
+	! local
+	integer:: ih,ih1
+	integer:: is,l,ii, ia1,ia2
+	logical :: contannih, contcreat
 
+	!-------------------------------
+	! if PermSym then amp same for Dhops/Phihops/left/right/up/down
+	! see maph for sets of hops types sharing amplitudes
+	if(sum(ways(1:4)%ns + ways(27:30)%ns) >0) then
+		ih=1; is=1;			
+		if (.not. crosshops) then
+			call dhops1(ih,is) ! chan 1-2
+		else
+			call dhops2(ih,is) ! chan 1-4
+		endif
+	endif
+	!-------------------------------
+	! ih:5-6,31-32 (D,Phi), (Phi,D) annihilation
+	if(sum(ways(5:6)%ns + ways(31:32)%ns) >0)then
+		! use ih=5 in DPhiAn1()/DPhiAn2() to find ia in Amp/Amp0
+		if (.not. crosshops) then
+			call DPhiAn1() ! 1-2
+		else
+			call DPhiAn2() ! 1-4
+ 		endif
+ 	endif
+	!-------------------------------
+	! ih=7,8 (D,Phi), (Phi,D) created
+	!ih=7;	! ih=8 has the same amplitudes,
+				! chan 1,2 swapped, handled via maph, mapc
+	if(ways(7)%ns+ways(33)%ns > 0) then
+		ih=7; is=1;
+		if (nx .ge. 1) then
+			call DPhiCreat1(ih,is) ! 1-2
+		endif
+		if (crosshops) then
+			if (nx .ge. 2) then
+				call DPhiCreat3(ih,is) ! 3                                        
+			endif
+			call DPhiCreat4(ih,is) ! 4
+		endif
+	endif
+	!-------------------------------
+	!-------------------------------
+	! cavity and exciton losses
+	!-------------------------------
+	if (nx .gt. 0) then
+		! Exciton non-radiative decay
+		if( .not. nogamma) then
+				is=1;
+				call LossGamma(is);
+		endif
+		! Cavity photon losses
+		if( .not. nokappa) then
+			call LossKappa() ! kappa
+		endif
+	endif
+	!-------------------------------
+
+	! Contacts:
+	contannih = .false.;
+	contcreat = .false.;
+	if (leads) then
+		! annihilation at contacts
+		contannih = sum(ways(15:16)%ns+ways(11:12)%ns+
+     .   ways(13:14)%ns+ways(9:10)%ns) > 0;
+		if (contannih) then
+			call CDAnnihil()
+		endif
+		contcreat = ways(17)%ns+ways(21)%ns > 0
+		if(contcreat) then
+			is=1;
+			! creation of D/Phi at contacts;
+			! ih=21:24 same amplitudes;
+			! ih=17:20 same amplitudes; == 21:24 if PermSym
+			call CDCreat('l',is); ! l/r does not matter here because PermSym
+		endif
+	endif
+	!-------------------------------
+	! Impurity: dopant or trap at site number 4
+	if(impurity) then
+		if(.not. contannih .and. sum(ways(35:38)%ns) > 0) then
+			call CDAnnihil()
+		endif
+		if(.not. contcreat .and. sum(ways(39:42)%ns) > 0) then
+			call CDCreat('l',1);
+		endif
+	endif
+	!-------------------------------
+
+	return
+	end subroutine AllHops0
+!======================================================================
+	! call when no PermSym	
+	subroutine AllHops1()
+	implicit none
+	! local
+	integer:: ih,ih1
+	integer:: is,l,ii, ia1,ia2
+	logical :: found
+	!-------------------------------
+	! ih:1-4 DHopsR/L, PhiHopsR/L
+	! ih=27-30  DHopsU/D, PhiHopsU/D (Up/Down 3d cases)
+
+	do ii=1,2 ! DHops, PhiHops
+			ihs = dpih(:,ii)	
+		do ih1=1,4
+			ih = ihs(ih1)
+			do is=1,ways(ih)%ns
+				if (.not. crosshops) then
+					call dhops1(ih,is) ! chan 1-2
+				else
+					call dhops2(ih,is) ! chan 1-4
+				endif
+			enddo ! is
+		enddo ! ih
+	end do ! ii
+	!-------------------------------
+	! ih:5-6,31-32 (D,Phi), (Phi,D) annihilation
+	if(ways(5)%ns+ways(6)%ns+ways(31)%ns+ways(32)%ns >0)then
+		! use ih=5 in DPhiAn1()/DPhiAn2() to find ia in Amp/Amp0
+		! ih=5,6,31,32 all have same ampliudes/ia
+		if (.not. crosshops) then
+			call DPhiAn1() ! 1-2
+		else
+			call DPhiAn2() ! 1-4
+ 		endif
+ 	endif
+	!-------------------------------
+	! ih=7,8 (D,Phi), (Phi,D) created
+	!ih=7;	! ih=8 has the same amplitudes,
+				! chan 1,2 swapped, handled via maph, mapc
+	ihs(1:2) = (/7,33/);
+	do ih1=1,2
+	ih = ihs(ih1);
+	do is=1,ways(ih)%ns,1
+		if (nx .ge. 1) then
+			call DPhiCreat1(ih,is) ! 1-2
+		endif
+		if (crosshops) then
+			if (nx .ge. 2) then
+				call DPhiCreat3(ih,is) ! 3                                        
+			endif
+			call DPhiCreat4(ih,is) ! 4
+		endif
+	enddo
+	enddo
+	!-------------------------------
+	! cavity and exciton losses
+	!-------------------------------
+	if (nx .gt. 0) then
+		! Exciton non-radiative decay
+		if( .not. nogamma) then
+			do is=1,na
+				call LossGamma(is);
+			end do
+		endif
+		! Cavity photon losses
+		if( .not. nokappa) then
+			call LossKappa() ! kappa
+		endif
+	endif
+	!-------------------------------
+	! Contacts:
+	if (leads) then
+		! annihilation at contacts
+		if (sum(ways(15:16)%ns+ways(11:12)%ns+
+     .   ways(13:14)%ns+ways(9:10)%ns) > 0) then
+			call CDAnnihil()
+		endif
+		! creation of D/Phi at contacts;
+		do is=1,ways(21)%ns ! ih=21:24 same amplitudes
+				call CDCreat('l',is)
+		end do		
+		do is=1,ways(17)%ns ! ih=17:20 same amplitudes
+			call CDCreat('r',is)
+		end do
+	endif
+	!-------------------------------
+	! Impurity: dopant or trap at site number 4
+	if(impurity) then
+		do is=1,ways(39)%ns ! ih=39:42 
+			call CDCreat('l',is)
+		end do		
+	endif
+	!-------------------------------
+
+	return
+	end subroutine AllHops1
+!======================================================================
+	! old AllHops
+	subroutine AllHops0000()
 	implicit none
 	! local
 	integer:: ih,ih1
@@ -33,6 +227,8 @@
 	! ih=27-30  DHopsU/D, PhiHopsU/D (Up/Down 3d cases)
 	! ?? L/R also same if PermSym. D/phi also same, swaped 1,2 channels?
 
+	! if PermSym then amp same for D/Phi/left/right/up/down
+	
 	do ii=1,2 ! DHops, PhiHops
 			ihs = dpih(:,ii)	
 		do ih1=1,4
@@ -143,11 +339,12 @@
 		end do
 	endif
 	!-------------------------------
-
 	return
-	end subroutine AllHops
-!---------------------------------
+	end subroutine AllHops0000
+!======================================================================
 
+!---------------------------------
+! check if amp for ih are already calcuated?
 	subroutine CheckAmp(a,ih,found,ia1,ia2)
 	implicit none
 	integer, dimension(4), intent(in):: a

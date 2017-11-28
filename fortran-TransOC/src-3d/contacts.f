@@ -243,6 +243,9 @@
 	elseif(cont=='r') then
 		l = 	ways(17)%active(is); ! ih=17:20; localtion of active site in lattice
 		l1 = GetPosition(ASites,n,l);
+	elseif(cont=='i')then ! impurity: ih=39:42
+		l = 	ways(39)%active(is);
+		l1 = GetPosition(ASites,n,l);
 	endif
 
 	allocate(pntr1(m1+2))
@@ -287,7 +290,7 @@
 		deallocate(map);
 	end do
 
-	! calculate transition amplitudes
+	! calculate transition amplitudes: D,Phi creation, nx ==> m-1
 	! ih=19,20; ia = 10; Right conatact
 	! ih=23,24; ia = 12; Left contact
 	! ih ==> ia in Amplitudes
@@ -295,6 +298,8 @@
 		ih = 23;
 	elseif(cont=='r') then ! l=nsites, Right conatact
 		ih = 19;
+	elseif(cont=='i') then ! impurity: dopant or trap
+		ih = 41;
 	endif
 	call CalAmp0(ih,1,is,row,nnz,n3,col)
 	
@@ -330,7 +335,7 @@
 		deallocate(map);
 	end do
 
-	! calculate transition amplitudes
+	! calculate transition amplitudes: D,Phi creation, nx ==> m
 	! ih=17,18; ia = 9; Right conatact
 	! ih=21,22; ia = 11; Left contact
 	! ih ==> ia in Amplitudes
@@ -338,6 +343,8 @@
 		ih = 21;
 	elseif(cont=='r') then ! l=nsites, Right conatact
 		ih = 17;
+	elseif(cont=='i') then ! impurity: dopant or trap
+		ih = 39; ! 39,40
 	endif
 	call CalAmp0(ih,1,is,row,nnz,n3,col)
 
@@ -346,13 +353,5 @@
 	return
 	end subroutine CDCreat
 !------------------------------------------
-
-
-
-
-
-
-
-
 
 	end module Contacts

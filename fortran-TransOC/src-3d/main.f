@@ -379,7 +379,11 @@ cc
 		!	transition amplitudes and amp^2 for degenerate sectors
 		! and allocate space for rates???
 		s = 1;
-		call AllHops()
+		if(PermSym) then
+			call AllHops0()
+		else
+			call AllHops1()
+		endif
 		if(debug)write(*,*) "main:   AllHops done... "	
 
 
