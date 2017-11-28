@@ -99,6 +99,14 @@
      . JlL,0.0d0,0.0d0,0.0d0, JhL,0.0d0,0.0d0,0.0d0,
      . JhL,0.0d0,0.0d0,0.0d0, JlL,0.0d0,0.0d0,0.0d0,
      . kappa,0.0d0,0.0d0,0.0d0, gamma,0.0d0,0.0d0,0.0d0,
+     . th, tl, tlh, thl, ! 3D: up/down
+     . th, tl, tlh, thl,
+     . th, tl, tlh, thl,
+     . th, tl, tlh, thl,
+     . th, tl, tlh, thl,
+     . th, tl, tlh, thl,
+     . th, tl, tlh, thl,
+     . th, tl, tlh, thl, ! impurity; ic=1 applies only; let's use th at the moment
      . th, tl, tlh, thl,
      . th, tl, tlh, thl,
      . th, tl, tlh, thl,
@@ -107,7 +115,7 @@
      . th, tl, tlh, thl,
      . th, tl, tlh, thl,
      . th, tl, tlh, thl
-     . /), (/ 34,4 /), order=(/2,1/) );
+     . /), (/ 42,4 /), order=(/2,1/) );
 	!-----------------------------------------
 	!Block injecton?? 
 	!-----------------------------------------
@@ -157,6 +165,8 @@
   !local
 	double precision, dimension(4):: dEbulk
 	double precision, dimension(18):: dEcont
+	double precision, dimension(8):: dEimp
+
 	integer :: i,j
 
 	! Exciton binding energy: Exb; Exciton energy = w0;
@@ -172,13 +182,19 @@
      .   Ebr, -Ebr + w0+Exb, Ebr - w0, -Ebr+Exb,
      .   Ebl, -Ebl + w0+Exb, Ebl - w0, -Ebl+Exb,
      .   -w0, -w0 /);
+	if(impurity) then
+		dEimp = (/ Eimp-w0-Exb, Eimp-Exb, -Eimp, w0-Eimp,
+     .         w0+Exb-Eimp, Eimp, Exb-Eimp, Eimp-w0 /);
+	endif
+
+	
 	! kappa, gamma: -w0 to reflect cange in reference for spectrum
 	! otherwise the transition would just take the energy difference between
 	! kappa: what would be the energy of emitted photon? ~ w0-wR
 	! similarly, exciton loss will release energy to the lattice;
 	! it will not cost energy so no energetic penalty supression etc
 		dqc(:,:) = 0.0d0
-		do i=1,34
+		do i=1,nproc
 			select case(i)
 				case(1:4,27:30)
 					dqc(i,:) = dEbulk(:);
@@ -188,6 +204,8 @@
 					dqc(i,:) = dEbulk(:) + Exb
 				case(9:26)
 					dqc(i,:) = dEcont(i - 8)
+				case(35:42)
+					dqc(i,:) = dEimp(i - 34)
 			end select
 			!write(*,'(a,i5,a,4f15.10)')"ih = ",i,"  dqc = ",dqc(i,:)
 		end do

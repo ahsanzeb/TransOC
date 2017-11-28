@@ -228,7 +228,7 @@
 	! sets global variable rate(ih)%rcs(ic,is)
 	use modmain, only: nx,qt,eig,itypes,beta,
      .  mapt,maph,mapc,Einit,rate,ways,dqc,dEQs,
-     .  simplepf,Efieldh,a0,dinvl,vrh,PermSym,Ecoul, Etotq, Er
+     .  simplepf,a0,dinvl,vrh,PermSym,Ecoul, Etotq, Er
 	implicit none
 	integer, intent(in) :: ih,ic,is
 	! local

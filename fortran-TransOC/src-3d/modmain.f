@@ -16,6 +16,7 @@
 	integer :: nproc
 	logical :: EqualDistr
 
+	double precision :: Eimp ! enegy of impuity level (w.r.t HOMO levels at 0)
 	logical :: impurity ! dopant or trap level: 1LS with occ=0,1 only
 	logical:: coulomb ! include coulomb interaction?
 	double precision :: epsr != 4.0d0; !dielectric constant of organic material
@@ -26,7 +27,7 @@
 	type :: CoulombEnergy
 		double precision, allocatable, dimension(:) :: dEq ! size= ways(ih)%ns
 	end type CoulombEnergy
-	type(CoulombEnergy) :: Ecoul(34) ! size = types of hops
+	type(CoulombEnergy) :: Ecoul(42) ! size = types of hops
 
 	logical :: vrh ! positional disorder? variable range hopping
 	double precision, allocatable, dimension(:,:):: bondlengths
@@ -36,7 +37,7 @@
      .   -1, 1, -1, 1, 1, -1, 1, -1,
      .   0, 0,
      .   0, 0, 0, 0, 0, 0, 0, 0 /);
-	double precision, dimension(34):: Efieldh
+	!double precision, dimension(34):: Efieldh
 	! average of r_nns, std dev in r_nns gaussian distribution
 	double precision :: a0, sigma0, nsigma, dinvl
 
@@ -124,9 +125,9 @@
 	double precision :: kappa, gamma	
 	logical :: nokappa, nogamma
 	! hopping parameters
-	double precision, dimension(34,4):: ts
+	double precision, dimension(42,4):: ts
 	! energy changes due to contact barriers, applied field, etc
-	double precision, dimension(34,4):: dqc
+	double precision, dimension(42,4):: dqc
 	! hopping parameters
 	double precision:: th, tl, tlh, thl
 	double precision:: JhR, JlR, JhL, JlL
@@ -157,11 +158,13 @@
      . ibs = (/ 3,3,3,5,5,5,1,1,1,4,4,2,2 /);
 	integer, dimension(5)::
      . dns = (/ -2,-1,0,1,2 /); 
-	integer, dimension(34,4)::
-     . itypes = reshape( ( / 1, 1, 2, 3, 1, 1, 2, 3, 1, 1,
+	integer, dimension(42,4)::
+     . itypes = reshape( ( / !bulk: left, right
+     . 1, 1, 2, 3, 1, 1, 2, 3, 1, 1,
      . 2, 3, 1, 1, 2, 3, 4, 4, 5, 6,
      . 4, 4, 5, 6, 7, 7, 8, 9, 7, 7,
-     . 8, 9, 11, 11, 11, 11, 10, 10, 
+     . 8, 9, ! contact:
+     . 11, 11, 11, 11, 10, 10, 
      . 10, 10, 11, 11, 11, 11, 10, 10,
      . 10, 10, 11, 11, 11, 11, 10,
      . 10, 10, 10, 11, 11, 11, 11,
@@ -170,13 +173,19 @@
      . 12, 12, 12, 12, 12, 12, 13,
      . 13, 13, 13, 13, 13, 13, 13,
      . 12, 12, 12, 12, 12, 12, 12,
-     . 12, 2, 2, 2, 2, 2, 2, 2, 2,
+     . 12, ! kappa, gamma:
+     . 2, 2, 2, 2, 2, 2, 2, 2, ! bulk, up/down:
      . 1, 1, 2, 3, 1, 1, 2, 3, 1, 1,
      . 2, 3, 1, 1, 2, 3, 4, 4, 5, 6,
      . 4, 4, 5, 6, 7, 7, 8, 9, 7, 7,
-     . 8, 9 /),
-     . (/ 34,4 /), order=(/2,1/) ); ! ih=1-8 <==> 26-34 for in-plane hops
-
+     . 8, 9, ! impurity: ih=35:42 <===> left contact hops 11,12,15,16,21:24
+     . 11, 11, 11, 11, 10, 10, 10, 10,
+     . 11, 11, 11, 11, 10, 10, 10, 10,     
+     . 13, 13, 13, 13, 13, 13, 13, 13,
+     . 12, 12, 12, 12, 12, 12, 12, 12
+     /),
+     . (/ 42,4 /), order=(/2,1/) ); ! ih=1-8 <==> 26-34 for in-plane hops
+ 
 	integer, dimension(8) ::
      .                  ihdphops=(/1,2,3,4,27,28,29,30/)
 

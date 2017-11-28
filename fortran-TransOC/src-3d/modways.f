@@ -13,7 +13,7 @@
 	implicit none
 	! local
 	integer:: ntot, p,la,lo,is,is1, ndim,np
-	integer, dimension(24) :: nps
+	integer, dimension(42) :: nps
 	integer, dimension(24) ::
      .    plist = (/1,2,3,4,5,6,7,8,
      .       27,28,29,30,31,32,33,34,

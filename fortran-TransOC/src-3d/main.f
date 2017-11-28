@@ -81,7 +81,7 @@ cc
 	write(*,'("main: ier = ",i4," of ",i4,"ntp=",i4)')ier,ner,ntp
 					endif
 					Er = Ermin + (ier-1)*dEr;
-					if (VRH) Efieldh = signEr*Er ! VRH= variable range hopping
+					!if (VRH) Efieldh = signEr*Er ! VRH= variable range hopping
 					! runs ntp trajectories, output => current: Iav, h/c counts: stathc
 					call trajectory(ntp, Iav, stathc)
 					! gather all data
