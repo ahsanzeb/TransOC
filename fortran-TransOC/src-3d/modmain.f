@@ -16,7 +16,7 @@
 	integer :: nproc
 	logical :: EqualDistr
 
-
+	logical :: impurity ! dopant or trap level: 1LS with occ=0,1 only
 	logical:: coulomb ! include coulomb interaction?
 	double precision :: epsr != 4.0d0; !dielectric constant of organic material
 	double precision :: Kq != 0.3556d0; ! Coulomb law constant K for the medium for rij in nm, q's in |e|. Units: eV.nm/e
@@ -311,8 +311,12 @@
 	!---------------------------------------	
 	! map from ih,ic to ia,icl
 	!---------------------------------------	
-	integer, dimension(34,4) :: maph ! ih  to ia
-	integer, dimension(34,4) :: mapc ! ic to icl
+	! max dim 1 = 42 if no permsym and impurity;
+	! can be made allocatable, and allocated in calmaphc()
+	!integer, dimension(42,4) :: maph ! ih  to ia 
+	!integer, dimension(42,4) :: mapc ! ic to icl
+	integer, allocatable, dimension(:,:) :: maph, mapc ! ih  to ia; ic to icl
+	
 	!	mapc only needed for channel 8,
 	!	channel 8: swap channel 1 and 2 for amplitudes
 	!---------------------------------------	

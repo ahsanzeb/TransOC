@@ -1,6 +1,6 @@
 
 	module modways
-	use modmain, only: sys, ways, periodic, nsites,leads 
+	use modmain, only: sys, ways, periodic, nsites,leads, impurity
 	implicit none
 	integer, dimension(16) :: signdEQ ! can be moved to modmain, but no other module needs this so its better to put it here.
 
@@ -12,20 +12,27 @@
 	subroutine UpdateWays()
 	implicit none
 	! local
-	integer:: ntot, p,la,lo,is,is1
-	integer, dimension(34) :: nps
-	integer, dimension(16) ::
+	integer:: ntot, p,la,lo,is,is1, ndim,np
+	integer, dimension(24) :: nps
+	integer, dimension(24) ::
      .    plist = (/1,2,3,4,5,6,7,8,
-     .       27,28,29,30,31,32,33,34 /);
+     .       27,28,29,30,31,32,33,34,
+     .       35,36,37,38,39,40,41,42 /);
 	integer, allocatable, dimension(:,:) :: act,oth
 	integer :: l,r, i
+
+	if(impurity) then ! include hop processes involving impurity: ih=35-42
+		ndim = 42; np = 24; 
+	else
+		ndim = 34; np = 16;
+	endif
 	
 	! initialise
 	nps = 0	
 	! copy current sys
 	ntot = sys%nsites
-	allocate(act(34,ntot))
-	allocate(oth(34,ntot))
+	allocate(act(ndim,2*ntot)) ! every site linked with 4, so number of hops could be > nsites especially for two A,A => D,Phi etc. So, use a bigger number, say, 2*nsites to avoid such a situation.
+	allocate(oth(ndim,2*ntot))
 	act = -2
 	oth = -2
 
@@ -44,25 +51,41 @@
 		else
 			cycle
 		endif
+
+		! a trap/dopant site (assumed to be site no 4) is involved?
+		if(impurity .and. (is==4 .or. is1==4) ) then
+			call WhichImpurityHop(is,is1,p,la,lo)
+		else	 ! both sites regular molecules
+			! find process for left-right sites
+			call WhichBulkHop(is,is1,p,la,lo)
+		endif
 		
-		! find process for left-right sites
-		call WhichBulkHop(is,is1,p,la,lo)
 		!write(*,*) "=======>>> is, p, la,lo =",is, p, la,lo 
 		if (p .gt. 0 ) then
-			nps(p) = nps(p) + 1;
-			act(p,nps(p)) = la
-			oth(p,nps(p)) = lo
-			if (p .eq. 7) then ! count both 7,8
-				! la,lo = left,right sites for ih=7,8
-				nps(8) = nps(8) + 1; 	!7: D,Phi; 8: Phi,D
-				act(8,nps(8)) = lo 		! put d in active?
-				oth(8,nps(8)) = la 		
-			endif
+				nps(p) = nps(p) + 1;
+				act(p,nps(p)) = la
+				oth(p,nps(p)) = lo
+				if (p .eq. 7) then ! count both 7,8
+					! la,lo = left,right sites for ih=7,8
+					nps(8) = nps(8) + 1; 	!7: D,Phi; 8: Phi,D
+					act(8,nps(8)) = lo 		! put d in active?
+					oth(8,nps(8)) = la 
+				elseif(p>34) then
+					if(p == 40) then ! count both 40,42
+						p2 = 42;
+					else !if(p==35) then
+						p2 = p+1; ! 35,36;  37,38;  39,40
+					endif	
+					nps(p2) = nps(p2) + 1;
+					act(p2,nps(p2)) = la;
+				endif		
 		endif
 		
 	enddo
 	!-----------------------------------------
-	! bulk : up-down
+	! bulk : up-down ! 
+	! 27 Nov 2017: 	note for future changes in structure: 
+	! L/R/U/D bulk hops can be treated on equal footing now since we use rij's
 	do is=1,ntot
 		! choose the down site
 		if(mod(is,3)==0) then ! site=1,2,3 in first triangle; 4,5,6 in second, ...
@@ -71,8 +94,14 @@
 			is1 = is+1;
 		endif
 
-		! find process for up-down sites
-		call WhichBulkHopUD(is,is1,p,la,lo)
+		! a trap/dopant site (assumed to be site no 4) is involved?
+		if(impurity .and. (is==4 .or. is1==4) ) then
+			call WhichImpurityHop(is,is1,p,la,lo)
+		else	 ! both sites regular molecules
+			! find process for up-down sites
+			call WhichBulkHopUD(is,is1,p,la,lo)
+		endif
+		
 		if (p .gt. 0 ) then
 			nps(p) = nps(p) + 1;
 			act(p,nps(p)) = la
@@ -82,17 +111,26 @@
 				nps(34) = nps(34) + 1; 	!33: D,Phi; 34: Phi,D
 				act(34,nps(34)) = lo 		! put d in active?
 				oth(34,nps(34)) = la 		
-			endif
+			elseif(p>34) then ! no difference between L/R/U/D hops as now we use rij etc...
+				if(p == 40) then ! count both 40,42
+					p2 = 42;
+				else !if(p==35) then
+					p2 = p+1; ! 35,36;  37,38;  39,40
+				endif	
+				nps(p2) = nps(p2) + 1;
+				act(p2,nps(p2)) = la;
+			endif		
+
 		endif
-		
+			
 	end do
 	!-----------------------------------------
 
 	!write(*,*) 'nps(:) = ',nps(:)
 	!write(*,*) 'sys%occ = ',sys%occ
 
-	! set gloable variable ways
-	do i=1,16
+	! set gloable variable ways	
+	do i=1,np;
 		p = plist(i);
 		ways(p)%ns = nps(p)
 		if(allocated(ways(p)%active)) deallocate(ways(p)%active)
@@ -160,6 +198,66 @@
 	return
 	end subroutine UpdateWays
 !**********************************************
+	subroutine WhichImpurityHop(is,is1,p,la,lo)
+	implicit none
+	integer, intent(in) :: is,is1
+	integer, intent(out) :: p,la ,lo
+	! local
+	integer:: l,r ! occupation on left, right sites
+	integer:: iimp, irm ! ind_impurity, ind_regular-molecule
+	! ih=35-42 similar to Left contact hop (11,12,15,16,21,22,23,24)
+
+	! which site is impurity (no. 4)?
+	if(is==4) then
+		iimp = is; irm = is1;
+	else
+		iimp = is1; irm = is;
+	endif
+
+	l = sys%occ(iimp);
+	r = sys%occ(irm);
+
+	if (l==0) then
+		! empty/0+ Phi
+		if (r==0)then
+			p=-1; la=-1;lo=-1; ! no way
+			return
+		elseif(r==1) then ! Phi creaation :: 22-24
+			p=22; ! p=22,24, Phi creation
+		elseif(r==2) then
+			p=35; ! p=35,36 D annihilation
+		else
+			write(*,*)"Error(modways): occ(irm) > 2 "
+			stop
+		endif
+	elseif(l==1)then
+		if (r==0)then
+			p=15; !p=15,16 Phi annihilation
+		elseif(r==1) then 
+			p=21; ! p=21,23, D creation
+		elseif(r==2) then
+			p=-1; la=-1;lo=-1; ! no way
+			return
+		else
+			write(*,*)"Error(modways): occ(irm) > 2 "
+			stop
+		endif
+	else
+		write(*,*)"Error(modways): occ(iimp) > 1 "
+		stop
+	endif
+
+	la = irm;
+	lo = iimp; ! =4 at the moment. future?: for multiple impurities, generalise this. 
+	return
+	end subroutine WhichImpurityHop
+!**********************************************
+
+
+
+
+
+
 !-----------------------	-----------------------	
 ! 	WhichBulkHop(l,r):
 !	 find which hop is possible

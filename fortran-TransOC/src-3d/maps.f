@@ -324,6 +324,152 @@
 	end subroutine UpdateMapB
 !--------------------------------------------
 	subroutine calmaphc()
+	use modmain, only: maph,mapc,PermSym,impurity
+	! maph depends only on h, not c so second dim can be removed. but does not matter much not fixed.
+	implicit none
+
+	integer :: ih
+
+	if(.not. allocated(maph)) deallocate(maph, mapc)
+	if(PermSym) then
+		allocate(maph(9,4))
+		allocate(mapc(9,4))
+	elseif(impurity) then
+		allocate(maph(23,4))
+		allocate(mapc(23,4))
+	else
+		allocate(maph(19,4))
+		allocate(mapc(19,4))
+	endif
+	
+	! input: ih,ic
+	!	output: ia,icl
+	! index: ih,ic; 1 ==> ia, 2 ==> icl
+
+	! ia: 1 - 14 in Mathematica notaitons:
+	! RDAR,RDAL,RPhiAR,RPhiAL
+	! RDPhiA, RDPhiAinv, [ih=8: ic swap 1,2]
+	! RCDAl, RCDAh
+	! RCAlR,RCAhR
+	! RCAlL,RCAhL
+	! Rkappa, Rgamma
+
+	! ia=15 - 18 for ih=27-30; ia=19 for ih=33,34
+	! ih=27-34: ih=1-8, L=> Up, R => Down
+
+
+	! icl=ic except for ih=8,34
+
+	! impurity 35-42, same amp as contact hops
+
+	if(impurity)then
+		nh=42
+	else
+		nh=34
+	endif
+
+	if(PermSym) then
+	!------------------------------
+	do ih=1,nh
+		select case(ih)
+		case(1:4,27:30)
+			maph(ih,:) = 1
+		case(5,6,31,32)
+			maph(ih,:) = 2
+		case(7,8,33,34)
+			maph(ih,:) = 3
+		case(9,11,13,15,35,37)
+			maph(ih,:) = 4
+		case(10,12,14,16,36,38)
+			maph(ih,:) = 5
+		case(17,18,21,22,39,40) 
+			maph(ih,:) = 6
+		case(19,20,23,24,,41,42)
+			maph(ih,:) = 7
+		case(25)
+			maph(ih,:) = 8
+		case(26)
+			maph(ih,:) = 9
+		end select
+		! mapc: swap channel 1,2 for ih=8,34
+		if(ih==8 .or. ih==34) then
+			mapc(ih,:) = (/2,1,3,4/)
+		else
+			mapc(ih,:) = (/1,2,3,4/)
+		endif
+	end do
+	!------------------------------
+	else ! .not. PermSym
+	do ih=1,nh
+		select case(ih)
+		case(1:4)
+			maph(ih,:) = ih
+		case(27:30)
+			maph(ih,:) = 14 + ih-26 ! ih=27:30 =>ia=15:18
+			! amp ih=1-4 <====> ih=27-30 if PermSym 
+		case(5,6,31,32)
+			maph(ih,:) = 5 
+			! current code not for disorder in g,w0
+			!	31,32 === 5,6
+		case(7,8)
+			maph(ih,:) = 6
+		case(33,34) !  <====> ih=7,8 if PermSym ???? 
+			maph(ih,:) = 19			
+		case(9,11,13,15)
+			maph(ih,:) = 7
+		case(10,12,14,16)
+			maph(ih,:) = 8
+		case(17,18) 
+			maph(ih,:) = 9
+		case(19,20)
+			maph(ih,:) = 10
+		case(21,22) !  <====> ih=17,18 if PermSym ????
+			maph(ih,:) = 11
+		case(23,24) !  <====> ih=19,20 if PermSym ????
+			maph(ih,:) = 12
+		case(25)
+			maph(ih,:) = 13
+		case(26)
+			maph(ih,:) = 14
+		case(35,37) ! <===> 11,15
+			maph(ih,:) = 20
+		case(36,38) ! <===> 12,16
+			maph(ih,:) = 21
+		case(39,40) !  <====> 21,22
+			maph(ih,:) = 22
+		case(41,42) !  <====> 23,24
+			maph(ih,:) = 23
+		end select
+		! mapc: swap channel 1,2 for ih=8,34
+		if(ih==8 .or. ih==34) then
+			mapc(ih,:) = (/2,1,3,4/)
+		else
+			mapc(ih,:) = (/1,2,3,4/)
+		endif
+	end do
+	!---------------------------
+	endif
+
+	return
+	end subroutine calmaphc
+!----------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+!--------------------------------------------
+	subroutine calmaphc1()
 	use modmain, only: maph,mapc 
 	! maph depends only on h, not c so second dim can be removed. but does not matter much not fixed.
 	implicit none
@@ -361,19 +507,19 @@
 			!	31,32 === 5,6
 		case(7,8)
 			maph(ih,:) = 6
-		case(33,34)
+		case(33,34) !  <====> ih=7,8 if PermSym ???? 
 			maph(ih,:) = 19			
 		case(9,11,13,15)
 			maph(ih,:) = 7
 		case(10,12,14,16)
 			maph(ih,:) = 8
-		case(17,18)
+		case(17,18) 
 			maph(ih,:) = 9
 		case(19,20)
 			maph(ih,:) = 10
-		case(21,22)
+		case(21,22) !  <====> ih=17,18 if PermSym ????
 			maph(ih,:) = 11
-		case(23,24)
+		case(23,24) !  <====> ih=19,20 if PermSym ????
 			maph(ih,:) = 12
 		case(25)
 			maph(ih,:) = 13
@@ -391,7 +537,7 @@
 	end do
 
 	return
-	end subroutine calmaphc
+	end subroutine calmaphc1
 !----------------------------------------
 	subroutine calmaphc0()
 	use modmain, only: maph,mapc
