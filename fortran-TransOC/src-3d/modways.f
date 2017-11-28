@@ -19,7 +19,7 @@
      .       27,28,29,30,31,32,33,34,
      .       35,36,37,38,39,40,41,42 /);
 	integer, allocatable, dimension(:,:) :: act,oth
-	integer :: l,r, i
+	integer :: l,r, i,p2
 
 	if(impurity) then ! include hop processes involving impurity: ih=35-42
 		ndim = 42; np = 24; 
@@ -578,8 +578,8 @@
 
 	end select		
 
-	if(sys%n0+sys%n1+sys%n2 .ne. sys%nsites)then
-		write(*,*)"modways: nsites != n0+n1+n2 "
+	if(sys%n0+sys%n1+sys%n2+sys%nimp .ne. sys%nsites)then
+		write(*,*)"modways: nsites != n0+n1+n2+nimp "
 		stop
 	endif
 
@@ -590,11 +590,13 @@
 
 	do i=1,nsites
 		if(sys%occ(i) == 1) then
+			if(.not. impurity .or. i .ne. 4) then
 			if(.not. MemberQ4(Asites,sys%n1,i)) then
 				write(*,*)"Error(UpdateOcc): Asites not updated correctly!"
 				write(*,*)"Asites=",Asites
 				write(*,*)"occ=",sys%occ
 				write(*,*)" ih,is = ",ih,is
+			endif
 			endif
 		endif
 	enddo

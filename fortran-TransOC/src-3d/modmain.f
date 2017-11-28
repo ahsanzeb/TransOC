@@ -184,8 +184,7 @@
      . 11, 11, 11, 11, 10, 10, 10, 10,
      . 11, 11, 11, 11, 10, 10, 10, 10,     
      . 13, 13, 13, 13, 13, 13, 13, 13,
-     . 12, 12, 12, 12, 12, 12, 12, 12
-     /),
+     . 12, 12, 12, 12, 12, 12, 12, 12 /),
      . (/ 42,4 /), order=(/2,1/) ); ! ih=1-8 <==> 26-34 for in-plane hops
  
 	integer, dimension(8) ::
@@ -346,7 +345,7 @@
 	!---------------------------------------	
 	type :: System
 		integer:: nsites
-		integer:: n0,n1,n2 ! number of phi, acive, D
+		integer:: n0,n1,n2,nimp ! number of phi, acive, D
 		integer, allocatable :: occ(:) ! occupancy of the site
 		double precision, allocatable, dimension(:,:) :: r
 		double precision, allocatable, dimension(:) :: q0, q ! integer?

@@ -10,7 +10,7 @@ cc
 	use init, only: initialise
 	use basisstates, only: mkbasis
 	use hamiltonian, only: mkHamilt
-	use Hoppings, only: AllHops ! 
+	use Hoppings, only: AllHops0, AllHops1 ! 
 	use rates, only: CalRates
 	use selection, only: ihSelect,icsSelect,getpsi2
 	use modways, only: UpdateWays,UpdateOcc,UpdateDEQs
@@ -23,13 +23,13 @@ cc
 
 	integer:: i,ic,is,ia,iter,ih,j,ntot,zt,icl
 	integer:: nev,ncv,it,ier
-	integer :: ntrap,stathc(34,4), stathc0(34,4)
+	integer :: ntrap,stathc(42,4), stathc0(42,4)
 	integer :: totcharge,charge
 	double precision:: tottime, dtau
 	integer:: trapiter,s,iss,nc,ns,itraj,nex,nelec,idw,ielec
 	logical :: found,alloc
 	integer :: x(3)
-	integer :: nms(2), wayss(34)
+	integer :: nms(2), wayss(42)
 	double precision:: rout(10)
 	! mpi
 	integer:: ierr, ntp, num_procs, node, maxtraj
@@ -89,7 +89,7 @@ cc
      .                mpi_double_precision, 0, MPI_COMM_WORLD, ierr)
 					call CheckError(ierr, node, 'gather')
 					! sum up all stathc
-					call mpi_reduce(stathc,stathc0,34*4, mpi_integer,mpi_sum,
+					call mpi_reduce(stathc,stathc0,42*4, mpi_integer,mpi_sum,
      .                                      0, MPI_COMM_WORLD, ierr)
 					call CheckError(ierr, node, 'reduce')		
 					if(node==0) then ! write output 
@@ -192,7 +192,7 @@ cc
 !===============================================
 	subroutine WriteStat(stathc)
 	implicit none
-	integer, dimension(34,4), intent(in):: stathc
+	integer, dimension(42,4), intent(in):: stathc
 	! hops statistics
 	open(10,file='stat.out',action='write',position='append')
 	write(10,*) '# ier, nx, idw, iel = ', ier, nex, idw, ielec
@@ -211,6 +211,13 @@ cc
 		write(10,*)25, stathc(25,:)
 		write(10,*)26, stathc(26,:)
 	endif
+
+	if(impurity) then
+		do i=35,42
+			write(10,*)i, stathc(i,:)
+		enddo
+	endif
+
 	close(10)
 	return
 	end subroutine WriteStat
@@ -253,7 +260,7 @@ cc
 	implicit none
 	integer, intent(in) :: ntp
 	double precision, dimension(ntp), intent(out) :: Iav
-	integer, dimension(34,4), intent(out) :: stathc
+	integer, dimension(42,4), intent(out) :: stathc
 
 	stathc = 0;
 	

@@ -20,13 +20,21 @@
 	integer :: i,ina, n0,n1,n2
 	integer :: nelec ! number of electrons
 
-	nelec = nsites - doping;
-
-	if(nelec <= 0 .or. nelec >= 2*nsites) then
-		write(*,*)"Error(init): Nelectron <= 0 or >= Nsites !"
+	if(.not. impurity .and. iabs(doping) > nsites) then
+		write(*,*)"Error(init): Nelectron <= 0 or >= 2*Nsites!"
 		write(*,*)"Charge transport cannot occur!"
-		stop
+		stop	
+	elseif(impurity .and. iabs(doping) > nsites-1) then
+		write(*,*)"Error(init): Nelectron <= 0 or >= 2*Nsites!"
+		stop	
 	endif
+
+	if(impurity) then		
+		nelec = (nsites - 1) - doping; ! 1 site for impurity
+	else
+		nelec = nsites - doping;
+	endif
+
 
 
 	!-----------------------------------------
@@ -215,7 +223,121 @@
 !------------------------------------------
 !	sys: nsites, occ; na, Asites
 !------------------------------------------
+
+
+
 	subroutine initOcc(nelec)
+	implicit none
+	integer, intent(in) :: nelec ! number of electrons
+	! local
+	integer :: i,ina, n0,n1,n2,maxocc
+	
+	sys%nsites = nsites
+	if (allocated(sys%occ)) deallocate(sys%occ)
+	allocate(sys%occ(nsites))
+
+	!write(*,*)" init: Nsites, nelec = ",nsites, nelec
+
+	ina = 0;
+	sys%occ(:) = 0;
+	maxocc = 2;
+	if (impurity) 	sys%occ(4) = impocc;
+	
+	!write(*,*) "init: mincarriers = ",mincarriers
+
+	if(mincarriers) then
+		if(nelec < nsites) then
+			maxocc = 1;
+			!write(*,*) "init: nelec < nsites ? ",nelec, nsites
+		else ! nelec >= nsites
+			if(impurity) then
+				sys%occ(:) = 1;
+				sys%occ(4) = impocc;
+				ina = nsites-1 + impocc;
+			else
+				sys%occ(:) = 1;
+				ina = nsites
+			endif	
+		endif
+	endif
+
+	!write(*,*) "init: ina = ",ina
+	if(EqualDistr) then ! Equally distribute the carriers/dopants
+		!	so that all three chains can get more or less equal carriers
+		!	this option will be useful for OneDChains=T case
+		i = 0;
+		do while (ina < nelec)
+			i = i + 1;
+			if (	sys%occ(i) < maxocc) then
+				if((.not. impurity) .or. (i .ne. 4)) then
+					sys%occ(i) = sys%occ(i) + 1;
+					ina = ina + 1;
+				endif
+			endif	
+		enddo
+	else ! random, with occ <= maxocc
+		do while (ina < nelec)
+			i = int(1+nsites*rand(0));
+			!write(*,*)"i  = ",i
+			if (	sys%occ(i) < maxocc ) then
+				if((.not. impurity) .or. (i .ne. 4)) then
+					sys%occ(i) = sys%occ(i) + 1;
+					ina = ina + 1;
+				endif
+			endif	
+		enddo
+	endif
+
+	n0 = 0;n1=0;n2=0;
+	do i=1,nsites
+			if(sys%occ(i)==0) then
+				n0 = n0 +1
+			elseif(sys%occ(i)==1) then
+				if((.not. impurity) .or. (i .ne. 4)) then
+					n1 = n1 + 1
+				endif
+			elseif(sys%occ(i)==2) then
+				n2 = n2 +1
+			else
+				write(*,*) "Error(init): sys%occ(i)>2 ? "
+				stop 
+			endif
+	enddo
+
+	! set Asites
+	if (allocated(Asites)) deallocate(Asites)
+	allocate(Asites(n1))
+	ina = 1;
+	do i=1,nsites
+		if (sys%occ(i)==1) then
+			if(.not. impurity .or. i .ne. 4) then
+				Asites(ina) = i;
+				ina = ina + 1;
+			endif
+		endif
+	enddo
+
+	! set global var
+	sys%n0=n0;
+	sys%n1=n1;
+	sys%n2=n2;
+	if(impurity) then
+		sys%nimp=1;
+	else
+		sys%nimp=0;
+	endif
+
+	na = n1;
+	!write(*,*)"init: na = ",na
+
+	return
+	end subroutine initOcc
+
+
+
+
+!---------------------------------
+	subroutine initOcc0(nelec)
 	implicit none
 	integer, intent(in) :: nelec ! number of electrons
 	! local
@@ -268,8 +390,6 @@
 		enddo
 	endif
 
-
-	
 	n0 = 0;n1=0;n2=0;
 	do i=1,nsites
 			if(sys%occ(i)==0) then
@@ -304,7 +424,7 @@
 	!write(*,*)"init: na = ",na
 
 	return
-	end subroutine initOcc
+	end subroutine initOcc0
 !----------------------------------------
 !	sign of charging energy for various contact processes
 ! i.e., electron/hole extraction/injection

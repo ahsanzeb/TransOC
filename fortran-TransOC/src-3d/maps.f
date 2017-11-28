@@ -328,7 +328,7 @@
 	! maph depends only on h, not c so second dim can be removed. but does not matter much not fixed.
 	implicit none
 
-	integer :: ih
+	integer :: ih, nh
 
 	if(.not. allocated(maph)) deallocate(maph, mapc)
 	if(PermSym) then

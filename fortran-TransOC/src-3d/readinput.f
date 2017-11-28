@@ -379,8 +379,9 @@
 			write(*,*)"Error(readinp) : Impurity type 1-4 only"
 			write(*,*)"1 for e & 2 for h trap, 3 for n & 4 for p dopant"
 			stop
-	endif		
-
+		endif		
+	endif
+	
 	if(.not. givenEr) then
 		call giveinput('Er')
 	else
