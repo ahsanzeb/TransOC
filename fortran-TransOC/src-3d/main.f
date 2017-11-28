@@ -322,7 +322,7 @@ cc
 			!Einit = eig(mapt%map(1))%eval(ipsi)
 		endif
 
-		if (.not. nog) then
+		if (.not. nog) then ! if same quantum state as last iter, why not avoid this alloc/copy etc.??
 			if(allocated(psi)) deallocate(psi)
 			it = mapt%map(1);
 			allocate(psi(1,eig(it)%n1))

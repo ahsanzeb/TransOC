@@ -421,7 +421,7 @@
 	!write(*,*) "in: Asites = ",Asites
 	!write(*,*) "in: occ = ",sys%occ
 	
-	if(ih <= 8 .or. ih >= 27) then
+	if(ih <= 8 .or. (ih >= 27 .and. ih <= 34)) then
 		la = ways(ih)%active(is)
 		lo = ways(ih)%sites(is)
 	elseif(ih ==25 .or. ih == 26) then
@@ -429,6 +429,9 @@
 		return
 	elseif(ih >= 9 .and. ih <= 24) then ! contacts
 		la = ways(ih)%active(is) ! site involved in the process
+	elseif(ih>=35 .and. ih <= 42) then ! impurity
+		la = ways(ih)%active(is) ! regular site involved in the process
+		lo = 4; ! impurity at site 4
 	endif
 
 	Asitesx = 0
@@ -490,6 +493,7 @@
 			sys%n1 = n1-2
 			sys%n2 = n2+1
 
+		! contacts -----------------------------------
 		case(9,10,13,14)! right contact annihilation, site=nsites
 			sys%occ(la) = 1
 			Asitesx(1:n1) = Asites;
@@ -539,6 +543,37 @@
 			else ! D created, ih=21,23
 				sys%occ(la) = 2;
 				sys%n2 = n2+1
+			endif
+
+		! impurity -----------------------------------
+		case(35:38)! at impurity, annihilation of D or Phi
+			sys%occ(la) = 1
+			Asitesx(1:n1) = Asites;
+			Asitesx(n1+1) = la;
+			deallocate(Asites); allocate(Asites(n1+1))
+			Asites = Asitesx(1:n1+1);
+			sys%n1 = n1+1
+			if(ih <= 36) then ! ih=35,36; D annihil
+				sys%n2 = n2-1;
+				sys%occ(lo) = 1; !0 -> 1; sys%occ(lo) + 1; ! impurity 1LS, max occ = 1;
+			else ! ih=37,38; Phi annihil
+				sys%n0 = n0-1
+				sys%occ(lo) = 0; !1 -> 0; sys%occ(lo) - 1;
+			endif
+			
+		case(39:42) ! at impurity, creation of D or Phi
+			call Drop4(Asites,n1,la,Asitesy(1:n1-1))
+			deallocate(Asites); allocate(Asites(n1-1))
+			Asites = Asitesy(1:n1-1);	
+			sys%n1 = n1-1
+			if(mod(ih,2)==0) then ! Phi created, ih=40,42
+				sys%occ(la) = 0;
+				sys%n0 = n0+1;
+				sys%occ(lo) = 1; ! 0 --> 1; impurity 1LS, max occ = 1;
+			else ! D created, ih=39,41
+				sys%occ(la) = 2;
+				sys%n2 = n2+1;
+				sys%occ(lo) = 0; ! 1 --> 0
 			endif
 
 	end select		
