@@ -16,8 +16,10 @@
 	integer :: nproc
 	logical :: EqualDistr
 
-	double precision :: Eimp ! enegy of impuity level (w.r.t HOMO levels at 0)
 	logical :: impurity ! dopant or trap level: 1LS with occ=0,1 only
+	double precision :: Eimp ! enegy of impuity level (w.r.t HOMO levels at 0)
+	integer :: impocc ! occ of impurity level
+
 	logical:: coulomb ! include coulomb interaction?
 	double precision :: epsr != 4.0d0; !dielectric constant of organic material
 	double precision :: Kq != 0.3556d0; ! Coulomb law constant K for the medium for rij in nm, q's in |e|. Units: eV.nm/e

@@ -362,14 +362,19 @@
 
 ! set energy of impurity level based on its type; after setting/reading Exb above
 	if(impurity) then
+		! impocc: neutral state configuraton/occupation of impurity site/level
 		if(imptype==1) then
-			Eimp = w0+Exb-Eimp0
+			Eimp = w0+Exb-Eimp0; ! Below LUMO
+			impocc = 0; ! will capture an electron, hard to release it.
 		elseif(imptype==2) then
-			Eimp = Eimp0
+			Eimp = Eimp0; ! Above HOMO
+			impocc = 1; ! will capture a hole, will be hard to release its hole
 		elseif(imptype==3) then
-			Eimp = w0+Exb+Eimp0
+			Eimp = w0+Exb+Eimp0; ! Above LUMO
+			impocc = 1; ! will release this and become +ve charged
 		elseif(imptype==4) then
-			Eimp = -Eimp
+			Eimp = -Eimp; ! Below HOMO
+			impocc = 0; ! will capture an electron and become -ve charged
 		else
 			write(*,*)"Error(readinp) : Impurity type 1-4 only"
 			write(*,*)"1 for e & 2 for h trap, 3 for n & 4 for p dopant"
