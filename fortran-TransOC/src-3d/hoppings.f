@@ -110,7 +110,7 @@
 			call CDAnnihil()
 		endif
 		if(.not. contcreat .and. sum(ways(39:42)%ns) > 0) then
-			call CDCreat('l',1);
+			call CDCreat('l',1); ! does not matter here if its l,r or i
 		endif
 	endif
 	!-------------------------------
@@ -207,7 +207,7 @@
 	! Impurity: dopant or trap at site number 4
 	if(impurity) then
 		do is=1,ways(39)%ns ! ih=39:42 
-			call CDCreat('l',is)
+			call CDCreat('i',is); ! i for impurity (dopant/trap)
 		end do		
 	endif
 	!-------------------------------
