@@ -24,7 +24,7 @@
 			if(allocated(ways(ih)%rij)) deallocate(ways(ih)%rij)
 			allocate(ways(ih)%rij(ways(ih)%ns))
 			do is=1,ways(ih)%ns
-				if(vrh) then ! positional disorder
+				if(vrh .or. ih>34) then ! positional disorder
 					! find the indeces of sites l1,l2 for 
 					!	electron jumping from l1 to l2;
 					call ElectronJumpSites(ih,is,l1,l2)
@@ -34,7 +34,9 @@
 					!write(*,*) "coulom: rij = ",x(1)
 					Ecoul(ih)%dEq(is) = x(2);
 					!write(*,*)"ih,is, Er = ",ih,is, x(2)
-				else ! regular lattice/triangles, no positional disorder
+				else 	! regular lattice/triangles, no positional disorder
+							!or impurity level hop that has no sense of L/R/U/D that
+							! could allow using signEr(ih)*Er style
 					ways(ih)%rij(is) = a0;
 					Ecoul(ih)%dEq(is) = -signEr(ih)*Er
 				endif
@@ -123,7 +125,7 @@
 			call ElectronJumpSites(ih,is,l1,l2)
 			! calculate the coulomb energy changes
 			Ecoul(ih)%dEq(is) = CoulombEnergyChange(l1,l2)
-			if(vrh)then
+			if(vrh .or. ih > 34)then
 				! Applied Electric field, Er term
 				x = ErChange(l1,l2);
 				ways(ih)%rij(is) = x(1);
@@ -238,7 +240,12 @@
 		l1 = ways(ih)%active(is); l2 = -1; 
 	case(15:16,21,23)! left contact to la electron jump
 		l2 = ways(ih)%active(is); l1 = -1; 
-	end select
+	case(35:36,40,42) ! e jumps from molecule to impurity level: like 11,12,22,24
+		! impurity is assumed to be on site 4
+		l1 = 4; l2 = ways(ih)%active(is);
+	case(37:39,41) ! e jumps to molecule from impurity level: like 15,16,21,23
+		l2 = 4; l1 = ways(ih)%active(is);
+ 	end select
 
 	return
 	end 	subroutine ElectronJumpSites

@@ -84,6 +84,7 @@
 	givenEr = .false.
 	VRH = .true.
 	coulomb = .false.
+	impurity = .false.
 	!--------------
 	!--------------------------!
 	!     read from input.in   !
@@ -108,7 +109,6 @@
 
 	case('OneDChains')
 		read(50,*,err=20) OneDchains
-		if (OneDchains) nproc = 26
 		EqualDistr = .true.
 		
 	case('debug')
@@ -305,6 +305,21 @@
 	close(50)
 
 
+		if (.not. OneDchains) then
+			if(.not. impurity) then
+				nproc = 34
+			elseif(impurity) then
+				nproc=42
+			endif
+		else ! OneDChain
+			if(.not. impurity) then
+				nproc = 26
+			elseif(impurity) then
+				write(*,*)"Error(reainp): OneDchains, no impurity only..."
+				write(*,*)"Error(reainp): Not implemented...."
+				stop
+			endif
+		endif
 
 	if(coulomb .and. nsites < 9) then
 		write(*,*) "Error(readinput):"

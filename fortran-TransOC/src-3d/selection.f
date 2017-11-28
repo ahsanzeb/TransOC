@@ -14,7 +14,7 @@
 	implicit none
 	! local
 	integer:: ih
-	double precision, dimension(35):: rlist ! accumulated rates
+	double precision, dimension(43):: rlist ! accumulated rates
 	double precision:: eta
 
 	!write(*,*)"rates= ",rate(:)%r
@@ -58,7 +58,7 @@
 	!write(*,*)"rate%rcs= ",rate(ih)%rcs(:,:)
 	
 	nc = 1;
-	if (ih .le. 8 .or. ih .ge. 27) then ! ih=1-8, 27-34
+	if (ih .le. 8 .or. (ih .ge. 27 .and. ih <=34 )) then ! ih=1-8, 27-34
 		nc = 2
 		if (crosshops) nc = 4
 	endif

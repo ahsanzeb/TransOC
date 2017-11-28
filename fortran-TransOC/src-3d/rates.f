@@ -12,7 +12,7 @@
 ! calculates total rates for all processes
 !----------------------------------------------------
 	subroutine CalRates()
-	use modmain, only: crosshops,nolosses,leads
+	use modmain, only: crosshops,nolosses,leads,impurity
 	implicit none
 	! local
 	integer :: nc
@@ -32,6 +32,7 @@
 	!write(*,*) "rates  3"
 	if (.not. nolosses) call totr('losses',1)
 	if (leads) call totr('contacts',1)
+	if (impurity) call totr('impurity',1)
 
 	return
 	end subroutine CalRates
@@ -175,6 +176,33 @@
 			rate(ih)%rcs(:,:) = 0.0d0
 			do is=1,ways(ih)%ns
 				if(ih==19 .or. ih==20 .or. ih==23 .or. ih==24) then
+					if (nx > 0) call ratehcs(ih,ic,is)
+				else
+					call ratehcs(ih,ic,is)
+				endif
+				if(psnvrh) then ! total rate = (rates for one site) * ns
+					rate(ih)%rcs(ic,is)=
+     .       ts(ih,ic)*rate(ih)%rcs(ic,is)*ways(ih)%ns
+					exit; ! only a single site/case for each hop type
+				else
+					rate(ih)%rcs(ic,is)=ts(ih,ic)*rate(ih)%rcs(ic,is)
+				endif
+			enddo ! is		
+			rate(ih)%r = sum(rate(ih)%rcs); ! total rate for ih hop
+		enddo ! ih
+
+
+
+
+	case('impurity')
+	!-------------------------------------------------
+	! ih:34-42; impurity level: injection/extraction of e/h
+	!-------------------------------------------------
+		ic=1;
+		do ih=34,42
+			rate(ih)%rcs(:,:) = 0.0d0
+			do is=1,ways(ih)%ns
+				if(ih==41 .or. ih==42) then ! D,Phi creat, m-1 case
 					if (nx > 0) call ratehcs(ih,ic,is)
 				else
 					call ratehcs(ih,ic,is)

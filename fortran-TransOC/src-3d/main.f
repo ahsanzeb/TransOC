@@ -345,7 +345,7 @@ cc
 					if (PermSym .and. ia > 9 ) exit
 				enddo
 				! allocate space for rates
-				do ih=1,42 ! testing... alloc 26 all 
+				do ih=1,nproc ! testing... alloc 26 all 
 					if(vrh .or. coulomb .or. (.not. PermSym))then
 						allocate(rate(ih)%rcs(4,sys%nsites))
 					else !if(PermSym) then 
@@ -355,7 +355,7 @@ cc
 				alloc = .true.
 		endif
 
-		do ih=1,42
+		do ih=1,nproc
 			rate(ih)%rcs(:,:) = 0.0d0
 			rate(ih)%r = 0.0d0
 		enddo

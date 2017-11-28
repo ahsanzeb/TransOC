@@ -299,7 +299,7 @@
 	elseif(cont=='r') then ! l=nsites, Right conatact
 		ih = 19;
 	elseif(cont=='i') then ! impurity: dopant or trap
-		ih = 41;
+		ih = 41; !41,42
 	endif
 	call CalAmp0(ih,1,is,row,nnz,n3,col)
 	
