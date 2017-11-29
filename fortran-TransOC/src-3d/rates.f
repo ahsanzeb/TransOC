@@ -47,7 +47,7 @@
 	character(len=*), intent(in):: process
 	integer, intent(in) :: nc
 	! local
-	integer:: ih, ic, ih1, ih2,is
+	integer:: ih, ic, ih1, ih2,is,iss
 	integer, dimension(8):: ihs
 	logical :: nvrh, psnvrh
 	
@@ -115,9 +115,10 @@
 			ih = ihannih(ih1)
 			rate(ih)%rcs(:,:) = 0.0d0
 			rate(ih)%r = 0.0d0;
-			do is=1,ways(ih)%ns		
+			iss=1; ! annihilation, amp available for is=1 only
+			do is=1,ways(ih)%ns
 				do ic=1,nc
-					call ratehcs(ih,ic,is)
+					call ratehcs(ih,ic,iss)
 					if(psnvrh) then 
 						! total rate = (rates for one site) * ns
 						rate(ih)%rcs(ic,is)=
@@ -175,10 +176,15 @@
 		do ih=9,24
 			rate(ih)%rcs(:,:) = 0.0d0
 			do is=1,ways(ih)%ns
-				if(ih==19 .or. ih==20 .or. ih==23 .or. ih==24) then
-					if (nx > 0) call ratehcs(ih,ic,is)
+				if(ih <= 16) then ! annihilation, only qt%cs(ic,is=1)%amp so set site index=1
+					iss=1;
 				else
-					call ratehcs(ih,ic,is)
+					iss = is;
+				endif
+				if(ih==19 .or. ih==20 .or. ih==23 .or. ih==24) then
+					if (nx > 0) call ratehcs(ih,ic,iss)
+				else
+					call ratehcs(ih,ic,iss)
 				endif
 				if(psnvrh) then ! total rate = (rates for one site) * ns
 					rate(ih)%rcs(ic,is)=
