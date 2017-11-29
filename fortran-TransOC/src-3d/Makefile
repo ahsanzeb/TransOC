@@ -83,6 +83,9 @@ coulomb.o: coulomb.f modmain.o
 main.o: main.f modmain.o init.o basisstates.o hamiltonian.o hoppings.o rates.o selection.o modways.o readinput.o maps.o diag.o coulomb.o
 	 $(FC) -c $(FFLAGS) main.f 
 
+timestamp.o: timestamp.f
+	 $(FC) -c $(FFLAGS) timestamp.f 
+	
 
 clean:
 	rm -rf *.o *.mod transoc3d

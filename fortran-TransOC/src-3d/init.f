@@ -580,8 +580,7 @@
 	integer :: i,is,it,sgn
 	double precision:: x,y,z
 
-	if(allocated(sys%r)) deallocate(sys%r)
-	allocate(sys%r(-2:nsites+3,3))
+	if(.not. allocated(sys%r)) allocate(sys%r(-2:nsites+3,3))
 	! redular lattice: a chain of equilateral trianlges
 	sys%r(-2,:) = (/ 0.0d0, 0.0d0, 0.0d0 /); 
 	sys%r(-1,:) = (/ 0.0d0, a0, 0.0d0 /); 

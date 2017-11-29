@@ -191,9 +191,6 @@
 			rate(ih)%r = sum(rate(ih)%rcs); ! total rate for ih hop
 		enddo ! ih
 
-
-
-
 	case('impurity')
 	!-------------------------------------------------
 	! ih:34-42; impurity level: injection/extraction of e/h

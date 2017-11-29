@@ -32,7 +32,7 @@
 					!	dE for all hops & their sites due to applied Electric field
 					x = ErChange(l1,l2);
 					ways(ih)%rij(is) = x(1);
-					!write(*,*) "coulom: rij = ",x(1)
+					!write(*,*) "coulom: l1,l2, rij = ",l1,l2, x(1)
 					Ecoul(ih)%dEq(is) = x(2);
 					!write(*,*)"ih,is, Er = ",ih,is, x(2)
 				else 	! regular lattice/triangles, no positional disorder
@@ -161,11 +161,11 @@
 	! zones l1,l2 lie in.
 	z1 = zone(l1);	 z2 = zone(l2);	
 	z = z1 + z2;
-
-	if(periodic) then
-		r1 = sys%r(l1,:); r2 = sys%r(l2,1);
-		if (z==2) then ! same or opp ends? 
-			! x-comp of displacement of hopping electron	
+	!write(*,*)"ErChange: nsites, l1,l2, z1,z2 = ",nsites, l1,l2, z1,z2 
+	if(periodic) then ! zone 1 not possible, only zone 2,3
+		r1 = sys%r(l1,:); r2 = sys%r(l2,:);
+		if (z==4) then ! 4=2+2, same or opp ends? 
+			! x-comp of displacement of hopping electron
 			if(l1<=3 .and. l2>= nsites-2)then ! opposite end layers, apply periodicity
 				r2(1) = sys%r(l2,1) - a0*nsites/3;
 				drx = r2(1) - sys%r(l1,1);
@@ -175,11 +175,12 @@
 			else ! same end
 				drx = sys%r(l2,1) - sys%r(l1,1);
 			endif
-		else ! deep bulk, no periodic next cell involved
+		else ! z=5,6 ! deep bulk, no periodic next cell involved
 			drx = sys%r(l2,1) - sys%r(l1,1);
 		endif
 		ErChange(1) = dsqrt(sum((r1-r2)**2)); ! nns distance, not just x-comp
 		ErChange(2) = - Er * drx/a0; ! Er is scaled with a0
+		!write(*,*)"ErChange: rij = ",ErChange(1)
 		return
 	endif
 

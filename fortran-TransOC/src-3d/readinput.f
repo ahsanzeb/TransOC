@@ -65,7 +65,7 @@
 	w0 = 2.0d0; ! exciton energy: E_LUMO = w0+Exb;
 	! we are ignoring electron-electron repulsion U : E_Double_occupied = E_LUMO = w0+Exb;
 	!	We can absorb U in Exb term, since the only states that matter are excited and D. (?)
-	Exb = 0.5; ! exciton binding energy
+	Exb = 0.0; ! exciton binding energy
 	dwmin=0.0; dwmax=0.0; ddw=0.0; ndw = 1;
 	kappa = 0.1 !0.005d0 ! ref to th=1.0d0; scale times proportionally tp th.
 	gamma = 0.1 !0.005d0
@@ -350,7 +350,7 @@
 	Kq = 1.4224d0/epsr; 	! default epsr = 3.0d0; ===> Kq = 0.4741; 
 											! 0.47 eV.nm energy for two elementary charges
 											! ~0.1 eV for two nnz at 5nm 
-	if(.not. giveExb) then ! set Exb assuming a radius of 1nm for the exciton
+	if(coulomb .and. .not. giveExb) then ! set Exb assuming a radius of 1nm for the exciton
 		! todo?: ask for exciton radius to compute Exb
 		Exb = Kq; ! Kq(eV.nm/e)*1e/1nm ==> default = 0.4741 eV
 	elseif(coulomb .and. Exb < Kq/a0) then !  .and. a0 > 1.0d0 ??
