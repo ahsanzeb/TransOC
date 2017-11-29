@@ -77,13 +77,14 @@ cc
 				if (nelec == 0 .and. onlydoped) cycle
 				ielec=	ielec+1;
 				do ier=1,ner ! Er: electric field * r_nns
-					if(node==0)then
-	write(*,'("main: ier = ",i4," of ",i4,"ntp=",i4)')ier,ner,ntp
+					if(node==0 .and. mod(ier,5)==0)then
+						write(*,'("main: ier = ",i4," of ",i4)')ier,ner
 					endif
 					Er = Ermin + (ier-1)*dEr;
 					!if (VRH) Efieldh = signEr*Er ! VRH= variable range hopping
 					! runs ntp trajectories, output => current: Iav, h/c counts: stathc
 					call trajectory(ntp, Iav, stathc)
+					!write(*,*)"main: after traj"
 					! gather all data
 					call mpi_gather(Iav, ntp, mpi_double_precision, Iall, ntp, 
      .                mpi_double_precision, 0, MPI_COMM_WORLD, ierr)

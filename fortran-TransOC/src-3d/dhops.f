@@ -65,7 +65,6 @@
 
 	l = ways(ih)%active(is); ! localtion of active site in lattice
 	l = GetPosition(Asites,na,l); ! localtion of active site in Asites
-
 	!------------------------------------------	
 	! N,m values of itype:
 	n = na + dna(itype); ! no of active sites

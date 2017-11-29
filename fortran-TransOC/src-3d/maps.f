@@ -330,18 +330,6 @@
 
 	integer :: ih, nh
 
-	if(.not. allocated(maph)) deallocate(maph, mapc)
-	if(PermSym) then
-		allocate(maph(9,4))
-		allocate(mapc(9,4))
-	elseif(impurity) then
-		allocate(maph(23,4))
-		allocate(mapc(23,4))
-	else
-		allocate(maph(19,4))
-		allocate(mapc(19,4))
-	endif
-	
 	! input: ih,ic
 	!	output: ia,icl
 	! index: ih,ic; 1 ==> ia, 2 ==> icl

@@ -13,6 +13,7 @@
      . dpih = reshape( (/1,2,27,28, 3,4,29,30/),
      .            (/ 4,2 /), order=(/1,2/) );
 	integer, dimension(4) :: ihs
+	integer, dimension(8) :: dpih1 = (/1,2,3,4,27,28,29,30/);
 
 	public :: AllHops0, AllHops1
 
@@ -27,20 +28,26 @@
 	implicit none
 	! local
 	integer:: ih,ih1
-	integer:: is,l,ii, ia1,ia2
-	logical :: contannih, contcreat
+	integer:: l,ii, ia1,ia2, is=1
+	logical :: contannih, contcreat, notdone
 
 	!-------------------------------
 	! if PermSym then amp same for Dhops/Phihops/left/right/up/down
 	! see maph for sets of hops types sharing amplitudes
-	if(sum(ways(1:4)%ns + ways(27:30)%ns) >0) then
-		ih=1; is=1;			
-		if (.not. crosshops) then
-			call dhops1(ih,is) ! chan 1-2
-		else
-			call dhops2(ih,is) ! chan 1-4
+	!notdone = .true.
+	!if(sum(ways(1:4)%ns + ways(27:30)%ns) >0) then
+	do ih1=1,8
+		ih=dpih1(ih1);
+		if(ways(ih)%ns > 0) then
+			if (.not. crosshops) then
+				call dhops1(ih,is) ! chan 1-2
+			else
+				call dhops2(ih,is) ! chan 1-4
+			endif
+			exit
 		endif
-	endif
+	enddo
+	!endif
 	!-------------------------------
 	! ih:5-6,31-32 (D,Phi), (Phi,D) annihilation
 	if(sum(ways(5:6)%ns + ways(31:32)%ns) >0)then
@@ -55,18 +62,23 @@
 	! ih=7,8 (D,Phi), (Phi,D) created
 	!ih=7;	! ih=8 has the same amplitudes,
 				! chan 1,2 swapped, handled via maph, mapc
-	if(ways(7)%ns+ways(33)%ns > 0) then
-		ih=7; is=1;
-		if (nx .ge. 1) then
-			call DPhiCreat1(ih,is) ! 1-2
-		endif
-		if (crosshops) then
-			if (nx .ge. 2) then
-				call DPhiCreat3(ih,is) ! 3                                        
+	!if(ways(7)%ns+ways(33)%ns > 0) then
+	ihs(1:2) = (/ 7, 33 /);
+	do ih1=1,2
+		ih=ihs(ih1);
+		if(ways(ih)%ns > 0) then
+			if (nx .ge. 1) then
+				call DPhiCreat1(ih,is) ! 1-2
 			endif
-			call DPhiCreat4(ih,is) ! 4
+			if (crosshops) then
+				if (nx .ge. 2) then
+					call DPhiCreat3(ih,is) ! 3                                        
+				endif
+				call DPhiCreat4(ih,is) ! 4
+			endif
+			exit
 		endif
-	endif
+	enddo
 	!-------------------------------
 	!-------------------------------
 	! cavity and exciton losses
@@ -94,14 +106,18 @@
 		if (contannih) then
 			call CDAnnihil()
 		endif
-		contcreat = ways(17)%ns+ways(21)%ns > 0
-		if(contcreat) then
-			is=1;
+		contcreat = ways(17)%ns+ways(21)%ns > 0; ! 17 R, 21 L contact
+		if(ways(17)%ns>0) then
+			call CDCreat('r',is); 
+		elseif(ways(21)%ns>0) then
+			call CDCreat('l',is); 
+		endif
+		!if(contcreat) then
 			! creation of D/Phi at contacts;
 			! ih=21:24 same amplitudes;
-			! ih=17:20 same amplitudes; == 21:24 if PermSym
-			call CDCreat('l',is); ! l/r does not matter here because PermSym
-		endif
+			! ih=17:20 same amplitudes; == 21:24 if PermSy
+			!call CDCreat('l',is); ! l/r does not matter here because PermSym except if ways for l, =0!
+		!endif	
 	endif
 	!-------------------------------
 	! Impurity: dopant or trap at site number 4
@@ -110,7 +126,7 @@
 			call CDAnnihil()
 		endif
 		if(.not. contcreat .and. sum(ways(39:42)%ns) > 0) then
-			call CDCreat('l',1); ! does not matter here if its l,r or i
+			call CDCreat('i',1);
 		endif
 	endif
 	!-------------------------------

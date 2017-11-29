@@ -323,9 +323,9 @@
 	!---------------------------------------	
 	! max dim 1 = 42 if no permsym and impurity;
 	! can be made allocatable, and allocated in calmaphc()
-	!integer, dimension(42,4) :: maph ! ih  to ia 
-	!integer, dimension(42,4) :: mapc ! ic to icl
-	integer, allocatable, dimension(:,:) :: maph, mapc ! ih  to ia; ic to icl
+	integer, dimension(42,4) :: maph ! ih  to ia 
+	integer, dimension(42,4) :: mapc ! ic to icl
+	!integer, allocatable, dimension(:,:) :: maph, mapc ! ih  to ia; ic to icl
 	
 	!	mapc only needed for channel 8,
 	!	channel 8: swap channel 1 and 2 for amplitudes
