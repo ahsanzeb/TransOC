@@ -616,12 +616,12 @@
 	! donor/acceptor positons? only a single type of doping at the moment
 	! q0 ====> charged system?
 	if(coulomb) then
-		if(allocated(sys%q0)) deallocate(sys%q0)
-		allocate(sys%q0(nsites))
+		!if(allocated(sys%q0)) deallocate(sys%q0)
+		!allocate(sys%q0(nsites))
 		! also allocate sys%q for later use
 		if(allocated(sys%q)) deallocate(sys%q)
 		allocate(sys%q(nsites))
-		sys%q0 = 0.0d0 ! D/Phi ===> q = -1/+1; q0 = 0 for all
+		!sys%q0 = 0.0d0 ! D/Phi ===> q = -1/+1; q0 = 0 for all
 		!sgn = isign(1,doping);
 		!do is = 1, doping*sgn
 		!	! choose sites at random for donor/acceptor

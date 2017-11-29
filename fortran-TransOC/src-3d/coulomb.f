@@ -1,7 +1,8 @@
 
 	module modq
 	use modmain, only: sys, nsites, Kq, ways, periodic, leads,
-     .    nproc, a0, Ecoul, Etotq, signEr, Er, vrh, coulomb
+     .    nproc, a0, Ecoul, Etotq, signEr, Er, vrh, coulomb,
+     .    impocc, impurity
 	implicit none
 	double precision, allocatable, dimension(:) :: Vq ! Coulomb potential
 
@@ -54,8 +55,12 @@
 	! set sys%q
 	!--------------------------------------------
 	do i=1,nsites
-		sys%q(i) = sys%q0(i) -(sys%occ(i)-1)
+		sys%q(i) = -(sys%occ(i)-1)
 	enddo
+	if(impurity) then
+		sys%q(i) = -(sys%occ(i)-impocc); ! impocc is neutral state occup of imp level
+	endif
+
 	!--------------------------------------------
 	! set Vq and Etotq
 	!--------------------------------------------	
