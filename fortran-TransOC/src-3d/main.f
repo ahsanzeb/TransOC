@@ -393,7 +393,7 @@ cc
 		else
 			call AllHops1()
 		endif
-		if(debug)write(*,*) "main:   AllHops done... "	
+		if(debug)write(*,*) "main:   AllHops done... "
 
 
 		! Coulomb's interaction

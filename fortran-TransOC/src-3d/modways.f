@@ -194,7 +194,7 @@
 	endif !  leads
 
 	deallocate(act,oth)
-	
+
 	return
 	end subroutine UpdateWays
 !**********************************************

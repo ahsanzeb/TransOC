@@ -20,21 +20,22 @@
 
 	if(.not. coulomb) then ! applied Electric field changes & return
 		do ih=1,nproc
+			if(ih==25 .or. ih==26) cycle; ! kappa, gamma excluded. or set=0?
+			!	ih=25,26 ways not defined, so better to exclude them compared to defining and setting to 0
 			if(allocated(Ecoul(ih)%dEq)) deallocate(Ecoul(ih)%dEq)
 			allocate(Ecoul(ih)%dEq(ways(ih)%ns)) ! allocate works even if 0?
 			if(allocated(ways(ih)%rij)) deallocate(ways(ih)%rij)
 			allocate(ways(ih)%rij(ways(ih)%ns))
 			do is=1,ways(ih)%ns
-				if(vrh .or. ih>34) then ! positional disorder
+				if((vrh .or. ih>34)) then ! positional disorder
 					! find the indeces of sites l1,l2 for 
 					!	electron jumping from l1 to l2;
 					call ElectronJumpSites(ih,is,l1,l2)
 					!	dE for all hops & their sites due to applied Electric field
 					x = ErChange(l1,l2);
 					ways(ih)%rij(is) = x(1);
-					!write(*,*) "coulom: l1,l2, rij = ",l1,l2, x(1)
+					!write(*,*) "coulom: l1,l2, rij. dE = ",l1,l2, x
 					Ecoul(ih)%dEq(is) = x(2);
-					!write(*,*)"ih,is, Er = ",ih,is, x(2)
 				else 	! regular lattice/triangles, no positional disorder
 							!or impurity level hop that has no sense of L/R/U/D that
 							! could allow using signEr(ih)*Er style
@@ -119,6 +120,7 @@
 	!--------------------------------------------
 	!	calculate change in coulomb energy for all hops & their sites
 	do ih=1,nproc
+		if(ih==25 .or. ih==26) cycle; ! kappa, gamma excluded. or set=0?
 		if(allocated(Ecoul(ih)%dEq)) deallocate(Ecoul(ih)%dEq)
 		allocate(Ecoul(ih)%dEq(ways(ih)%ns)) ! allocate works even if 0?
 		if(allocated(ways(ih)%rij)) deallocate(ways(ih)%rij)
@@ -200,7 +202,7 @@
 		else ! z2==1; ! l2 ==> contact, l1 ==> interface site
 			! left/right contact?
 			if(l2<1)then! left contact
-				drx = sys%r(l1,1); ! -x direction;
+				drx = -sys%r(l1,1); ! -x direction;
 			else ! right contact
 				drx = (nsites/3 + 1)*a0-sys%r(l1,1); ! +x direction
 			endif

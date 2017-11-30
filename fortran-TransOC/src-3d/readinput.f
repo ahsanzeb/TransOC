@@ -239,7 +239,7 @@
 	!case('VRH','vrh')
 	!	read(50,*,err=20) VRH
 	case('PositionalDisorder')
-		read(50,*,err=20) VRH !, a0, sigma0, nsigma, dinvl
+		read(50,*,err=20) VRH, a0 , sigma0, nsigma, dinvl
  		! a0= average,
  		! sigma0=std,
  		! nsigma= spread in dij in terms of std on either side
@@ -481,8 +481,6 @@
 		close(200)
 	endif
 	!---------------------------------------------
-
-
 	return
 	end subroutine
 !************************************************

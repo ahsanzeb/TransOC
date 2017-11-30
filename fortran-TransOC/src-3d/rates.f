@@ -238,7 +238,7 @@
 	double precision, allocatable :: de(:)
 	integer :: nsec, ia,icl,itl,i,isa
 	double precision:: x,y,rnns,tvr
-	logical :: dblehop, emptyhop
+	logical :: Its2526
 
 	! I think this if block is not needed, the condition in it
 	! is already filtered before calling this subroutine.
@@ -320,10 +320,13 @@
 	de = eig(itl)%esec(1:nsec) + dqc(ih,ic); ! changes due barries, Exciton binding, reference, etc.
 	de = de - Einit; ! total change in energy
 
-	! Change in Coulomb's energy + Efield energy:
-	!	Ecoul is calculated in main, routine SetEcoul() in modq/coulomb.f
-	de = de + Ecoul(ih)%dEq(is);
-
+	Its2526 = (ih==25 .or. ih==26);
+	if(.not. Its2526) then ! ih=25,26: Ecoul(ih)%dEq not defined.
+		! Change in Coulomb's energy + Efield energy:
+		!	Ecoul is calculated in main, routine SetEcoul() in modq/coulomb.f
+		de = de + Ecoul(ih)%dEq(is);
+	endif
+	
 	! charging energy contact hops:
 	! A cheaper rough approx of true coulomb energy
 	if(ih .ge. 9 .and. ih .le. 24) then
@@ -342,15 +345,15 @@
 	stop
 	endif
 
-	! variable range hopping: 
-	if(VRH) then
+	! variable range hopping:
+	if(Its2526 .or. (.not. vrh)) then
+		tvr = 1.0d0;
+	elseif(VRH) then
 		! find 	nns distance for this hop
 		!rnns = dij(ih,is);
 		!rnns = dijl(ih,is);
 		rnns = ways(ih)%rij(is); ! PermSym not used so is is true index of hop
 		tvr = dexp(-dinvl*(rnns-a0)/a0); ! bare amplitude prefactor
-	else
-		tvr = 1.0d0;
 	endif
 
 	!write(*,*) "ih, Er, dEnet = ", ih, Er, de(1:min(5,nsec))

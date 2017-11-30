@@ -21,6 +21,8 @@
 		start = .false.;
 		! start random sequence with seed = milliseconds in current time
 		call srand(dt(8)) !rand(dt(8))
+		!call srand(0)
+		write(6,*) 'random = ', rand(0)		
 		write(6,*)
 		!write(6,*)"**************************"//
     ! .		"******************************"
