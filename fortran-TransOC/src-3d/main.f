@@ -294,7 +294,7 @@ cc
 	! main loop over number of hops asked
 	do iter=1,niter
 
-		if(1==0) then
+		if(1==1 .and. iter==niter) then
 			!write(*,'(a)') ". . . . . . . . . . . . "
 			write(*,'(a,i10,a,i10,a,2i10)') " itraj = ",itraj,
      .               " iter = ",iter,"  N, m = ",na,nx

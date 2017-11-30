@@ -288,7 +288,7 @@
 		endif
 	endif
 
-	isa = is; ! site index for amplitudes
+	isa = is; ! site index for amplitudes: already taken care of at call time??????
 	! annihilation? set isa=1 if PermSym in case vrh is used
 	if (PermSym .and. is > 1) then
 		! this happens when vrh=T

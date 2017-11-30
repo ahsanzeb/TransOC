@@ -228,13 +228,15 @@
 	! left contact identifier: site index < 0 
 
 	! See Processes Table for process indexes, and UpdateWays() for conventions
-	select case(ih)
-	case(1,2,5,6,26,27,30,31) ! electron jumps from active to other
+	! D,Phi|Phi,D annihilation/creation:
+	! creat: ih=7,8,33,34: D always in active (la=ways(ih)%active)
+	! annih: ih=5,6,31,32: D always in active (la=ways(ih)%active)
+	select case(ih) 
+	case(1,2,7,8,27,28,33,34) ! electron jumps from active to other
 		! lo to la electron jump
 		l1 = ways(ih)%sites(is); l2 = ways(ih)%active(is); 
-	case(3,4,7,8,28,29,33,34) ! electron jumps from other to active
+	case(3:6,29:32) ! electron jumps from other to active
 		! la to lo electron jump
-		! D,Phi|Phi,D creation, ih=7,8,33,34: D always in active 
 		l1 = ways(ih)%active(is); l2 = ways(ih)%sites(is); 
 	case(9:10,18,20)	! e extraction/hole injection at right contact
 		! la to contact electron jump
@@ -248,9 +250,9 @@
 		l2 = ways(ih)%active(is); l1 = -1; 
 	case(35:36,40,42) ! e jumps from molecule to impurity level: like 11,12,22,24
 		! impurity is assumed to be on site 4
-		l1 = 4; l2 = ways(ih)%active(is);
-	case(37:39,41) ! e jumps to molecule from impurity level: like 15,16,21,23
 		l2 = 4; l1 = ways(ih)%active(is);
+	case(37:39,41) ! e jumps to molecule from impurity level: like 15,16,21,23
+		l1 = 4; l2 = ways(ih)%active(is);
  	end select
 
 	return
