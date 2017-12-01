@@ -77,7 +77,7 @@ cc
 				if (nelec == 0 .and. onlydoped) cycle
 				ielec=	ielec+1;
 				do ier=1,ner ! Er: electric field * r_nns
-					if(node==0 .and. mod(ier,5)==0)then
+					if(node==0 .and. mod(ier,1)==0)then
 						write(*,'("main: ier = ",i4," of ",i4)')ier,ner
 					endif
 					Er = Ermin + (ier-1)*dEr;
@@ -294,7 +294,7 @@ cc
 	! main loop over number of hops asked
 	do iter=1,niter
 
-		if(1==1 .and. iter==niter) then
+		if(1==0 .and. iter==niter) then
 			!write(*,'(a)') ". . . . . . . . . . . . "
 			write(*,'(a,i10,a,i10,a,2i10)') " itraj = ",itraj,
      .               " iter = ",iter,"  N, m = ",na,nx
@@ -331,13 +331,16 @@ cc
 		endif
 
 		if (.not. nog) then ! if same quantum state as last iter, why not avoid this alloc/copy etc.??
+			!write(*,*)"main: not nog.... "	
 			if(allocated(psi)) deallocate(psi)
 			it = mapt%map(1);
 			allocate(psi(1,eig(it)%n1))
 			psi(1,:) = eig(it)%evec(:,1)
 			Einit = eig(it)%eval(1)
+			!write(*,*)"main: Einit block ends...."	
 		endif
 
+		if(debug)write(*,*) "main:   psi,Einit update done... "
 		!write(*,'(a,i5,x,i10,x,f10.5)')
     ! .      "main: it,ntot, Ei = ",it,eig(it)%n1,Einit
 
@@ -370,13 +373,13 @@ cc
 
 	!if(nog)write(*,*) "main: nog=T; ipsi =  ",ipsi
 
-
 		! Before calculating the rates:
 		! Net charge on the system
 		! nelec =  doping given in input; +ve for holes, -ve for electrons
 		Qnet = (nsites-nelec)-sum(sys%occ);
 		! charging energies for contact hops
 		call UpdateDEQs(Qnet)	
+		if(debug)write(*,*) "main:   UpdateDEQs done... "
 
 		!write(*,*)"sum(sys%occ) = ", sum(sys%occ)
 
@@ -395,10 +398,14 @@ cc
 		endif
 		if(debug)write(*,*) "main:   AllHops done... "
 
+		!write(*,*)"main: not nog.... "	
+
 
 		! Coulomb's interaction
 		! sets Ecoul(ih=1:34)%dEq(is=1:ns(ih)) and Etotq for use in rates
 		call SetEcoul()
+		if(debug)write(*,*) "main:   SetEcoul done... "	
+
 		
 		! rates from am2 and energetic penalties
 		call CalRates()
@@ -517,7 +524,6 @@ cc
 		if (fixmap) then
 			call DONTUSEmaps() ! dont reuse basis/hg
 		else
-		
 			call UpdateReqType ! ReqType
 			call UpdateMapT ! mapt%map, mapt%cal
 			call UpdateGroupTB ! mapt%cal ===> ntb, grouptb

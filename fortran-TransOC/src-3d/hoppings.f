@@ -1,7 +1,7 @@
 
 	!	calls routines that calculate amplitudes for all hops
 	module Hoppings
-	use modmain, only: ways,PermSym,na,nx,crosshops,
+	use modmain, only: ways,PermSym,na,nx,crosshops,debug,
      . nokappa,nogamma,leads,nsites,ihdphops, qt,maph,impurity
 	use dhops, only: dhops1, dhops2
 	use creation !, only: DPhiCreat1,DPhiCreat3,DPhiCreat4
@@ -119,13 +119,14 @@
 			!call CDCreat('l',is); ! l/r does not matter here because PermSym except if ways for l, =0!
 		!endif	
 	endif
+
 	!-------------------------------
 	! Impurity: dopant or trap at site number 4
 	if(impurity) then
-		if(.not. contannih .and. sum(ways(35:38)%ns) > 0) then
+		if((.not. contannih) .and. sum(ways(35:38)%ns) > 0) then
 			call CDAnnihil()
 		endif
-		if(.not. contcreat .and. sum(ways(39:42)%ns) > 0) then
+		if((.not. contcreat) .and. sum(ways(39:42)%ns) > 0) then
 			call CDCreat('i',1);
 		endif
 	endif
@@ -220,11 +221,17 @@
 		end do
 	endif
 	!-------------------------------
-	! Impurity: dopant or trap at site number 4
+	! Impurity: dopant or trap at site number 4; ih=39:42 
 	if(impurity) then
-		do is=1,ways(39)%ns ! ih=39:42 
+		do is=1,ways(39)%ns  ! ih=39,41
 			call CDCreat('i',is); ! i for impurity (dopant/trap)
 		end do		
+		if(ways(39)%ns==0)then 
+		! single impurity site: ways(40)%ns>0 possible only if ways(39)%ns=0
+			do is=1,ways(40)%ns ! ih=40,42
+				call CDCreat('i',is); ! i for impurity (dopant/trap)
+			end do		
+		endif
 	endif
 	!-------------------------------
 

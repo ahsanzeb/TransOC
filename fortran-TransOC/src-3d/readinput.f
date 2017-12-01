@@ -59,8 +59,8 @@
 	EBlock = .false.; HBlock = .false.;
 	periodic = .true.; onlybulk = .false.;
 	leads = .false.;
-	Ebr = 0.5d0; Ebl = 0.5d0; ! R/L contact barriers for electrons 
-	Er = 1.0d0;
+	Ebr = 0.0d0; Ebl = 0.0d0; ! R/L contact barriers for electrons 
+	Er = 0.0d0;
 	Ermin=0.0; Ermax=0.0; dEr=0.0; ner = 1;
 	w0 = 2.0d0; ! exciton energy: E_LUMO = w0+Exb;
 	! we are ignoring electron-electron repulsion U : E_Double_occupied = E_LUMO = w0+Exb;
@@ -82,10 +82,10 @@
 	ntrapout= .true.;
 	ratesout= .true.;
 	!onlydoped = .true.
-	simplepf = .false.
+	simplepf = .true.
 	givenEr = .false.
 	VRH = .true.
-	coulomb = .false.
+	coulomb = .true.
 	impurity = .false.
 	!--------------
 	!--------------------------!
@@ -234,12 +234,12 @@
 		endif
 
 	case('ContactsBarriers','Barriers','barriers')
-		read(50,*,err=20) Ebr,Ebl
+		read(50,*,err=20) Ebl, Ebr
 
 	!case('VRH','vrh')
 	!	read(50,*,err=20) VRH
 	case('PositionalDisorder')
-		read(50,*,err=20) VRH, a0 , sigma0, nsigma, dinvl
+		read(50,*,err=20) VRH, a0 !, sigma0, nsigma, dinvl
  		! a0= average,
  		! sigma0=std,
  		! nsigma= spread in dij in terms of std on either side
@@ -379,8 +379,10 @@
 			write(*,*)"Error(readinp) : Impurity type 1-4 only"
 			write(*,*)"1 for e & 2 for h trap, 3 for n & 4 for p dopant"
 			stop
-		endif		
+		endif	
+		write(*,*)"impocc, Eimp0,Eimp=",impocc, Eimp0,Eimp
 	endif
+	
 	
 	if(.not. givenEr) then
 		call giveinput('Er')
@@ -452,7 +454,11 @@
 	endif
 
 	if (.not. givenNelrange) then
+	if(periodic) then
 		nelmin=nel; nelmax=nel; dnelec=1;
+	else
+		nelmin=0; nelmax=0; dnelec=1;
+	endif
 	endif
 
 	if(nelmin <= -nsites .or. nelmax >= nsites) then

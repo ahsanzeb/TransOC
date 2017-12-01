@@ -58,6 +58,12 @@
 
 	ib1= mapb%map(ib1i);
 	ib2= mapb%map(ib2i);
+	if(ib1==-1 .or. ib2==-1)then
+		write(*,*)"ib1,ib2 = ",ib1,ib2
+		write(*,*)"mapb%map=", mapb%map
+		write(*,*)"mapb%req=", mapb%req
+
+	endif
 	!------------------------------------------	
 	! N,m values of itype:
 	n = na; ! no of active sites
@@ -243,8 +249,17 @@
 	elseif(cont=='r') then
 		l = 	ways(17)%active(is); ! ih=17:20; localtion of active site in lattice
 		l1 = GetPosition(ASites,n,l);
-	elseif(cont=='i')then ! impurity: ih=39:42
-		l = 	ways(39)%active(is);
+	elseif(cont=='i')then ! impurity: ih=39,41; 40,42;
+	! these two groups mutually exclusive because imp can either take an electron
+	! and create a phi (if occ(4)=0) or give an electron to make D (if occ(4)=1)
+	! (max occ(4)=1, not 2).
+	! If this rutine is called specifically for impurity with cont='i',
+	! use ways of correct ih=39/40.
+		if(ways(39)%ns>0) then
+			l = 	ways(39)%active(is);
+		else
+			l = 	ways(40)%active(is);
+		endif
 		l1 = GetPosition(ASites,n,l);
 	endif
 
@@ -258,7 +273,6 @@
 	pntr3(:) = basis(ib2)%pntr(1:m3+2) ! final
 
 	n3 = pntr1(m1+2); ! total number of basis states
-
 	!=================== Jh ====================
 	!						k ===> k-1
 	if (m > 0) then
@@ -299,10 +313,12 @@
 	elseif(cont=='r') then ! l=nsites, Right conatact
 		ih = 19;
 	elseif(cont=='i') then ! impurity: dopant or trap
-		ih = 41; !41,42
+		ih = 41; !41,42: D,Phi creation, nx ==> m-1; 
+		! although ways(41)>0 means ways(42)=0 ans vice versa,
+		! they have the same ia even if not permsym, so use either of thes ih in calamp0
 	endif
 	call CalAmp0(ih,1,is,row,nnz,n3,col)
-	
+
 	deallocate(row,col)
 	endif ! m > 0
 	!=================== Jl ====================
@@ -344,12 +360,13 @@
 	elseif(cont=='r') then ! l=nsites, Right conatact
 		ih = 17;
 	elseif(cont=='i') then ! impurity: dopant or trap
-		ih = 39; ! 39,40
+		ih = 39; ! 39,40: D,Phi creation, nx ==> m
+		! although ways(39)>0 means ways(40)=0 and vice versa,
+		! they have same ia even if not permsym; use either of these in calamp0
 	endif
 	call CalAmp0(ih,1,is,row,nnz,n3,col)
 
 	deallocate(pntr1,pntr2,row,col)
-	
 	return
 	end subroutine CDCreat
 !------------------------------------------

@@ -20,7 +20,7 @@
 ! updated na,nx needed. so update na,nx before calling this.
 	subroutine UpdateReqType()
 	use modmain, only: nx,mapt,crosshops,nogamma,nokappa,
-     .    ways !dna,dnx,ibs,dns,itypes
+     .    ways, impurity !dna,dnx,ibs,dns,itypes
 	implicit none
 	integer :: it
 	logical :: ch,exst,logNmm1,logkg,ldpa,lap,lcda,lcAp
@@ -30,9 +30,13 @@
 	logkg= ((.not. nokappa) .or. (.not. nogamma));
 	ldpa = sum(ways(5:6)%ns) + sum(ways(31:32)%ns) > 0;
 	lap = ways(7)%ns + ways(33)%ns > 0;
-	lcda=sum(ways(9:16)%ns) > 0;
-	lcAp=sum(ways(17:24)%ns) > 0;
-
+	if(impurity) then
+		lcda=sum(ways(9:16)%ns) + sum(ways(35:38)%ns)> 0;
+		lcAp=sum(ways(17:24)%ns) + sum(ways(39:42)%ns)> 0;
+	else
+		lcda=sum(ways(9:16)%ns) > 0;
+		lcAp=sum(ways(17:24)%ns) > 0;
+	endif
 	!write(*,*)"ch",ch
 	!write(*,*)"logNmm1",logNmm1,ways(1:4)%ns
 	!write(*,*)"logkg",logkg

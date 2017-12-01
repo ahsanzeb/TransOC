@@ -59,6 +59,7 @@
 		sys%q(i) = -(sys%occ(i)-1)
 	enddo
 	if(impurity) then
+		i = 4;
 		sys%q(i) = -(sys%occ(i)-impocc); ! impocc is neutral state occup of imp level
 	endif
 

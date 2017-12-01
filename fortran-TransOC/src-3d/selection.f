@@ -37,7 +37,7 @@
 	if (ihSelect == -1 .or. ihSelect>nproc) then
 		write(*,*) "ihSelect: something wrong.... ihSelect=",ihSelect
 		write(*,*) "ihSelect: eta = ",	eta		
-		write(*,*) "ihSelect: rlist = ",	rlist	
+		write(*,'(43G18.5)') "ihSelect: rlist = ",	rlist	
 		stop
 	endif
 
@@ -80,7 +80,7 @@
 		enddo
 	enddo
 
-
+	!write(*,*) "ih, ways(ih)%ns = ",ih,ways(ih)%ns
 	!write(*,*) "icsSel: rlist=",rlist
 			
 	! eta, random real in range 0-rlist(27)

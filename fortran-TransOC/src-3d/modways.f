@@ -71,10 +71,10 @@
 					act(8,nps(8)) = lo 		! put d in active?
 					oth(8,nps(8)) = la 
 				elseif(p>34) then
-					if(p == 40) then ! count both 40,42
-						p2 = 42;
+					if(p == 39 .or. p==40) then ! count both  39,41; 40,42
+						p2 = p+2;
 					else !if(p==35) then
-						p2 = p+1; ! 35,36;  37,38;  39,40
+						p2 = p+1; ! 35,36;  37,38; 
 					endif	
 					nps(p2) = nps(p2) + 1;
 					act(p2,nps(p2)) = la;
@@ -111,11 +111,12 @@
 				nps(34) = nps(34) + 1; 	!33: D,Phi; 34: Phi,D
 				act(34,nps(34)) = lo 		! put d in active?
 				oth(34,nps(34)) = la 		
-			elseif(p>34) then ! no difference between L/R/U/D hops as now we use rij etc...
-				if(p == 40) then ! count both 40,42
-					p2 = 42;
+			elseif(p>34) then
+				! no difference between L/R/U/D hops as now we use rij etc...
+				if(p == 39 .or. p==40) then ! count both  39,41; 40,42
+					p2 = p+2;
 				else !if(p==35) then
-					p2 = p+1; ! 35,36;  37,38;  39,40
+					p2 = p+1; ! 35,36;  37,38; 
 				endif	
 				nps(p2) = nps(p2) + 1;
 				act(p2,nps(p2)) = la;
@@ -206,6 +207,7 @@
 	integer:: l,r ! occupation on left, right sites
 	integer:: iimp, irm ! ind_impurity, ind_regular-molecule
 	! ih=35-42 similar to Left contact hop (11,12,15,16,21,22,23,24)
+	! but ways conditional on impurity occupation
 
 	! which site is impurity (no. 4)?
 	if(is==4) then
@@ -222,19 +224,19 @@
 		if (r==0)then
 			p=-1; la=-1;lo=-1; ! no way
 			return
-		elseif(r==1) then ! Phi creaation :: 22-24
-			p=22; ! p=22,24, Phi creation
+		elseif(r==1) then ! Phi creaation :: 22,24 like
+			p=40; !40,42:  p=22,24, like Phi creation
 		elseif(r==2) then
-			p=35; ! p=35,36 D annihilation
+			p=35; ! 35,36: p=11,12 like D annihilation
 		else
 			write(*,*)"Error(modways): occ(irm) > 2 "
 			stop
 		endif
 	elseif(l==1)then
 		if (r==0)then
-			p=15; !p=15,16 Phi annihilation
+			p=37; !37,38: p=15,16 like Phi annihilation
 		elseif(r==1) then 
-			p=21; ! p=21,23, D creation
+			p=39; !39,41 p=21,23, like D creation
 		elseif(r==2) then
 			p=-1; la=-1;lo=-1; ! no way
 			return
