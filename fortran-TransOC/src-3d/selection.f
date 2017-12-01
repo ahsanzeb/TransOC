@@ -56,7 +56,11 @@
 	double precision:: eta
 
 	!write(*,*)"rate%rcs= ",rate(ih)%rcs(:,:)
-	
+	if(ih==25) then ! output not significant, not used anywhere
+		ic=1; is=1;
+		return
+	endif
+
 	nc = 1;
 	if (ih .le. 8 .or. (ih .ge. 27 .and. ih <=34 )) then ! ih=1-8, 27-34
 		nc = 2

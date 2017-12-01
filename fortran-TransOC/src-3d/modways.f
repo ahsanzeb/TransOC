@@ -1,6 +1,7 @@
 
 	module modways
-	use modmain, only: sys, ways, periodic, nsites,leads, impurity
+	use modmain, only: sys, ways, periodic, nsites,leads, impurity,
+     .               nolosses, Asites
 	implicit none
 	integer, dimension(16) :: signdEQ ! can be moved to modmain, but no other module needs this so its better to put it here.
 
@@ -195,6 +196,16 @@
 	endif !  leads
 
 	deallocate(act,oth)
+
+	if(.not. nolosses) then
+		p=26;
+		if(allocated(ways(p)%active)) deallocate(ways(p)%active)
+		ways(p)%ns = sys%n1;
+		if (ways(p)%ns .gt. 0) then
+			allocate(ways(p)%active(ways(p)%ns))
+			ways(p)%active = Asites
+		endif
+	endif
 
 	return
 	end subroutine UpdateWays

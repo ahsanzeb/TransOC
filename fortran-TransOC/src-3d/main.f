@@ -37,9 +37,9 @@ cc
 	character*50 :: frmt
 
 
-
-
+	call srand(0)
 	
+
 !======================================================================
 	call MPI_INIT(ierr)
 	!find out MY process ID, and how many processes were started.
@@ -83,7 +83,7 @@ cc
 					Er = Ermin + (ier-1)*dEr;
 					!if (VRH) Efieldh = signEr*Er ! VRH= variable range hopping
 					! runs ntp trajectories, output => current: Iav, h/c counts: stathc
-					call trajectory(ntp, Iav, stathc)
+					call trajectory(ntp, Iav, stathc,node)
 					!write(*,*)"main: after traj"
 					! gather all data
 					call mpi_gather(Iav, ntp, mpi_double_precision, Iall, ntp, 
@@ -257,14 +257,16 @@ cc
 !======================================================================
 ! tranejctry runs ntp traj, output: Iav ==> their average currents
 !======================================================================
-	subroutine trajectory(ntp,Iav, stathc)
+	subroutine trajectory(ntp,Iav, stathc,node)
 	implicit none
-	integer, intent(in) :: ntp
+	integer, intent(in) :: ntp,node
 	double precision, dimension(ntp), intent(out) :: Iav
 	integer, dimension(42,4), intent(out) :: stathc
 
 	stathc = 0;
-	
+
+	write(*,'(42G10.5)')"main: Exb = ",Exb
+
 	do itraj=1, ntp
 		zt = 0; ntrap = 0;
 		totcharge=0; tottime=0.0d0
@@ -294,12 +296,12 @@ cc
 	! main loop over number of hops asked
 	do iter=1,niter
 
-		if(1==0 .and. iter==niter) then
-			!write(*,'(a)') ". . . . . . . . . . . . "
-			write(*,'(a,i10,a,i10,a,2i10)') " itraj = ",itraj,
-     .               " iter = ",iter,"  N, m = ",na,nx
+		!if(1==1 .and. iter==niter) then
+			!write(*,'(a)') ". . . . . . . . . . . "
+			write(*,'(a,i10,a,i10,a,i10,a,2i10)')"Node = ",node,
+     . " itraj = ",itraj," iter = ",iter,"  N, m = ",na,nx
 			!write(*,*)        
-		endif
+		!endif
 
 
 		!write(*,*) iter, na, nx
@@ -381,7 +383,11 @@ cc
 		call UpdateDEQs(Qnet)	
 		if(debug)write(*,*) "main:   UpdateDEQs done... "
 
-		!write(*,*)"sum(sys%occ) = ", sum(sys%occ)
+		write(*,*)"sys%occ = ", sys%occ
+		write(*,*)"main: ways = ",ways(:)%ns
+		
+
+
 
 	if (leads)
      . x = x + (/nelec,sum(sys%occ), Qnet /);
@@ -414,32 +420,30 @@ cc
 		!write(*,*) "main: ===1==> ",rate(:)%r
 		!if(na==nsites) write(*,*)"main: N,m, R = ", na,nx,sum(rate(:)%r)
 
+		write(*,*)"main: ER, Rtot = ",Er, sum(rate(:)%r)
+
 		! select a hop based on rates
 		ih = ihSelect() 
 
-		if(1==0 .and. na==nsites) then
+		if(1==1 .and. na==nsites-1) then
 			write(*,*)"main: Rtot = ",sum(rate(:)%r)
 			write(*,*)"main: R_L/R = ",rate(1:8)%r
 			write(*,*)"main: R_U/D = ",rate(27:34)%r
 			write(*,*)"main: Rkappa, Rgamma= ",rate(25:26)%r
 		endif
-		
+		write(*,*) "main:   ih = ",ih
 		!write(*,*) "main: ===2==> ",rate(:)%r
 		if(debug)write(*,*) "main:   ihSelect: ih = ",ih
 		call icsSelect(ih,ic,is)
 		if(debug)write(*,*) "main:   icsSelect: ic,is =  ",ic,is
+		write(*,*) "main:   ih,ic,is = ",ih,is
 
 		rout(1:8) = rout(1:8) + rate(1:8)%r 
 		rout(9:10) = rout(9:10) + rate(25:26)%r 
 		
 		! if nog, the final state index from selected ih,ic
 		if (nog) then
-			if(PermSym) then
-				iss = 1;
-			else
-				iss = is
-			endif
-			
+			iss=is; ! forgot why iss was seperately defined months ago
 			itype = itypes(ih,ic); ! type for ih,ic selected
 			it =mapt%map(itype); ! location of types
 			ia = maph(ih,ic); ! location of amplitudes
