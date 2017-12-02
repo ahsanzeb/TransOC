@@ -173,7 +173,10 @@
 		! use efficient mat vec multiplications for diagonal Uf
 		qt(ia)%cs(ic,is)%amp= 0.0d0; ! psi.Ht.Uf
 		! just index: psi = ipsi; Uf = Identity
-		qt(ia)%cs(ic,is)%amp(ipsi) = rowc(ipsi)
+		!qt(ia)%cs(ic,is)%amp(ipsi) = rowc(ipsi)
+		if(ipsi<= n2) then ! only if ipsi has a poton, otherwise amp=0
+			qt(ia)%cs(ic,is)%amp(ipsi) = rowc(ipsi)
+		endif
 		qt(ia)%cs(ic,is)%amp2 = qt(ia)%cs(ic,is)%amp**2;
 	else
 		allocate(HtUf(n3,n2))

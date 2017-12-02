@@ -156,7 +156,7 @@
 
 	! spin combinations map to themselves, only a photon is lost
 	!	basis with up to m2=min(n,m-1) up spins contribute non-zero
-	!col(:) = (/ (i,i=1,ntot2,1) /) missing sqrt prefactors
+	! old col(:) = (/ (i,i=1,ntot2,1) /) is missing sqrt prefactors
 	i1 = 0;
 	do i=0,m2 ! sectors of i up spin
 		i2 = basis(ibl2)%pntr(i+2);

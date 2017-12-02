@@ -407,9 +407,9 @@
 			maph(ih,:) = 6
 		case(33,34) !  <====> ih=7,8 if PermSym ???? 
 			maph(ih,:) = 19			
-		case(9,11,13,15)
+		case(9,11,13,15,35,37)
 			maph(ih,:) = 7
-		case(10,12,14,16)
+		case(10,12,14,16,36,38)
 			maph(ih,:) = 8
 		case(17,18) 
 			maph(ih,:) = 9
@@ -423,14 +423,14 @@
 			maph(ih,:) = 13
 		case(26)
 			maph(ih,:) = 14
-		case(35,37) ! <===> 11,15 
-			maph(ih,:) = 20
-		case(36,38) ! <===> 12,16
-			maph(ih,:) = 21
+		!case(35,37) ! <===> 11,15 
+		!	maph(ih,:) = 20
+		!case(36,38) ! <===> 12,16
+		!	maph(ih,:) = 21
 		case(39,40) !  <====> 21,22
-			maph(ih,:) = 22
+			maph(ih,:) = 20
 		case(41,42) !  <====> 23,24
-			maph(ih,:) = 23
+			maph(ih,:) = 21
 		end select
 		! mapc: swap channel 1,2 for ih=8,34
 		if(ih==8 .or. ih==34) then

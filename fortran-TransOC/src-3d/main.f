@@ -296,12 +296,12 @@ cc
 	! main loop over number of hops asked
 	do iter=1,niter
 
-		!if(1==1 .and. iter==niter) then
+		if(1==1 .and. iter==niter) then
 			!write(*,'(a)') ". . . . . . . . . . . "
 			write(*,'(a,i10,a,i10,a,i10,a,2i10)')"Node = ",node,
      . " itraj = ",itraj," iter = ",iter,"  N, m = ",na,nx
 			!write(*,*)        
-		!endif
+		endif
 
 
 		!write(*,*) iter, na, nx
@@ -353,7 +353,7 @@ cc
 		
 		if(.not. alloc) then
 			! at most nsites ways for any hop???
-				do ia=1,23
+				do ia=1,21
 					allocate(qt(ia)%cs(4,sys%nsites))
 					if (PermSym .and. ia > 9 ) exit
 				enddo
@@ -383,8 +383,8 @@ cc
 		call UpdateDEQs(Qnet)	
 		if(debug)write(*,*) "main:   UpdateDEQs done... "
 
-		write(*,*)"sys%occ = ", sys%occ
-		write(*,*)"main: ways = ",ways(:)%ns
+		!write(*,*)"sys%occ = ", sys%occ
+		!write(*,*)"main: ways = ",ways(:)%ns
 		
 
 
@@ -420,23 +420,23 @@ cc
 		!write(*,*) "main: ===1==> ",rate(:)%r
 		!if(na==nsites) write(*,*)"main: N,m, R = ", na,nx,sum(rate(:)%r)
 
-		write(*,*)"main: ER, Rtot = ",Er, sum(rate(:)%r)
+		!write(*,*)"main: ER, Rtot = ",Er, sum(rate(:)%r)
 
 		! select a hop based on rates
 		ih = ihSelect() 
 
-		if(1==1 .and. na==nsites-1) then
+		if(1==0 .and. na==nsites-1) then
 			write(*,*)"main: Rtot = ",sum(rate(:)%r)
 			write(*,*)"main: R_L/R = ",rate(1:8)%r
 			write(*,*)"main: R_U/D = ",rate(27:34)%r
 			write(*,*)"main: Rkappa, Rgamma= ",rate(25:26)%r
 		endif
-		write(*,*) "main:   ih = ",ih
+		!write(*,*) "main:   ih = ",ih
 		!write(*,*) "main: ===2==> ",rate(:)%r
 		if(debug)write(*,*) "main:   ihSelect: ih = ",ih
 		call icsSelect(ih,ic,is)
 		if(debug)write(*,*) "main:   icsSelect: ic,is =  ",ic,is
-		write(*,*) "main:   ih,ic,is = ",ih,is
+		!write(*,*) "main:   ih,ic,is = ",ih,is
 
 		rout(1:8) = rout(1:8) + rate(1:8)%r 
 		rout(9:10) = rout(9:10) + rate(25:26)%r 

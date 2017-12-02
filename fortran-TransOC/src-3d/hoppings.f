@@ -141,7 +141,7 @@
 	! local
 	integer:: ih,ih1
 	integer:: is,l,ii, ia1,ia2
-	logical :: found
+	logical :: contannih
 	!-------------------------------
 	! ih:1-4 DHopsR/L, PhiHopsR/L
 	! ih=27-30  DHopsU/D, PhiHopsU/D (Up/Down 3d cases)
@@ -206,10 +206,12 @@
 	endif
 	!-------------------------------
 	! Contacts:
+	contannih = .false.
 	if (leads) then
 		! annihilation at contacts
-		if (sum(ways(15:16)%ns+ways(11:12)%ns+
-     .   ways(13:14)%ns+ways(9:10)%ns) > 0) then
+		contannih = sum(ways(15:16)%ns+ways(11:12)%ns+
+     .   ways(13:14)%ns+ways(9:10)%ns) > 0;
+		if (contannih) then
 			call CDAnnihil()
 		endif
 		! creation of D/Phi at contacts;
@@ -222,7 +224,12 @@
 	endif
 	!-------------------------------
 	! Impurity: dopant or trap at site number 4; ih=39:42 
+	! annihilation same amp as contact's;
+	!	creation has different amp if no PermSym
 	if(impurity) then
+		if((.not. contannih) .and. sum(ways(35:38)%ns) > 0) then
+			call CDAnnihil()
+		endif
 		do is=1,ways(39)%ns  ! ih=39,41
 			call CDCreat('i',is); ! i for impurity (dopant/trap)
 		end do		

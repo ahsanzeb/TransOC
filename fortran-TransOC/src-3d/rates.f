@@ -202,13 +202,19 @@
 	! ih:34-42; impurity level: injection/extraction of e/h
 	!-------------------------------------------------
 		ic=1;
-		do ih=34,42
+		do ih=35,42
 			rate(ih)%rcs(:,:) = 0.0d0
 			do is=1,ways(ih)%ns
+				! 35:38 annihilation, only qt%cs(ic,is=1)%amp so set site index=1
+				if(ih <= 38) then 
+					iss=1;
+				else
+					iss = is;
+				endif
 				if(ih==41 .or. ih==42) then ! D,Phi creat, m-1 case
 					if (nx > 0) call ratehcs(ih,ic,is)
 				else
-					call ratehcs(ih,ic,is)
+					call ratehcs(ih,ic,iss)
 				endif
 				if(psnvrh) then ! total rate = (rates for one site) * ns
 					rate(ih)%rcs(ic,is)=
