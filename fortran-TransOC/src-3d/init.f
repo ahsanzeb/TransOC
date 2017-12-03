@@ -10,34 +10,12 @@
 
 	
 	contains
+
+
 !-----------------------------------------
-!	initialise some global variables
-!-----------------------------------------
-	subroutine initialise(doping)
+	subroutine init0()
 	implicit none
-	integer, intent(in) :: doping ! +ve for holes, -ve for electrons
-	! local
-	integer :: i,ina, n0,n1,n2
-	integer :: nelec ! number of electrons
 
-	if(.not. impurity .and. iabs(doping) > nsites) then
-		write(*,*)"Error(init): Nelectron <= 0 or >= 2*Nsites!"
-		write(*,*)"Charge transport cannot occur!"
-		stop	
-	elseif(impurity .and. iabs(doping) > nsites-1) then
-		write(*,*)"Error(init): Nelectron <= 0 or >= 2*Nsites!"
-		stop	
-	endif
-
-	if(impurity) then		
-		nelec = (nsites - 1) - doping; ! 1 site for impurity
-	else
-		nelec = nsites - doping;
-	endif
-
-
-
-	!-----------------------------------------
 	if (allocated(basis)) deallocate(basis)
 	if (allocated(eig)) deallocate(eig)
 	if (allocated(Hg)) deallocate(Hg)
@@ -48,31 +26,10 @@
 	!req n,m in an iteration, so dont start with 0
 	basis(:)%n = -1;
 	Hg(:)%n = -1; Hg(:)%m = -1; Hg(:)%m1 = -1;
-	!------------------------------------------
-
-	!------------------------------------------
-	!	sys: nsites, occ; na, Asites
-	!------------------------------------------
-	call initOcc(nelec)
-	!-----------------------------------------
-	! initialise ways, mapb, mapt
-	!-----------------------------------------
-	call UpdateWays()
-	call UpdateReqType ! ReqType
-
 	!write(*,*) "ReqType = ",mapt%req
-
 	! does not exist, set to false, for use in mapt/mapb
 	Hg(:)%xst = .false.
 	basis(:)%xst = .false.
-	
-	call UpdateMapT ! mapt%map, mapt%cal
-
-	!write(*,*) "mapt = ",mapt%map
-
-
-	call UpdateGroupTB ! mapt%cal ===> ntb, grouptb
-	call UpdateMapB
 
 	!-----------------------------------------
 	! calculate maphc, the map from hopping index to amplitude index,
@@ -143,7 +100,6 @@
 	endif
 	!-----------------------------------------
 
-
 	!-----------------------------------------
 	! set dqc global vaiable 
 	!-----------------------------------------
@@ -155,7 +111,50 @@
 	!-----------------------------------------
 	call SetSigndEQ()
 
+	return
+	end subroutine init0
 
+!------------------------------------------
+	
+
+
+!-----------------------------------------
+!	initialise some global variables
+!-----------------------------------------
+	subroutine initialise(doping)
+	implicit none
+	integer, intent(in) :: doping ! +ve for holes, -ve for electrons
+	! local
+	integer :: i,ina, n0,n1,n2
+	integer :: nelec ! number of electrons
+
+	if(.not. impurity .and. iabs(doping) > nsites) then
+		write(*,*)"Error(init): Nelectron <= 0 or >= 2*Nsites!"
+		write(*,*)"Charge transport cannot occur!"
+		stop	
+	elseif(impurity .and. iabs(doping) > nsites-1) then
+		write(*,*)"Error(init): Nelectron <= 0 or >= 2*Nsites!"
+		stop	
+	endif
+
+	if(impurity) then		
+		nelec = (nsites - 1) - doping; ! 1 site for impurity
+	else
+		nelec = nsites - doping;
+	endif
+
+	!------------------------------------------
+	!	sys: nsites, occ; na, Asites
+	!------------------------------------------
+	call initOcc(nelec)
+	!-----------------------------------------
+	! initialise ways, mapb, mapt
+	!-----------------------------------------
+	call UpdateWays()
+	call UpdateReqType ! ReqType
+	call UpdateMapT ! mapt%map, mapt%cal
+	call UpdateGroupTB ! mapt%cal ===> ntb, grouptb
+	call UpdateMapB
 	!-----------------------------------------
 	! set BondLengths global vaiable in modmain
 	! considered positional disorder, and use vrh model for

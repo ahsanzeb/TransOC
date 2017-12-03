@@ -22,6 +22,8 @@
 	integer, allocatable, dimension(:,:) :: act,oth
 	integer :: l,r, i,p2
 
+	ways(:)%ns = 0;
+
 	if(impurity) then ! include hop processes involving impurity: ih=35-42
 		ndim = 42; np = 24; 
 	else

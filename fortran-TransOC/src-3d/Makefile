@@ -1,4 +1,6 @@
-
+##################################
+#					makefile for tranosc3d
+##################################
 
 FC 	= mpif90
 FFLAGS= -O3 -g -fbounds-check -fbacktrace 

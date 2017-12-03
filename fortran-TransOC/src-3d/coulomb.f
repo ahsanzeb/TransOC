@@ -2,7 +2,7 @@
 	module modq
 	use modmain, only: sys, nsites, Kq, ways, periodic, leads,
      .    nproc, a0, Ecoul, Etotq, signEr, Er, vrh, coulomb,
-     .    impocc, impurity
+     .    impocc, impurity,vqout
 	implicit none
 	double precision, allocatable, dimension(:) :: Vq ! Coulomb potential
 
@@ -12,11 +12,14 @@
 !******************************************************
 !	calculates potential Vq and total coulomb energy Eqtot
 ! todo?: do we need to have Etotq at all? if not, remove it.
-	subroutine SetEcoul() !Er)
+	subroutine SetEcoul(node,iter) !Er)
 	implicit none
+	integer, intent(in):: node, iter
 	!double precision, intent(in) ::	Er
 	integer :: ih,is, l1,l2,i,j
 	double precision :: rij, rim(3), x(2)
+	character*20:: fname
+	integer :: iu
 
 	if(.not. coulomb) then ! applied Electric field changes & return
 		do ih=1,nproc
@@ -114,6 +117,26 @@
 			Etotq = 	Etotq - Vq(i)*sys%q(i-3)
 		enddo
 	endif
+
+
+	!---------------------------------------
+	if(vqout)then
+	write(fname,'("Vq_",I4.4,".out")') node
+	iu = 150+node;
+	open(iu,file=trim(fname), action='write',position='append')
+	if(iter==1)then
+		write(iu,'("       ")')
+		write(iu,'("       ")')
+	endif
+	do i=1,nsites
+		write(iu,'(i10,3x,2G18.10)') (i-1)/3, Vq(i), sys%q(i)
+	enddo
+	write(iu,'("       ")')
+	close(iu)
+	endif
+	!---------------------------------------
+
+	
 
 	!write(*,*) "Vq = ",Vq
 	!--------------------------------------------

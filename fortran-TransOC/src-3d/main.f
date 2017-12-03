@@ -7,7 +7,7 @@ cc
 
 	program TransOC
 	use modmain
-	use init, only: initialise
+	use init, only: init0, initialise
 	use basisstates, only: mkbasis
 	use hamiltonian, only: mkHamilt
 	use Hoppings, only: AllHops0, AllHops1 ! 
@@ -29,16 +29,13 @@ cc
 	integer:: trapiter,s,iss,nc,ns,itraj,nex,nelec,idw,ielec
 	logical :: found,alloc
 	integer :: x(3)
-	integer :: nms(2), wayss(42)
+	integer :: nmways(44),nmways0(44) ! N,m,ways(1:42)
 	double precision:: rout(10)
 	! mpi
 	integer:: ierr, ntp, num_procs, node, maxtraj
 	double precision, allocatable, dimension (:):: Iav, Iall
 	character*50 :: frmt
 
-
-	call srand(0)
-	
 
 !======================================================================
 	call MPI_INIT(ierr)
@@ -51,28 +48,26 @@ cc
 	call input(node)
 	alloc = .false.;
 
-	! find ntp
+	! find ntp, number of traj per processor/node
 	call setntp(ntraj,num_procs,ntp)
 	maxtraj = ntp * num_procs; ! could be greater than ntraj
 	allocate(Iav(ntp))
 
+	call timestamp(node)
 	if(node==0) then
-		call timestamp()
 		allocate(Iall(maxtraj))
 		Iall = 0.0d0;
 		write(frmt,'("(",I6.6,"G18.10)")') maxtraj+3 ! do we really need full out?
 	endif
 	
 	!call printnode(node)
-
-	! SetBondLengths() once for all loops or once for a trajectory?
-	! currently, it's for a trajectory 
-
-	do nex=mexmin,mexmax,dmex ! excitations
 		do idw=1,ndw ! detuning
 			dw = dwmin + (idw-1)*ddw;
 			ielec=0;
 			call setdetuning(dw,detuning,node)
+			! allocate space for basis and eigstates etc, calc maps etc.
+			call init0()
+			do nex=mexmin,mexmax,dmex ! excitations
 			do nelec = nelmin,nelmax,dnelec
 				if (nelec == 0 .and. onlydoped) cycle
 				ielec=	ielec+1;
@@ -83,7 +78,7 @@ cc
 					Er = Ermin + (ier-1)*dEr;
 					!if (VRH) Efieldh = signEr*Er ! VRH= variable range hopping
 					! runs ntp trajectories, output => current: Iav, h/c counts: stathc
-					call trajectory(ntp, Iav, stathc,node)
+					call trajectory(ntp,node,Iav,stathc,nmways)
 					!write(*,*)"main: after traj"
 					! gather all data
 					call mpi_gather(Iav, ntp, mpi_double_precision, Iall, ntp, 
@@ -92,10 +87,14 @@ cc
 					! sum up all stathc
 					call mpi_reduce(stathc,stathc0,42*4, mpi_integer,mpi_sum,
      .                                      0, MPI_COMM_WORLD, ierr)
+					call mpi_reduce(nmways,nmways0,44, mpi_integer,mpi_sum,
+     .                                      0, MPI_COMM_WORLD, ierr)
 					call CheckError(ierr, node, 'reduce')		
+
 					if(node==0) then ! write output 
 						call WriteIvsEr(maxtraj,Iall)
 						call WriteStat(stathc0)
+						call writeways(nmways0)
 					endif
 				enddo ! Er
 			enddo ! ielectron
@@ -103,7 +102,7 @@ cc
 	enddo ! nex
 	if(node==0) then
 		write(*,*)"TransOC: everything done.... " 
-		call timestamp()
+		call timestamp(node)
 	endif
 	call MPI_FINALIZE(ierr)
 !======================================================================
@@ -129,6 +128,7 @@ cc
      .          oper, node, ierr
 		stop
 	endif
+	
 	! comment
 	!write(*,'("main: mpi operation ",a," at node ",I3," ier = ",I3)')
   !   .          oper, node, ierr
@@ -238,18 +238,30 @@ cc
 	return
 	end 	subroutine writeR
 !===============================================
-	subroutine writeways()
+	subroutine writeways(nmways)
 	implicit none
+	integer,dimension(44), intent(in):: nmways
+	double precision:: tot
+	tot = niter*ntraj*1.d0;
 	open(200,file='ways.out',action='write',position='append')
-	if(itraj == 1) then
-		write(200,*) "# idw, ielec",idw,ielec
-		write(200,*) 
-		write(200,*) 
-	endif				
+	write(200,*) "# idw, ielec, Er = ",idw,ielec, Er
+	write(200,*) 
+	write(200,*) 
+	
 	if (leads) then
-		write(200,*) nms/(niter*1.d0), wayss/(niter*1.d0)
-	else
-		write(200,*) nms/(niter*1.d0), wayss(1:8)/(niter*1.d0)
+		if(impurity) then
+			write(200,'(44G18.10)') nmways/tot
+		else
+			write(200,'(36G18.10)') nmways(1:36)/tot
+		endif
+	else ! periodic
+		if(impurity)then
+			write(200,'(28G18.10)') nmways(1:10)/tot,
+     .                        nmways(27:44)/tot
+		else
+			write(200,'(20G18.10)') nmways(1:10)/tot,
+     .                        nmways(27:36)/tot
+		endif
 	endif
 	close(200)
 	return
@@ -257,23 +269,23 @@ cc
 !======================================================================
 ! tranejctry runs ntp traj, output: Iav ==> their average currents
 !======================================================================
-	subroutine trajectory(ntp,Iav, stathc,node)
+	subroutine trajectory(ntp,node,Iav,stathc,nmways)
 	implicit none
 	integer, intent(in) :: ntp,node
 	double precision, dimension(ntp), intent(out) :: Iav
 	integer, dimension(42,4), intent(out) :: stathc
-
+	integer, dimension(44), intent(out):: nmways
 	stathc = 0;
 
-	write(*,'(42G10.5)')"main: Exb = ",Exb
+	!write(*,'(42G10.5)')"main: Exb = ",Exb
 
 	do itraj=1, ntp
 		zt = 0; ntrap = 0;
 		totcharge=0; tottime=0.0d0
 		trapiter=0
 
-		nms = 0; wayss = 0;
-		rout = 0.0d0
+		nmways=0;
+		!rout = 0.0d0
 		
 	!	initialise maps etc
 	! set no of active sites and excitations
@@ -296,7 +308,7 @@ cc
 	! main loop over number of hops asked
 	do iter=1,niter
 
-		if(1==1 .and. iter==niter) then
+		if(1==0 .and. iter==niter) then
 			!write(*,'(a)') ". . . . . . . . . . . "
 			write(*,'(a,i10,a,i10,a,i10,a,2i10)')"Node = ",node,
      . " itraj = ",itraj," iter = ",iter,"  N, m = ",na,nx
@@ -308,9 +320,8 @@ cc
 		!write(*,*) "in: Asites = ",Asites
 		!write(*,*) "in: occ = ",sys%occ
 
-		
-		nms = nms + (/na,nx/);
-		wayss = ways(:)%ns;
+		nmways(1:2) = nmways(1:2) + (/na,nx/);
+		nmways(3:44) = nmways(3:44) + ways(:)%ns;
 		
 		!if(mod(iter-1,20)==0) write(*,*)"wayss=", wayss
 		
@@ -409,7 +420,7 @@ cc
 
 		! Coulomb's interaction
 		! sets Ecoul(ih=1:34)%dEq(is=1:ns(ih)) and Etotq for use in rates
-		call SetEcoul()
+		call SetEcoul(node,iter)
 		if(debug)write(*,*) "main:   SetEcoul done... "	
 
 		
@@ -438,8 +449,8 @@ cc
 		if(debug)write(*,*) "main:   icsSelect: ic,is =  ",ic,is
 		!write(*,*) "main:   ih,ic,is = ",ih,is
 
-		rout(1:8) = rout(1:8) + rate(1:8)%r 
-		rout(9:10) = rout(9:10) + rate(25:26)%r 
+		!rout(1:8) = rout(1:8) + rate(1:8)%r 
+		!rout(9:10) = rout(9:10) + rate(25:26)%r 
 		
 		! if nog, the final state index from selected ih,ic
 		if (nog) then

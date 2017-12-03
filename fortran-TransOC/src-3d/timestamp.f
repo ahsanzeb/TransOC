@@ -1,28 +1,31 @@
 
 
 
-	Subroutine timestamp()
+	Subroutine timestamp(node)
 !--------------------------------------------------------------------
 ! 	prints welcome message with date and time
 !--------------------------------------------------------------------
 
 	implicit none
-
+	integer, intent(in):: node
 	integer	:: dt(8), x
 	character*10 :: bb(3)
 	double precision :: dummy
 	logical, save :: start = .true.;
 	integer, save	:: dti(8)
 !--------------------------------------------------------------------
+
 	call date_and_time(bb(1), bb(2), bb(3), dt)
+	! start random sequence with seed = milliseconds in current time
+	call srand(dt(8)) !rand(dt(8))
+	if(node .ne. 0 ) return
+
 
 	if (start) then
 		dti = dt;
 		start = .false.;
-		! start random sequence with seed = milliseconds in current time
-		call srand(dt(8)) !rand(dt(8))
 		!call srand(0)
-		write(6,*) 'random = ', rand(0)		
+		!write(6,*) 'random = ', rand(0)		
 		write(6,*)
 		!write(6,*)"**************************"//
     ! .		"******************************"

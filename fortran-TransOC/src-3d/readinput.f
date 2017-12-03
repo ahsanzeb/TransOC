@@ -17,7 +17,7 @@
 	integer :: iostat,i,j
 	logical :: givenNel,givenNelrange,givenDw,givenNexcit,givenEr
 	logical :: OneDchains, giveExb
-	integer:: imptype=0
+	integer:: imptype=0, lossgain=-1;
 	double precision :: Eimp0=0.0d0
 
 	giveExb = .false.
@@ -87,6 +87,7 @@
 	VRH = .true.
 	coulomb = .true.
 	impurity = .false.
+	vqout = .false.
 	!--------------
 	!--------------------------!
 	!     read from input.in   !
@@ -115,6 +116,12 @@
 		
 	case('debug')
 		read(50,*,err=20) debug
+
+	case('vqout')
+		read(50,*,err=20) vqout
+
+	case('lossgain')
+		read(50,*,err=20) lossgain
 
 	case('ztout')
 		read(50,*,err=20) ztout
@@ -317,6 +324,15 @@
 30			continue
 	close(50)
 
+
+
+	if(lossgain==1)then
+		nolosses = .false.
+		crosshops=.true.
+	elseif(lossgain==0)then
+		nolosses = .true.
+		crosshops=.false.
+	endif
 
 		if (.not. OneDchains) then
 			if(.not. impurity) then
