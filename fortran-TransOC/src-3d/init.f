@@ -8,6 +8,7 @@
 	!rnns values grid; a0-sigma0 to a0+sigma0
 	integer:: nmax = 10000 ! large enough number; 
 
+	public :: init0, init1, initialise
 	
 	contains
 
@@ -17,19 +18,10 @@
 	implicit none
 
 	if (allocated(basis)) deallocate(basis)
-	if (allocated(eig)) deallocate(eig)
-	if (allocated(Hg)) deallocate(Hg)
 	allocate(basis(NBasisSets))
-	allocate(eig(NHilbertSpaces))
-	allocate(Hg(NHilbertSpaces))
 	! will need to compare n,m with 
 	!req n,m in an iteration, so dont start with 0
 	basis(:)%n = -1;
-	Hg(:)%n = -1; Hg(:)%m = -1; Hg(:)%m1 = -1;
-	!write(*,*) "ReqType = ",mapt%req
-	! does not exist, set to false, for use in mapt/mapb
-	Hg(:)%xst = .false.
-	basis(:)%xst = .false.
 
 	!-----------------------------------------
 	! calculate maphc, the map from hopping index to amplitude index,
@@ -113,9 +105,26 @@
 
 	return
 	end subroutine init0
+!===============================================================
+! call this when detuning changes.
+! detuning changes Hg and eig, so stored data cant be reused anymore.
+	subroutine init1()
+	implicit none
 
-!------------------------------------------
-	
+	if (allocated(eig)) deallocate(eig)
+	if (allocated(Hg)) deallocate(Hg)
+	allocate(eig(NHilbertSpaces))
+	allocate(Hg(NHilbertSpaces))
+	! will need to compare n,m with 
+	!req n,m in an iteration, so dont start with 0
+	Hg(:)%n = -1; Hg(:)%m = -1; Hg(:)%m1 = -1;
+	!write(*,*) "ReqType = ",mapt%req
+	! does not exist, set to false, for use in mapt/mapb
+	Hg(:)%xst = .false.
+	basis(:)%xst = .false.
+	return
+	end subroutine init1
+!===============================================================
 
 
 !-----------------------------------------

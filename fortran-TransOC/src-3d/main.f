@@ -7,7 +7,7 @@ cc
 
 	program TransOC
 	use modmain
-	use init, only: init0, initialise
+	use init, only: init0, init1, initialise
 	use basisstates, only: mkbasis
 	use hamiltonian, only: mkHamilt
 	use Hoppings, only: AllHops0, AllHops1 ! 
@@ -59,15 +59,17 @@ cc
 		Iall = 0.0d0;
 		write(frmt,'("(",I6.6,"G18.10)")') maxtraj+3 ! do we really need full out?
 	endif
-	
+
+	! allocate space for basis, and calc maps, etc.
+	call init1()  ! things that can be used during whole calculation
 	!call printnode(node)
 		do idw=1,ndw ! detuning
 			dw = dwmin + (idw-1)*ddw;
-			ielec=0;
 			call setdetuning(dw,detuning,node)
-			! allocate space for basis and eigstates etc, calc maps etc.
-			call init0()
+			! allocate space for Hamiltonian and eigstates, etc.
+			call init1() ! because changed detuning ===> new Hg, eig.
 			do nex=mexmin,mexmax,dmex ! excitations
+			ielec=0;
 			do nelec = nelmin,nelmax,dnelec
 				if (nelec == 0 .and. onlydoped) cycle
 				ielec=	ielec+1;
