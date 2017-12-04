@@ -35,7 +35,7 @@ cc
 	integer:: ierr, ntp, num_procs, node, maxtraj
 	double precision, allocatable, dimension (:):: Iav, Iall
 	character*50 :: frmt
-
+	integer :: itemp, ig, iEbl, iEbr
 
 !======================================================================
 	call MPI_INIT(ierr)
@@ -73,6 +73,16 @@ cc
 			do nelec = nelmin,nelmax,dnelec
 				if (nelec == 0 .and. onlydoped) cycle
 				ielec=	ielec+1;
+
+				do iEbl=1,nEbl
+				Ebl = Eblmin + (iEbl-1)*dEbl;
+				do iEbr=1,nEbr
+				Ebr = Ebrmin + (iEbr-1)*dEbr;
+				do ig=1,ng
+				g = gmin + (ig-1)*dg;
+				do itemp=1,ntemp
+				beta = 1/(kb*(tmin + (itemp-1)* dtemp));
+
 				do ier=1,ner ! Er: electric field * r_nns
 					if(node==0 .and. mod(ier,1)==0)then
 						write(*,'("main: ier = ",i4," of ",i4)')ier,ner
@@ -99,6 +109,10 @@ cc
 						call writeways(nmways0)
 					endif
 				enddo ! Er
+				enddo ! temp
+				enddo ! g
+				enddo	! Ebr		 
+				enddo ! Ebl
 			enddo ! ielectron
 		enddo ! idw
 	enddo ! nex
@@ -436,7 +450,13 @@ cc
 		!write(*,*)"main: ER, Rtot = ",Er, sum(rate(:)%r)
 
 		! select a hop based on rates
-		ih = ihSelect() 
+		ih = ihSelect();
+
+		if(ih == -1) then
+			write(*,*)"main: R too small, so setting I=0 "
+			Iav(itraj) = 0.0d0;
+			exit ! exit iter loop; start next trajectory
+		endif
 
 		if(1==0 .and. na==nsites-1) then
 			write(*,*)"main: Rtot = ",sum(rate(:)%r)

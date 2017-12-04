@@ -139,6 +139,13 @@
 	double precision:: w0, Ebr,Ebl, Er, Exb
 	double precision:: Ermin, Ermax, dEr
 	integer :: ner
+
+	double precision:: Eblmin, Eblmax,Ebrmin, Ebrmax,dEbr,dEbl
+	integer :: nEbl,	nEbr
+	double precision:: gmin, gmax, Tmin, Tmax,dtemp,dg, kb=8.33d-5; !(eV/K)
+	integer :: nTemp, ng
+
+	
 	! beta = 1/KbT for penalty function
 	double precision:: beta	
 	! block injection of electron/holes?

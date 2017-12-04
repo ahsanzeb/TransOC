@@ -19,11 +19,13 @@
 	logical :: OneDchains, giveExb
 	integer:: imptype=0, lossgain=-1;
 	double precision :: Eimp0=0.0d0
-
+	logical :: givenT, giveng, givenEblr
+	
 	giveExb = .false.
 	givenNel = .false.; givenNelrange=.false.
 	givenDw=.false.
-	givenEr = .false.
+	givenEr = .false.;
+	givenT =.false.; giveng=.false.; givenEblr=.false.;
 	OneDchains = .false.;
 	!--------------------------!
 	!     default values       !
@@ -207,7 +209,12 @@
 		write(*,*) "DontReuseData = ",fixmap
 
 	case('CavityMoleculeCoupling','g')
-		read(50,*,err=20) g
+		read(50,*,err=20) gmin, gmax, ng
+		giveng = .true.
+
+	case('Temperature') ! in Kelvin
+		read(50,*,err=20) Tmin, Tmax, nTemp
+		givenT = .true.
 
 	case('NoCoupling','nog')
 		read(50,*,err=20) nog
@@ -240,8 +247,12 @@
 			stop
 		endif
 
-	case('ContactsBarriers','Barriers','barriers')
-		read(50,*,err=20) Ebl, Ebr
+	!case('ContactsBarriers','Barriers','barriers')
+	!	read(50,*,err=20) Ebl, Ebr
+	case('ContactsBarriers')
+		read(50,*,err=20) Eblmin, Eblmax, nEbl
+		read(50,*,err=20) Ebrmin, Ebrmax, nEbr
+		givenEblr = .true.
 
 	!case('VRH','vrh')
 	!	read(50,*,err=20) VRH
@@ -275,8 +286,8 @@
 	!	read(50,*,err=20) Er
 	case('Er') ! Er is applied Efield times a0
 		read(50,*,err=20) Ermin, Ermax, ner
-		dEr = (Ermax - Ermin)/(ner-1);
 		givenEr = .true.
+
 	case('ExcitonEnergy','w0')
 		read(50,*,err=20) w0
 
@@ -403,10 +414,17 @@
 	if(.not. givenEr) then
 		call giveinput('Er')
 	else
-		call VarRange(Ermin,Ermax,ner,der,givenEr,1.0d-2)
+		call VarRange(Ermin,Ermax,ner,der,givenEr,1.0d-4,Er)
 	endif
 
-	call VarRange(dwmin,dwmax,ndw,ddw,givendw,1.0d-5)
+	call VarRange(dwmin,dwmax,ndw,ddw,givendw,1.0d-5,0.0d0)
+
+	! last arg= default value if a single value is to be used as default
+	call VarRange(Tmin,Tmax,nTemp,dtemp,givent,1.0d-5,1/(kb*beta))
+	call VarRange(gmin,gmax,ng,dg,giveng,1.0d-5,g)
+	call VarRange(Eblmin,Eblmax,nEbl,dEbl,givenEblr,0.0d0,Ebl)
+	call VarRange(Ebrmin,Ebrmax,nEbr,dEbr,givenEblr,0.0d0,Ebr)
+
 
 	! contact/leads present?
 	leads = (.not. periodic) .and. (.not. onlybulk);
@@ -516,15 +534,17 @@
 !************************************************
 ! VarRange sets the value of increment, 
 !						and number of points/divisions
-	subroutine VarRange(dwmin,dwmax,ndw,ddw,given,tol)
+	subroutine VarRange(dwmin,dwmax,ndw,ddw,given,tol,def)
 	implicit none
-	double precision, intent(in):: dwmin,dwmax, tol
+	double precision, intent(inout):: dwmin,dwmax
+	double precision, intent(in):: tol,def
 	logical, intent(in):: given
-	integer, intent(inout):: ndw
+	integer, intent(inout):: ndw 
 	double precision, intent(out)::ddw
 	if(  (.not. given) .or.
      . (ndw==1 .or. abs(dwmax-dwmin) < tol)
      . ) then
+		dwmin = def; dwmax=def;
 		ddw=0.0; ndw=1;
 	else
 		ddw = (dwmax-dwmin)/(ndw-1);

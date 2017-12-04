@@ -38,7 +38,7 @@
 		write(*,*) "ihSelect: something wrong.... ihSelect=",ihSelect
 		write(*,*) "ihSelect: eta = ",	eta		
 		write(*,'(43G18.5)') "ihSelect: rlist = ",	rlist	
-		stop
+		!stop
 	endif
 
 	return
