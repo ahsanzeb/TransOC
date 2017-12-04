@@ -20,6 +20,7 @@
 	integer:: imptype=0, lossgain=-1;
 	double precision :: Eimp0=0.0d0
 	logical :: givenT, giveng, givenEblr
+
 	
 	giveExb = .false.
 	givenNel = .false.; givenNelrange=.false.
@@ -62,6 +63,8 @@
 	periodic = .true.; onlybulk = .false.;
 	leads = .false.;
 	Ebr = 0.0d0; Ebl = 0.0d0; ! R/L contact barriers for electrons 
+	Eblmin=0.0d0; Eblmax=0.0d0; nEbl=1;
+	Ebrmin=0.0d0; Ebrmax=0.0d0; nEbr=1;
 	Er = 0.0d0;
 	Ermin=0.0; Ermax=0.0; dEr=0.0; ner = 1;
 	w0 = 2.0d0; ! exciton energy: E_LUMO = w0+Exb;
@@ -71,7 +74,7 @@
 	dwmin=0.0; dwmax=0.0; ddw=0.0; ndw = 1;
 	kappa = 0.1 !0.005d0 ! ref to th=1.0d0; scale times proportionally tp th.
 	gamma = 0.1 !0.005d0
-	beta = 40.0d0
+	beta = 40.0d0;
 	crosshops = .true.
 	AlwaysLP = .true.
 	PermSym = .false.
@@ -253,9 +256,6 @@
 		read(50,*,err=20) Eblmin, Eblmax, nEbl
 		read(50,*,err=20) Ebrmin, Ebrmax, nEbr
 		givenEblr = .true.
-
-	!case('VRH','vrh')
-	!	read(50,*,err=20) VRH
 	case('PositionalDisorder')
 		read(50,*,err=20) VRH, a0 !, sigma0, nsigma, dinvl
  		! a0= average,
@@ -307,9 +307,6 @@
 	case('NoLosses','Nolosses','nolosses')
 		read(50,*,err=20) nolosses
 
-	case('Beta','beta')
-		read(50,*,err=20) beta
-
 	case('CrossHops','Crosshops','crosshops')
 		read(50,*,err=20) crosshops
 
@@ -334,7 +331,6 @@
 	stop
 30			continue
 	close(50)
-
 
 
 	if(lossgain==1)then
@@ -448,7 +444,7 @@
 	!--------------------------
 	! keep the order 
 	!--------------------------
-	if(abs(g)<1.0d-2) nog = .true.
+	!if(abs(g)<1.0d-2) nog = .true.
 	if (nog) then
 		AlwaysLP = .false. ! stay in the state (= ksub set) after a transition
 		sameg = .true. ! g=0 for all molecules
@@ -522,7 +518,7 @@
 	endif
 	!---------------------------------------------
 	return
-	end subroutine
+	end subroutine input
 !************************************************
 	subroutine giveinput(str)
 	implicit none

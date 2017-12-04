@@ -61,8 +61,8 @@ cc
 	endif
 
 	! allocate space for basis, and calc maps, etc.
-	call init1()  ! things that can be used during whole calculation
-	!call printnode(node)
+	call init0()  ! things that can be used during whole calculation
+	!call printnode(node) ! XXX
 		do idw=1,ndw ! detuning
 			dw = dwmin + (idw-1)*ddw;
 			call setdetuning(dw,detuning,node)

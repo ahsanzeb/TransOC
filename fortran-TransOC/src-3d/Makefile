@@ -3,7 +3,7 @@
 ##################################
 
 FC 	= mpif90
-FFLAGS= -O3 -g -fbounds-check -fbacktrace 
+FFLAGS= -O3 -g -fbounds-check -fbacktrace
 LOADLIBES = libarpack_mac.a -llapack 
 
 SRC = basisstates.f main.f hamiltonian.f lists.f modmain.f memory.f \
