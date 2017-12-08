@@ -8,7 +8,7 @@
 	!rnns values grid; a0-sigma0 to a0+sigma0
 	integer:: nmax = 10000 ! large enough number; 
 
-	public :: init0, init1, initialise
+	public :: init0, init1, init2, initialise
 	
 	contains
 
@@ -93,12 +93,6 @@
 	!-----------------------------------------
 
 	!-----------------------------------------
-	! set dqc global vaiable 
-	!-----------------------------------------
-	call SetDQC()
-	!-----------------------------------------
-
-	!-----------------------------------------
 	! set SigndEQ global vaiable in modways
 	!-----------------------------------------
 	call SetSigndEQ()
@@ -124,6 +118,21 @@
 	basis(:)%xst = .false.
 	return
 	end subroutine init1
+!===============================================================
+	subroutine init2(idv)
+	implicit none
+	integer, intent(in):: idv
+	! sets Ebl, Ebr
+	call SetBarriers(idv)!,Ebl,Ebr) 
+	!-----------------------------------------
+	! set dqc global vaiable 
+	!-----------------------------------------
+	call SetDQC() ! Ebr, Ebl etc... 
+	!-----------------------------------------
+	! if there is nothing else to do here
+	! then move SetDQC() code here...
+	return
+	end subroutine init2
 !===============================================================
 
 
@@ -639,5 +648,31 @@
 	return
 	end 	subroutine SetLattice
 !---------------------------------------
+! sets the injection barriers Ebl, Ebr
+	subroutine SetBarriers(idv) !,Ebl,Ebr)
+	implicit none
+	integer, intent(in) :: idv
+	!double precision, intent(out):: Ebl,Ebr
+	integer :: i,j,typ
 	
+	i=dev%idv(idv,1);
+	j=dev%idv(idv,2);
+	typ = dev%typ(i);
+
+	select case(typ)
+	case(1) ! e-only: e injection barriers are given
+		Ebl = dev%X(i)%Eb(j,1)
+		Ebr = dev%X(i)%Eb(j,2)
+	case(2) ! h-only: h injection barriers are given
+		Ebl = w0 + Exb - dev%X(i)%Eb(j,1)
+		Ebr = w0 + Exb - dev%X(i)%Eb(j,2)
+	case(3) ! eh: L,e & R,h injection barriers are given
+		Ebl = dev%X(i)%Eb(j,1)
+		Ebr = w0 + Exb - dev%X(i)%Eb(j,2)
+	end select
+
+	return
+	end 	subroutine SetBarriers
+!==============================
+
 	end module init

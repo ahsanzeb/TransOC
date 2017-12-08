@@ -86,24 +86,31 @@
 				Vq(i) = Vq(i) + sys%q(j)/rij
 			endif
 		enddo
-		Vq(i) = Vq(i) * Kq;
-		Etotq = 	Etotq + Vq(i)*sys%q(i);
+		!Vq(i) = Vq(i) * Kq;
+		!Etotq = 	Etotq + Vq(i)*sys%q(i);
 	enddo
 	! double counting correction
-	Etotq = 0.5*Etotq;
+	!Etotq = 0.5*Etotq;
 	!write(*,*) "real sites: Vq = ",Vq
 	!--------------------------------------------
 	if(leads) then ! if not needed, routine called only if device geometry 
 									! but might need to test onlybulk geometry
+
+	! Note: potential of real charge at image site is used to calculate dEq
+	! as an equivalent of the change in energy of all real charges due to change in an image charge
+	! It saves calc potential of image charge at locations of all real charges and then their energies.
+									
 		! image sites at left
 		do i=-2,0; 
 			rim = rimage(i+3);
 			do j=1,nsites; ! only real, second mirror images ignored?
 				rij = dsqrt(sum((rim - sys%r(j,:))**2))
-				Vq(i) = Vq(i) + sys%q(j)/rij
+				!write(*,*)'coulomb; im: rij',rij
+				Vq(i) = Vq(i) + sys%q(j)/rij; ! potential of real charge at image site;
+				Vq(j) = Vq(j) + sys%q(i+3)/rij; ! potential of image charge at real site
 			enddo
-			Vq(i) = Vq(i) * Kq;
-			Etotq = 	Etotq - Vq(i)*sys%q(i+3)		
+			!Vq(i) = Vq(i) * Kq;
+			!Etotq = 	Etotq - Vq(i)*sys%q(i+3)		
 		enddo
 		!--------------------------------------------
 		! image sites at right
@@ -111,12 +118,20 @@
 			rim = rimage(i-3);
 			do j=1,nsites; ! only real, second mirror images ignored?
 				rij = dsqrt(sum((rim - sys%r(j,:))**2))
-				Vq(i) = Vq(i) + sys%q(j)/rij
+				Vq(i) = Vq(i) + sys%q(j)/rij; ! potential of real charge at image site;
+				Vq(j) = Vq(j) + sys%q(i-3)/rij; ! potential of image charge at real site
 			enddo
-			Vq(i) = Vq(i) * Kq;
-			Etotq = 	Etotq - Vq(i)*sys%q(i-3)
+			!Vq(i) = Vq(i) * Kq;
+			!Etotq = 	Etotq - Vq(i)*sys%q(i-3)
 		enddo
 	endif
+
+	! scale by Kq
+	Vq = Kq * Vq;
+	
+	!write(*,*)"-------------------"
+	!write(*,'(16f8.3)') 0.,0.,0.,sys%q,0.,0.,0.
+	!write(*,'(16f8.3)') Vq
 
 
 	!---------------------------------------
@@ -136,8 +151,6 @@
 	endif
 	!---------------------------------------
 
-	
-
 	!write(*,*) "Vq = ",Vq
 	!--------------------------------------------
 	! finally, set dEq
@@ -156,6 +169,7 @@
 			call ElectronJumpSites(ih,is,l1,l2)
 			! calculate the coulomb energy changes
 			Ecoul(ih)%dEq(is) = CoulombEnergyChange(l1,l2)
+			!write(*,*)"ih,l1,l2,dEq = ",ih,l1,l2,Ecoul(ih)%dEq(is)
 			if(vrh .or. ih > 34)then
 				! Applied Electric field, Er term
 				x = ErChange(l1,l2);
@@ -166,7 +180,6 @@
 				Ecoul(ih)%dEq(is) = Ecoul(ih)%dEq(is)-signEr(ih)*Er
 			endif
 			!write(*,*)"    Ecoul%dE +Er = ", Ecoul(ih)%dEq(is)
-			!write(*,*)"ih,is, Er = ",ih,is, x(2)
 		enddo
 	enddo
 	!--------------------------------------------
@@ -292,9 +305,12 @@
 	rimage = sys%r(l1,:);
 		if(l1 <= 3 ) then
 			rimage(1) = -sys%r(l1,1);! reflection along x axis
-		else
+		elseif(l1 >= nsites-2)then
 			! 2 x mirror position - site's pos
 			rimage(1) = 2*a0*(nsites/3 + 1) - sys%r(l1,1);
+		else
+			write(*,'("Error(rimage): site ",I3.3" not at interface!")')l1
+			stop
 		endif
 	return
 	end function rimage
@@ -322,6 +338,8 @@
 	q1 = sys%q(l1); q2 = sys%q(l2);
 	q1p = q1+1.0d0; q2p = q2-1.0d0;
 	r12 = dsqrt(sum((sys%r(l1,:) - sys%r(l2,:))**2))
+
+	!write(*,*)'EqChange1: ',l1,l2,r12
 	
 	v1p = Vq(l1) - Kq/r12 ! (-q2 + q2p) = -1
 	v2p = Vq(l2) + Kq/r12 ! (-q1 + q1p) = +1
@@ -343,20 +361,25 @@
 	q1p = q1+1.0d0; q2p = q2-1.0d0; ! e jumps from l1 to l2
 	!q10 = 1.0d0; !q1p - q1; 
 	!q20 = -1.0d0; !q2p - q2;
+
+	!write(*,*)'EqChange2: l1,l2 = ',l1,l2
 	
 	r12 = dsqrt(sum((sys%r(l1,:) - sys%r(l2,:))**2))
 	! identify the interfact site to find its image charge
 	! l0 = interface site index
-	if( l1<= 3 .or. l1 >= nsites) then ! l1 is at interface
+	if( l1<= 3 .or. l1 >= nsites-2) then ! l1 is at interface
 		q3 = -q1; q3p = -q1p;
 		q30 = -1.0d0; !-q10; !q1 - q1p;
 		rim = rimage(l1);
 		l3 = indimage(l1);
-	else ! l2 is at interfact
+	else !if( l2<= 3 .or. l2 >= nsites-2)then! l2 is at interfact
 		q3 = -q2; q3p = -q2p;
 		q30 = 1.0d0; !-q20; !q2 - q2p;
 		rim = rimage(l2);
 		l3 = indimage(l2);
+	!else
+	!	write(*,'("Error(EqChange2): None of l1,l2 at interface")')
+	!	stop
 	endif
 	r13 = dsqrt(sum((sys%r(l1,:) - rim)**2));
 	r23 = dsqrt(sum((sys%r(l2,:) - rim)**2));
@@ -369,7 +392,7 @@
 	v3p = Vq(l3) + Kq*( 1.0d0/r13 - 1.0d0/r23 )
 
 	EqChange2 = -(Vq(l1)*q1 + Vq(l2)*q2 + Vq(l3)*q3) +
-     .         (v1p*q1p + v2p*q2p - v3p*q1p)
+     .         (v1p*q1p + v2p*q2p + v3p*q3p)
 
 	return
 	end function EqChange2
@@ -398,12 +421,15 @@
 	r23 = dsqrt(sum((sys%r(l2,:) - rim3)**2));
 	r14 = dsqrt(sum((sys%r(l1,:) - rim4)**2));
 	r24 = dsqrt(sum((sys%r(l2,:) - rim4)**2));
+
+	!write(*,'(a,2i3.3,6f10.4)')'EqChange3:',l1,l2,r13,r23,r14,r24
+
 	
-	v1p = Vq(l1) + Kq*(-1/r12 + q30/r13 + q40/r14 );
-	v2p = Vq(l2) + Kq*( 1/r12 + q30/r23 + q40/r24 );
+	v1p = Vq(l1) + Kq*(-1/r12 + q30/r13 + q40/r14 ); !(-q2+q2p)=-1
+	v2p = Vq(l2) + Kq*( 1/r12 + q30/r23 + q40/r24 ); !(-q1+q1p)=+1
 
 	l3 = indimage(l1); l4 = indimage(l2);
-	v3p = Vq(l3) + Kq*( 1/r13 - 1/r23);
+	v3p = Vq(l3) + Kq*( 1/r13 - 1/r23);! (-q1+q1p)=+1; (-q2+q2p)=-1
 	v4p = Vq(l4) + Kq*( 1/r14 - 1/r24);
 	
 	EqChange3 = -(Vq(l1)*q1 + Vq(l2)*q2 - Vq(l3)*q1 - Vq(l4)*q2) +
@@ -426,13 +452,13 @@
 	if(s1 < 0 .or. s1 > nsites) then ! s2 real site
 		! s2 real site, e jumps from contact to the system
 		! use l2 for image site of s2
-		l1 = s2;
+		l1 = s2; ! real site index
 		l2 = indimage(l1);	! index of imag of l1, need for Vq
-		q1 = sys%q(s2); q1p=q1-1; ! e jump to s2
+		q1 = sys%q(l1); q1p=q1-1; ! e jump to s2(=l1)
 	else  ! s1 real site
 		l1 = s1;
 		l2 = indimage(l1);	
-		q1 = sys%q(s1); q1p=q1+1; ! e jump from s1
+		q1 = sys%q(l1); q1p=q1+1; ! e jump from s1(=l1)
 	endif
 	! image charges
 	q2 = -q1; q2p = -q1p;
@@ -442,7 +468,7 @@
 	r12 = dsqrt(sum((sys%r(l1,:) - rim)**2));
 	
 	v1p = Vq(l1) + Kq*(-q2+q2p)/r12;
-	v2p = Vq(l2) + Kq*(-q1+q1p)/r12; !trt real, see EqChange2/3
+	v2p = Vq(l2) + Kq*(-q1+q1p)/r12; !treat image as real, see EqChange2/3, same energy changes
 	
 	EqChange4 = -(Vq(l1)*q1 + Vq(l2)*q2) + (v1p*q1p + v2p*q2p);
 	

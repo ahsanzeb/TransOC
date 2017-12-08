@@ -223,8 +223,17 @@
 	type(BMaps) :: mapb
 	type(TMaps) :: mapt
 	!	------------------------------
-
-
+	! to manage cases of e/h injection barriers, make devices types etc.
+	type :: Device1
+		double precision, allocatable, dimension(:,:) :: Eb
+	end type Device1
+	type :: Device0
+		integer :: ntyps, ntot
+		integer, allocatable, dimension(:) :: typ, ndev
+		type(Device1), allocatable, dimension(:) :: X
+		integer, allocatable, dimension(:,:) :: idv
+	end type Device0
+	type(Device0)	:: dev
 	!---------------------------------------	
 	! for 5 values of N; smaller m can use larger m's data
 	! basis sectors for a given na,k-up spins
@@ -529,5 +538,40 @@
 	return
 	end function statistics
 !========================================
+
+!==============================
+	subroutine getnphoton(ipsi,itype,nphoton)
+	implicit none
+	integer, intent(in):: ipsi,itype
+	integer, intent(out) :: nphoton
+	integer:: n,m,m1,ib,ibi,i
+	logical :: found
+
+	!write(*,*)'nphoton: ipsi,itype = ',ipsi,itype
+	n = na + dna(itype); ! no of active sites
+	m = nx + dnx(itype); ! no of excitations
+	m1 = min(m,n); ! max no of up spins possible
+	ibi = ibs(itype);
+	ib = mapb%map(ibi);	
+	found=.false.;
+	do i=1,m1+2
+	!write(*,*)'ipsi, m1+2, i = ',ipsi, m1+2, i
+	!write(*,*)basis(ib)%pntr(i), basis(ib)%pntr(i+1)
+	
+	if(ipsi > basis(ib)%pntr(i) .and. 
+     .  ipsi <= basis(ib)%pntr(i+1) ) then   
+		nphoton = m-i+1;
+		found=.true.;
+		exit
+	endif
+	enddo
+	if(.not. found) then
+		write(*,*)"main: nphoton not found!!!"
+		stop
+	endif
+
+	return
+	end subroutine getnphoton
+!==============================
 
 	end module

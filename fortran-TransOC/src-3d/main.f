@@ -7,7 +7,7 @@ cc
 
 	program TransOC
 	use modmain
-	use init, only: init0, init1, initialise
+	use init, only: init0, init1, init2, initialise
 	use basisstates, only: mkbasis
 	use hamiltonian, only: mkHamilt
 	use Hoppings, only: AllHops0, AllHops1 ! 
@@ -35,7 +35,7 @@ cc
 	integer:: ierr, ntp, num_procs, node, maxtraj
 	double precision, allocatable, dimension (:):: Iav, Iall
 	character*50 :: frmt
-	integer :: itemp, ig, iEbl, iEbr
+	integer :: itemp, ig, iEbl, iEbr, nphoton, idv
 
 !======================================================================
 	call MPI_INIT(ierr)
@@ -63,6 +63,8 @@ cc
 	! allocate space for basis, and calc maps, etc.
 	call init0()  ! things that can be used during whole calculation
 	!call printnode(node) ! XXX
+	do ig=1,ng
+		g = gmin + (ig-1)*dg;
 		do idw=1,ndw ! detuning
 			dw = dwmin + (idw-1)*ddw;
 			call setdetuning(dw,detuning,node)
@@ -73,21 +75,17 @@ cc
 			do nelec = nelmin,nelmax,dnelec
 				if (nelec == 0 .and. onlydoped) cycle
 				ielec=	ielec+1;
-
-				do iEbl=1,nEbl
-				Ebl = Eblmin + (iEbl-1)*dEbl;
-				do iEbr=1,nEbr
-				Ebr = Ebrmin + (iEbr-1)*dEbr;
-				do ig=1,ng
-				g = gmin + (ig-1)*dg;
+				do idv=1,dev%ntot ! devices: sets of barriers values to make global variables Ebl, Ebr 
+				call init2(idv) ! sets Ebr, Ebl etc... 
 				do itemp=1,ntemp
 				beta = 1/(kb*(tmin + (itemp-1)* dtemp));
 
 				do ier=1,ner ! Er: electric field * r_nns
+					Er = Ermin + (ier-1)*dEr;
 					if(node==0 .and. mod(ier,1)==0)then
 						write(*,'("main: ier = ",i4," of ",i4)')ier,ner
+						!write(*,*)"Er, beta, dw, g = ",Er, beta, dw, g
 					endif
-					Er = Ermin + (ier-1)*dEr;
 					!if (VRH) Efieldh = signEr*Er ! VRH= variable range hopping
 					! runs ntp trajectories, output => current: Iav, h/c counts: stathc
 					call trajectory(ntp,node,Iav,stathc,nmways)
@@ -104,18 +102,17 @@ cc
 					call CheckError(ierr, node, 'reduce')		
 
 					if(node==0) then ! write output 
-						call WriteIvsEr(maxtraj,Iall)
+						call WriteIvsEr(maxtraj,Iall,stathc0)
 						call WriteStat(stathc0)
 						call writeways(nmways0)
 					endif
 				enddo ! Er
 				enddo ! temp
-				enddo ! g
-				enddo	! Ebr		 
-				enddo ! Ebl
-			enddo ! ielectron
-		enddo ! idw
-	enddo ! nex
+				enddo ! idv
+			enddo ! nelectron
+		enddo ! nx
+	enddo ! idw
+	enddo ! g
 	if(node==0) then
 		write(*,*)"TransOC: everything done.... " 
 		call timestamp(node)
@@ -189,10 +186,11 @@ cc
 	return
 	end subroutine setdetuning
 !=============================================
-	subroutine WriteIvsEr(maxtraj,Iall)
+	subroutine WriteIvsEr(maxtraj,Iall,stathc)
 	implicit none
 	integer, intent(in):: maxtraj
 	double precision, dimension(maxtraj), intent(in) :: Iall
+	integer, dimension(42,4), intent(in):: stathc
 	open(300,file="I-vs-Er.out",position='append')
 	if(ier==1) then
 		write(300,'(a,5x,4I10)') "# ier, nx, idw, iel =  ", ier, 
@@ -202,7 +200,8 @@ cc
 	endif
 	! statistics in modmain: statistics = (/ average, variance^2 /)
 	!write(300,frmt) Er, statistics(Iall,ntraj), Iall 
-	write(300,'(3G18.10)') Er, statistics(Iall,ntraj)
+	write(300,'(3G18.10,3x,2I10)') Er, statistics(Iall,ntraj),
+     .                  stathc(25:26,1)
 	close(300)
 	return
 	end subroutine WriteIvsEr
@@ -324,17 +323,18 @@ cc
 	! main loop over number of hops asked
 	do iter=1,niter
 
-		if(1==0 .and. iter==niter) then
+		if(1==0 .and. mod(iter,1)==0 .and. node==0) then
 			!write(*,'(a)') ". . . . . . . . . . . "
 			write(*,'(a,i10,a,i10,a,i10,a,2i10)')"Node = ",node,
      . " itraj = ",itraj," iter = ",iter,"  N, m = ",na,nx
-			!write(*,*)        
+			!write(*,*)'Ebl, Ebr = ',Ebl, Ebr     
+			write(*,'(a,3i3)')'N_d, N_phi, N_a = ', sys%n2,sys%n0,sys%n1
 		endif
 
 
 		!write(*,*) iter, na, nx
 		!write(*,*) "in: Asites = ",Asites
-		!write(*,*) "in: occ = ",sys%occ
+		!write(*,'(3i1,x,3i1,x,3i1)')sys%occ
 
 		nmways(1:2) = nmways(1:2) + (/na,nx/);
 		nmways(3:44) = nmways(3:44) + ways(:)%ns;
@@ -357,6 +357,8 @@ cc
 			call chooseipsi(ipsi,Einit);
 			!ipsi = eig(mapt%map(1))%ntot
 			!Einit = eig(mapt%map(1))%eval(ipsi)
+			!write(*,*)'start: Nphoton = ', Nphoton(ipsi,1)
+
 		endif
 
 		if (.not. nog) then ! if same quantum state as last iter, why not avoid this alloc/copy etc.??
@@ -375,9 +377,16 @@ cc
 
 		!write(*,*)"main: psi="	,psi
 		!write(*,*)"main: eval 1="	,eig(it)%eval
-		
-		!write(*,*)"sys%occ = ",sys%occ
-		
+		if(debug)then
+			write(*,*)'--------------------------------------'
+			i=1
+			write(*,'(3i2)')sys%occ(i),sys%occ(i+3),sys%occ(i+6)
+			i=2
+			write(*,'(3i2)')sys%occ(i),sys%occ(i+3),sys%occ(i+6)
+			i=3
+			write(*,'(3i2)')sys%occ(i),sys%occ(i+3),sys%occ(i+6)
+		endif
+	
 		if(.not. alloc) then
 			! at most nsites ways for any hop???
 				do ia=1,21
@@ -501,7 +510,13 @@ cc
 				write(*,*)	"main: sum(amp2)=", sum(qt(ia)%cs(icl,iss)%amp2)
 				stop
 			endif
-			
+
+			if(1==0)then
+			write(*,*)'main: Nog: ih,ic =',ih,ic
+			!write(*,*)'main: getNphoton arg ipsi,itype=',ipsi,itype
+			call getNphoton(ipsi,itype,Nphoton)
+			write(*,*)'main: Nphoton=',Nphoton
+			endif
 		endif
 
 		!----------------------------------------------

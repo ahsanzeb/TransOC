@@ -183,6 +183,7 @@
 !------------------------------------------
 !	D Phi Annihilation for channel 1,2,3,4
 !------------------------------------------
+! D,Phi becomes active molecule number n+1, n+2
 	subroutine DPhiAn2()
 	! chan 1,2,3,4 
 	use modmain, only: basis,na,nx,mapb
@@ -213,7 +214,7 @@
 		col(1,2) = 1 + 2 ! n+2 = 2 ==> ind=2 in k=1 sec,
 		! 1 added for k=0 sector
 		col(1,3) = 1 			! no up ==> ind=1 in k=0 sec
-		col(1,4) = 1 + 2 ! 1,2 ==> ind=1 in k=2 sec (both up)
+		col(1,4) = 4; ! both up: index=1+2+1=4 (na ==> 2: k=0,1,2 sectors: 1 + 2 + 1)
 		n3=1;
 	else
 	!----------------- n>0 -----------------	
@@ -236,8 +237,11 @@
 	col(1,1) = 1	+ n1; ! 1 for k=0 sec in n+2 case
 	col(1,2) = 1 + n2; ! 
 	col(1,3) = 1; ! k=0 sec in n+2 case
-	col(1,4) = pntr2(3);! k=2 sec in n+2 case
-	! pntr2(3) = pntr2(2) + ind of last basis of k=2	
+	col(1,4) = pntr2(4);! 2+2=4; ! k=2 sec in n+2 case
+	! pntr2(4) = pntr2(3) + ind of last basis of k=2	
+	! numer of basis in k=0,1,2,...: 1,n2, n2(n2+1)/2,....
+	! pntr2: 0, 1, 1+n2, 1+n2+n2(n2+1)/2,....
+	! pntr2(4) = 1+n2+n2(n2+1)/2 ==> last index of k=2 sector
 
 	! k>0 	
 	ind = 2;

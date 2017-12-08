@@ -41,7 +41,7 @@
 		! just index: psi = ipsi; Uf = Identity
 		if(routine=='multiplyd') then
 			do i=1,nnz ! diagonal but not full diagonal, selected rows/cols
-				if (rowc(i) == ipsi) then
+				if (rowc(i) == ipsi) then ! if ipsi is included in rowc
 					!write(*,*)"========> amp: i, rowc(i)=psi=",i,ipsi
 					qt(ia)%cs(ic,is)%amp(rowc(i)) = 1.0d0
 					exit

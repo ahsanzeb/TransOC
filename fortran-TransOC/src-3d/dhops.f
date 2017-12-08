@@ -303,7 +303,7 @@
 	end do
 	! dimensions of full transition matrices
 	lat = sum(las)
-	lbt = 1 + sum(lbs) ! 1 for k=0 case that is only for chan 2,4
+	lbt = 1 + sum(lbs) ! 1 for k=0 case that is only for chan 2,4 of Dhops; 1,4 of Phihops
 
 	! allocate transition matrix: diagonal format
 	allocate(row1(lat)) 
@@ -314,7 +314,7 @@
 	!	calc the matrix
 	!	k=0, chan 2,4 set by hand
 	row2(1) = 1;	
-	col4(1) = is; ! LexicoIndex((/ is /),n,1)
+	col4(1) = 1 + is; ! LexicoIndex((/ is /),n,1); 1 for k=0 basis
 	inda = 1; indb=2;
 	do k=1,m1,1
 		la = las(k); lb = lbs(k);
@@ -349,8 +349,6 @@
 	endif
 	call CalAmp0(ih,three,is,row1,lat,n3,col3) ! ic=3
 	call CalAmp0(ih,four,is,row2,lbt,n3,col4) ! ic=4
-
-
 
 
 	endif ! m==0

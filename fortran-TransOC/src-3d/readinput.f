@@ -14,19 +14,19 @@
 	! local
 	character(40) :: block
 	character(20):: Geometry
-	integer :: iostat,i,j
+	integer :: iostat,i,j,idv
 	logical :: givenNel,givenNelrange,givenDw,givenNexcit,givenEr
 	logical :: OneDchains, giveExb
 	integer:: imptype=0, lossgain=-1;
 	double precision :: Eimp0=0.0d0
-	logical :: givenT, giveng, givenEblr
+	logical :: givenT, giveng !, givenEblr
 
 	
 	giveExb = .false.
 	givenNel = .false.; givenNelrange=.false.
 	givenDw=.false.
 	givenEr = .false.;
-	givenT =.false.; giveng=.false.; givenEblr=.false.;
+	givenT =.false.; giveng=.false.; !givenEblr=.false.;
 	OneDchains = .false.;
 	!--------------------------!
 	!     default values       !
@@ -63,8 +63,8 @@
 	periodic = .true.; onlybulk = .false.;
 	leads = .false.;
 	Ebr = 0.0d0; Ebl = 0.0d0; ! R/L contact barriers for electrons 
-	Eblmin=0.0d0; Eblmax=0.0d0; nEbl=1;
-	Ebrmin=0.0d0; Ebrmax=0.0d0; nEbr=1;
+	!Eblmin=0.0d0; Eblmax=0.0d0; nEbl=1;
+	!Ebrmin=0.0d0; Ebrmax=0.0d0; nEbr=1;
 	Er = 0.0d0;
 	Ermin=0.0; Ermax=0.0; dEr=0.0; ner = 1;
 	w0 = 2.0d0; ! exciton energy: E_LUMO = w0+Exb;
@@ -250,12 +250,47 @@
 			stop
 		endif
 
+	case('DevicesTypes')
+		backspace(50)
+		read(50,*,err=20) block, dev%ntyps
+		!dev%ntyps: total number of types (eonly, honly, etc...)
+		allocate(dev%typ(dev%ntyps))		! type of the device
+		allocate(dev%ndev(dev%ntyps)) ! tot devices of a given type
+		allocate(dev%X(dev%ntyps))
+		do i=1,dev%ntyps
+			read(50,*,err=20) dev%typ(i), dev%ndev(i) !devtyp, dev%ndev(i)
+			!------------------------------------
+			!select case(trim(devtyp))
+			!	case('e-only')
+			!		dev%typ(i) = 1
+			!	case('h-only')
+			!		dev%typ(i) = 2
+			!	case('e-h')
+			!		dev%typ(i) = 3
+			!end select
+			!------------------------------------			
+			allocate(dev%X(i)%Eb(dev%ndev(i),2))
+			do j=1,dev%ndev(i)
+				read(50,*,err=20) dev%X(i)%Eb(j,:)
+			enddo
+		enddo
+		dev%ntot = sum(dev%ndev(:)) ! total number of devices
+		allocate(dev%idv(dev%ntot,2)) ! indexes table, to avoid two loops in main program.
+		idv=0
+		do i=1,dev%ntyps
+			do j=1,dev%ndev(i)
+				idv = idv + 1;
+				dev%idv(idv,1) = i;
+				dev%idv(idv,2) = j;
+			enddo
+		enddo
+
 	!case('ContactsBarriers','Barriers','barriers')
 	!	read(50,*,err=20) Ebl, Ebr
-	case('ContactsBarriers')
-		read(50,*,err=20) Eblmin, Eblmax, nEbl
-		read(50,*,err=20) Ebrmin, Ebrmax, nEbr
-		givenEblr = .true.
+	!case('ContactsBarriers')
+	!	read(50,*,err=20) Eblmin, Eblmax, nEbl
+	!	read(50,*,err=20) Ebrmin, Ebrmax, nEbr
+	!	givenEblr = .true.
 	case('PositionalDisorder')
 		read(50,*,err=20) VRH, a0 !, sigma0, nsigma, dinvl
  		! a0= average,
@@ -418,9 +453,8 @@
 	! last arg= default value if a single value is to be used as default
 	call VarRange(Tmin,Tmax,nTemp,dtemp,givent,1.0d-5,1/(kb*beta))
 	call VarRange(gmin,gmax,ng,dg,giveng,1.0d-5,g)
-	call VarRange(Eblmin,Eblmax,nEbl,dEbl,givenEblr,0.0d0,Ebl)
-	call VarRange(Ebrmin,Ebrmax,nEbr,dEbr,givenEblr,0.0d0,Ebr)
-
+	!call VarRange(Eblmin,Eblmax,nEbl,dEbl,givenEblr,0.0d0,Ebl)
+	!call VarRange(Ebrmin,Ebrmax,nEbr,dEbr,givenEblr,0.0d0,Ebr)
 
 	! contact/leads present?
 	leads = (.not. periodic) .and. (.not. onlybulk);
@@ -537,10 +571,10 @@
 	logical, intent(in):: given
 	integer, intent(inout):: ndw 
 	double precision, intent(out)::ddw
-	if(  (.not. given) .or.
-     . (ndw==1 .or. abs(dwmax-dwmin) < tol)
-     . ) then
+	if(.not. given) then
 		dwmin = def; dwmax=def;
+		ddw=0.0; ndw=1;
+	elseif(ndw==1 .or. abs(dwmax-dwmin) < tol)then
 		ddw=0.0; ndw=1;
 	else
 		ddw = (dwmax-dwmin)/(ndw-1);

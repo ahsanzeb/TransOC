@@ -11,7 +11,7 @@
 
 	module maps
 	
-	use lists, only: Drop4
+	use lists, only: Drop4, MemberQ4
 	implicit none
 
 	contains
@@ -363,13 +363,20 @@
 	if(PermSym) then
 	!------------------------------
 	do ih=1,nh
+		mapc(ih,:) = (/1,2,3,4/); ! for all ih except 3,4,29,30; 8,34
 		select case(ih)
-		case(1:4,27:30)
+		case(1,2,27,28)
 			maph(ih,:) = 1
+		case(3,4,29,30)
+			maph(ih,:) = 1
+			mapc(ih,:) = (/2,1,3,4/); ! PhiHops using Dhops amplitudes
 		case(5,6,31,32)
 			maph(ih,:) = 2
-		case(7,8,33,34)
+		case(7,33)
 			maph(ih,:) = 3
+		case(8,34)
+			maph(ih,:) = 3
+			mapc(ih,:) = (/2,1,3,4/); ! mapc: swap channel 1,2 for ih=8,34
 		case(9,11,13,15,35,37)
 			maph(ih,:) = 4
 		case(10,12,14,16,36,38)
@@ -383,12 +390,6 @@
 		case(26)
 			maph(ih,:) = 9
 		end select
-		! mapc: swap channel 1,2 for ih=8,34
-		if(ih==8 .or. ih==34) then
-			mapc(ih,:) = (/2,1,3,4/)
-		else
-			mapc(ih,:) = (/1,2,3,4/)
-		endif
 	end do
 	!------------------------------
 	else ! .not. PermSym
