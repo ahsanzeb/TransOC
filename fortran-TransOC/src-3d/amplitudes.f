@@ -8,27 +8,28 @@
 
 	contains
 ! transition matrices and amplitudes
-	subroutine CalAmp(ih,ic,is,rowc,nnz,n3,routine)
-	use modmain, only: qt,mapt,maph,eig,itypes,psi,ipsi,nog
+	subroutine CalAmp(ih,ici,is,rowc,nnz,n3,routine)
+	use modmain, only: qt,mapt,maph,eig,itypes,psi,ipsi,nog,mapc
 	implicit none
 	integer, intent(in) :: is
-	integer, intent(in) :: ih,ic
+	integer, intent(in) :: ih,ici
 	integer, intent(in) :: nnz,n3
 	integer, dimension(nnz), intent(in)  :: rowc
 	character(len=*), intent(in) :: routine
 	! local
 	double precision, allocatable:: HtUf(:,:)
-	integer :: ia,n1,n2,itl,i,it1
+	integer :: ia,n1,n2,itl,i,it1,ic
 	double precision, allocatable, dimension(:,:):: Hte ! Ht in eigenbasis
 
 	!write(*,*)"amp: ih,ic,is = ",ih,ic,is
 	!-------------------------------------------------------
 	! calculate transition amplitudes
 	!-------------------------------------------------------
-	itl = mapt%map(itypes(ih,ic)) !???????! location of final hilber space
+	itl = mapt%map(itypes(ih,ici)) !???????! location of final hilber space
 	!write(*,*)"ih,ic,it,itl= ",ih,ic,itypes(ih,ic),itl
-	ia = maph(ih,ic); ! location of amplitudes
-		
+	ia = maph(ih,ici); ! location of amplitudes
+	ic = mapc(ih,ici); ! location of ici 
+	! 08Dec2017: just using ici for ic and ic for icl becasue otherwise I will have to change ic to icl in too many places in these amp,amp0 routines... this is becuase for PermSym case, I now want to use Dhops amp for Phihops amp, so need to give location for storing the amp that both Dhop and phihops processes know later when retrieving qt%cs%amp for rate calculations. 
 	n1=eig(itl)%n1 ! dim of final hilbert space
 	n2=eig(itl)%n2
 	
@@ -85,26 +86,26 @@
 !---------------------------------------------
 
 
-	subroutine CalAmp0(ih,ic,is,rowc,nnz,n3,col)
-	use modmain, only: qt,mapt,maph,eig,itypes,psi,ipsi,nog
+	subroutine CalAmp0(ih,ici,is,rowc,nnz,n3,col)
+	use modmain, only: qt,mapt,maph,eig,itypes,psi,ipsi,nog,mapc
 	implicit none
 	integer, intent(in) :: is
-	integer, intent(in) :: ih,ic
+	integer, intent(in) :: ih,ici
 	integer, intent(in) :: nnz,n3
 	integer, dimension(nnz), intent(in)  :: rowc
 	integer, dimension(nnz), intent(in) :: col
 	! local
 	double precision, allocatable:: HtUf(:,:)
-	integer :: ia,n1,n2,itl,i,it1
+	integer :: ia,n1,n2,itl,i,it1,ic
 	double precision, allocatable, dimension(:,:):: Hte ! Ht in eigenbasis
 
 	!-------------------------------------------------------
 	! calculate transition amplitudes
 	!-------------------------------------------------------
-	itl = mapt%map(itypes(ih,ic)) !???????! location of final hilber space
+	itl = mapt%map(itypes(ih,ici)) !???????! location of final hilber space
 	!write(*,*)"itypes(ih,ic), itl = ",itypes(ih,ic),itl
-	ia = maph(ih,ic); ! location of amplitudes
-
+	ia = maph(ih,ici); ! location of amplitudes
+	ic = mapc(ih,ici); ! confused about ic and ici? see comments in calamp above...
 	n1=eig(itl)%n1 ! dim of final hilbert space
 	n2=eig(itl)%n2
 	call allocqt(ia,ic,is,itl,n2)

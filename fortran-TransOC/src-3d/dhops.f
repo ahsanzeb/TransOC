@@ -83,7 +83,7 @@
 		if(dhop) then
 			call CalAmp(ih,2,is,(/1/),1,1,'multiplyd') ! ic=2
 		else	if(phop) then
-			call CalAmp(ih,1,is,(/1/),1,1,'multiplyd') ! ic=2
+			call CalAmp(ih,1,is,(/1/),1,1,'multiplyd') ! ic=1
 		else
 			write(*,*)"Error(dhops1): stopping!";
 			stop
