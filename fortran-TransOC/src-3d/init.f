@@ -695,7 +695,7 @@
 	subroutine calxijs()
 	implicit none
 	double precision :: drx, r1(3),r2(3)
-	integer :: z, z1, z2
+	integer :: z, z1, z2,l1,l2
 
 	if(.not. allocated(sys%xij)) then
 		allocate(sys%xij(0:nsites+1,0:nsites+1)) ! x-comp of rij

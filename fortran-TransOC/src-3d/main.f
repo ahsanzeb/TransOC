@@ -17,7 +17,7 @@ cc
 	use readinput, only: input
 	use maps
 	use diag, only: diagonalise
-	use modq, only: SetEcoul, qtime
+	use modq, only: SetEcoul
 	use mpi
 	implicit none
 
@@ -320,8 +320,6 @@ cc
 	!endif
 
 	!write(*,*)"coulomb: starting traj"
-	!call qtime()
-
 	x = 0;
 	!========== iterations over number of hops
 	! main loop over number of hops asked
@@ -597,8 +595,6 @@ cc
 
 
 	!write(*,*)"main: end traj"	
-	!call qtime()
-	
 
 	return
 	end subroutine trajectory
