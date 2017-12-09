@@ -359,7 +359,7 @@
 		!rnns = dij(ih,is);
 		!rnns = dijl(ih,is);
 		rnns = ways(ih)%rij(is); ! PermSym not used so is is true index of hop
-		tvr = dexp(-dinvl*(rnns-a0)/a0); ! bare amplitude prefactor
+		tvr = dexp(-dinvl*rnns) !dexp(-dinvl*(rnns-a0)/a0); ! bare amplitude prefactor
 	endif
 
 	!write(*,*) "ih, Er, dEnet = ", ih, Er, de(1:min(5,nsec))

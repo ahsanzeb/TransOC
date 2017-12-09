@@ -364,6 +364,8 @@
 		integer, allocatable :: occ(:) ! occupancy of the site
 		double precision, allocatable, dimension(:,:) :: r
 		double precision, allocatable, dimension(:) :: q0, q ! integer?
+		double precision, allocatable, dimension(:,:) :: xij
+		double precision, allocatable, dimension(:,:) :: dij
 	end type System
 	type(System) :: sys
 	!---------------------------------------	

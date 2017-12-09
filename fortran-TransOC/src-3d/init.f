@@ -181,6 +181,10 @@
 	!if (vrh) call SetBondLengths()
 	call SetLattice(doping)
 
+	! calculated sys%xij and sys%dij
+	! for leads, xij and dij measure normal distances
+	call calxijs()
+
 	return
 	end subroutine initialise
 !-------------------------------------------------------------
@@ -673,6 +677,112 @@
 
 	return
 	end 	subroutine SetBarriers
+!==============================
+	integer function zone(l) ! copy of the one in coulomb module
+	implicit none
+	integer, intent(in) :: l
+
+	if(l < 1 .or. l > nsites) then ! imag site
+		zone = 1
+	elseif(l <= 3 .or. l >= nsites-2) then ! interface site
+		zone = 2
+	else ! 'bulk' site
+		zone = 3
+	endif
+	return
+	end function zone
+!============================================================
+	subroutine calxijs()
+	implicit none
+	double precision :: drx, r1(3),r2(3)
+	integer :: z, z1, z2
+
+	if(.not. allocated(sys%xij)) then
+		allocate(sys%xij(0:nsites+1,0:nsites+1)) ! x-comp of rij
+		allocate(sys%dij(0:nsites+1,0:nsites+1)) ! magnitude/length of rij
+	endif
+
+	!-----------------------------------------
+	! periodic
+	if(periodic) then ! zone 1 not possible, only zone 2,3
+	do l1=1,nsites
+	! zones l1,l2 lie in.
+	z1 = zone(l1);
+	do l2=1,nsites
+		if (l2==l1) cycle
+		z2 = zone(l2);	
+		z = z1 + z2;
+		r1 = sys%r(l1,:); r2 = sys%r(l2,:);
+		if (z==4) then ! 4=2+2, same or opp ends? 
+			! x-comp of displacement of hopping electron
+			if(l1<=3 .and. l2>= nsites-2)then
+			! opposite end layers, apply periodicity
+				r2(1) = sys%r(l2,1) - a0*nsites/3;
+				drx = r2(1) - sys%r(l1,1);
+			elseif(l2<=3 .and. l1>= nsites-2)then ! opposite end
+				r2(1) = sys%r(l2,1) + a0*nsites/3;
+				drx = r2(1) - sys%r(l1,1);
+			else ! same end
+				drx = sys%r(l2,1) - sys%r(l1,1);
+			endif
+		else ! z=5,6 ! deep bulk, no periodic next cell involved
+			drx = sys%r(l2,1) - sys%r(l1,1);
+		endif
+		sys%dij(l1,l2) = dsqrt(sum((r1-r2)**2)); ! nns distance, not just x-comp
+		sys%xij(l1,l2) = drx
+	enddo
+	enddo
+	sys%xij = sys%xij/a0; ! normalise with a0 for use with Er
+	sys%dij = (sys%dij-a0)/a0; !dexp(-dinvl*(sys%dij-a0)/a0); ! prefactor
+	! store more refined data unless raw dij is needed.
+	return
+	endif
+	!-------------------------------------
+	!leads: device
+	do l1=0,nsites+1 ! 0, left lead; nsites+1 right lead
+		z1 = zone(l1);
+		do l2=0,nsites+1
+			if(l2==l1) cycle
+			z2 = zone(l2);
+			z = z1 + z2;
+			
+	if(z > 3)then ! a bulk hop, no contact involved
+		! x-comp of displacement of hopping electron
+		drx = sys%r(l2,1) - sys%r(l1,1);
+		sys%dij(l1,l2) = dsqrt(sum((sys%r(l1,:)-sys%r(l2,:))**2));
+		!write(*,*)"coulomb: l1,l2,rij = ",l1,l2,ErChange(1)
+	elseif(z==3) then ! a contact hop
+		if(z1==1) then ! l1 ==> contact, l2 ==> interface site
+			! left/right contact?
+			if(l1<1)then! left contact
+				drx = sys%r(l2,1); ! +x direction;
+			else ! right contact
+				drx = -((nsites/3 + 1)*a0-sys%r(l2,1)); ! -x direction
+			endif
+		else ! z2==1; ! l2 ==> contact, l1 ==> interface site
+			! left/right contact?
+			if(l2<1)then! left contact
+				drx = -sys%r(l1,1); ! -x direction;
+			else ! right contact
+				drx = (nsites/3 + 1)*a0-sys%r(l1,1); ! +x direction
+			endif
+		endif
+		sys%dij(l1,l2) = dabs(drx);! dist to the contact = x-comp
+	else
+		write(*,*)"Error(calxijs): z1, z2 = ", z1, z2
+		stop
+	endif 
+	sys%xij(l1,l2) = drx
+	enddo
+	enddo
+
+	sys%xij = sys%xij/a0; ! normalise with a0 for use with Er
+	sys%dij = (sys%dij-a0)/a0; !dexp(-dinvl*(sys%dij-a0)/a0); ! prefactor
+	! store more refined data unless raw dij is needed.
+	! unless devices with multiple a0 values are to be calculated in a loop etc... but this routine will be called for each trajectory so no problem with a set of a0 values.... 
+	
+	return
+	end subroutine calxijs
 !==============================
 
 	end module init

@@ -35,10 +35,10 @@
 					!	electron jumping from l1 to l2;
 					call ElectronJumpSites(ih,is,l1,l2)
 					!	dE for all hops & their sites due to applied Electric field
-					x = ErChange(l1,l2);
-					ways(ih)%rij(is) = x(1);
+					!x = ErChange(l1,l2);
+					ways(ih)%rij(is) = sys%dij(l1,l2);!x(1);
 					!write(*,*) "coulom: l1,l2, rij. dE = ",l1,l2, x
-					Ecoul(ih)%dEq(is) = x(2);
+					Ecoul(ih)%dEq(is) = - Er * sys%xij(l1,l2)!x(2);
 				else 	! regular lattice/triangles, no positional disorder
 							!or impurity level hop that has no sense of L/R/U/D that
 							! could allow using signEr(ih)*Er style
@@ -172,9 +172,9 @@
 			!write(*,*)"ih,l1,l2,dEq = ",ih,l1,l2,Ecoul(ih)%dEq(is)
 			if(vrh .or. ih > 34)then
 				! Applied Electric field, Er term
-				x = ErChange(l1,l2);
-				ways(ih)%rij(is) = x(1);
-				Ecoul(ih)%dEq(is) = Ecoul(ih)%dEq(is) + x(2);
+				!x = ErChange(l1,l2);
+				ways(ih)%rij(is) = sys%dij(l1,l2)!x(1);
+				Ecoul(ih)%dEq(is) = Ecoul(ih)%dEq(is) - Er*sys%xij(l1,l2) !x(2);
 			else! regular lattice/triangles, no positional disorder
 				ways(ih)%rij(is) = a0;
 				Ecoul(ih)%dEq(is) = Ecoul(ih)%dEq(is)-signEr(ih)*Er
@@ -201,6 +201,8 @@
 	z1 = zone(l1);	 z2 = zone(l2);	
 	z = z1 + z2;
 	!write(*,*)"ErChange: nsites, l1,l2, z1,z2 = ",nsites, l1,l2, z1,z2 
+	!-----------------------------------------
+	! periodic
 	if(periodic) then ! zone 1 not possible, only zone 2,3
 		r1 = sys%r(l1,:); r2 = sys%r(l2,:);
 		if (z==4) then ! 4=2+2, same or opp ends? 
@@ -222,7 +224,8 @@
 		!write(*,*)"ErChange: rij = ",ErChange(1)
 		return
 	endif
-
+	!-------------------------------------
+	!leads: device
 	if(z > 3)then ! a bulk hop, no contact involved
 		! x-comp of displacement of hopping electron
 		drx = sys%r(l2,1) - sys%r(l1,1);
@@ -254,6 +257,8 @@
 	!write(*,*)" drx = ",drx
 	return
 	end function ErChange
+!******************************************************
+
 !-----------------------------------------------
 ! find the initial and final indeces of sites l1,l2
 ! for 'electron' jumps
@@ -284,9 +289,9 @@
 		! contact to la electron jump
 		l2 = ways(ih)%active(is); l1 = nsites+1; 
 	case(11:12,22,24)! la to left contact electron jump
-		l1 = ways(ih)%active(is); l2 = -1; 
+		l1 = ways(ih)%active(is); l2 = 0; 
 	case(15:16,21,23)! left contact to la electron jump
-		l2 = ways(ih)%active(is); l1 = -1; 
+		l2 = ways(ih)%active(is); l1 = 0; 
 	case(35:36,40,42) ! e jumps from molecule to impurity level: like 11,12,22,24
 		! impurity is assumed to be on site 4
 		l2 = 4; l1 = ways(ih)%active(is);
@@ -522,20 +527,4 @@
 	return
 	end function zone
 !============================================================
-	subroutine qtime()
-	implicit none
-	integer, save	:: dt(8), dti(8)=0
-	character*10 :: bb(3)
-	logical, save :: start = .true.;
-
-	call date_and_time(bb(1), bb(2), bb(3), dt)
-
-	write(6,
-     . '("time: ",i2,":",i2.2,":",i2.2,"(h:m:s)")')
-     .   dt(5:7)-dti(5:7)
-	write(6,*) dt(5:8)-dti(5:8)
-	dti = dt;
-	return
-	end subroutine qtime
-!==========================================
 	end module modq

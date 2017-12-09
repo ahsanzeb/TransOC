@@ -200,7 +200,7 @@ cc
 	endif
 	! statistics in modmain: statistics = (/ average, variance^2 /)
 	!write(300,frmt) Er, statistics(Iall,ntraj), Iall 
-	write(300,'(3G18.10,3x,2I10)') Er, statistics(Iall,ntraj),
+	write(300,'(3G18.10,3x,2I10)') Er, statistics(Iall,maxtraj),
      .                  stathc(25:26,1)
 	close(300)
 	return
@@ -259,22 +259,26 @@ cc
 	double precision:: tot
 	tot = niter*ntraj*1.d0;
 	open(200,file='ways.out',action='write',position='append')
-	write(200,*) "# idw, ielec, Er = ",idw,ielec, Er
-	write(200,*) 
-	write(200,*) 
-	
+
+	if(ier==1) then
+		write(200,'(a,5x,4I10)') "# ier, nx, idw, iel =  ", ier, 
+     .         nex, idw, ielec
+		write(200,'("     ")')
+		write(200,'("     ")')
+	endif
+
 	if (leads) then
 		if(impurity) then
-			write(200,'(44G18.10)') nmways/tot
+			write(200,'(45G18.10)') Er, nmways/tot
 		else
-			write(200,'(36G18.10)') nmways(1:36)/tot
+			write(200,'(37G18.10)') Er, nmways(1:36)/tot
 		endif
 	else ! periodic
 		if(impurity)then
-			write(200,'(28G18.10)') nmways(1:10)/tot,
+			write(200,'(29G18.10)') Er, nmways(1:10)/tot,
      .                        nmways(27:44)/tot
 		else
-			write(200,'(20G18.10)') nmways(1:10)/tot,
+			write(200,'(21G18.10)') Er, nmways(1:10)/tot,
      .                        nmways(27:36)/tot
 		endif
 	endif
