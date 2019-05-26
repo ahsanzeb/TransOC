@@ -414,6 +414,10 @@
 	! ~ 3 seems fine, energetic penalty is not going to
 	! allow much higher transitions anyway.
 
+	double precision, dimension(:,:,:), allocatable :: drates
+
+	
+
 	contains
 
 !--------------- timer -----------------

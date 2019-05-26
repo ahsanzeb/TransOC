@@ -1,17 +1,25 @@
 ! number of sites in the system
 Nsites
- 10
+4
+
 CavityMoleculeCoupling
-0.1 1.0 1
+1.0 1.0 1
+
 Detuning
 0 1.0 1
+
 NExcitations
-3
-Niter
-10
+4
+
+Niter ! number of lowest states to be used as init state for transitions.
+1000
 
 NLowDegSectors
-100
+10000
+
+
+
+
 
 ! above this size, iterative arpack solver will be used
 !	to diagonalise Hamiltonians

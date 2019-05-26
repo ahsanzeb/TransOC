@@ -4,10 +4,35 @@
      .  mapb,mapt,maph,mapc,nokappa, nogamma
 	implicit none
 
-	public:: CalRates
-	private:: totr, ratehcs, PenaltyArray !, Penalty
+	public:: CalRates, dhopsrate
+	private:: totr, ratehcs, PenaltyArray,ratehcsd !, Penalty
 
 	contains
+
+	!----------------------------------------------------
+! calculates total rates for DhopsRight
+!----------------------------------------------------
+	subroutine dhopsrate(iter)
+	use modmain, only: crosshops, rate,ts
+	implicit none
+	integer, intent(in) :: iter
+	! local
+	integer :: nc, ic,ih,is
+
+	nc=2;
+	if (crosshops) nc=4; 
+
+	ih=1;	is=1;
+	rate(ih)%rcs(:,:) = 0.0d0
+	do ic=1,nc
+		call ratehcsd(ic,iter)
+			rate(ih)%rcs(ic,is)=ts(ih,ic)*rate(ih)%rcs(ic,is)
+	end do
+	rate(ih)%r = sum(rate(ih)%rcs); ! total rate for ih hop
+
+	return
+	end subroutine dhopsrate
+
 !----------------------------------------------------
 ! calculates total rates for all processes
 !----------------------------------------------------
@@ -254,7 +279,7 @@
 	integer :: nsec, ia,icl,itl,i,isa
 	double precision:: x,y,rnns,tvr,rrr
 	logical :: Its2526
-	integer :: iii,iter
+	integer :: iii,iter,imax
 	character*6 :: fname,fname1
 	
 	! I think this if block is not needed, the condition in it
@@ -351,8 +376,17 @@
 
 	write(fname,'(i6.6)') nsites-1
 	write(fname1,'(i6.6)') nx
-	open(100,file='amp2-'//trim(fname)//'-'//trim(fname1)//'.out',
+
+	if (ic == 1) then
+		open(100,file='amp2-'//trim(fname)//'-'//trim(fname1)//'-1.out',
      .               action='write',position='append')
+	else
+		open(100,file='amp2-'//trim(fname)//'-'//trim(fname1)//'-2.out',
+     .               action='write',position='append')
+	endif
+  
+
+
 	write(100,'(a,xx,i10,xx,f15.10)')'# ',nsec, Einit
 	!write(100,'(10000f15.10)')'# ',eig(itl)%esec(1:nsec)
 	! find highest state in the init LEVEL
@@ -366,14 +400,32 @@
 
 	! total amp2 of energetically accessible states; ef <= ei
 	rrr = sum(qt(ia)%cs(icl,isa)%amp2(1:iter))
+	if(1==0) then
 	do iii=1,iter
 		!write(100,'(10000f15.10)')
     ! .        eig(itl)%esec(iii),  qt(ia)%cs(icl,isa)%amp2(iii)
-		write(100,'(i10,x,10f15.10)')
-     . iii, eig(itl)%esec(iii)-Einit, qt(ia)%cs(icl,isa)%amp2(iii)/rrr
+		x = qt(ia)%cs(icl,isa)%amp2(iii)/rrr;
+		if (x>1.0d-2)  write(100,'(i10,x,10f15.10)')
+     . iii, eig(itl)%esec(iii)-Einit, x
 	end do
-	write(100,*)''
-	write(100,*)''	
+	endif
+
+	! find max transiton rate
+	imax=1;	x = qt(ia)%cs(icl,isa)%amp2(1);
+	do iii=2,iter-1
+		if(qt(ia)%cs(icl,isa)%amp2(iii) .ge. x) then
+			imax = iii;
+			x = qt(ia)%cs(icl,isa)%amp2(iii);
+		endif
+	end do
+	x = x/rrr;	
+	y = 0.0d0;
+	y = sum(qt(ia)%cs(icl,isa)%amp2(1:iter-1))/rrr;	
+	write(100,'(2i10,3x,10f15.10)')
+     . iter,iter-imax, eig(itl)%esec(imax)-Einit, 	x, y 
+
+	!write(100,*)''
+	!write(100,*)''	
 	close(100)
 
 
@@ -613,5 +665,112 @@
 	return
 	end function dijl
 !******************************************************
+
+
+
+
+
+
+
+
+!******************************************************
+	subroutine ratehcsd(ic,jsec)
+	! rates for ih hop, ic channel, is site
+	! sets global variable rate(ih)%rcs(ic,is)
+	use modmain, only: nx,qt,eig,itypes,beta,nsites,
+     .  mapt,maph,mapc,Einit,rate,ways,dqc,dEQs,drates,
+     .  simplepf,a0,dinvl,vrh,PermSym,Ecoul, Etotq, Er
+	implicit none
+	integer, intent(in) :: ic, jsec
+	! local
+	double precision, allocatable :: de(:)
+	integer :: nsec, ia,icl,itl,i,isa,ih
+	double precision:: x,y,rnns,tvr,rrr
+	logical :: Its2526
+	integer :: iii,imax
+	character*6 :: fname,fname1
+
+
+	ih = 1; isa = 1;
+	
+	! locations of data
+	itl = mapt%map(itypes(ih,ic)) ! location of final hilber space
+	ia = maph(ih,ic); ! location of amplitudes
+	icl = mapc(ih,ic); ! localtion of ic; icl=ic except ih=8, ic 1,2 swapped
+
+	! no of degenerate sectors
+	nsec = eig(itl)%nsec 
+
+	! add to the rates
+	drates(jsec,:,icl) = drates(jsec,:,icl) + 
+     .                       qt(ia)%cs(icl,isa)%amp2(1:nsec)
+
+
+
+	return
+
+
+
+
+
+
+	
+	if(1==0 .and. ih <= 2)then
+		write(*,'(1000f15.8)')qt(ia)%cs(icl,isa)%amp2(1:nsec)
+	endif
+
+	write(fname,'(i6.6)') nsites-1
+	write(fname1,'(i6.6)') nx
+
+	if (ic == 1) then
+		open(100,file='amp2-'//trim(fname)//'-'//trim(fname1)//'-1.out',
+     .               action='write',position='append')
+	else
+		open(100,file='amp2-'//trim(fname)//'-'//trim(fname1)//'-2.out',
+     .               action='write',position='append')
+	endif
+  
+
+
+	write(100,'(a,xx,i10,xx,f15.10)')'# ',nsec, Einit
+	write(*,*)'size(amp2)=',size(qt(ia)%cs(icl,isa)%amp2)
+
+	! total amp2 of energetically accessible states; ef <= ei
+	rrr = sum(qt(ia)%cs(icl,isa)%amp2(1:jsec))
+	if(1==0) then
+	do iii=1,jsec
+		!write(100,'(10000f15.10)')
+    ! .        eig(itl)%esec(iii),  qt(ia)%cs(icl,isa)%amp2(iii)
+		x = qt(ia)%cs(icl,isa)%amp2(iii)/rrr;
+		if (x>1.0d-2)  write(100,'(i10,x,10f15.10)')
+     . iii, eig(itl)%esec(iii)-Einit, x
+	end do
+	endif
+
+	! find max transiton rate
+	imax=1;	x = qt(ia)%cs(icl,isa)%amp2(1);
+	do iii=2,jsec-1
+		if(qt(ia)%cs(icl,isa)%amp2(iii) .ge. x) then
+			imax = iii;
+			x = qt(ia)%cs(icl,isa)%amp2(iii);
+		endif
+	end do
+	x = x/rrr;	
+	y = 0.0d0;
+	y = sum(qt(ia)%cs(icl,isa)%amp2(1:jsec-1))/rrr;	
+	write(100,'(2i10,3x,10f15.10)')
+     . jsec,jsec-imax, eig(itl)%esec(imax)-Einit, 	x, y 
+	close(100)
+
+	return
+	end subroutine ratehcsd
+!******************************************************
+
+
+
+
+
+
+
 	end module rates
 

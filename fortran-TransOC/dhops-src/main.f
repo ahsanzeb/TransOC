@@ -11,7 +11,7 @@ cc
 	use basisstates, only: mkbasis
 	use hamiltonian, only: mkHamilt
 	use Hoppings, only: AllHops0, AllHops1 ! 
-	use rates, only: CalRates
+	use rates, only: CalRates,dhopsrate
 	use selection, only: ihSelect,icsSelect,getpsi2
 	use modways, only: UpdateWays,UpdateOcc,UpdateDEQs
 	use readinput, only: input
@@ -304,6 +304,8 @@ cc
 	double precision, dimension(ntp), intent(out) :: Iav
 	integer, dimension(42,4), intent(out) :: stathc
 	integer, dimension(44), intent(out):: nmways
+	integer :: jsec,itermax
+
 	stathc = 0;
 
 	!write(*,'(42G10.5)')"main: Exb = ",Exb
@@ -335,6 +337,8 @@ cc
 	!========== iterations over number of hops
 	! main loop over number of hops asked
 	do iter=1,niter
+	
+		if(node==0) write(*,'(a,i10)')" sector = ",iter
 
 		if(1==0 .and. mod(iter,1)==0 .and. node==0) then
 			!write(*,'(a)') ". . . . . . . . . . . "
@@ -371,12 +375,31 @@ cc
 			it = mapt%map(1);
 			! maz: niter as dummy index to get amp FROM various eigenstates
 			!write(*,*)'iter,  size(eig(it)%eval) = ',
-     	!.                      iter,  size(eig(it)%eval)
-			if( iter > size(eig(it)%eval) ) exit
+     !.                          iter,  eig(it)%nsec
+			if(iter > eig(it)%n2)then !.or. eig(it)%eval(iter) > 0.d0)then
+				itermax = iter-1
+			 exit
+			endif
 			allocate(psi(1,eig(it)%n1))
 			psi(1,:) = eig(it)%evec(:,iter)
-			Einit = eig(it)%eval(iter)
-			!write(*,*)"main: Einit block ends...."	
+			Einit = eig(it)%eval(iter);
+			!if( Einit > 0.0d0) exit; ! only 0 and below states
+
+			if(.not. allocated(drates)) then
+				allocate(drates(eig(it)%nsec,eig(it)%nsec,2))
+				drates = 0.0d0
+			endif
+
+			jsec = 0;
+			do i=1,eig(it)%nsec
+						if(iter .ge. eig(it)%ind(i) .and. 
+     .         iter .lt. eig(it)%ind(i+1)) then
+								jsec = i;
+								exit
+     				endif
+			end do
+			!write(*,*)'ind=',eig(it)%ind(1:eig(it)%nsec+1)
+			!write(*,*)'iter, jsec = ',iter, jsec
 		endif
 
 		if(.not. alloc) then
@@ -414,9 +437,13 @@ cc
 		endif
 
 		! rates from am2 and energetic penalties
-		call CalRates()
+		!call CalRates()
+		call dhopsrate(jsec)
 		
 	enddo ! iter
+
+
+	call writedrates(itermax,jsec)
 
 	Iav(itraj) = 0.0d0
 
@@ -429,5 +456,53 @@ cc
 	return
 	end subroutine trajectory
 !======================================================================
+	subroutine writedrates(im,jsec)
+	implicit none
+	integer, intent(in) :: im,jsec
+	integer :: it, nstates
 
+	
+		open(100,file='degen-sec-amp2-1.out',
+     .               action='write',position='append')
+		open(101,file='degen-sec-amp2-2.out',
+     .               action='write',position='append')
+		open(101,file='degen-sec-amp2-tot.out',
+     .               action='write',position='append')
+
+	
+	it = mapt%map(1);
+	! normalise with number of states in every dgenerate sector
+	! to get average rate per state
+	do i=1,jsec; !eig(it)%nsec
+		! im: to fix: possibly incorrect average for the highest sector.
+		! not all states of the highest sec may have been used in iter loop in trajectory().
+		nstates = 0
+		if(im .lt. eig(it)%ind(i+1)-1) then
+			nstates = im - eig(it)%ind(i) + 1
+		else
+			nstates = eig(it)%ind(i+1) - eig(it)%ind(i)
+		endif
+		!drates(i,:,:) = 	drates(i,:,:)/nstates 
+		!write(*,*)'im, isec, nstates=',im, i, nstates
+		!write(*,*)'i1, i2=',eig(it)%ind(i), eig(it)%ind(i+1)
+		write(100,'(1000f15.8)') eig(it)%esec(i), drates(i,:,1)/nstates
+		write(101,'(1000f15.8)') eig(it)%esec(i), drates(i,:,2)/nstates
+		write(102,'(1000f15.8)') eig(it)%esec(i), 
+     .                              sum(drates(i,:,:),dim=2)/nstates
+		
+	end do
+
+	write(*,*)'jsec, nsec = ', jsec, eig(it)%nsec
+
+
+	close(100)
+	close(101)
+	close(102)
+
+	deallocate(drates) ! so re-init=0 is done with new allocation
+	return
+	end subroutine  writedrates
+!======================================================================
+
+	
 	end program
