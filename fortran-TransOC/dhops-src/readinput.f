@@ -23,7 +23,8 @@
 
 	
 	giveExb = .false.
-	givenNel = .false.; givenNelrange=.false.
+	givenNel = .true.; 
+	givenNelrange=.false.
 	givenDw=.false.
 	givenEr = .false.;
 	givenT =.false.; giveng=.false.; !givenEblr=.false.;
@@ -42,12 +43,12 @@
 	nsites = 6;
 	!J0=1.0d0;
 	wcut=0.3d0;
-	nel = 1;
+	nel = -1;
 	nelmin=1; nelmax=1;dnelec=1;
 	Eq = 0.0;
 	nx = 1;
-	niter = 500;
-	ntraj = 10;
+	niter = 10;
+	ntraj = 1;
 	NBasisSets = 5;
 	NHilbertSpaces=13;
 	smalln = 50;
@@ -57,7 +58,7 @@
 	fixmap = .false.
 	ndsec = 3;
 	g = 0.3d0;
-	th = 1.0d0; tl=1.0d0; tlh=0.005d0; thl=1.0d0;
+	th = 1.0d0; tl=1.0d0; tlh=1.0d0; thl=1.0d0;
 	JhR=10.0d0; JlR=10.0d0; JhL=10.0d0; JlL=10.0d0;
 	EBlock = .false.; HBlock = .false.;
 	periodic = .true.; onlybulk = .false.;
@@ -76,7 +77,7 @@
 	gamma = 0.1 !0.005d0
 	beta = 40.0d0;
 	crosshops = .true.
-	AlwaysLP = .true.
+	AlwaysLP = .false.
 	PermSym = .false.
 	nokappa = .false.
 	nogamma = .false.	
@@ -89,8 +90,8 @@
 	!onlydoped = .true.
 	simplepf = .true.
 	givenEr = .false.
-	VRH = .true.
-	coulomb = .true.
+	VRH = .false.
+	coulomb = .false.
 	impurity = .false.
 	vqout = .false.
 	!--------------
@@ -148,9 +149,9 @@
 			nsites = 3*(nsites/3) + 3; ! integer arithmatic
 			write(*,*)	"Warning(readinp): used Nsites=",Nsites
 		endif
-	case('Doping','doping')
-		read(50,*,err=20) nel
-		givenNel = .true.
+	!case('Doping','doping')
+	!	read(50,*,err=20) nel
+	!	givenNel = .true.
 
 	case('DopingRange','Dopingrange','dopingrange')
 		read(50,*,err=20) nelmin, nelmax,dnelec
@@ -185,8 +186,8 @@
 	case('Niter')
 		read(50,*,err=20) niter
 
-	case('Ntraj','ntraj')
-		read(50,*,err=20) ntraj
+	!case('Ntraj','ntraj')
+	!	read(50,*,err=20) ntraj
 
 	!case('SameLightMoleculeCoupling') !set always to true as diff g not implemented yet
 	!	read(50,*,err=20) sameg
@@ -236,95 +237,6 @@
 	case('BlockInjection')
 		read(50,*,err=20) EBlock, HBlock
 
-	case('Geometry','geometry')
-		read(50,*,err=20) Geometry
-		if (trim(Geometry) == 'periodic') then
-			periodic = .true.
-			onlybulk = .false.	
-		elseif(trim(Geometry) == 'device') then
-			periodic = .false.	
-			onlybulk = .false.			
-		elseif(trim(Geometry) == 'onlybulk') then
-			periodic = .false.;
-			onlybulk = .true.
-		else
-			write(*,'("Error(readinput): Geometry unknown... ")')
-			stop
-		endif
-
-	case('DevicesTypes')
-		backspace(50)
-		read(50,*,err=20) block, dev%ntyps
-		!dev%ntyps: total number of types (eonly, honly, etc...)
-		allocate(dev%typ(dev%ntyps))		! type of the device
-		allocate(dev%ndev(dev%ntyps)) ! tot devices of a given type
-		allocate(dev%X(dev%ntyps))
-		do i=1,dev%ntyps
-			read(50,*,err=20) dev%typ(i), dev%ndev(i) !devtyp, dev%ndev(i)
-			!------------------------------------
-			!select case(trim(devtyp))
-			!	case('e-only')
-			!		dev%typ(i) = 1
-			!	case('h-only')
-			!		dev%typ(i) = 2
-			!	case('e-h')
-			!		dev%typ(i) = 3
-			!end select
-			!------------------------------------			
-			allocate(dev%X(i)%Eb(dev%ndev(i),2))
-			do j=1,dev%ndev(i)
-				read(50,*,err=20) dev%X(i)%Eb(j,:)
-			enddo
-		enddo
-		dev%ntot = sum(dev%ndev(:)) ! total number of devices
-		allocate(dev%idv(dev%ntot,2)) ! indexes table, to avoid two loops in main program.
-		idv=0
-		do i=1,dev%ntyps
-			do j=1,dev%ndev(i)
-				idv = idv + 1;
-				dev%idv(idv,1) = i;
-				dev%idv(idv,2) = j;
-			enddo
-		enddo
-
-	!case('ContactsBarriers','Barriers','barriers')
-	!	read(50,*,err=20) Ebl, Ebr
-	!case('ContactsBarriers')
-	!	read(50,*,err=20) Eblmin, Eblmax, nEbl
-	!	read(50,*,err=20) Ebrmin, Ebrmax, nEbr
-	!	givenEblr = .true.
-	case('PositionalDisorder')
-		read(50,*,err=20) VRH, a0 !, sigma0, nsigma, dinvl
- 		! a0= average,
- 		! sigma0=std,
- 		! nsigma= spread in dij in terms of std on either side
-		! dinvl =  inverse localisation length in terms of a0
-		if(vrh) then
-			backspace(50)
-			read(50,*,err=20) VRH, a0, sigma0, nsigma, dinvl
-		endif
-
-	case('Coulomb','coulomb')
-		read(50,*,err=20) coulomb
-
-	case('Impurity','impurity')! 'TrapLevel','DopantLevel'
-		! impurity?
-		!	imptype: 1,2,3,4 for n trap,p trap, ntype dopant (donor), ptype dopant(acceptor)
-		! Eimp0: energy of impurity level, w.r.t its type's logical reference
-		! i.e., for an ptype dopant, it tell how much lower is the 1LS's level below HOMO of regular molecules, etc....
-		read(50,*,err=20) impurity, imptype, Eimp0
-		if(imptype <0 .or. imptype > 4) then
-			write(*,*)"Error(readinp) : Impurity type 1-4 only"
-			write(*,*)"1 for e & 2 for h trap, 3 for n & 4 for p dopant"
-			if(impurity) stop
-		endif
-
-	!case('EFieldNNSEnergy','Er','er')
-	!	read(50,*,err=20) Er
-	case('Er') ! Er is applied Efield times a0
-		read(50,*,err=20) Ermin, Ermax, ner
-		givenEr = .true.
-
 	case('ExcitonEnergy','w0')
 		read(50,*,err=20) w0
 
@@ -370,6 +282,45 @@
 	close(50)
 
 
+
+		!'DevicesTypes'
+
+		dev%ntyps=1
+		!dev%ntyps: total number of types (eonly, honly, etc...)
+		allocate(dev%typ(dev%ntyps))		! type of the device
+		allocate(dev%ndev(dev%ntyps)) ! tot devices of a given type
+		allocate(dev%X(dev%ntyps))
+		do i=1,dev%ntyps
+			dev%typ(i)=1; dev%ndev(i)=1;
+			!------------------------------------
+			!select case(trim(devtyp))
+			!	case('e-only')
+			!		dev%typ(i) = 1
+			!	case('h-only')
+			!		dev%typ(i) = 2
+			!	case('e-h')
+			!		dev%typ(i) = 3
+			!end select
+			!------------------------------------			
+			allocate(dev%X(i)%Eb(dev%ndev(i),2))
+			do j=1,dev%ndev(i)
+				dev%X(i)%Eb(j,:) = 0.0
+			enddo
+		enddo
+		dev%ntot = sum(dev%ndev(:)) ! total number of devices
+		allocate(dev%idv(dev%ntot,2)) ! indexes table, to avoid two loops in main program.
+		idv=0
+		do i=1,dev%ntyps
+			do j=1,dev%ndev(i)
+				idv = idv + 1;
+				dev%idv(idv,1) = i;
+				dev%idv(idv,2) = j;
+			enddo
+		enddo
+
+
+
+	lossgain=0
 	if(lossgain==1)then
 		nolosses = .false.
 		crosshops=.true.
@@ -444,12 +395,6 @@
 	endif
 	
 	
-	if(.not. givenEr) then
-		call giveinput('Er')
-	else
-		call VarRange(Ermin,Ermax,ner,der,givenEr,1.0d-4,Er)
-	endif
-
 	call VarRange(dwmin,dwmax,ndw,ddw,givendw,1.0d-5,0.0d0)
 
 	! last arg= default value if a single value is to be used as default
