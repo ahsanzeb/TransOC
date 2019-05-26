@@ -602,6 +602,15 @@
 	double precision:: x,y,z
 
 	if(.not. allocated(sys%r)) allocate(sys%r(-2:nsites+3,3))
+
+	sys%r(:,:) = 0.0; !(/ 0.0d0, 0.0d0, 0.0d0 /); 
+
+	return ! maz: May 2019:
+	!to avoid issues with nsites being other than a multiple of 3
+
+
+
+	
 	! redular lattice: a chain of equilateral trianlges
 	sys%r(-2,:) = (/ 0.0d0, 0.0d0, 0.0d0 /); 
 	sys%r(-1,:) = (/ 0.0d0, a0, 0.0d0 /); 

@@ -1,0 +1,429 @@
+
+set xrange[-4.2:0.1]
+pl \
+"amp2.out-1" i 0 u 2:3 w lp t '0',\
+"amp2.out-1" i 4 u 2:3 w lp t '1',\
+"amp2.out-1" i 8 u 2:3 w lp lw 5 t '2',\
+"amp2.out-1" i 12 u 2:3 w lp t '3',\
+"amp2.out-1" i 16 u 2:3 w lp t '4',\
+"amp2.out-1" i 20 u 2:3 w lp t '5',\
+"amp2.out-1" i 16 u 2:3 w lp t '6',\
+"amp2.out-1" i 16 u 2:3 w lp t '7',\
+"amp2.out-1" i 16 u 2:3 w lp t '8',\
+"amp2.out-1" i 16 u 2:3 w lp t '9',\
+"amp2.out-1" i 16 u 2:3 w lp t '10',\
+"amp2.out-1" i 16 u 2:3 w lp t '11',\
+"amp2.out-1" i 16 u 2:3 w lp t '12',\
+"amp2.out-1" i 16 u 2:3 w lp lw 3 t '13'
+
+pause(-1)
+
+
+pl \
+"amp2.out-2" i 0 u 2:3 w lp t '0',\
+"amp2.out-2" i 4 u 2:3 w lp t '1',\
+"amp2.out-2" i 8 u 2:3 w lp lw 5 t '2',\
+"amp2.out-2" i 12 u 2:3 w lp t '3',\
+"amp2.out-2" i 16 u 2:3 w lp t '4',\
+"amp2.out-2" i 20 u 2:3 w lp t '5',\
+"amp2.out-2" i 16 u 2:3 w lp t '6',\
+"amp2.out-2" i 16 u 2:3 w lp t '7',\
+"amp2.out-2" i 16 u 2:3 w lp t '8',\
+"amp2.out-2" i 16 u 2:3 w lp t '9',\
+"amp2.out-2" i 16 u 2:3 w lp t '10',\
+"amp2.out-2" i 16 u 2:3 w lp t '11',\
+"amp2.out-2" i 16 u 2:3 w lp t '12',\
+"amp2.out-2" i 16 u 2:3 w lp lw 3 t '13'
+
+pause(-1)
+
+
+
+pl \
+"amp2.out-3" i 0 u 2:3 w lp t '0',\
+"amp2.out-3" i 4 u 2:3 w lp t '1',\
+"amp2.out-3" i 8 u 2:3 w lp lw 5 t '2',\
+"amp2.out-3" i 12 u 2:3 w lp t '3',\
+"amp2.out-3" i 16 u 2:3 w lp t '4',\
+"amp2.out-3" i 20 u 2:3 w lp t '5',\
+"amp2.out-3" i 16 u 2:3 w lp t '6',\
+"amp2.out-3" i 16 u 2:3 w lp t '7',\
+"amp2.out-3" i 16 u 2:3 w lp t '8',\
+"amp2.out-3" i 16 u 2:3 w lp t '9',\
+"amp2.out-3" i 16 u 2:3 w lp t '10',\
+"amp2.out-3" i 16 u 2:3 w lp t '11',\
+"amp2.out-3" i 16 u 2:3 w lp t '12',\
+"amp2.out-3" i 16 u 2:3 w lp lw 3 t '13'
+
+pause(-1)
+
+pl \
+"amp2.out-4" i 0 u 2:3 w lp t '0',\
+"amp2.out-4" i 4 u 2:3 w lp t '1',\
+"amp2.out-4" i 8 u 2:3 w lp lw 5 t '2',\
+"amp2.out-4" i 12 u 2:3 w lp t '3',\
+"amp2.out-4" i 16 u 2:3 w lp t '4',\
+"amp2.out-4" i 20 u 2:3 w lp t '5',\
+"amp2.out-4" i 16 u 2:3 w lp t '6',\
+"amp2.out-4" i 16 u 2:3 w lp t '7',\
+"amp2.out-4" i 16 u 2:3 w lp t '8',\
+"amp2.out-4" i 16 u 2:3 w lp t '9',\
+"amp2.out-4" i 16 u 2:3 w lp t '10',\
+"amp2.out-4" i 16 u 2:3 w lp t '11',\
+"amp2.out-4" i 16 u 2:3 w lp t '12',\
+"amp2.out-4" i 16 u 2:3 w lp lw 3 t '13'
+
+pause(-1)
+
+pl \
+"amp2.out-6" i 0 u 2:3 w lp t '0',\
+"amp2.out-6" i 4 u 2:3 w lp t '1',\
+"amp2.out-6" i 8 u 2:3 w lp lw 5 t '2',\
+"amp2.out-6" i 12 u 2:3 w lp t '3',\
+"amp2.out-6" i 16 u 2:3 w lp t '4',\
+"amp2.out-6" i 20 u 2:3 w lp t '5',\
+"amp2.out-6" i 16 u 2:3 w lp t '6',\
+"amp2.out-6" i 16 u 2:3 w lp t '7',\
+"amp2.out-6" i 16 u 2:3 w lp t '8',\
+"amp2.out-6" i 16 u 2:3 w lp t '9',\
+"amp2.out-6" i 16 u 2:3 w lp t '10',\
+"amp2.out-6" i 16 u 2:3 w lp t '11',\
+"amp2.out-6" i 16 u 2:3 w lp t '12',\
+"amp2.out-6" i 16 u 2:3 w lp lw 3 t '13'
+
+pause(-1)
+
+pl \
+"amp2.out-7" i 0 u 2:3 w lp t '0',\
+"amp2.out-7" i 4 u 2:3 w lp t '1',\
+"amp2.out-7" i 8 u 2:3 w lp lw 5 t '2',\
+"amp2.out-7" i 12 u 2:3 w lp t '3',\
+"amp2.out-7" i 16 u 2:3 w lp t '4',\
+"amp2.out-7" i 20 u 2:3 w lp t '5',\
+"amp2.out-7" i 16 u 2:3 w lp t '6',\
+"amp2.out-7" i 16 u 2:3 w lp t '7',\
+"amp2.out-7" i 16 u 2:3 w lp t '8',\
+"amp2.out-7" i 16 u 2:3 w lp t '9',\
+"amp2.out-7" i 16 u 2:3 w lp t '10',\
+"amp2.out-7" i 16 u 2:3 w lp t '11',\
+"amp2.out-7" i 16 u 2:3 w lp t '12',\
+"amp2.out-7" i 16 u 2:3 w lp lw 3 t '13'
+
+pause(-1)
+
+pl \
+"amp2.out-8" i 0 u 2:3 w lp t '0',\
+"amp2.out-8" i 4 u 2:3 w lp t '1',\
+"amp2.out-8" i 8 u 2:3 w lp lw 5 t '2',\
+"amp2.out-8" i 12 u 2:3 w lp t '3',\
+"amp2.out-8" i 16 u 2:3 w lp t '4',\
+"amp2.out-8" i 20 u 2:3 w lp t '5',\
+"amp2.out-8" i 16 u 2:3 w lp t '6',\
+"amp2.out-8" i 16 u 2:3 w lp t '7',\
+"amp2.out-8" i 16 u 2:3 w lp t '8',\
+"amp2.out-8" i 16 u 2:3 w lp t '9',\
+"amp2.out-8" i 16 u 2:3 w lp t '10',\
+"amp2.out-8" i 16 u 2:3 w lp t '11',\
+"amp2.out-8" i 16 u 2:3 w lp t '12',\
+"amp2.out-8" i 16 u 2:3 w lp lw 3 t '13'
+
+pause(-1)
+
+pl \
+"amp2.out-9" i 0 u 2:3 w lp t '0',\
+"amp2.out-9" i 4 u 2:3 w lp t '1',\
+"amp2.out-9" i 8 u 2:3 w lp lw 5 t '2',\
+"amp2.out-9" i 12 u 2:3 w lp t '3',\
+"amp2.out-9" i 16 u 2:3 w lp t '4',\
+"amp2.out-9" i 20 u 2:3 w lp t '5',\
+"amp2.out-9" i 16 u 2:3 w lp t '6',\
+"amp2.out-9" i 16 u 2:3 w lp t '7',\
+"amp2.out-9" i 16 u 2:3 w lp t '8',\
+"amp2.out-9" i 16 u 2:3 w lp t '9',\
+"amp2.out-9" i 16 u 2:3 w lp t '10',\
+"amp2.out-9" i 16 u 2:3 w lp t '11',\
+"amp2.out-9" i 16 u 2:3 w lp t '12',\
+"amp2.out-9" i 16 u 2:3 w lp lw 3 t '13'
+
+pause(-1)
+
+pl \
+"amp2.out-10" i 0 u 2:3 w lp t '0',\
+"amp2.out-10" i 4 u 2:3 w lp t '1',\
+"amp2.out-10" i 8 u 2:3 w lp lw 5 t '2',\
+"amp2.out-10" i 12 u 2:3 w lp t '3',\
+"amp2.out-10" i 16 u 2:3 w lp t '4',\
+"amp2.out-10" i 20 u 2:3 w lp t '5',\
+"amp2.out-10" i 16 u 2:3 w lp t '6',\
+"amp2.out-10" i 16 u 2:3 w lp t '7',\
+"amp2.out-10" i 16 u 2:3 w lp t '8',\
+"amp2.out-10" i 16 u 2:3 w lp t '9',\
+"amp2.out-10" i 16 u 2:3 w lp t '10',\
+"amp2.out-10" i 16 u 2:3 w lp t '11',\
+"amp2.out-10" i 16 u 2:3 w lp t '12',\
+"amp2.out-10" i 16 u 2:3 w lp lw 3 t '13'
+
+pause(-1)
+
+pl \
+"amp2.out-20" i 0 u 2:3 w lp t '0',\
+"amp2.out-20" i 4 u 2:3 w lp t '1',\
+"amp2.out-20" i 8 u 2:3 w lp lw 5 t '2',\
+"amp2.out-20" i 12 u 2:3 w lp t '3',\
+"amp2.out-20" i 16 u 2:3 w lp t '4',\
+"amp2.out-20" i 20 u 2:3 w lp t '5',\
+"amp2.out-20" i 16 u 2:3 w lp t '6',\
+"amp2.out-20" i 16 u 2:3 w lp t '7',\
+"amp2.out-20" i 16 u 2:3 w lp t '8',\
+"amp2.out-20" i 16 u 2:3 w lp t '9',\
+"amp2.out-20" i 16 u 2:3 w lp t '10',\
+"amp2.out-20" i 16 u 2:3 w lp t '11',\
+"amp2.out-20" i 16 u 2:3 w lp t '12',\
+"amp2.out-20" i 16 u 2:3 w lp lw 3 t '13'
+
+pause(-1)
+
+pl \
+"amp2.out-100" i 0 u 2:3 w lp t '0',\
+"amp2.out-100" i 4 u 2:3 w lp t '1',\
+"amp2.out-100" i 8 u 2:3 w lp lw 5 t '2',\
+"amp2.out-100" i 12 u 2:3 w lp t '3',\
+"amp2.out-100" i 16 u 2:3 w lp t '4',\
+"amp2.out-100" i 20 u 2:3 w lp t '5',\
+"amp2.out-100" i 16 u 2:3 w lp t '6',\
+"amp2.out-100" i 16 u 2:3 w lp t '7',\
+"amp2.out-100" i 16 u 2:3 w lp t '8',\
+"amp2.out-100" i 16 u 2:3 w lp t '9',\
+"amp2.out-100" i 16 u 2:3 w lp t '10',\
+"amp2.out-100" i 16 u 2:3 w lp t '11',\
+"amp2.out-100" i 16 u 2:3 w lp t '12',\
+"amp2.out-100" i 16 u 2:3 w lp lw 3 t '13'
+
+q
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+pl \
+"amp2.out-5" i 0 u 2:3 w lp t '0',\
+"amp2.out-5" i 4 u 2:3 w lp t '1',\
+"amp2.out-5" i 8 u 2:3 w lp lw 5 t '2',\
+"amp2.out-5" i 12 u 2:3 w lp t '3',\
+"amp2.out-5" i 16 u 2:3 w lp t '4',\
+"amp2.out-5" i 20 u 2:3 w lp t '5',\
+"amp2.out-5" i 16 u 2:3 w lp t '6',\
+"amp2.out-5" i 16 u 2:3 w lp t '7',\
+"amp2.out-5" i 16 u 2:3 w lp t '8',\
+"amp2.out-5" i 16 u 2:3 w lp t '9',\
+"amp2.out-5" i 16 u 2:3 w lp t '10',\
+"amp2.out-5" i 16 u 2:3 w lp t '11',\
+"amp2.out-5" i 16 u 2:3 w lp t '12',\
+"amp2.out-5" i 16 u 2:3 w lp lw 3 t '13'
+
+q
+
+
+
+set xrange[-2.2:0.1]
+pl \
+"amp2.out-1" u 2:3 w p t '1'
+pause(-1)
+pl \
+"amp2.out-2" u 2:3 w p t '2'
+pause(-1)
+pl \
+"amp2.out-3" u 2:3 w p t '3'
+pause(-1)
+pl \
+"amp2.out-4" u 2:3 w p t '4'
+pause(-1)
+pl \
+"amp2.out-5" u 2:3 w p t '5'
+pause(-1)
+pl \
+"amp2.out-6" u 2:3 w p t '6'
+pause(-1)
+pl \
+"amp2.out-7" u 2:3 w p t '7'
+pause(-1)
+pl \
+"amp2.out-8" u 2:3 w p t '8'
+pause(-1)
+pl \
+"amp2.out-9" u 2:3 w p t '9'
+pause(-1)
+pl \
+"amp2.out-10" u 2:3 w p t '10'
+pause(-1)
+pl \
+"amp2.out-20" u 2:3 w p t '20'
+pause(-1)
+pl \
+"amp2.out-50" u 2:3 w p t '50'
+pause(-1)
+pl \
+"amp2.out-100" u 2:3 w p t '100'
+
+q
+
+
+
+pl \
+"amp2.out-1" u 1:3 w p t '1'
+pause(-1)
+pl \
+"amp2.out-2" u 1:3 w p t '2'
+pause(-1)
+pl \
+"amp2.out-3" u 1:3 w p t '3'
+pause(-1)
+pl \
+"amp2.out-4" u 1:3 w p t '4'
+pause(-1)
+pl \
+"amp2.out-5" u 1:3 w p t '5'
+pause(-1)
+pl \
+"amp2.out-6" u 1:3 w p t '6'
+pause(-1)
+pl \
+"amp2.out-7" u 1:3 w p t '7'
+pause(-1)
+pl \
+"amp2.out-8" u 1:3 w p t '8'
+pause(-1)
+pl \
+"amp2.out-9" u 1:3 w p t '9'
+pause(-1)
+pl \
+"amp2.out-10" u 1:3 w p t '10'
+pause(-1)
+pl \
+"amp2.out-20" u 1:3 w p t '20'
+pause(-1)
+pl \
+"amp2.out-50" u 1:3 w p t '50'
+pause(-1)
+pl \
+"amp2.out-100" u 1:3 w p t '100'
+
+q
+
+
+
+
+pl \
+"amp2.out-1" u 1:3 w p t '1',\
+"amp2.out-2" u 1:3 w p t '2',\
+"amp2.out-3" u 1:3 w p t '3',\
+"amp2.out-4" u 1:3 w p t '4',\
+"amp2.out-5" u 1:3 w p t '5',\
+"amp2.out-6" u 1:3 w p t '6',\
+"amp2.out-7" u 1:3 w p t '7',\
+"amp2.out-8" u 1:3 w p t '8',\
+"amp2.out-9" u 1:3 w p t '9',\
+"amp2.out-10" u 1:3 w p t '10',\
+"amp2.out-20" u 1:3 w p t '20',\
+"amp2.out-50" u 1:3 w p t '50',\
+"amp2.out-100" u 1:3 w p t '100'
+
+q
+
+
+pl \
+"amp2.out-1" u 2:3 w p t '1',\
+"amp2.out-2" u 2:3 w p t '2',\
+"amp2.out-3" u 2:3 w p t '3',\
+"amp2.out-4" u 2:3 w p t '4',\
+"amp2.out-5" u 2:3 w p t '5',\
+"amp2.out-6" u 2:3 w p t '6',\
+"amp2.out-7" u 2:3 w p t '7',\
+"amp2.out-8" u 2:3 w p t '8',\
+"amp2.out-9" u 2:3 w p t '9',\
+"amp2.out-10" u 2:3 w p t '10',\
+"amp2.out-20" u 2:3 w p t '20',\
+"amp2.out-50" u 2:3 w p t '50',\
+"amp2.out-100" u 2:3 w p t '100'
+
+q
+
+
+pl \
+"amp2.out-1" u 2:3 w lp t '1',\
+"amp2.out-2" u 2:3 w lp t '2',\
+"amp2.out-3" u 2:3 w lp t '3',\
+"amp2.out-4" u 2:3 w lp t '4',\
+"amp2.out-5" u 2:3 w lp t '5',\
+"amp2.out-6" u 2:3 w lp t '6',\
+"amp2.out-7" u 2:3 w lp t '7',\
+"amp2.out-8" u 2:3 w lp t '8',\
+"amp2.out-9" u 2:3 w lp t '9',\
+"amp2.out-10" u 2:3 w lp t '10',\
+"amp2.out-20" u 2:3 w lp t '20',\
+"amp2.out-50" u 2:3 w lp t '50',\
+"amp2.out-100" u 2:3 w lp t '100'
+
+q
+
+
+pl \
+"amp2.out" u 2:3 w p
+
+q
+
+
+pl \
+"amp2.out" i 0 u 2:3 w lp t '0',\
+"amp2.out" i 4 u 2:3 w lp t '1',\
+"amp2.out" i 8 u 2:3 w lp t '2',\
+"amp2.out" i 12 u 2:3 w lp t '3',\
+"amp2.out" i 16 u 2:3 w lp t '4',\
+"amp2.out" i 20 u 2:3 w lp t '5',\
+"amp2.out" i 16 u 2:3 w lp t '4',\
+"amp2.out" i 16 u 2:3 w lp t '4',\
+"amp2.out" i 16 u 2:3 w lp t '4',\
+"amp2.out" i 16 u 2:3 w lp t '4',\
+"amp2.out" i 16 u 2:3 w lp t '4',\
+"amp2.out" i 16 u 2:3 w lp t '4',\
+"amp2.out" i 16 u 2:3 w lp t '4',\
+"amp2.out" i 16 u 2:3 w lp t '4',\
+
+
+q
+
+
+
+
+
+pl \
+"amp2.out" i 0 u 0:2 w lp t '0',\
+"amp2.out" i 4 u 0:2 w lp t '1',\
+"amp2.out" i 8 u 0:2 w lp t '2',\
+"amp2.out" i 12 u 0:2 w lp t '3',\
+"amp2.out" i 16 u 0:2 w lp t '4',\
+"amp2.out" i 20 u 0:2 w lp t '5',\
+"amp2.out" i 16 u 0:2 w lp t '4',\
+"amp2.out" i 16 u 0:2 w lp t '4',\
+"amp2.out" i 16 u 0:2 w lp t '4',\
+"amp2.out" i 16 u 0:2 w lp t '4',\
+"amp2.out" i 16 u 0:2 w lp t '4',\
+"amp2.out" i 16 u 0:2 w lp t '4',\
+"amp2.out" i 16 u 0:2 w lp t '4',\
+"amp2.out" i 16 u 0:2 w lp t '4',\
+
+
