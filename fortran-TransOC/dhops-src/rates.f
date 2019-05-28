@@ -700,11 +700,12 @@
 
 	! no of degenerate sectors
 	nsec = eig(itl)%nsec 
-
+	!write(*,*)'jsec, ic = ',jsec, ic
 	! add to the rates
 	drates(jsec,:,icl) = drates(jsec,:,icl) + 
      .                       qt(ia)%cs(icl,isa)%amp2(1:nsec)
-
+	!write(*,'(a,3x,i1,1000f10.6)') 'ic, qt =',
+  !   .   icl, qt(ia)%cs(icl,isa)%amp(:)
 
 
 	return

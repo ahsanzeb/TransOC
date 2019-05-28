@@ -259,6 +259,38 @@
 
 	!write(*,*)" init: Nsites, nelec = ",nsites, nelec
 
+
+	! dhops, May 2019: a single D site (at pos=1); always. 
+	! set global var
+	sys%occ(:) = 1;
+	sys%occ(1) = 2;	
+	n1=nsites-1;
+	sys%n0=0;
+	sys%n1=n1;
+	sys%n2=1;
+	na = nsites-1;
+	! set Asites
+	if (.not. allocated(Asites)) 	allocate(Asites(n1))
+	ina = 1;
+	do i=1,nsites
+		if (sys%occ(i)==1) then
+			if(.not. impurity .or. i .ne. 4) then
+				Asites(ina) = i;
+				ina = ina + 1;
+			endif
+		endif
+	enddo
+
+
+	return
+	
+
+
+
+
+
+
+
 	ina = 0;
 	sys%occ(:) = 0;
 	maxocc = 2;

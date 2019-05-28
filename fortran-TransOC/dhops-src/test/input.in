@@ -1,18 +1,18 @@
 ! number of sites in the system
 Nsites
-4
+5
 
 CavityMoleculeCoupling
 1.0 1.0 1
 
 Detuning
-0 1.0 1
+0 1.0 10
 
-NExcitations
-4
+NExcitationsRange
+1 10 1
 
 Niter ! number of lowest states to be used as init state for transitions.
-1000
+1
 
 NLowDegSectors
 10000

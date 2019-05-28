@@ -338,7 +338,7 @@ cc
 	! main loop over number of hops asked
 	do iter=1,niter
 	
-		if(node==0) write(*,'(a,i10)')" sector = ",iter
+		if(node==0 .and. na .ge. 10)write(*,'(a,i10)')" sector = ",iter
 
 		if(1==0 .and. mod(iter,1)==0 .and. node==0) then
 			!write(*,'(a)') ". . . . . . . . . . . "
@@ -461,12 +461,14 @@ cc
 	integer, intent(in) :: im,jsec
 	integer :: it, nstates
 
-	
+
+		open(10,file='degen-sec-amp2.out',
+     .               action='write',position='append')
 		open(100,file='degen-sec-amp2-1.out',
      .               action='write',position='append')
 		open(101,file='degen-sec-amp2-2.out',
      .               action='write',position='append')
-		open(101,file='degen-sec-amp2-tot.out',
+		open(102,file='degen-sec-amp2-tot.out',
      .               action='write',position='append')
 
 	
@@ -489,16 +491,31 @@ cc
 		write(101,'(1000f15.8)') eig(it)%esec(i), drates(i,:,2)/nstates
 		write(102,'(1000f15.8)') eig(it)%esec(i), 
      .                              sum(drates(i,:,:),dim=2)/nstates
-		
-	end do
 
-	write(*,*)'jsec, nsec = ', jsec, eig(it)%nsec
+		if (i==1) then
+			write(10,'(i10,3x,1000f15.8)') nstates, eig(it)%esec(i), 
+     . drates(i,i,1)/nstates, 0.0d0, 
+     . drates(i,i,1)/nstates,
+     . drates(i,i,2)/nstates, 0.0d0, 
+     . drates(i,i,2)/nstates
+		else
+			write(10,'(i10,3x,1000f15.8)') nstates, eig(it)%esec(i), 
+     . drates(i,i,1)/nstates, maxval(drates(i,1:i-1,1)/nstates), 
+     . sum(drates(i,1:i,1))/nstates,
+     . drates(i,i,2)/nstates, maxval(drates(i,1:i-1,2)/nstates), 
+     . sum(drates(i,1:i,2))/nstates
+		endif
+	
+	end do
+	write(10,*)
+	write(10,*)
+	!write(*,*)'jsec, nsec = ', jsec, eig(it)%nsec
 
 
 	close(100)
 	close(101)
 	close(102)
-
+	close(10)
 	deallocate(drates) ! so re-init=0 is done with new allocation
 	return
 	end subroutine  writedrates
