@@ -3,10 +3,10 @@ Nsites
 5
 
 CavityMoleculeCoupling
-1.0 1.0 1
+0.1 1.0 10
 
 Detuning
-0.0 1.0 1
+-1.0 1.0 21
 
 NExcitationsRange
 1 10 1
