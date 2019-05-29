@@ -6,13 +6,13 @@ CavityMoleculeCoupling
 1.0 1.0 1
 
 Detuning
-0 1.0 10
+0.0 1.0 1
 
 NExcitationsRange
 1 10 1
 
 Niter ! number of lowest states to be used as init state for transitions.
-1
+100
 
 NLowDegSectors
 10000

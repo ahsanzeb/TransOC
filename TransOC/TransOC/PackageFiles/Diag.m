@@ -19,6 +19,7 @@
 
 
 
+(* ::Input::Initialization:: *)
 HgMap[N_,k_]:=Module[{tab,ind1,listi,tabx,sites,flipsites,set1,flip,listf,xb,xa},
 tab={};tabx={};
 listi=comb[N,k];
@@ -26,6 +27,8 @@ sites=Table[i,{i,1,N}];
 Do[
 set1=listi[[i]];
 flipsites=Complement[sites,set1];
+(*Print["set1 = ",set1];
+Print["flipsites = ",flipsites];*)
 Do[
 flip=flipsites[[j]];
 listf=Sort[Join[set1,{flip}]];
@@ -34,6 +37,7 @@ AppendTo[tabx,xa];
 ,{j,1,Length[flipsites]}];
 AppendTo[tab,tabx];tabx={};
 ,{i,1,Length[listi]}];
+(*Print["tab = ",tab];*)
 tab] 
 
 makeHg[N_,m_,gg_,dw_]:=Module[
@@ -48,6 +52,8 @@ Hg=SparseArray[{},{ntot,ntot}];
 Do[
 ind1=pntr[[k+1]]+Table[i,{i,1,c[N,k]}];
 ind2=pntr[[k+2]]+HgMap[N,k];
+Print[ind1];
+Print[ind2];
 (*Print[HgMap[N,k]];*)
 coora={};
 Do[ind2sub=ind2[[j]];
@@ -92,8 +98,10 @@ eval={0.0};U={{1.0}};
 DiagH[N_,m_,gg_,dw_]:=Module[{Hg,eval,U,Uct,dims,nn,NmaxEigl},
 If[m>0,
 Hg=makeHg[N,m,gg,dw];Hg+=Transpose[Hg];
+Print[Hg//MatrixForm];
 (* Sort, ascending order:
 ref: https://stackoverflow.com/questions/6589005/sort-eigenvalue-matrix-with-eigenvector-matrix *)
+(*NmaxEig=-1;*)
 If[NmaxEig==-1,
 (*All eigenstates*)
 {eval,U}=Transpose@SortBy[Transpose[Eigensystem[Hg]],First];

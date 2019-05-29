@@ -40,6 +40,8 @@ $TransOCDebugQ::usage="Setting $TransOCDebugQ=True results in debugging messages
 
 
 (* function: *)
+DiagH::usage="DiagH[N_,m_,gg_,dw_]";
+
 Trajectory::usage=
 
 "Trajectory runs a Montr Carlo trajectory.

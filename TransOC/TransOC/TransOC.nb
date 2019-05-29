@@ -10,10 +10,10 @@
 NotebookFileLineBreakTest
 NotebookFileLineBreakTest
 NotebookDataPosition[       158,          7]
-NotebookDataLength[     10649,        301]
-NotebookOptionsPosition[     10060,        278]
-NotebookOutlinePosition[     10455,        295]
-CellTagsIndexPosition[     10412,        292]
+NotebookDataLength[     11878,        260]
+NotebookOptionsPosition[     10795,        237]
+NotebookOutlinePosition[     11187,        254]
+CellTagsIndexPosition[     11144,        251]
 WindowFrame->Normal*)
 
 (* Beginning of Notebook Content *)
@@ -56,7 +56,9 @@ Cell[BoxData[
    RowBox[{":", 
     RowBox[{"Mathematica", " ", "Version"}], ":", " ", 
     RowBox[{"10.4", ".0", ".0"}]}], " ", "*)"}]}]], "Code",
- CellChangeTimes->{{3.711630806946252*^9, 3.711630807279427*^9}}],
+ CellChangeTimes->{{3.711630806946252*^9, 
+  3.711630807279427*^9}},ExpressionUUID->"6de0b5d9-188d-46ba-85ea-\
+b0b0504145b0"],
 
 Cell[BoxData[
  RowBox[{
@@ -69,11 +71,13 @@ Cell[BoxData[
      "Print", "[", 
       "\"\<Sorry, TransOC only works with version 10+ of the Wolfram \
 Language.\>\"", "]"}], ";", 
-     RowBox[{"Abort", "[", "]"}]}]}], "]"}], ";"}]], "Code"],
+     RowBox[{"Abort", "[", "]"}]}]}], "]"}], ";"}]], "Code",ExpressionUUID->\
+"056b61ed-0800-4825-a673-9d22e8a7f2fa"],
 
 Cell[BoxData[
  RowBox[{
-  RowBox[{"BeginPackage", "[", "\"\<TransOC`\>\"", "]"}], ";"}]], "Code"],
+  RowBox[{"BeginPackage", "[", "\"\<TransOC`\>\"", "]"}], ";"}]], "Code",Expre\
+ssionUUID->"ce9ed680-bb6b-418b-9069-2fac366c85f9"],
 
 Cell[BoxData[
  RowBox[{
@@ -89,7 +93,8 @@ package.\>\""}], ";"}], "\n",
     RowBox[{
      RowBox[{"$TransOCDebugQ", "::", "usage"}], "=", 
      "\"\<Setting $TransOCDebugQ=True results in debugging messages being \
-printed during evaluations.\>\""}], ";"}]}]}]], "Code"],
+printed during evaluations.\>\""}], ";"}]}]}]], "Code",ExpressionUUID->\
+"da928c1f-dd62-4f14-8bbe-8802ffab1864"],
 
 Cell[BoxData[
  RowBox[{
@@ -97,42 +102,27 @@ Cell[BoxData[
    RowBox[{"function", ":"}], " ", "*)"}], "\n", 
   RowBox[{
    RowBox[{
-    RowBox[{"Trajectory", "::", "usage"}], "=", "\n", "\n", 
-    "\"\<Trajectory runs a Montr Carlo trajectory.\n\n{\!\(\*
-StyleBox[\"{\",
-FontSize->18]\)\!\(\*
-StyleBox[\"Name\",
-FontSize->18]\)\!\(\*
-StyleBox[\",\",
-FontSize->18]\)\!\(\*
-StyleBox[\"Default\",
-FontSize->18]\)\!\(\*
-StyleBox[\" \",
-FontSize->18]\)\!\(\*
-StyleBox[\"value\",
-FontSize->18]\)\!\(\*
-StyleBox[\" \",
-FontSize->18]\)\!\(\*
-StyleBox[\"(\",
-FontSize->18]\)\!\(\*
-StyleBox[\"data\",
-FontSize->18]\)\!\(\*
-StyleBox[\" \",
-FontSize->18]\)\!\(\*
-StyleBox[\"type\",
-FontSize->18]\)\!\(\*
-StyleBox[\")\",
-FontSize->18]\)\!\(\*
-StyleBox[\",\",
-FontSize->18]\)\!\(\*
-StyleBox[\"Description\",
-FontSize->18]\)\!\(\*
-StyleBox[\"}\",
-FontSize->18]\),\[IndentingNewLine]{Ntot,5,Number of molecules in the \
-system},\[IndentingNewLine]{m0,1,number of excitations in the coupled \
-light-matter sub-system},\[IndentingNewLine]{Ds0,{},List of sites that are D \
-at start},\[IndentingNewLine]{Phis0,{},List of sites that are \[Phi]s at \
-start},\n{g,1.0,strenght of light-matter coupling for a single \
+    RowBox[{
+     RowBox[{"DiagH", "::", "usage"}], "=", "\"\<DiagH[N_,m_,gg_,dw_]\>\""}], 
+    ";"}], "\n", "\n", 
+   RowBox[{
+    RowBox[{
+     RowBox[{"Trajectory", "::", "usage"}], "=", "\n", "\n", 
+     "\"\<Trajectory runs a Montr Carlo trajectory.\n\n\
+{\!\(\*StyleBox[\"{\",FontSize->18]\)\!\(\*StyleBox[\"Name\",FontSize->18]\)\!\
+\(\*StyleBox[\",\",FontSize->18]\)\!\(\*StyleBox[\"Default\",FontSize->18]\)\!\
+\(\*StyleBox[\" \
+\",FontSize->18]\)\!\(\*StyleBox[\"value\",FontSize->18]\)\!\(\*StyleBox[\" \
+\",FontSize->18]\)\!\(\*StyleBox[\"(\",FontSize->18]\)\!\(\*StyleBox[\"data\",\
+FontSize->18]\)\!\(\*StyleBox[\" \
+\",FontSize->18]\)\!\(\*StyleBox[\"type\",FontSize->18]\)\!\(\*StyleBox[\")\",\
+FontSize->18]\)\!\(\*StyleBox[\",\",FontSize->18]\)\!\(\*StyleBox[\"\
+Description\",FontSize->18]\)\!\(\*StyleBox[\"}\",FontSize->18]\),\
+\[IndentingNewLine]{Ntot,5,Number of molecules in the system},\
+\[IndentingNewLine]{m0,1,number of excitations in the coupled light-matter \
+sub-system},\[IndentingNewLine]{Ds0,{},List of sites that are D at start},\
+\[IndentingNewLine]{Phis0,{},List of sites that are \[Phi]s at start},\n\
+{g,1.0,strenght of light-matter coupling for a single \
 molecule,(wR=g.Sqrt[N])},\[IndentingNewLine]{dw,00,Detuning,w0-wc},\n\
 {tpar,{1,0.01,0.001,0.5,1,1,1,1},Hopping \
 parameters,{th,tl,tlh,thl,JhR,JlR,JhL,JlL}},\n{Eb,{0.0,0.0},Barriers at the \
@@ -154,65 +144,25 @@ transitions from active sites H levels?},\n{printmem, False, Print memory and \
 some other information},\n{fullout, False, full or short output},\n\
 {staylow,True, stay in the lowest 2-3 Wr levels, issues when dw =! 0 due to \
 unknown number of states in deg dectors but energetic penalty removes them \
-for 2nd level onwards anyway}\[IndentingNewLine]}\n\n\!\(\*
-StyleBox[\"The\",
-FontSize->16]\)\!\(\*
-StyleBox[\" \",
-FontSize->16]\)\!\(\*
-StyleBox[\"input\",
-FontSize->16]\)\!\(\*
-StyleBox[\" \",
-FontSize->16]\)\!\(\*
-StyleBox[\"argument\",
-FontSize->16]\)\!\(\*
-StyleBox[\" \",
-FontSize->16]\)\!\(\*
-StyleBox[\"should\",
-FontSize->16]\)\!\(\*
-StyleBox[\" \",
-FontSize->16]\)\!\(\*
-StyleBox[\"be\",
-FontSize->16]\)\!\(\*
-StyleBox[\" \",
-FontSize->16]\)\!\(\*
-StyleBox[\"given\",
-FontSize->16]\)\!\(\*
-StyleBox[\" \",
-FontSize->16]\)\!\(\*
-StyleBox[\"as\",
-FontSize->16]\)\!\(\*
-StyleBox[\" \",
-FontSize->16]\)\!\(\*
-StyleBox[\"Mathematica\",
-FontSize->16]\)\!\(\*
-StyleBox[\" \",
-FontSize->16]\)\!\(\*
-StyleBox[\"rules\",
-FontSize->16]\)\!\(\*
-StyleBox[\" \",
-FontSize->16]\)\!\(\*
-StyleBox[\"to\",
-FontSize->16]\)\!\(\*
-StyleBox[\" \",
-FontSize->16]\)\!\(\*
-StyleBox[\"override\",
-FontSize->16]\)\!\(\*
-StyleBox[\" \",
-FontSize->16]\)\!\(\*
-StyleBox[\"the\",
-FontSize->16]\)\!\(\*
-StyleBox[\" \",
-FontSize->16]\)\!\(\*
-StyleBox[\"default\",
-FontSize->16]\)\!\(\*
-StyleBox[\" \",
-FontSize->16]\)\!\(\*
-StyleBox[\"values\",
-FontSize->16]\)\!\(\*
-StyleBox[\":\",
-FontSize->16]\)\nFor example,\nout = Trajectory[maxiter -> 100, Ntot \[Rule]  \
-7, m0 -> 5, g \[Rule] 1.5, includecross\[Rule]False];\n\>\""}], 
-   ";"}]}]], "Code",
+for 2nd level onwards anyway}\[IndentingNewLine]}\n\n\
+\!\(\*StyleBox[\"The\",FontSize->16]\)\!\(\*StyleBox[\" \
+\",FontSize->16]\)\!\(\*StyleBox[\"input\",FontSize->16]\)\!\(\*StyleBox[\" \
+\",FontSize->16]\)\!\(\*StyleBox[\"argument\",FontSize->16]\)\!\(\*StyleBox[\"\
+ \",FontSize->16]\)\!\(\*StyleBox[\"should\",FontSize->16]\)\!\(\*StyleBox[\" \
+\",FontSize->16]\)\!\(\*StyleBox[\"be\",FontSize->16]\)\!\(\*StyleBox[\" \
+\",FontSize->16]\)\!\(\*StyleBox[\"given\",FontSize->16]\)\!\(\*StyleBox[\" \
+\",FontSize->16]\)\!\(\*StyleBox[\"as\",FontSize->16]\)\!\(\*StyleBox[\" \
+\",FontSize->16]\)\!\(\*StyleBox[\"Mathematica\",FontSize->16]\)\!\(\*\
+StyleBox[\" \
+\",FontSize->16]\)\!\(\*StyleBox[\"rules\",FontSize->16]\)\!\(\*StyleBox[\" \
+\",FontSize->16]\)\!\(\*StyleBox[\"to\",FontSize->16]\)\!\(\*StyleBox[\" \
+\",FontSize->16]\)\!\(\*StyleBox[\"override\",FontSize->16]\)\!\(\*StyleBox[\"\
+ \",FontSize->16]\)\!\(\*StyleBox[\"the\",FontSize->16]\)\!\(\*StyleBox[\" \
+\",FontSize->16]\)\!\(\*StyleBox[\"default\",FontSize->16]\)\!\(\*StyleBox[\" \
+\",FontSize->16]\)\!\(\*StyleBox[\"values\",FontSize->16]\)\!\(\*StyleBox[\":\
+\",FontSize->16]\)\nFor example,\nout = Trajectory[maxiter -> 100, Ntot \
+\[Rule]  7, m0 -> 5, g \[Rule] 1.5, includecross\[Rule]False];\n\>\""}], 
+    ";"}]}]}]], "Code",
  CellChangeTimes->{{3.711622725164941*^9, 3.711622799216568*^9}, {
    3.711625994772591*^9, 3.7116260133934717`*^9}, 3.711630786830312*^9, {
    3.711631338276513*^9, 3.71163146328096*^9}, {3.711632786476039*^9, 
@@ -239,11 +189,14 @@ FontSize->16]\)\nFor example,\nout = Trajectory[maxiter -> 100, Ntot \[Rule]  \
    3.7118721502418528`*^9, 3.711872213309946*^9}, {3.711952145611236*^9, 
    3.711952205975099*^9}, {3.711952246776416*^9, 3.711952247894924*^9}, {
    3.712028840159626*^9, 3.7120290361291103`*^9}, {3.712416026657886*^9, 
-   3.71241603576553*^9}}],
+   3.71241603576553*^9}, {3.7680441644932547`*^9, 
+   3.768044200838234*^9}},ExpressionUUID->"66f420bd-ecb6-4629-b386-\
+2d2912b189c2"],
 
 Cell[BoxData[
  RowBox[{
-  RowBox[{"Begin", "[", "\"\<`Private`\>\"", "]"}], ";"}]], "Code"],
+  RowBox[{"Begin", "[", "\"\<`Private`\>\"", "]"}], ";"}]], "Code",ExpressionU\
+UID->"b3908cc6-814b-492d-a484-d1f25b725ad5"],
 
 Cell[BoxData[{
  RowBox[{
@@ -251,7 +204,9 @@ Cell[BoxData[{
  RowBox[{
   RowBox[{"debug", ":=", 
    RowBox[{"TrueQ", "[", "$TransOCDebugQ", "]"}]}], ";"}]}], "Code",
- CellChangeTimes->{{3.71179298492097*^9, 3.711792990646398*^9}}],
+ CellChangeTimes->{{3.71179298492097*^9, 
+  3.711792990646398*^9}},ExpressionUUID->"8adb2803-b25e-4620-af05-\
+09e7d30ea473"],
 
 Cell[BoxData[
  RowBox[{
@@ -268,19 +223,23 @@ Cell[BoxData[
         RowBox[{
          RowBox[{"DirectoryName", "[", "$InputFileName", "]"}], ",", 
          "\"\<PackageFiles\>\""}], "}"}], "]"}]}], "]"}]}], ";"}]}]], "Code",
- CellChangeTimes->{{3.711661601845818*^9, 3.711661663770471*^9}}],
+ CellChangeTimes->{{3.711661601845818*^9, 3.711661663770471*^9}, {
+  3.768044739989894*^9, 
+  3.768044749475853*^9}},ExpressionUUID->"16e1196b-b44d-4c40-a4e8-\
+cc546c221c10"],
 
 Cell[BoxData[{
  RowBox[{
   RowBox[{"End", "[", "]"}], ";"}], "\n", 
  RowBox[{
-  RowBox[{"EndPackage", "[", "]"}], ";"}]}], "Code"]
+  RowBox[{"EndPackage", "[", "]"}], ";"}]}], "Code",ExpressionUUID->"557b0d54-\
+8bae-4a83-b6b8-08f2f7050ed4"]
 },
 AutoGeneratedPackage->Automatic,
 WindowSize->{1190, 739},
-WindowMargins->{{Automatic, -117}, {-81, Automatic}},
-FrontEndVersion->"10.4 for Mac OS X x86 (32-bit, 64-bit Kernel) (February 25, \
-2016)",
+WindowMargins->{{Automatic, 93}, {Automatic, 0}},
+FrontEndVersion->"11.2 for Mac OS X x86 (32-bit, 64-bit Kernel) (September \
+10, 2017)",
 StyleDefinitions->"Default.nb"
 ]
 (* End of Notebook Content *)
@@ -294,15 +253,15 @@ CellTagsIndex->{}
 *)
 (*NotebookFileOutline
 Notebook[{
-Cell[558, 20, 1514, 38, 146, "Code"],
-Cell[2075, 60, 349, 11, 50, "Code"],
-Cell[2427, 73, 97, 2, 50, "Code"],
-Cell[2527, 77, 492, 14, 82, "Code"],
-Cell[3022, 93, 5964, 148, 582, "Code"],
-Cell[8989, 243, 91, 2, 50, "Code"],
-Cell[9083, 247, 250, 6, 66, "Code"],
-Cell[9336, 255, 587, 15, 66, "Code"],
-Cell[9926, 272, 130, 4, 66, "Code"]
+Cell[558, 20, 1574, 40, 167, "Code",ExpressionUUID->"6de0b5d9-188d-46ba-85ea-b0b0504145b0"],
+Cell[2135, 62, 406, 12, 52, "Code",ExpressionUUID->"056b61ed-0800-4825-a673-9d22e8a7f2fa"],
+Cell[2544, 76, 154, 3, 52, "Code",ExpressionUUID->"ce9ed680-bb6b-418b-9069-2fac366c85f9"],
+Cell[2701, 81, 549, 15, 91, "Code",ExpressionUUID->"da928c1f-dd62-4f14-8bbe-8802ffab1864"],
+Cell[3253, 98, 6185, 95, 724, "Code",ExpressionUUID->"66f420bd-ecb6-4629-b386-2d2912b189c2"],
+Cell[9441, 195, 148, 3, 52, "Code",ExpressionUUID->"b3908cc6-814b-492d-a484-d1f25b725ad5"],
+Cell[9592, 200, 310, 8, 72, "Code",ExpressionUUID->"8adb2803-b25e-4620-af05-09e7d30ea473"],
+Cell[9905, 210, 696, 18, 72, "Code",ExpressionUUID->"16e1196b-b44d-4c40-a4e8-cc546c221c10"],
+Cell[10604, 230, 187, 5, 72, "Code",ExpressionUUID->"557b0d54-8bae-4a83-b6b8-08f2f7050ed4"]
 }
 ]
 *)

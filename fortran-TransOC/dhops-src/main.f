@@ -336,6 +336,7 @@ cc
 	x = 0;
 	!========== iterations over number of hops
 	! main loop over number of hops asked
+	itermax = niter
 	do iter=1,niter
 	
 		if(node==0 .and. na .ge. 10)write(*,'(a,i10)')" sector = ",iter
@@ -378,6 +379,7 @@ cc
      !.                          iter,  eig(it)%nsec
 			if(iter > eig(it)%n2)then !.or. eig(it)%eval(iter) > 0.d0)then
 				itermax = iter-1
+				!write(*,*)'1: im,jsec = ',itermax,jsec
 			 exit
 			endif
 			allocate(psi(1,eig(it)%n1))
@@ -442,7 +444,7 @@ cc
 		
 	enddo ! iter
 
-
+	!write(*,*)'2: im,jsec = ',itermax,jsec
 	call writedrates(itermax,jsec)
 
 	Iav(itraj) = 0.0d0
@@ -460,17 +462,23 @@ cc
 	implicit none
 	integer, intent(in) :: im,jsec
 	integer :: it, nstates
+	logical :: fullout
 
+		fullout = .false.
 
-		open(10,file='degen-sec-amp2.out',
+		! amplitudes^2 for j to j'/=j are the same for H-H and L-L channels
+		! so we can sum them up, and write
+		! nstates, Es, a2j+, a2j-, a2jj'max+-, a2jj'tot+-
+		open(10,file='degen-sec-amp2.dat',
      .               action='write',position='append')
+		if(fullout) then
 		open(100,file='degen-sec-amp2-1.out',
      .               action='write',position='append')
 		open(101,file='degen-sec-amp2-2.out',
      .               action='write',position='append')
 		open(102,file='degen-sec-amp2-tot.out',
      .               action='write',position='append')
-
+		endif
 	
 	it = mapt%map(1);
 	! normalise with number of states in every dgenerate sector
@@ -481,41 +489,50 @@ cc
 		nstates = 0
 		if(im .lt. eig(it)%ind(i+1)-1) then
 			nstates = im - eig(it)%ind(i) + 1
+			!write(*,*)'1 nstates = ',nstates
 		else
 			nstates = eig(it)%ind(i+1) - eig(it)%ind(i)
+			!write(*,*)'2 nstates = ',nstates
 		endif
 		!drates(i,:,:) = 	drates(i,:,:)/nstates 
 		!write(*,*)'im, isec, nstates=',im, i, nstates
 		!write(*,*)'i1, i2=',eig(it)%ind(i), eig(it)%ind(i+1)
+		if(fullout)then
 		write(100,'(1000f15.8)') eig(it)%esec(i), drates(i,:,1)/nstates
 		write(101,'(1000f15.8)') eig(it)%esec(i), drates(i,:,2)/nstates
 		write(102,'(1000f15.8)') eig(it)%esec(i), 
      .                              sum(drates(i,:,:),dim=2)/nstates
-
+		endif
 		if (i==1) then
 			write(10,'(i10,3x,1000f15.8)') nstates, eig(it)%esec(i), 
-     . drates(i,i,1)/nstates, 0.0d0, 
-     . drates(i,i,1)/nstates,
-     . drates(i,i,2)/nstates, 0.0d0, 
-     . drates(i,i,2)/nstates
+     . drates(i,i,1)/nstates, drates(i,i,2)/nstates, 0.0d0, 
+     . sum(drates(i,1:i,1:2))/nstates
 		else
 			write(10,'(i10,3x,1000f15.8)') nstates, eig(it)%esec(i), 
-     . drates(i,i,1)/nstates, maxval(drates(i,1:i-1,1)/nstates), 
-     . sum(drates(i,1:i,1))/nstates,
-     . drates(i,i,2)/nstates, maxval(drates(i,1:i-1,2)/nstates), 
-     . sum(drates(i,1:i,2))/nstates
+     . drates(i,i,1)/nstates, drates(i,i,2)/nstates,
+     . 2*maxval(drates(i,1:i-1,1)/nstates), 
+     . sum(drates(i,1:i,1:2))/nstates
 		endif
 	
 	end do
-	write(10,*)
-	write(10,*)
+	!write(10,*)
+	!write(10,*)
 	!write(*,*)'jsec, nsec = ', jsec, eig(it)%nsec
 
-
+	if(fullout) then
 	close(100)
 	close(101)
 	close(102)
+	endif
 	close(10)
+
+	! for postprocessing by mathematica: could be in degen-sec-amp2.out
+	open(11,file='degen-sec-amp2-header.dat',
+     .               action='write',position='append')
+	write(11,*) jsec
+	close(11)
+
+	
 	deallocate(drates) ! so re-init=0 is done with new allocation
 	return
 	end subroutine  writedrates
