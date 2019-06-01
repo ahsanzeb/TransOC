@@ -461,7 +461,7 @@ cc
 	subroutine writedrates(im,jsec)
 	implicit none
 	integer, intent(in) :: im,jsec
-	integer :: it, nstates
+	integer :: it, nstates, jsecs
 	logical :: fullout
 
 		fullout = .false.
@@ -479,7 +479,8 @@ cc
 		open(102,file='degen-sec-amp2-tot.out',
      .               action='write',position='append')
 		endif
-	
+
+	jsecs = 1;
 	it = mapt%map(1);
 	! normalise with number of states in every dgenerate sector
 	! to get average rate per state
@@ -507,7 +508,8 @@ cc
 			write(10,'(i10,3x,1000f15.8)') nstates, eig(it)%esec(i), 
      . drates(i,i,1)/nstates, drates(i,i,2)/nstates, 0.0d0, 
      . sum(drates(i,1:i,1:2))/nstates
-		else
+		elseif(i == eig(it)%nsec .or. nstates > 1) then
+			jsecs = jsecs + 1
 			write(10,'(i10,3x,1000f15.8)') nstates, eig(it)%esec(i), 
      . drates(i,i,1)/nstates, drates(i,i,2)/nstates,
      . 2*maxval(drates(i,1:i-1,1)/nstates), 
@@ -529,7 +531,7 @@ cc
 	! for postprocessing by mathematica: could be in degen-sec-amp2.out
 	open(11,file='degen-sec-amp2-header.dat',
      .               action='write',position='append')
-	write(11,*) jsec
+	write(11,*) jsecs ! jsec
 	close(11)
 
 	

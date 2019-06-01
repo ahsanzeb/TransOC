@@ -9,7 +9,7 @@ Detuning
 -1.0 1.0 21
 
 NExcitationsRange
-1 10 1
+1 20 1
 
 Niter ! number of lowest states to be used as init state for transitions.
 100
