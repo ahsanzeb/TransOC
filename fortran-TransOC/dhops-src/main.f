@@ -441,7 +441,17 @@ cc
 		! rates from am2 and energetic penalties
 		!call CalRates()
 		call dhopsrate(jsec)
+		!..............................................
+		! Bosonic states hopping rates
+		!..............................................
+		! build bosonic states
+
+		! set init state: psib
+	
+		!	cal amplitudes, use dhops1bose(ih=1,is=1)
 		
+		! cal amp2....? or get degen sec from all possible bose states in dhops1bose()
+		!..............................................
 	enddo ! iter
 
 	!write(*,*)'2: im,jsec = ',itermax,jsec
@@ -464,7 +474,7 @@ cc
 	integer :: it, nstates, jsecs
 	logical :: fullout
 
-		fullout = .false.
+		fullout = .true.
 
 		! amplitudes^2 for j to j'/=j are the same for H-H and L-L channels
 		! so we can sum them up, and write
@@ -472,18 +482,27 @@ cc
 		open(10,file='degen-sec-amp2.dat',
      .               action='write',position='append')
 		if(fullout) then
-		open(100,file='degen-sec-amp2-1.out',
+		open(100,file='degen-sec-amp2-1.dat',
      .               action='write',position='append')
-		open(101,file='degen-sec-amp2-2.out',
+		open(101,file='degen-sec-amp2-2.dat',
      .               action='write',position='append')
-		open(102,file='degen-sec-amp2-tot.out',
-     .               action='write',position='append')
+		!open(102,file='degen-sec-amp2-tot.dat',
+    ! .               action='write',position='append')
 		endif
+
+
+
+
+
 
 	jsecs = 1;
 	it = mapt%map(1);
 	! normalise with number of states in every dgenerate sector
 	! to get average rate per state
+
+	!write(*,'(a,i3,a,100f10.5)')"nex=",nx,"; eval= ",eig(it)%eval(:)
+
+
 	do i=1,jsec; !eig(it)%nsec
 		! im: to fix: possibly incorrect average for the highest sector.
 		! not all states of the highest sec may have been used in iter loop in trajectory().
@@ -499,16 +518,18 @@ cc
 		!write(*,*)'im, isec, nstates=',im, i, nstates
 		!write(*,*)'i1, i2=',eig(it)%ind(i), eig(it)%ind(i+1)
 		if(fullout)then
-		write(100,'(1000f15.8)') eig(it)%esec(i), drates(i,:,1)/nstates
-		write(101,'(1000f15.8)') eig(it)%esec(i), drates(i,:,2)/nstates
-		write(102,'(1000f15.8)') eig(it)%esec(i), 
-     .                              sum(drates(i,:,:),dim=2)/nstates
+		write(100,'(i10,3x,1000f15.8)') nstates, eig(it)%esec(i), 
+     .   drates(i,:,1)!, drates(i,:,1)**2
+		write(101,'(i10,3x,1000f15.8)') nstates, eig(it)%esec(i), 
+     .   drates(i,:,2)!, drates(i,:,2)**2
+		!write(102,'(i10,3x,1000f15.8)') nstates, eig(it)%esec(i), 
+    ! .  sum(drates(i,:,:),dim=2)
 		endif
 		if (i==1) then
 			write(10,'(i10,3x,1000f15.8)') nstates, eig(it)%esec(i), 
      . drates(i,i,1)/nstates, drates(i,i,2)/nstates, 0.0d0, 
      . sum(drates(i,1:i,1:2))/nstates
-		elseif(i == eig(it)%nsec .or. nstates > 1) then
+		else!if(i == eig(it)%nsec .or. nstates > 1) then
 			jsecs = jsecs + 1
 			write(10,'(i10,3x,1000f15.8)') nstates, eig(it)%esec(i), 
      . drates(i,i,1)/nstates, drates(i,i,2)/nstates,
@@ -524,7 +545,7 @@ cc
 	if(fullout) then
 	close(100)
 	close(101)
-	close(102)
+	!close(102)
 	endif
 	close(10)
 

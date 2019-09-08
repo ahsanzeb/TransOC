@@ -257,5 +257,59 @@
 	end subroutine allocqt
 	!-------------------------------------
 
+! transition amplitudes for bosonic states, complex in this case
+	subroutine CalAmpBose(ih,ici,is,rowc,nnz,n3)
+	use modmain, only: qt,mapt,maph,itypes,eig,psi,ipsi,nog,mapc,eigb
+	implicit none
+	integer, intent(in) :: is
+	integer, intent(in) :: ih,ici
+	integer, intent(in) :: nnz,n3
+	integer, dimension(nnz), intent(in)  :: rowc
+	character(len=*), intent(in) :: routine
+	! local
+	double complex, allocatable:: HtUf(:,:)
+	integer :: ia,n1,n2,itl,i,it1,ic
+	!double complex, allocatable, dimension(:,:):: Hte ! Ht in eigenbasis
+
+	!write(*,*)"amp: ih,ic,is = ",ih,ic,is
+	!-------------------------------------------------------
+	! calculate transition amplitudes
+	!-------------------------------------------------------
+	itl = mapt%map(itypes(ih,ici)) !???????! location of final hilber space
+	!write(*,*)"ih,ic,it,itl= ",ih,ic,itypes(ih,ic),itl
+	ia = maph(ih,ici); ! location of amplitudes
+	ic = mapc(ih,ici); ! location of ici 
+	! 08Dec2017: just using ici for ic and ic for icl becasue otherwise I will have to change ic to icl in too many places in these amp,amp0 routines... this is becuase for PermSym case, I now want to use Dhops amp for Phihops amp, so need to give location for storing the amp that both Dhop and phihops processes know later when retrieving qt%cs%amp for rate calculations. 
+	n1=eig(itl)%n1 ! dim of final hilbert space
+	n2=eig(itl)%n2
+	
+	if(allocated(qtbc(ic)%amp)) deallocate(qtbc(ic)%amp)
+	allocate(qtbc(ic)%amp(n2))
+	qtbc(ic)%namp = n2
+	! calculate amp^2 for degenerate sectors
+	if(allocated(qtbc(ic)%amp2)) deallocate(qtbc(ic)%amp2)
+	allocate(qtbc(ic)%amp2(eig(itl)%nsec))
+	qtbc(ic)%nsec = eig(itl)%nsec ! nsec???? 
+
+	allocate(HtUf(n3,n2))
+		! NOTE: allocate qt(ih)%cs(:,:) in calling routine
+		! sizes: Ht(n3 x n1) . Uf(n1 x n2) = HtUf(n3 x n2)
+		! out: HtUf
+	call multiplydz(rowc,nnz,eigb%evec,n1,n2,HtUf,n3,n2)
+
+			! multiply psi with HtUf to get amplitudes
+			! psi should be a row vector; shape = 1 x n3
+			! testing HtUf(1,:);!
+			qtbc(ic)%amp=reshape(matmul(psib,HtUf),(/n2/)); ! both input dense
+			!write(*,*) "amp: ih,ic, ia, is,itl=",ih,ic, ia, is,itl
+			call GetAmp2(qtbc(ic)%amp, n2,
+     .		qtbc(ic)%amp2, eigb%nsec, eigb%ind)
+		deallocate(HtUf)
+
+	return
+	end subroutine CalAmpBose
+!---------------------------------------------
+
+
 !------------------------------------------
 	end 	module amplitudes

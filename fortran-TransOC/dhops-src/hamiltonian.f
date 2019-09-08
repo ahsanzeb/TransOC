@@ -2,8 +2,8 @@
 	module hamiltonian
 	
 	implicit none
-	public :: mkHamilt
-	private:: MakeHgMulti, MakeHgMulti1, HgMap
+	public :: mkHamilt, getDownSpins, HgMap
+	private:: MakeHgMulti, MakeHgMulti1 !, HgMap
 
 	contains
 
@@ -109,6 +109,40 @@
 	endif
 	return
 	end subroutine HgMap
+!------------------------------------------
+	subroutine getDownSpins(ibl,n,k,ntot,dn)
+	use modmain, only: basis,isk
+	use lists, only: Complement
+	implicit none
+	integer, intent(in) ::n,k
+	integer, intent(in) :: ibl
+	integer, intent(in) :: ntot
+	integer, dimension(ntot,n-k), intent(out):: dn
+	! local
+	integer:: nk,i,j
+	integer(kind=isk), dimension(k):: set1
+	integer(kind=isk), dimension(k+1):: set2
+	integer(kind=isk), dimension(n-k):: flipsites
+	integer:: flip,k1
+	integer(kind=isk), allocatable :: sites(:)
+	
+	if (k==0) then
+		dn(1,:) = (/ (i,i=1,n,1)/)
+	else
+		! initialise sites array
+		if(allocated(sites))deallocate(sites)
+		allocate(sites(n))
+		sites(:) = (/ (i,i=1,n,1)/)		
+		nk = n-k;
+		!write(*,*) "MapHg: k, ntot = ",k, ntot
+		do i=1,ntot
+			set1=basis(ibl)%sec(k)%sets(i,:)
+			call Complement(sites,n,set1,k,flipsites)
+			dn(i,:) = flipsites
+		end do
+	endif
+	return
+	end subroutine getDownSpins
 !------------------------------------------
 	subroutine MakeHgMulti(itlist,nt)
 	! makes Hg of types in itlist; all for same n, diff m.

@@ -6,7 +6,7 @@
 	implicit none
 	integer::one=1,two=2,three=3,four=4
 
-	public :: dhops1, dhops2
+	public :: dhops1, dhops2, dhops1bose
 	private :: dhopsmap1, dhopsmap2
 
 	contains
@@ -161,6 +161,133 @@
 	end subroutine dhops1
 !------------------------------------------
 
+
+
+
+
+
+!-----------------------------------
+	subroutine dhops1bose(ih,is)
+	! chan 1,2 only
+	use modmain,only: basis,na,nx,dna,dnx,ibs,mapb,ways,Asites,isk
+	implicit none
+
+	integer, intent(in) :: ih
+	integer, intent(in) :: is
+	!	local
+	integer :: itype=1
+	integer :: l
+	integer::ib,ibi,k,n,m,m1,ia,ic
+	integer :: ntot, lat,lbt,inda,indb,la,lb
+	integer, allocatable, dimension(:) :: las, lbs
+	integer, allocatable, dimension(:) :: mapa, mapbb
+	integer, allocatable, dimension(:):: pntr,row1,row2
+	double precision, allocatable:: HtUf(:,:)
+	integer:: n1,n2,n3
+	integer:: itl
+	logical :: dhop, phop
+
+
+	dhop = MemberQ4((/1,2,27,28/),4,ih)
+	phop = MemberQ4((/3,4,29,30/),4,ih)
+
+	l = ways(ih)%active(is); ! localtion of active site in lattice
+	l = GetPosition(Asites,na,l); ! localtion of active site in Asites
+	!------------------------------------------	
+	! N,m values of itype:
+	n = na + dna(itype); ! no of active sites
+	m = nx + dnx(itype); ! no of excitations
+	m1 = min(m,n); ! max no of up spins possible
+	!------------------------------------------
+	!	m1==0 case: no excitations: matrices are [[]] and [[1]];
+	!------------------------------------------
+	if (m1==0) then
+		!allocate(row2(1))
+		! m1=0: empty chan 1 matrix ==> 0 transition matrix,
+		! handle it when calc amplitudes??????????
+		!row2(1) = 1;
+		!n3=1;
+		! swap channel 1,2 for PhiHops
+		if(dhop) then
+			call CalAmpBose(ih,2,is,(/1/),1,1,'multiplyd') ! ic=2
+		else	if(phop) then
+			call CalAmpBose(ih,1,is,(/1/),1,1,'multiplyd') ! ic=1
+		else
+			write(*,*)"Error(dhops1): stopping!";
+			stop
+		endif
+		! set rates for ic=1 to 0 ????
+	else
+	!------------------------------------------
+	! m1 > 0 case
+	!------------------------------------------
+	! pointers for start index
+	allocate(pntr(m1+2));
+	! ib: itype ===> which of 5 N case?
+	ibi = ibs(itype);
+	ib = mapb%map(ibi);	
+	pntr(:) = basis(ib)%pntr(1:m1+2) ! only the relevant part
+	! dimensions of maps for diff k
+	allocate(las(m1))
+	allocate(lbs(m1))
+	las(:) = 0;	lbs(:)=0;
+	do k=1,m1
+		ntot = pntr(k+2)-pntr(k+1)
+		las(k) = k*ntot/n
+		lbs(k) = (n-k)*ntot/n
+	end do
+	! dimensions of full transition matrices
+	lat = sum(las)
+	lbt = sum(lbs) + 1; ! +1 for k=0 term
+	allocate(row1(lat)) 
+	allocate(row2(lbt))
+
+	!	calc the matrix
+	inda = 1; indb=1;
+
+	!k==0
+	row2(indb) = 1;
+	indb = indb+1
+
+	do k=1,m1,1
+		la = las(k); lb = lbs(k); 
+		allocate(mapa(la));
+		allocate(mapbb(lb))
+		!	calc maps
+		call dhopsmap1(ib,k,l,mapa,la,mapbb,lb)
+		!	assign values to transition matrices
+		row1(inda:inda+la-1) = pntr(k+1) + mapa
+		row2(indb:indb+lb-1) = pntr(k+1) + mapbb
+		inda = inda+la; indb = indb+lb
+		deallocate(mapa,mapbb)
+	end do
+
+	
+
+	n3=pntr(m1+2) ! dim of initial hilbert space
+	deallocate(pntr,las,lbs)
+
+	!write(*,*) "dhops: row1 = ",row1
+	!write(*,*) "dhops: row2 = ",row2
+	! calculate transition amplitudes
+	! swap channel 1,2 for PhiHops
+	if(dhop) then
+		call CalAmpBose(ih,1,is,row1,lat,n3,'multiplyd') ! ic=1
+		call CalAmpBose(ih,2,is,row2,lbt,n3,'multiplyd') ! ic=2
+	else	if(phop) then
+		call CalAmpBose(ih,2,is,row1,lat,n3,'multiplyd') ! ic=2
+		call CalAmpBose(ih,1,is,row2,lbt,n3,'multiplyd') ! ic=1
+	else
+			write(*,*)"Error(dhops1Bose): stopping!";
+			stop
+	endif
+
+
+	endif
+	
+	return
+	end subroutine dhops1bose
+!------------------------------------------
 
 
 

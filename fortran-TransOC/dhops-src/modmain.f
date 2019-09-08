@@ -265,6 +265,19 @@
 		integer, allocatable:: ind(:) ! start index of all sectors
 		double precision, allocatable :: esec(:)	 ! energy of deg sec
 	end type Eigensystems
+
+
+	type :: Eigensystemsb
+		!integer :: n,m ! same as Ham n,m
+		integer :: ntot, n1,n2 ! size of hilbert space, =nrows, ncols=nevecs
+		double precision, allocatable :: eval(:)
+		double complex, allocatable :: evec(:,:)
+		integer :: nsec ! number of degenerate sectors
+		integer, allocatable:: ind(:) ! start index of all sectors
+		double precision, allocatable :: esec(:)	 ! energy of deg sec
+	end type Eigensystemsb
+
+
 	!---------------------------------------	
 	! hamiltonian for 13 diff (N,m)
 	!---------------------------------------	
@@ -296,6 +309,7 @@
 	type(Eigensystems), allocatable:: eig(:)
 	type(Ham), allocatable:: Hg(:)
 
+	type(Eigensystemsb) :: eigb ! for bose state build manually
 
 	!---------------------------------------
 	! hoppings: transition matrices
@@ -333,6 +347,29 @@
 		integer :: nc,ns ! number of channels, sites
 		type(TransitionAmplitudes), allocatable:: cs(:,:) ! channels and sites
 	end type QuantumTransitions
+
+
+
+
+	type :: TransitionAmplitudesb
+		integer :: namp ! size of amp array
+		double complex, allocatable :: amp(:) ! amplitudes
+		! amplitudes squared of degen sectors
+		integer :: nsec ! number of degenerate sectors
+		!integer, allocatable:: ind(:) ! start index of all sectors
+		double precision, allocatable :: amp2(:) 
+	end type TransitionAmplitudesb
+
+	type :: QuantumTransitionsb
+		integer :: nc,ns ! number of channels, sites
+		type(TransitionAmplitudesb), allocatable:: cs(:,:) ! channels and sites
+	end type QuantumTransitionsb
+
+
+
+
+
+
 	!---------------------------------------	
 	! map from ih,ic to ia,icl
 	!---------------------------------------	
@@ -396,6 +433,8 @@
 	type(TransitionRates), dimension(42):: rate ! max possible 42=34+8 if impurity
 	! set the format for sparse matrix
 	!hop(1:4)%spfrmt = 'diagonal';
+
+	type(TransitionAmplitudesb), dimension(2):: qtbc ! qt bose channels 
 
 	logical :: leads ! include contact or not?
 
